@@ -28,7 +28,7 @@ cargarVistaAdmin()
 verEstado()
 
 }else{
-alert("❌ Contraseña incorrecta")
+alert("❌ Contraseña incorrecta, vuelve a intentarlo")
 }
 
 }
