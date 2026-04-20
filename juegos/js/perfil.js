@@ -243,7 +243,7 @@ function renderHistorial(resultados) {
 
 window.recargarPerfil = cargarPerfil
 window.volverMenu = function () {
-  window.location.href = 'menuindex.html'
+  window.location.href = 'index.html'
 }
 
 cargarPerfil()
