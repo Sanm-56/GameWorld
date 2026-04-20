@@ -16,7 +16,7 @@ volverBtn.style.cursor = "pointer"
 volverBtn.style.background = "linear-gradient(135deg, #38bdf8, #2563eb)"
 volverBtn.style.color = "white"
 volverBtn.onclick = () => {
-window.location.href = "../../menuindex.html"
+window.location.href = "../../index.html"
 }
 container.appendChild(volverBtn)
 }
