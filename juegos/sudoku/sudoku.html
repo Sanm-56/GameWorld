@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudoku</title>
+
+<link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+  <h1>🧩 Sudoku del torneo</h1>
+  <h2 id="reloj">10:00</h2>
+
+  <div id="tablero"></div>
+
+  <!-- 👇 ESTO ES LO IMPORTANTE -->
+  <div class="botones">
+    <button class="btn revisar" onclick="revisar()">Revisar</button>
+    <button class="btn finalizar" onclick="finalizar()">Finalizar</button>
+  </div>
+
+</div>
+
+<!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
+<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
+
+<audio loop>
+  <source src="./music/musicasudoku.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script type="module" src="./js/sudoku.js"></script>
+
+<script>
+/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
+
+</body>
+</html>

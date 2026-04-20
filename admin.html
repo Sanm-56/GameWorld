@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel Admin - Torneo</title>
+
+<style>
+body{
+font-family: Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+margin:0;
+padding:20px;
+}
+
+button, select{
+padding:10px;
+margin:5px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+button{
+background:#3b82f6;
+color:white;
+}
+
+button:hover{
+background:#2563eb;
+}
+
+#panelAdmin{
+display:none;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+width:90%;
+background:white;
+color:black;
+border-radius:10px;
+overflow:hidden;
+}
+
+th, td{
+padding:10px;
+border-bottom:1px solid #ddd;
+}
+
+th{
+background:#111;
+color:white;
+}
+
+.sospechoso{background:#fff3cd;}
+.invalido{background:#f8d7da;}
+.normal{background:#d4edda;}
+
+.section{
+margin:15px 0;
+padding:10px;
+background:#1e293b;
+border-radius:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginAdmin">
+<h2>🔒 Acceso Admin</h2>
+<input type="password" id="clave" placeholder="Contraseña">
+<br><br>
+<button onclick="entrarAdmin()">Entrar</button>
+<br><br>
+<button onclick="window.location.href = 'menuindex.html'">🏠 Regresar al Menú</button>
+</div>
+
+<!-- ================= PANEL ================= -->
+<div id="panelAdmin">
+
+<h1>🎛️ Panel Admin - Torneo</h1>
+
+<button onclick="window.location.href = 'menuindex.html'">🏠 Regresar al Menú</button>
+
+<!-- ESTADO TORNEO -->
+<div class="section">
+<h3 id="juegoActivo">Juego actual: -</h3>
+</div>
+
+<!-- CONTROL TORNEO -->
+<div class="section">
+<h3>🎮 Control del Torneo</h3>
+
+<select id="juegoSelect">
+<option value="sudoku">Sudoku</option>
+<option value="memoria">Memoria</option>
+<option value="matematicas">Matematicas</option>
+<option value="ajedrez">Ajedrez</option>
+<option value="domino">Dominó</option>
+<option value="damas">Damas</option>
+</select>
+
+<br>
+
+<button onclick="iniciarTorneo()">🚀 Iniciar Torneo</button>
+<button onclick="detenerTorneo()">🛑 Detener Torneo</button>
+<button onclick="resetTotal()">♻️ RESET TOTAL</button>
+</div>
+
+<!-- CONTROL RANKING -->
+<div class="section">
+<h3>📊 Ranking</h3>
+
+<h2 id="contador">👥 Jugadores: 0</h2>
+
+<button onclick="cargarRanking()">🔄 Actualizar</button>
+<button onclick="verSospechosos()">⚠️ Sospechosos</button>
+<button onclick="verInvalidos()">❌ Inválidos</button>
+<button onclick="limpiarRanking()">🧹 Limpiar Ranking</button>
+</div>
+
+<!-- TABLA -->
+<div class="section">
+<h3>📋 Tabla de jugadores</h3>
+
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Jugador</th>
+<th>Tiempo</th>
+<th>Estado</th>
+<th>Acción</th>
+</tr>
+</thead>
+
+<tbody id="tablaAdmin"></tbody>
+</table>
+</div>
+
+</div>
+
+<script type="module" src="juegos/js/admin.js"></script>
+
+</body>
+</html>

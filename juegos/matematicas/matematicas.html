@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matemáticas</title>
+
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<h1>🧠 Matemáticas PRO</h1>
+
+<div id="reloj">10:00</div>
+
+<div id="nivel"></div>
+
+<div class="card">
+
+<p id="pregunta"></p>
+
+<input id="respuesta" autocomplete="off" placeholder="Escribe tu respuesta">
+
+<button class="btn responder" onclick="responder()">Responder</button>
+
+<p id="resultado"></p>
+
+</div>
+
+</div>
+
+<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
+
+<audio loop>
+  <source src="./music/musicamatematicas.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script type="module" src="./js/matematicas.js"></script>
+
+<script>
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
+
+</body>
+</html>

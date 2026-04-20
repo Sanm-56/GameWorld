@@ -1,0 +1,120 @@
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+
+.contenedor{
+text-align:center;
+width:100%;
+max-width:500px;
+padding:20px;
+}
+
+h1{
+margin-bottom:5px;
+}
+
+#reloj{
+font-size:26px;
+margin:10px 0;
+color:#22c55e;
+font-weight:bold;
+}
+
+/* TABLERO */
+#tablero{
+display:grid;
+grid-template-columns:repeat(9,1fr);
+gap:0;
+background:#1e293b;
+padding:5px;
+border-radius:10px;
+margin-bottom:80px; /* 👈 SEPARA TABLERO DE BOTONES */
+}
+
+/* CASILLAS */
+#tablero input{
+width:100%;
+aspect-ratio:1;
+text-align:center;
+font-size:18px;
+border:1px solid #0f172a;
+outline:none;
+background:#e2e8f0;
+color:#0f172a;
+}
+
+/* BLOQUEADAS */
+.bloqueado{
+background:#334155 !important;
+color:white;
+font-weight:bold;
+}
+
+/* CONTENEDOR BOTONES */
+.botones{
+display:flex;
+gap:15px;
+justify-content:center;
+margin-top:15px;
+flex-wrap:wrap;
+}
+
+/* 🔥 BOTONES PRO */
+.btn{
+padding:12px 20px;
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:all 0.2s ease;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* AZUL */
+.btn.revisar{
+background:linear-gradient(135deg, #3b82f6, #2563eb);
+color:white;
+}
+
+/* VERDE */
+.btn.finalizar{
+background:linear-gradient(135deg, #22c55e, #16a34a);
+color:white;
+}
+
+/* MORADO PARA MÚSICA */
+.btn.musica{
+background:linear-gradient(135deg, #8b5cf6, #7c3aed);
+color:white;
+}
+
+/* POSICIÓN MÚSICA */
+.musica-pos{
+position:absolute;
+bottom:20px;
+left:20px;
+}
+
+/* EFECTO */
+.btn:hover{
+transform:translateY(-2px) scale(1.05);
+box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+
+/* 📱 RESPONSIVE */
+@media (max-width:500px){
+#tablero input{
+font-size:14px;
+}
+.btn{
+width:100%;
+}
+}

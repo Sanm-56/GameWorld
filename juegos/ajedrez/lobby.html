@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>Lobby Ajedrez</title>
+
+<style>
+body{
+  font-family: Arial;
+  text-align:center;
+  background:#0f172a;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+
+.container{
+  background:#1e293b;
+  padding:30px;
+  border-radius:15px;
+}
+
+h1{
+  margin-bottom:10px;
+}
+
+#mensaje{
+  margin-top:10px;
+  color:#94a3b8;
+}
+
+.musica-btn{
+  padding:12px 20px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  background:linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color:white;
+  margin-top:20px;
+}
+
+.musica-btn:hover{
+  transform:translateY(-2px) scale(1.05);
+  box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+<h1>♟️ Lobby Ajedrez</h1>
+<p id="mensaje">Esperando que el torneo inicie...</p>
+<button class="musica-btn" onclick="reproducirMusica()">🎵 Música</button>
+</div>
+
+<audio loop>
+  <source src="./music/musicajedrez.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script type="module" src="../js/lobby.js"></script>
+
+<script>
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
+
+</body>
+</html>

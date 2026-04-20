@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingreso Damas</title>
+<style>
+:root{
+  --bg-1:#111827;
+  --bg-2:#0f172a;
+  --card:#1e293bcc;
+  --card-border:#f59e0b33;
+  --text:#fffaf0;
+  --muted:#fde68a;
+  --accent:#f59e0b;
+  --accent-2:#ea580c;
+  --input:#0b1120;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:24px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(245,158,11,0.18), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(234,88,12,0.18), transparent 28%),
+    linear-gradient(150deg, var(--bg-1), var(--bg-2));
+}
+
+.container{
+  width:min(100%, 430px);
+  background:var(--card);
+  border:1px solid var(--card-border);
+  border-radius:28px;
+  padding:34px 28px;
+  text-align:center;
+  box-shadow:0 24px 60px rgba(0,0,0,0.42);
+  backdrop-filter:blur(10px);
+}
+
+.icono{
+  font-size:48px;
+  margin-bottom:10px;
+}
+
+h2{
+  margin:0 0 8px;
+  font-size:34px;
+}
+
+p{
+  margin:0 0 24px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+input{
+  width:100%;
+  display:block;
+  margin:0 0 14px;
+  padding:14px 16px;
+  border-radius:14px;
+  border:1px solid #fdba7455;
+  background:var(--input);
+  color:var(--text);
+  font-size:16px;
+  outline:none;
+}
+
+input::placeholder{
+  color:#fdba74;
+}
+
+input:focus{
+  border-color:#f59e0b;
+  box-shadow:0 0 0 4px rgba(245,158,11,0.16);
+}
+
+button{
+  width:100%;
+  margin-top:6px;
+  padding:14px 20px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2));
+  color:white;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 14px 24px rgba(234,88,12,0.3);
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 18px 30px rgba(234,88,12,0.38);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="icono">♟️</div>
+  <h2>Damas</h2>
+  <p>Escribe tu apodo y tu código único para entrar correctamente al lobby del juego.</p>
+  <input id="usuario" placeholder="Tu apodo">
+  <input id="codigo" placeholder="Código único de Supabase">
+  <button onclick="entrar()">Entrar</button>
+</div>
+
+<script type="module" src="../js/login.js"></script>
+
+</body>
+</html>

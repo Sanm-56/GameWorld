@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultados del torneo</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+
+/* CONTENEDOR */
+.contenedor{
+width:100%;
+max-width:400px;
+padding:20px;
+text-align:center;
+}
+
+/* TITULO */
+h1{
+margin-bottom:10px;
+}
+
+/* POSICIÓN */
+h2{
+margin:10px 0;
+}
+
+/* 🏆 PODIO */
+#podio{
+display:flex;
+justify-content:center;
+align-items:flex-end;
+gap:10px;
+margin:20px 0;
+}
+
+#podio div{
+width:90px;
+padding:10px;
+border-radius:10px;
+color:black;
+font-weight:bold;
+}
+
+/* COLORES PODIO */
+#podio div:nth-child(1){
+background:gold;
+height:140px;
+}
+
+#podio div:nth-child(2){
+background:silver;
+height:110px;
+}
+
+#podio div:nth-child(3){
+background:#cd7f32;
+height:90px;
+}
+
+/* 📊 RANKING */
+#ranking{
+background:#1e293b;
+border-radius:10px;
+padding:10px;
+max-height:250px;
+overflow-y:auto;
+}
+
+#ranking div{
+padding:8px;
+border-bottom:1px solid #334155;
+}
+
+/* BOTÓN */
+button{
+margin-top:15px;
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(135deg, #22c55e, #16a34a);
+color:white;
+transition:0.2s;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+/* BOTÓN MÚSICA */
+.btn.musica{
+width:auto;
+padding:12px 20px;
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:all 0.2s ease;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+background:linear-gradient(135deg, #8b5cf6, #7c3aed);
+color:white;
+}
+
+.musica-pos{
+position:fixed;
+bottom:20px;
+left:20px;
+z-index:1000;
+}
+
+.btn:hover{
+transform:translateY(-2px) scale(1.05);
+box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+
+/* 📱 RESPONSIVE */
+@media (max-width:500px){
+
+#podio div{
+width:70px;
+font-size:12px;
+}
+
+}
+/* 🎉 CONFETI */
+.confeti{
+position:fixed;
+width:8px;
+height:8px;
+top:-10px;
+opacity:0.8;
+animation:caer linear forwards;
+z-index:999;
+}
+
+@keyframes caer{
+to{
+transform:translateY(100vh) rotate(720deg);
+opacity:0;
+}
+}
+
+/* 🏆 ANIMACIÓN PODIO */
+#podio div{
+transform:translateY(50px);
+opacity:0;
+animation:subir 0.6s ease forwards;
+}
+
+#podio div:nth-child(1){ animation-delay:0.4s; }
+#podio div:nth-child(2){ animation-delay:0.6s; }
+#podio div:nth-child(3){ animation-delay:0.8s; }
+
+@keyframes subir{
+to{
+transform:translateY(0);
+opacity:1;
+}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<h1>🏆 Resultados del torneo</h1>
+
+<!-- 🧠 POSICIÓN -->
+<!-- se inserta desde final.js -->
+
+<div id="podio"></div>
+
+<h2>📊 Ranking</h2>
+<div id="ranking"></div>
+
+<button onclick="volverLobby()">🏠 Volver al lobby</button>
+
+</div>
+
+<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
+
+<audio loop>
+  <source src="./music/musicamatematicas.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script>
+function volverLobby(){
+  window.location.href = "lobby.html"
+}
+
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
+
+<script type="module" src="./js/final.js"></script>
+
+</body>
+</html>

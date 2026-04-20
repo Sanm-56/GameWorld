@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Resultados del Torneo</title>
+
+<style>
+body{
+font-family: Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+margin:0;
+padding:20px;
+}
+
+h1{
+margin-bottom:10px;
+}
+
+#podio{
+margin:20px 0;
+display:flex;
+justify-content:center;
+gap:20px;
+flex-wrap:wrap;
+}
+
+#podio div{
+background:#1e293b;
+padding:15px;
+border-radius:10px;
+width:150px;
+}
+
+#ranking{
+margin-top:20px;
+background:#1e293b;
+padding:15px;
+border-radius:10px;
+max-width:400px;
+margin-left:auto;
+margin-right:auto;
+}
+
+#ranking div{
+padding:5px;
+border-bottom:1px solid #334155;
+}
+
+button{
+margin-top:20px;
+padding:10px 20px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#16a34a;
+}
+
+/* 🔥 BOTONES PRO */
+.btn{
+padding:12px 20px;
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:all 0.2s ease;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* MORADO PARA MÚSICA */
+.btn.musica{
+background:linear-gradient(135deg, #8b5cf6, #7c3aed);
+color:white;
+width:auto;
+}
+
+/* POSICIÓN MÚSICA */
+.musica-pos{
+position:absolute;
+bottom:20px;
+left:20px;
+}
+
+/* EFECTO */
+.btn:hover{
+transform:translateY(-2px) scale(1.05);
+box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🏆 Resultados del Torneo</h1>
+
+<!-- 🧠 POSICIÓN se inserta con JS -->
+
+<!-- 🥇 PODIO -->
+<div id="podio"></div>
+
+<!-- 📊 RANKING -->
+<div id="ranking"></div>
+
+<button onclick="volverLobby()">Volver al lobby</button>
+
+<!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
+<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
+
+<audio loop>
+  <source src="./music/musicamemoria.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script>
+/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
+
+<script type="module" src="./js/final.js"></script>
+
+</body>
+</html>
