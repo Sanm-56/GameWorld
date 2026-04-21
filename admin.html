@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel Admin - Torneo</title>
 
 <style>
@@ -12,6 +13,7 @@ color:white;
 text-align:center;
 margin:0;
 padding:20px;
+overflow-x:hidden;
 }
 
 button, select{
@@ -64,6 +66,27 @@ margin:15px 0;
 padding:10px;
 background:#1e293b;
 border-radius:10px;
+}
+
+.admin-table-wrap{
+width:100%;
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+
+.admin-table-wrap table{
+width:100%;
+min-width:560px;
+}
+
+@media (max-width:600px){
+body{
+padding:12px;
+}
+th, td{
+padding:8px;
+font-size:14px;
+}
 }
 </style>
 
@@ -129,6 +152,7 @@ border-radius:10px;
 <div class="section">
 <h3>📋 Tabla de jugadores</h3>
 
+<div class="admin-table-wrap">
 <table>
 <thead>
 <tr>
@@ -142,6 +166,7 @@ border-radius:10px;
 
 <tbody id="tablaAdmin"></tbody>
 </table>
+</div>
 </div>
 
 </div>

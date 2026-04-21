@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Damas</title>
 <style>
 body{
@@ -9,6 +10,7 @@ body{
   font-family:Arial;
   background:#0f172a;
   color:white;
+  overflow-x:hidden;
 }
 
 .contenedor{
@@ -145,17 +147,21 @@ h1{
 
 @media (max-width:520px){
   #board{
-    width:320px;
+    width:min(320px, calc(100vw - 24px));
+    aspect-ratio:1;
   }
 
   .square{
-    width:40px;
-    height:40px;
+    width:100%;
+    height:auto;
+    aspect-ratio:1;
+    min-width:0;
+    min-height:0;
   }
 
   .piece{
-    width:30px;
-    height:30px;
+    width:min(30px, 78%);
+    height:min(30px, 78%);
     font-size:17px;
   }
 }

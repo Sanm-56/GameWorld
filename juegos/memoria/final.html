@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resultados del Torneo</title>
 
 <style>
@@ -12,6 +13,7 @@ color:white;
 text-align:center;
 margin:0;
 padding:20px;
+overflow-x:hidden;
 }
 
 h1{
@@ -92,6 +94,16 @@ left:20px;
 .btn:hover{
 transform:translateY(-2px) scale(1.05);
 box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+
+@media (max-width:500px){
+body{
+padding:12px;
+}
+#podio div{
+width:100%;
+max-width:160px;
+}
 }
 
 </style>

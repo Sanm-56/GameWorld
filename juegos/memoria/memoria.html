@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memoria</title>
 
 <style>
@@ -10,6 +11,8 @@ font-family: Arial;
 text-align:center;
 background:#0f172a;
 color:white;
+margin:0;
+overflow-x:hidden;
 }
 
 #tablero{
@@ -122,6 +125,30 @@ left:20px;
 .btn:hover{
 transform:translateY(-2px) scale(1.05);
 box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+
+/* 📱 RESPONSIVE (mismo enfoque que sudoku/matemáticas: solo pantallas estrechas) */
+@media (max-width:520px){
+#tablero{
+grid-template-columns:repeat(6, 1fr);
+width:100%;
+max-width:min(520px, calc(100vw - 20px));
+margin-left:auto;
+margin-right:auto;
+gap:6px;
+padding:0 10px;
+box-sizing:border-box;
+}
+
+.carta{
+width:100%;
+height:auto;
+aspect-ratio:1;
+}
+
+.cara{
+font-size:clamp(16px, 5vw, 30px);
+}
 }
 
 </style>

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lobby Dominó</title>
 <style>
 body{
@@ -12,14 +13,20 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
+  min-height:100vh;
+  min-height:100dvh;
   margin:0;
+  padding:16px;
+  box-sizing:border-box;
+  overflow-x:hidden;
 }
 
 .container{
   background:#1e293b;
   padding:30px;
   border-radius:15px;
+  box-sizing:border-box;
+  max-width:100%;
 }
 
 h1{
@@ -48,6 +55,14 @@ h1{
 .musica-btn:hover{
   transform:translateY(-2px) scale(1.05);
   box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+
+@media (max-width:500px){
+  .container{
+    padding:22px 16px;
+    width:100%;
+    max-width:min(420px, 100%);
+  }
 }
 </style>
 </head>
