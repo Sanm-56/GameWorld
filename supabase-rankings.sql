@@ -45,3 +45,64 @@ CREATE UNIQUE INDEX IF NOT EXISTS ranking_domino_usuario_juego_idx
 
 -- Si deseas seguir usando la tabla genérica "ranking", asegúrate de que contenga el campo "juego":
 -- ALTER TABLE public.ranking ADD COLUMN IF NOT EXISTS juego text;
+
+
+-- ===========================================
+-- RANKINGS PARA NUEVOS JUEGOS
+-- ===========================================
+
+CREATE TABLE IF NOT EXISTS public.ranking_perfecttap (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  usuario text NOT NULL,
+  tiempo int4 NOT NULL,
+  juego text NOT NULL DEFAULT 'perfecttap',
+  motivo text,
+  fecha timestamp with time zone DEFAULT timezone('utc', now()) NOT NULL,
+  invalido boolean DEFAULT false,
+  sospechoso boolean DEFAULT false
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS ranking_perfecttap_usuario_juego_idx
+  ON public.ranking_perfecttap(usuario, juego);
+
+CREATE TABLE IF NOT EXISTS public.ranking_linkpath (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  usuario text NOT NULL,
+  tiempo int4 NOT NULL,
+  juego text NOT NULL DEFAULT 'linkpath',
+  motivo text,
+  fecha timestamp with time zone DEFAULT timezone('utc', now()) NOT NULL,
+  invalido boolean DEFAULT false,
+  sospechoso boolean DEFAULT false
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS ranking_linkpath_usuario_juego_idx
+  ON public.ranking_linkpath(usuario, juego);
+
+CREATE TABLE IF NOT EXISTS public.ranking_mazerush (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  usuario text NOT NULL,
+  tiempo int4 NOT NULL,
+  juego text NOT NULL DEFAULT 'mazerush',
+  motivo text,
+  fecha timestamp with time zone DEFAULT timezone('utc', now()) NOT NULL,
+  invalido boolean DEFAULT false,
+  sospechoso boolean DEFAULT false
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS ranking_mazerush_usuario_juego_idx
+  ON public.ranking_mazerush(usuario, juego);
+
+CREATE TABLE IF NOT EXISTS public.ranking_towershift (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  usuario text NOT NULL,
+  tiempo int4 NOT NULL,
+  juego text NOT NULL DEFAULT 'towershift',
+  motivo text,
+  fecha timestamp with time zone DEFAULT timezone('utc', now()) NOT NULL,
+  invalido boolean DEFAULT false,
+  sospechoso boolean DEFAULT false
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS ranking_towershift_usuario_juego_idx
+  ON public.ranking_towershift(usuario, juego);
