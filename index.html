@@ -163,6 +163,14 @@ h1{
   background:linear-gradient(135deg, #b91c1c, #ef4444);
 }
 
+.flashmind{
+  background:linear-gradient(135deg, #06b6d4, #2563eb);
+}
+
+.numcatch{
+  background:linear-gradient(135deg, #16a34a, #22c55e);
+}
+
 .admin-btn{
   position:absolute;
   bottom:20px;
@@ -371,6 +379,16 @@ h1{
       <span class="titulo">Damas</span>
       <span class="detalle">Domina el tablero y gana puntos en cada partida.</span>
     </button>
+    <button class="boton flashmind" onclick="irFlashMind()">
+      <span class="emoji">⚡</span>
+      <span class="titulo">FlashMind</span>
+      <span class="detalle">Reacciona al color o símbolo correcto. Cada vez más rápido.</span>
+    </button>
+    <button class="boton numcatch" onclick="irNumCatch()">
+      <span class="emoji">🔢</span>
+      <span class="titulo">NumCatch</span>
+      <span class="detalle">Atrapa solo los números que cumplan la condición.</span>
+    </button>
   </div>
 </section>
 
@@ -408,6 +426,14 @@ function irDomino(){
 
 function irDamas(){
   window.location.href = 'juegos/damas/index.html'
+}
+
+function irFlashMind(){
+  window.location.href = 'juegos/flashmind/index.html'
+}
+
+function irNumCatch(){
+  window.location.href = 'juegos/numcatch/index.html'
 }
 
 function irPerfil(){

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lobby Torneo</title>
+  <style>
+    body{
+      font-family: Arial;
+      text-align:center;
+      background:#0b1220;
+      color:white;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      min-height:100dvh;
+      margin:0;
+      padding:16px;
+      box-sizing:border-box;
+      overflow-x:hidden;
+    }
+    .container{
+      background:#111b33;
+      padding:30px;
+      border-radius:15px;
+      box-sizing:border-box;
+      max-width:100%;
+      border:1px solid rgba(34,211,238,0.18);
+    }
+    h1{ margin-bottom:10px; }
+    #mensaje{ margin-top:10px; color:#94a3b8; }
+    .musica-btn{
+      padding:12px 20px;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:all 0.2s ease;
+      box-shadow:0 4px 10px rgba(0,0,0,0.3);
+      background:linear-gradient(135deg, #22d3ee, #2563eb);
+      color:white;
+      margin-top:20px;
+    }
+    .musica-btn:hover{
+      transform:translateY(-2px) scale(1.05);
+      box-shadow:0 6px 15px rgba(0,0,0,0.4);
+    }
+    @media (max-width:500px){
+      .container{
+        padding:22px 16px;
+        width:100%;
+        max-width:min(420px, 100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ FlashMind - Torneo</h1>
+    <p id="mensaje">Esperando que el torneo inicie...</p>
+    <button class="musica-btn" onclick="reproducirMusica()">🎵 Música</button>
+  </div>
+
+  <audio loop>
+    <source src="./music/musicaflashmind.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script type="module" src="../js/lobby.js"></script>
+  <script>
+    function reproducirMusica(){
+      const audio = document.querySelector('audio');
+      if (audio.paused) audio.play();
+      else audio.pause();
+    }
+  </script>
+</body>
+</html>

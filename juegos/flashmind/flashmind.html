@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlashMind</title>
+  <style>
+    :root{
+      --bg:#07111f;
+      --panel:#0f172ae6;
+      --border:rgba(148,163,184,0.16);
+      --text:#f8fafc;
+      --muted:#cbd5e1;
+      --ok:#22c55e;
+      --bad:#ef4444;
+      --accent:#22d3ee;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      min-height:100dvh;
+      font-family:Verdana, Geneva, Tahoma, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34,211,238,0.16), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(37,99,235,0.14), transparent 28%),
+        linear-gradient(145deg, #07111f, #0b1b36);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:18px;
+    }
+    .contenedor{
+      width:min(980px, 100%);
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:26px;
+      padding:22px;
+      box-shadow:0 24px 70px rgba(0,0,0,0.42);
+      backdrop-filter:blur(10px);
+    }
+    .top{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .pill{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,0.55);
+      color:var(--muted);
+      font-weight:bold;
+      font-size:14px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size:28px;
+      letter-spacing:0.4px;
+    }
+    .sub{
+      margin:0 0 10px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+    .zona{
+      display:grid;
+      grid-template-columns: 1fr 320px;
+      gap:16px;
+      align-items:stretch;
+    }
+    @media (max-width: 860px){
+      .zona{ grid-template-columns:1fr; }
+    }
+    .cue{
+      border:1px solid var(--border);
+      border-radius:22px;
+      background:rgba(2,6,23,0.32);
+      padding:18px;
+      min-height:360px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .cue .pantalla{
+      width:min(440px, 100%);
+      aspect-ratio: 16/10;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,0.12);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:74px;
+      font-weight:bold;
+      letter-spacing:1px;
+      background:rgba(15,23,42,0.75);
+      box-shadow:0 18px 40px rgba(0,0,0,0.25);
+      user-select:none;
+    }
+    .hint{
+      margin-top:14px;
+      color:var(--muted);
+      text-align:center;
+      line-height:1.4;
+      font-size:14px;
+    }
+    .panel{
+      border:1px solid var(--border);
+      border-radius:22px;
+      background:rgba(2,6,23,0.28);
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .btn{
+      border:none;
+      border-radius:18px;
+      padding:16px 12px;
+      cursor:pointer;
+      color:white;
+      font-weight:bold;
+      font-size:16px;
+      box-shadow:0 10px 22px rgba(0,0,0,0.22);
+      transition:transform 0.15s ease, filter 0.15s ease;
+    }
+    .btn:hover{ transform:translateY(-2px); filter:saturate(1.05); }
+    .btn:active{ transform:translateY(0px) scale(0.99); }
+    .small{
+      font-size:12px;
+      opacity:0.92;
+      font-weight:normal;
+      display:block;
+      margin-top:6px;
+      color:rgba(255,255,255,0.9);
+    }
+    .log{
+      border:1px solid var(--border);
+      background:rgba(15,23,42,0.6);
+      border-radius:18px;
+      padding:12px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      min-height:88px;
+    }
+    .estado{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .badge{
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,0.55);
+      color:var(--muted);
+      font-weight:bold;
+      font-size:13px;
+    }
+    .badge strong{ color:var(--text); }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <div class="top">
+      <div>
+        <h1>⚡ FlashMind</h1>
+        <p class="sub">Mira el color o símbolo y presiona la opción correcta lo más rápido posible. Va aumentando la velocidad.</p>
+      </div>
+      <div class="estado">
+        <div class="pill">⏱️ <span id="reloj">-</span></div>
+        <div class="pill">👤 <span id="usuarioLabel">-</span></div>
+      </div>
+    </div>
+
+    <div class="zona">
+      <div class="cue">
+        <div class="pantalla" id="pantalla">?</div>
+        <div class="hint" id="hint">
+          Teclas: <b>A</b>, <b>S</b>, <b>K</b>, <b>L</b> o toca un botón. Cambiar de pestaña suma advertencias.
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="badge">🎯 Ronda: <strong id="ronda">0</strong></div>
+        <div class="badge">✅ Aciertos: <strong id="aciertos">0</strong></div>
+        <div class="badge">⚡ Nivel: <strong id="nivel">1</strong></div>
+        <div class="badge">⏱️ Promedio: <strong id="promedio">-</strong></div>
+
+        <div class="grid" id="botonera"></div>
+        <div class="log" id="log">Listo. Espera la primera señal…</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/flashmind.js"></script>
+</body>
+</html>

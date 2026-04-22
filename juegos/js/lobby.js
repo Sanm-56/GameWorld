@@ -57,6 +57,14 @@ if(juego === "matematicas"){
 window.location.href = "matematicas.html"
 }
 
+if(juego === "flashmind"){
+window.location.href = "flashmind.html"
+}
+
+if(juego === "numcatch"){
+window.location.href = "numcatch.html"
+}
+
 if(juego === "ajedrez"){
 window.location.href = "ajedrez.html"
 }

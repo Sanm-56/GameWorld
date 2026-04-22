@@ -1,5 +1,8 @@
 import { supabase } from "./supabase.js"
 
+const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch"])
+const NUMCATCH_DEFAULT_COND = "multiplos_3"
+
 // =============================
 // 🔒 LOGIN ADMIN CON SUPABASE
 // =============================
@@ -50,7 +53,8 @@ if(juego){
 query = query.eq("juego", juego)
 }
 
-let { data, error } = await query.order("tiempo", { ascending: true })
+const asc = juego ? !JUEGOS_PUNTAJE.has(juego) : true
+let { data, error } = await query.order("tiempo", { ascending: asc })
 
 // Si no hay datos y se seleccionó un juego específico, buscar en tabla específica
 if ((!data || data.length === 0) && juego) {
@@ -148,6 +152,8 @@ function mostrar(data){
 
 const tabla = document.getElementById("tablaAdmin")
 const contador = document.getElementById("contador")
+const juego = document.getElementById("juegoSelect")?.value
+const esPuntaje = !!juego && JUEGOS_PUNTAJE.has(juego)
 
 if(!tabla) return
 
@@ -174,7 +180,7 @@ fila.classList.add("normal")
 fila.innerHTML = `
 <td>${i+1}</td>
 <td>${j.usuario}</td>
-<td>${formatearTiempo(j.tiempo)}</td>
+<td>${formatearResultado(j.tiempo, esPuntaje)}</td>
 <td>
 ${j.invalido ? "❌ Inválido" : j.sospechoso ? "⚠️ Sospechoso" : "✅ Normal"}
 </td>
@@ -195,13 +201,14 @@ tabla.appendChild(fila)
 async function cargarVistaAdmin(){
 
 let juego = document.getElementById("juegoSelect")?.value
+const asc = juego ? !JUEGOS_PUNTAJE.has(juego) : true
 
 let { data } = await supabase
 .from("ranking")
 .select("*")
 .eq("invalido", false)
 .eq("juego", juego)
-.order("tiempo", { ascending: true })
+.order("tiempo", { ascending: asc })
 
 if(!data) return
 
@@ -217,8 +224,9 @@ top3.forEach((j,i)=>{
 let emoji = ["🥇","🥈","🥉"][i]
 
 let div = document.createElement("div")
+const esPuntaje = juego && JUEGOS_PUNTAJE.has(juego)
 
-div.innerHTML = `<b>${emoji} ${j.usuario}</b> - ${formatearTiempo(j.tiempo)}`
+div.innerHTML = `<b>${emoji} ${j.usuario}</b> - ${formatearResultado(j.tiempo, esPuntaje)}`
 
 podioDiv.appendChild(div)
 
@@ -233,9 +241,10 @@ rankingDiv.innerHTML = ""
 data.forEach((j,i)=>{
 
 let div = document.createElement("div")
+const esPuntaje = juego && JUEGOS_PUNTAJE.has(juego)
 
 div.innerHTML = `
-#${i+1} - ${j.usuario} (${formatearTiempo(j.tiempo)})
+#${i+1} - ${j.usuario} (${formatearResultado(j.tiempo, esPuntaje)})
 ${j.sospechoso ? "⚠️" : ""}
 `
 
@@ -253,6 +262,11 @@ function formatearTiempo(segundos){
 let min = Math.floor(segundos/60)
 let seg = segundos%60
 return min + ":" + (seg<10?"0":"") + seg
+}
+
+function formatearResultado(valor, esPuntaje){
+if(esPuntaje) return `${valor} pts`
+return formatearTiempo(valor)
 }
 
 // =============================
@@ -288,13 +302,21 @@ return
 
 let juego = document.getElementById("juegoSelect").value
 
-await supabase
-.from("estado_torneo")
-.update({
+let numcatchCondicion = document.getElementById("numcatchCondicion")?.value || NUMCATCH_DEFAULT_COND
+
+const payload = {
 estado: "iniciado",
 juego_actual: juego,
 inicio_torneo: new Date().toISOString()
-})
+}
+
+if(juego === "numcatch"){
+payload.numcatch_condicion = numcatchCondicion
+}
+
+await supabase
+.from("estado_torneo")
+.update(payload)
 .eq("id",1)
 
 alert("🔥 Torneo iniciado: " + juego)
@@ -371,7 +393,17 @@ window.limpiarRanking = limpiarRanking
 window.cargarRanking = cargarRanking
 window.resetTotal = resetTotal
 
+function syncNumcatchUI(){
+  const juego = document.getElementById("juegoSelect")?.value
+  const wrap = document.getElementById("numcatchConfig")
+  if(!wrap) return
+  wrap.style.display = juego === "numcatch" ? "block" : "none"
+}
+
 document.getElementById('juegoSelect')?.addEventListener('change', () => {
+  syncNumcatchUI()
   cargarRanking()
   cargarVistaAdmin()
 })
+
+syncNumcatchUI()

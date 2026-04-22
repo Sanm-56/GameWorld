@@ -6,6 +6,8 @@ const GAMES = [
   { key: 'sudoku', label: 'Sudoku' },
   { key: 'matematicas', label: 'Matematicas' },
   { key: 'memoria', label: 'Memoria' },
+  { key: 'flashmind', label: 'FlashMind' },
+  { key: 'numcatch', label: 'NumCatch' },
   { key: 'ajedrez', label: 'Ajedrez' },
   { key: 'domino', label: 'Domino' },
   { key: 'damas', label: 'Damas' },
