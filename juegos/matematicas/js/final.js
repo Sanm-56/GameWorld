@@ -6,23 +6,20 @@ const rankingDiv = document.getElementById("ranking")
 const usuario = localStorage.getItem("usuario")
 const fin = localStorage.getItem("fin_juego")
 
-// 🧠 MENSAJE
 const mensajeDiv = document.createElement("h2")
 document.querySelector(".contenedor").insertBefore(mensajeDiv, podioDiv)
 
-// 🎯 POSICIÓN
 const posicionDiv = document.createElement("h3")
 document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
 
-// MENSAJE
 if(fin === "tiempo"){
-mensajeDiv.textContent = "⏱️ Terminaste por tiempo"
+mensajeDiv.textContent = "Terminaste por tiempo"
 }
 else if(fin === "descalificado"){
-mensajeDiv.textContent = "❌ Descalificado"
+mensajeDiv.textContent = "Descalificado por actividad sospechosa"
 }
 else{
-mensajeDiv.textContent = "✅ Juego finalizado"
+mensajeDiv.textContent = "Juego finalizado"
 }
 
 async function cargar(){
@@ -34,50 +31,34 @@ let { data, error } = await supabase
 
 podioDiv.innerHTML = ""
 
-if(data[0]){
-podioDiv.innerHTML += `<div>🥇 ${data[0].usuario}<br>${data[0].tiempo}</div>`
-}
-if(data[1]){
-podioDiv.innerHTML += `<div>🥈 ${data[1].usuario}<br>${data[1].tiempo}</div>`
-}
-if(data[2]){
-podioDiv.innerHTML += `<div>🥉 ${data[2].usuario}<br>${data[2].tiempo}</div>`
-}
-
 if(error || !data) return
 
-// 🎯 POSICIÓN
 let miPos = data.findIndex(j => j.usuario === usuario)
 
 if(miPos >= 0){
-
-posicionDiv.innerHTML = `🎯 Puesto #${miPos+1}`
-
-// 🎉 GANADOR
+posicionDiv.innerHTML = `Puesto #${miPos+1}`
 if(miPos === 0){
 setTimeout(lanzarConfeti,500)
 }
-
-}else{
-posicionDiv.innerHTML = "Sin posición"
+}
+else{
+posicionDiv.innerHTML = "Sin posicion"
 }
 
-// 🏆 PODIO
 podioDiv.innerHTML = ""
 
 if(data[1]){
-podioDiv.innerHTML += `<div>🥈 ${data[1].usuario}<br>${data[1].tiempo}</div>`
+podioDiv.innerHTML += `<div>2 ${data[1].usuario}<br>${data[1].tiempo}</div>`
 }
 
 if(data[0]){
-podioDiv.innerHTML += `<div>🥇 ${data[0].usuario}<br>${data[0].tiempo}</div>`
+podioDiv.innerHTML += `<div>1 ${data[0].usuario}<br>${data[0].tiempo}</div>`
 }
 
 if(data[2]){
-podioDiv.innerHTML += `<div>🥉 ${data[2].usuario}<br>${data[2].tiempo}</div>`
+podioDiv.innerHTML += `<div>3 ${data[2].usuario}<br>${data[2].tiempo}</div>`
 }
 
-// 📊 RANKING
 rankingDiv.innerHTML = ""
 
 data.forEach((j,i)=>{
@@ -96,7 +77,6 @@ rankingDiv.innerHTML += `
 
 }
 
-// 🎉 CONFETI
 function lanzarConfeti(){
 for(let i=0;i<80;i++){
 let c = document.createElement("div")
@@ -109,7 +89,6 @@ setTimeout(()=>c.remove(),4000)
 }
 }
 
-// 🔴 TIEMPO REAL
 supabase
 .channel("mate-ranking")
 .on("postgres_changes",
@@ -123,10 +102,8 @@ cargar()
 
 cargar()
 
-// LIMPIAR
 localStorage.removeItem("fin_juego")
 
-// 🔙 BOTÓN
 window.volverLobby = async function(){
 let { data } = await supabase
 .from("estado_torneo")

@@ -386,6 +386,10 @@ function obtenerMovimientosValidos(row, col) {
   return mustCapture ? moves.filter((move) => move.capture) : moves
 }
 
+function obtenerCapturasEncadenadas(row, col) {
+  return obtenerMovimientosDePieza(row, col, true).filter((move) => move.capture)
+}
+
 function onSquareClick(row, col) {
   if (juegoTerminado || currentPlayer !== 'red') return
 
@@ -442,14 +446,25 @@ function aplicarMovimiento(fromRow, fromCol, move) {
   moveCount++
 
   if (move.capture) {
-    const nextCaptures = obtenerMovimientosDePieza(move.row, move.col, true).filter((item) => item.capture)
+    const nextCaptures = obtenerCapturasEncadenadas(move.row, move.col)
     if (nextCaptures.length > 0) {
       forcedChain = { row: move.row, col: move.col }
-      selectedPiece = { row: move.row, col: move.col }
-      highlightedMoves = nextCaptures
-      statusEl.innerText = 'Debes continuar capturando con la misma ficha.'
-      renderBoard()
-      updateInfo()
+
+      if (piece.color === 'red') {
+        selectedPiece = { row: move.row, col: move.col }
+        highlightedMoves = nextCaptures
+        statusEl.innerText = 'Debes continuar capturando con la misma ficha.'
+        renderBoard()
+        updateInfo()
+      } else {
+        selectedPiece = null
+        highlightedMoves = []
+        statusEl.innerText = 'El bot sigue capturando...'
+        renderBoard()
+        updateInfo()
+        limpiarTurnoBot()
+        botTimeout = setTimeout(botTurn, 550)
+      }
       return
     }
   }
@@ -507,7 +522,13 @@ function obtenerTodosLosMovimientos(color) {
 function botTurn() {
   if (juegoTerminado || currentPlayer !== 'blue') return
 
-  const moves = obtenerTodosLosMovimientos('blue')
+  const moves = forcedChain
+    ? obtenerCapturasEncadenadas(forcedChain.row, forcedChain.col).map((move) => ({
+        fromRow: forcedChain.row,
+        fromCol: forcedChain.col,
+        move,
+      }))
+    : obtenerTodosLosMovimientos('blue')
   if (moves.length === 0) {
     finishGame('Ganaste. El bot se quedó sin movimientos.')
     return
@@ -633,12 +654,38 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
   }
 }
 
+async function eliminarResultadoDamas() {
+  const ranking = await supabase
+    .from('ranking')
+    .delete()
+    .eq('usuario', usuario)
+    .eq('juego', 'damas')
+
+  if (ranking.error) {
+    console.warn('No se pudo limpiar ranking generico de damas', ranking.error)
+  }
+
+  const rankingDamas = await supabase
+    .from('ranking_damas')
+    .delete()
+    .eq('usuario', usuario)
+    .eq('juego', 'damas')
+
+  if (rankingDamas.error) {
+    console.warn('No se pudo limpiar ranking_damas', rankingDamas.error)
+  }
+}
+
 async function finishGame(message, shouldSaveResult = true) {
   if (juegoTerminado) return
 
   juegoTerminado = true
   liberarBloqueoPestana()
   limpiarTurnoBot()
+
+  if (message.startsWith('Perdiste') || message.startsWith('Empate') || message.startsWith('Rendici')) {
+    shouldSaveResult = false
+  }
 
   resultEl.innerText = message
   resultEl.style.display = 'block'
@@ -650,6 +697,10 @@ async function finishGame(message, shouldSaveResult = true) {
   if (shouldSaveResult && !resultadoEnviado) {
     const tiempo = await obtenerTiempo()
     await guardarResultado(tiempo)
+    localStorage.removeItem('damasSinPosicion')
+  } else {
+    await eliminarResultadoDamas()
+    localStorage.setItem('damasSinPosicion', 'true')
   }
 
   setTimeout(() => {

@@ -371,7 +371,7 @@ function updateUI() {
   if (myHand.length === 0) {
     finishGame('Ganaste. Pusiste todas tus fichas.')
   } else if (botHand.length === 0) {
-    finishGame('Perdiste. El bot puso todas sus fichas.')
+    finishGame('Perdiste. El bot puso todas sus fichas.', false)
   }
 }
 
@@ -564,6 +564,10 @@ async function finishGame(message, shouldSaveResult = true) {
   if (juegoTerminado) return
   juegoTerminado = true
   liberarBloqueoPestana()
+
+  if (message.startsWith('Perdiste') || message.startsWith('Empate')) {
+    shouldSaveResult = false
+  }
 
   resultEl.innerText = message
   resultEl.style.display = 'block'

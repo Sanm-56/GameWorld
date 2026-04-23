@@ -7,7 +7,9 @@ const usuario = localStorage.getItem('usuario')
 const resultado = localStorage.getItem('dominoResultado') || 'Partida finalizada.'
 const sinPosicion = localStorage.getItem('dominoSinPosicion') === 'true'
 
-resultadoFinal.innerText = resultado
+resultadoFinal.innerText = resultado.toLowerCase().includes('descalificado')
+  ? 'Descalificado por actividad sospechosa'
+  : resultado
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -35,7 +37,7 @@ async function cargarResultados() {
   const posicionDiv = document.createElement('h2')
 
   if (sinPosicion) {
-    posicionDiv.innerText = 'Te has rendido sin posicion.'
+    posicionDiv.innerText = 'No clasificaste al ranking'
   } else {
     const posicion = data.findIndex((jugador) => jugador.usuario === usuario)
 

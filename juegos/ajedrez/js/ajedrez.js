@@ -237,16 +237,15 @@ async function iniciarCronometro() {
     return
   }
 
-  function actualizar() {
+  async function actualizar() {
     restante--
 
     if (restante <= 0) {
       clearInterval(intervalo)
       reloj.innerText = '0:00'
 
-      if (!resultadoEnviado && !descalificado) {
-        resultadoEnviado = true
-        guardarResultado(DURACION, false, false, '')
+      if (!descalificado) {
+        await eliminarResultadoAjedrez()
       }
 
       juegoTerminado = true
@@ -591,6 +590,28 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
   console.log('Resultado ajedrez guardado', data)
 }
 
+async function eliminarResultadoAjedrez() {
+  const ranking = await supabase
+    .from('ranking')
+    .delete()
+    .eq('usuario', usuario)
+    .eq('juego', 'ajedrez')
+
+  if (ranking.error) {
+    console.warn('No se pudo limpiar ranking generico de ajedrez', ranking.error)
+  }
+
+  const rankingAjedrez = await supabase
+    .from('ranking_ajedrez')
+    .delete()
+    .eq('usuario', usuario)
+    .eq('juego', 'ajedrez')
+
+  if (rankingAjedrez.error) {
+    console.warn('No se pudo limpiar ranking_ajedrez', rankingAjedrez.error)
+  }
+}
+
 async function finishGame(message, wasVictory = true) {
   if (juegoTerminado) return
   juegoTerminado = true
@@ -603,6 +624,8 @@ async function finishGame(message, wasVictory = true) {
   if (wasVictory && !resultadoEnviado) {
     const tiempo = await obtenerTiempo()
     await guardarResultado(tiempo)
+  } else {
+    await eliminarResultadoAjedrez()
   }
 
   localStorage.setItem('juego_actual', 'ajedrez')
@@ -661,7 +684,8 @@ function resign() {
   localStorage.setItem('juego_actual', 'ajedrez')
   localStorage.setItem('ajedrezResultado', 'Rendición')
 
-  setTimeout(() => {
+  setTimeout(async () => {
+    await eliminarResultadoAjedrez()
     window.location.href = 'final.html'
   }, 1400)
 }

@@ -5,8 +5,11 @@ const podioDiv = document.getElementById('podio')
 const rankingDiv = document.getElementById('ranking')
 const usuario = localStorage.getItem('usuario')
 const resultado = localStorage.getItem('damasResultado') || 'Partida finalizada.'
+const sinPosicion = localStorage.getItem('damasSinPosicion') === 'true'
 
-resultadoFinal.innerText = resultado
+resultadoFinal.innerText = resultado.toLowerCase().includes('descalificado')
+  ? 'Descalificado por actividad sospechosa'
+  : resultado
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -31,13 +34,18 @@ async function cargarResultados() {
   }
 
   const data = result.data || []
-  const posicion = data.findIndex((jugador) => jugador.usuario === usuario)
   const posicionDiv = document.createElement('h2')
 
-  if (posicion !== -1) {
-    posicionDiv.innerText = `Quedaste #${posicion + 1} de ${data.length}`
+  if (sinPosicion) {
+    posicionDiv.innerText = 'No clasificaste al ranking'
   } else {
-    posicionDiv.innerText = 'No estas en el ranking'
+    const posicion = data.findIndex((jugador) => jugador.usuario === usuario)
+
+    if (posicion !== -1) {
+      posicionDiv.innerText = `Quedaste #${posicion + 1} de ${data.length}`
+    } else {
+      posicionDiv.innerText = 'No estas en el ranking'
+    }
   }
 
   document.querySelector('.contenedor').insertBefore(posicionDiv, podioDiv)
@@ -60,7 +68,7 @@ async function cargarResultados() {
   }
 
   data.forEach((jugador, index) => {
-    const destacado = jugador.usuario === usuario
+    const destacado = jugador.usuario === usuario && !sinPosicion
       ? 'style="color:#22c55e; font-weight:bold"'
       : ''
 
@@ -85,5 +93,6 @@ window.volverLobby = async function () {
   }
 
   localStorage.removeItem('juego_actual')
+  localStorage.removeItem('damasSinPosicion')
   window.location.href = 'lobby.html'
 }

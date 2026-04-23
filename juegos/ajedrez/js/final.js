@@ -4,9 +4,12 @@ const resultadoFinal = document.getElementById('resultadoFinal')
 const podioDiv = document.getElementById('podio')
 const rankingDiv = document.getElementById('ranking')
 const usuario = localStorage.getItem('usuario')
+const fin = localStorage.getItem('fin_juego')
 const resultado = localStorage.getItem('ajedrezResultado') || 'Partida finalizada.'
 
-resultadoFinal.innerText = resultado
+resultadoFinal.innerText = fin === 'descalificado'
+  ? 'Descalificado por actividad sospechosa'
+  : resultado
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -18,6 +21,7 @@ async function cargarResultados() {
   let result = await supabase
     .from('ranking_ajedrez')
     .select('*')
+    .eq('invalido', false)
     .order('tiempo', { ascending: true })
 
   if (result.error) {
