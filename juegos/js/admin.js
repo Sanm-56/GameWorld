@@ -21,7 +21,7 @@ alert("Error al verificar contraseña")
 return
 }
 
-if(claveInput === data.clave_admin){
+if(claveInput.trim() == String(data.clave_admin).trim()){
 
 document.getElementById("loginAdmin").style.display = "none"
 document.getElementById("panelAdmin").style.display = "block"
