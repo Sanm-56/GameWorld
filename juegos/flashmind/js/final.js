@@ -7,11 +7,27 @@ const usuario = localStorage.getItem("usuario")
 
 const fin = localStorage.getItem("fin_juego")
 const puntos = Number(localStorage.getItem("flashmind_puntos") || "0")
+const sinPosicion = fin === "descalificado" || puntos <= 0
+
+const posicionDiv = document.createElement("h2")
+document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
 
 function setMensaje() {
-  if (fin === "tiempo") resultadoFinal.innerText = `Tiempo terminado. Puntaje: ${puntos} pts`
-  else if (fin === "descalificado") resultadoFinal.innerText = "Descalificado por actividad sospechosa"
-  else resultadoFinal.innerText = `Partida finalizada. Puntaje: ${puntos} pts`
+  if (fin === "descalificado") {
+    resultadoFinal.innerText = "Descalificado por actividad sospechosa"
+    posicionDiv.innerText = "Sin posicion"
+    return
+  }
+
+  if (fin === "tiempo") {
+    resultadoFinal.innerText = `Tiempo terminado. Puntaje: ${puntos} pts`
+  } else {
+    resultadoFinal.innerText = `Partida finalizada. Puntaje: ${puntos} pts`
+  }
+
+  if (sinPosicion) {
+    posicionDiv.innerText = "Sin posicion"
+  }
 }
 
 async function cargar() {
@@ -24,18 +40,17 @@ async function cargar() {
 
   if (error || !data) return
 
-  const miPos = data.findIndex((j) => j.usuario === usuario)
-  const posicionDiv = document.createElement("h2")
-  if (miPos >= 0) {
-    let msg = `Quedaste #${miPos + 1} de ${data.length}`
-    if (miPos === 0) msg += " Ganaste"
-    else if (miPos < 3) msg += " Podio"
-    posicionDiv.innerText = msg
-  } else {
-    posicionDiv.innerText = "No estas en el ranking"
+  if (!sinPosicion) {
+    const miPos = data.findIndex((j) => j.usuario === usuario)
+    if (miPos >= 0) {
+      let msg = `Quedaste #${miPos + 1} de ${data.length}`
+      if (miPos === 0) msg += " Ganaste"
+      else if (miPos < 3) msg += " Podio"
+      posicionDiv.innerText = msg
+    } else {
+      posicionDiv.innerText = "Sin posicion"
+    }
   }
-
-  document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
 
   podioDiv.innerHTML = ""
   data.slice(0, 3).forEach((j, i) => {
@@ -52,7 +67,9 @@ async function cargar() {
   }
 
   data.forEach((j, i) => {
-    const destacado = j.usuario === usuario ? 'style="color:#22c55e; font-weight:bold"' : ""
+    const destacado = j.usuario === usuario && !sinPosicion
+      ? 'style="color:#22c55e; font-weight:bold"'
+      : ""
     rankingDiv.innerHTML += `<div ${destacado}>#${i + 1} - ${j.usuario} (${j.tiempo} pts)</div>`
   })
 }

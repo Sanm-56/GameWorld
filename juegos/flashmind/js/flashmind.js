@@ -2,6 +2,11 @@ import { supabase } from "../../js/supabase.js"
 
 const DURACION = 600
 const MAX_ADVERTENCIAS = 3
+const BASE_VENTANA_MS = 1300
+const MAX_REACTION_CAP_MS = 550
+const ACIERTOS_POR_NIVEL = 20
+const PENALIZACION_TIMEOUT_MS = 2000
+const PENALIZACION_ERROR_BASE_MS = 900
 
 const usuario = localStorage.getItem("usuario") || "Invitado"
 document.getElementById("usuarioLabel").innerText = usuario
@@ -18,6 +23,7 @@ const promedioEl = document.getElementById("promedio")
 let advertencias = 0
 let resultadoEnviado = false
 let juegoTerminado = false
+let ultimoCambio = 0
 
 let ronda = 0
 let aciertos = 0
@@ -32,20 +38,26 @@ let sumaMs = 0
 let totalIntentos = 0
 
 const opciones = [
-  { key: "A", label: "A", name: "ROJO", color: "#ef4444", symbol: "●" },
-  { key: "S", label: "S", name: "AZUL", color: "#3b82f6", symbol: "■" },
-  { key: "K", label: "K", name: "VERDE", color: "#22c55e", symbol: "▲" },
-  { key: "L", label: "L", name: "AMARILLO", color: "#f59e0b", symbol: "◆" },
+  { key: "A", label: "A", name: "ROJO", color: "#ef4444", symbol: "\u25cf" },
+  { key: "S", label: "S", name: "AZUL", color: "#3b82f6", symbol: "\u25a0" },
+  { key: "K", label: "K", name: "VERDE", color: "#22c55e", symbol: "\u25b2" },
+  { key: "L", label: "L", name: "AMARILLO", color: "#f59e0b", symbol: "\u25c6" },
 ]
 
 function setLog(text) {
   logEl.innerText = text
 }
 
+function calcularNivel() {
+  return 1 + Math.floor(aciertos / ACIERTOS_POR_NIVEL)
+}
+
 function actualizarStats() {
+  nivel = calcularNivel()
   rondaEl.innerText = String(ronda)
   aciertosEl.innerText = String(aciertos)
   nivelEl.innerText = String(nivel)
+
   if (totalIntentos > 0) {
     const prom = Math.round(sumaMs / totalIntentos)
     promedioEl.innerText = `${prom} ms`
@@ -91,8 +103,8 @@ function limpiarPantalla() {
 }
 
 function getVentanaMs() {
-  // Arranca cómodo y acelera
-  return Math.max(420, 1300 - nivel * 70)
+  const reduccion = Math.floor(aciertos / ACIERTOS_POR_NIVEL) * 80
+  return Math.max(MAX_REACTION_CAP_MS, BASE_VENTANA_MS - reduccion)
 }
 
 function siguienteRonda() {
@@ -100,7 +112,7 @@ function siguienteRonda() {
   if (timeoutId) clearTimeout(timeoutId)
 
   ronda++
-  if (ronda % 6 === 0) nivel++
+  actualizarStats()
 
   objetivoActual = escogerObjetivo()
   mostrarObjetivo(objetivoActual)
@@ -108,17 +120,17 @@ function siguienteRonda() {
   tInicio = performance.now()
 
   const ventana = getVentanaMs()
-  setLog(`¡Ya! Ventana: ${ventana} ms`)
-  actualizarStats()
+  setLog(`Ya. Ventana: ${ventana} ms`)
 
   timeoutId = setTimeout(() => {
     if (!esperando || juegoTerminado) return
-    // Timeout = fallo con penalización fuerte
+
     esperando = false
     totalIntentos++
-    sumaMs += 2000
-    setLog("⌛ Muy lento. Penalización +2000ms")
+    sumaMs += PENALIZACION_TIMEOUT_MS
+    setLog(`Muy lento. Penalizacion +${PENALIZACION_TIMEOUT_MS}ms`)
     limpiarPantalla()
+    actualizarStats()
     setTimeout(siguienteRonda, 220)
   }, ventana)
 }
@@ -139,11 +151,10 @@ function elegir(key) {
   if (ok) {
     aciertos++
     sumaMs += rt
-    setLog(`✅ Correcto: ${rt} ms`)
+    setLog(`Correcto: ${rt} ms`)
   } else {
-    // Fallo: penalización
-    sumaMs += Math.max(1200, rt + 900)
-    setLog(`❌ Incorrecto (${key}). Penalización`)
+    sumaMs += Math.max(1200, rt + PENALIZACION_ERROR_BASE_MS)
+    setLog(`Incorrecto (${key}). Penalizacion`)
   }
 
   actualizarStats()
@@ -151,17 +162,35 @@ function elegir(key) {
   setTimeout(siguienteRonda, 220)
 }
 
+async function descalificarPorActividadSospechosa() {
+  if (juegoTerminado) return
+
+  juegoTerminado = true
+  if (timeoutId) clearTimeout(timeoutId)
+
+  await enviarResultado("descalificado")
+  window.location.href = "final.html"
+}
+
 function marcarAdvertencia() {
   advertencias++
+
   if (advertencias >= MAX_ADVERTENCIAS) {
-    setLog("❌ Demasiados cambios de pestaña (marcado como inválido)")
+    setLog("Descalificado por actividad sospechosa")
+    descalificarPorActividadSospechosa()
   } else {
-    setLog(`⚠️ Cambio de pestaña detectado (${advertencias}/${MAX_ADVERTENCIAS})`)
+    setLog(`Cambio de pestana detectado (${advertencias}/${MAX_ADVERTENCIAS})`)
   }
 }
 
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden && !juegoTerminado) marcarAdvertencia()
+  if (!document.hidden || juegoTerminado) return
+
+  const ahora = Date.now()
+  if (ahora - ultimoCambio < 3000) return
+  ultimoCambio = ahora
+
+  marcarAdvertencia()
 })
 
 document.addEventListener("keydown", (e) => {
@@ -203,8 +232,20 @@ async function iniciarCronometro() {
     reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
   }
 
-  tick()
+  await tick()
   const intervalo = setInterval(tick, 1000)
+}
+
+async function eliminarResultadoFlashmind() {
+  const ranking = await supabase
+    .from("ranking")
+    .delete()
+    .eq("usuario", usuario)
+    .eq("juego", "flashmind")
+
+  if (ranking.error) {
+    console.warn("No se pudo limpiar ranking de flashmind", ranking.error)
+  }
 }
 
 async function enviarResultado(fin) {
@@ -213,25 +254,27 @@ async function enviarResultado(fin) {
 
   const sospechoso = advertencias > 0
   const invalido = advertencias >= MAX_ADVERTENCIAS
-
-  // Puntaje: aciertos (más es mejor)
   const puntos = invalido ? 0 : aciertos
 
-  await supabase.from("ranking").upsert(
-    {
-      usuario,
-      tiempo: puntos,
-      sospechoso,
-      invalido,
-      motivo: invalido
-        ? "Demasiados cambios de pestaña"
-        : sospechoso
-          ? "Cambio de pestaña"
-          : "",
-      juego: "flashmind",
-    },
-    { onConflict: "usuario,juego" }
-  )
+  if (puntos <= 0 || invalido) {
+    await eliminarResultadoFlashmind()
+  } else {
+    await supabase.from("ranking").upsert(
+      {
+        usuario,
+        tiempo: puntos,
+        sospechoso,
+        invalido,
+        motivo: invalido
+          ? "Actividad sospechosa"
+          : sospechoso
+            ? "Cambio de pestana"
+            : "",
+        juego: "flashmind",
+      },
+      { onConflict: "usuario,juego" }
+    )
+  }
 
   localStorage.setItem("fin_juego", fin)
   localStorage.setItem("flashmind_puntos", String(puntos))
@@ -254,4 +297,3 @@ actualizarStats()
 setTimeout(siguienteRonda, 600)
 iniciarCronometro()
 setInterval(revisarEstadoTorneo, 3000)
-
