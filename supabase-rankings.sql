@@ -45,6 +45,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS ranking_domino_usuario_juego_idx
 
 -- Si deseas seguir usando la tabla genérica "ranking", asegúrate de que contenga el campo "juego":
 -- ALTER TABLE public.ranking ADD COLUMN IF NOT EXISTS juego text;
+-- ALTER TABLE public.ranking ADD COLUMN IF NOT EXISTS sospechoso boolean DEFAULT false;
+-- ALTER TABLE public.ranking ADD COLUMN IF NOT EXISTS invalido boolean DEFAULT false;
+-- ALTER TABLE public.ranking ADD COLUMN IF NOT EXISTS motivo text;
+-- CREATE UNIQUE INDEX IF NOT EXISTS ranking_usuario_juego_idx
+--   ON public.ranking(usuario, juego);
 
 
 -- ===========================================

@@ -253,6 +253,56 @@ async function eliminarResultadoFlashmind() {
   }
 }
 
+async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
+  const payload = {
+    usuario,
+    tiempo: puntos,
+    sospechoso,
+    invalido,
+    motivo,
+    juego: "flashmind",
+  }
+
+  let result = await supabase
+    .from("ranking")
+    .upsert(payload, { onConflict: "usuario,juego" })
+
+  if (!result.error) {
+    return true
+  }
+
+  console.warn("Upsert de flashmind fallo, intentando update", result.error)
+
+  result = await supabase
+    .from("ranking")
+    .update({
+      tiempo: puntos,
+      sospechoso,
+      invalido,
+      motivo,
+    })
+    .select("usuario")
+    .eq("usuario", usuario)
+    .eq("juego", "flashmind")
+
+  if (!result.error && result.data && result.data.length > 0) {
+    return true
+  }
+
+  console.warn("Update de flashmind fallo, intentando insert", result.error)
+
+  result = await supabase
+    .from("ranking")
+    .insert(payload)
+
+  if (result.error) {
+    console.error("No se pudo guardar resultado de flashmind", result.error)
+    return false
+  }
+
+  return true
+}
+
 async function enviarResultado(fin) {
   if (resultadoEnviado) return
   resultadoEnviado = true
@@ -264,21 +314,21 @@ async function enviarResultado(fin) {
   if (puntos <= 0 || invalido) {
     await eliminarResultadoFlashmind()
   } else {
-    await supabase.from("ranking").upsert(
-      {
-        usuario,
-        tiempo: puntos,
-        sospechoso,
-        invalido,
-        motivo: invalido
-          ? "Actividad sospechosa"
-          : sospechoso
-            ? "Cambio de pestana"
-            : "",
-        juego: "flashmind",
-      },
-      { onConflict: "usuario,juego" }
+    const guardado = await guardarResultadoFlashmind(
+      puntos,
+      sospechoso,
+      invalido,
+      invalido
+        ? "Actividad sospechosa"
+        : sospechoso
+          ? "Cambio de pestana"
+          : ""
     )
+
+    if (!guardado) {
+      resultadoEnviado = false
+      return
+    }
   }
 
   localStorage.setItem("fin_juego", fin)
