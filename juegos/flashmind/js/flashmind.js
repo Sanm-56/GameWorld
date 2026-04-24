@@ -22,6 +22,7 @@ const promedioEl = document.getElementById("promedio")
 
 let advertencias = 0
 let resultadoEnviado = false
+let descalificado = false
 let juegoTerminado = false
 let ultimoCambio = 0
 
@@ -165,32 +166,36 @@ function elegir(key) {
 async function descalificarPorActividadSospechosa() {
   if (juegoTerminado) return
 
+  descalificado = true
   juegoTerminado = true
   if (timeoutId) clearTimeout(timeoutId)
 
+  localStorage.setItem("fin_juego", "descalificado")
+  alert("Descalificado por actividad sospechosa")
   await enviarResultado("descalificado")
   window.location.href = "final.html"
 }
 
-function marcarAdvertencia() {
+async function marcarAdvertencia() {
   advertencias++
 
   if (advertencias >= MAX_ADVERTENCIAS) {
     setLog("Descalificado por actividad sospechosa")
-    descalificarPorActividadSospechosa()
+    await descalificarPorActividadSospechosa()
   } else {
+    alert(advertencias === 1 ? "No cambies de pestana" : "Ultima advertencia")
     setLog(`Cambio de pestana detectado (${advertencias}/${MAX_ADVERTENCIAS})`)
   }
 }
 
-document.addEventListener("visibilitychange", () => {
+document.addEventListener("visibilitychange", async () => {
   if (!document.hidden || juegoTerminado) return
 
   const ahora = Date.now()
   if (ahora - ultimoCambio < 3000) return
   ultimoCambio = ahora
 
-  marcarAdvertencia()
+  await marcarAdvertencia()
 })
 
 document.addEventListener("keydown", (e) => {
@@ -222,7 +227,7 @@ async function iniciarCronometro() {
       clearInterval(intervalo)
       reloj.innerText = "0:00"
       juegoTerminado = true
-      if (!resultadoEnviado) await enviarResultado("tiempo")
+      if (!resultadoEnviado && !descalificado) await enviarResultado("tiempo")
       window.location.href = "final.html"
       return
     }
