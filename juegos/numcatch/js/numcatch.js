@@ -2,6 +2,12 @@ import { supabase } from "../../js/supabase.js"
 
 const DURACION = 600
 const MAX_ADVERTENCIAS = 3
+const ACIERTOS_POR_NIVEL = 20
+const MAX_LEVEL = 11
+const BASE_SPAWN_CADA = 0.95
+const MIN_SPAWN_CADA = 0.55
+const BASE_VELOCIDAD = 120
+const MAX_VELOCIDAD = 245
 
 const usuario = localStorage.getItem("usuario") || "Invitado"
 document.getElementById("usuarioLabel").innerText = usuario
@@ -17,7 +23,9 @@ const velocidadEl = document.getElementById("velocidad")
 
 let advertencias = 0
 let resultadoEnviado = false
+let descalificado = false
 let juegoTerminado = false
+let ultimoCambio = 0
 
 let aciertos = 0
 let errores = 0
@@ -29,17 +37,17 @@ let condicionKey = "multiplos_3"
 function getCondicion(key){
   switch(key){
     case "multiplos_2":
-      return { label: "Condición: múltiplos de 2", fn: (n) => n % 2 === 0 }
+      return { label: "Condicion: multiplos de 2", fn: (n) => n % 2 === 0 }
     case "multiplos_3":
-      return { label: "Condición: múltiplos de 3", fn: (n) => n % 3 === 0 }
+      return { label: "Condicion: multiplos de 3", fn: (n) => n % 3 === 0 }
     case "multiplos_5":
-      return { label: "Condición: múltiplos de 5", fn: (n) => n % 5 === 0 }
+      return { label: "Condicion: multiplos de 5", fn: (n) => n % 5 === 0 }
     case "pares":
-      return { label: "Condición: pares", fn: (n) => n % 2 === 0 }
+      return { label: "Condicion: pares", fn: (n) => n % 2 === 0 }
     case "impares":
-      return { label: "Condición: impares", fn: (n) => n % 2 !== 0 }
+      return { label: "Condicion: impares", fn: (n) => n % 2 !== 0 }
     default:
-      return { label: "Condición: múltiplos de 3", fn: (n) => n % 3 === 0 }
+      return { label: "Condicion: multiplos de 3", fn: (n) => n % 3 === 0 }
   }
 }
 
@@ -47,7 +55,7 @@ let condicion = getCondicion(condicionKey)
 let esValido = condicion.fn
 condicionEl.innerText = condicion.label
 
-const numeros = new Map() // id -> {el, x, y, vy, valor, esCorrecto, vivo}
+const numeros = new Map()
 let idSeq = 0
 let ultimoTs = 0
 let spawnAcum = 0
@@ -56,11 +64,26 @@ function setLog(t) {
   logEl.innerText = t
 }
 
+function calcularNivel() {
+  return Math.min(MAX_LEVEL, 1 + Math.floor(aciertos / ACIERTOS_POR_NIVEL))
+}
+
 function actualizarUI() {
+  nivel = calcularNivel()
   aciertosEl.innerText = String(aciertos)
   erroresEl.innerText = String(errores)
   puntajeEl.innerText = String(puntaje)
   velocidadEl.innerText = String(nivel)
+}
+
+function getSpawnCada() {
+  const progreso = (nivel - 1) / (MAX_LEVEL - 1)
+  return BASE_SPAWN_CADA - (BASE_SPAWN_CADA - MIN_SPAWN_CADA) * progreso
+}
+
+function getVelocidadCaida() {
+  const progreso = (nivel - 1) / (MAX_LEVEL - 1)
+  return BASE_VELOCIDAD + (MAX_VELOCIDAD - BASE_VELOCIDAD) * progreso
 }
 
 function randInt(min, max) {
@@ -69,6 +92,7 @@ function randInt(min, max) {
 
 function spawnNumero() {
   if (juegoTerminado) return
+
   const valor = randInt(1, 99)
   const correcto = esValido(valor)
   const el = document.createElement("div")
@@ -83,22 +107,19 @@ function spawnNumero() {
   el.style.top = `${y}px`
 
   if (correcto) {
-    el.style.background = "linear-gradient(135deg, rgba(34,197,94,1), rgba(22,163,74,0.7))"
+    el.style.background = "linear-gradient(135deg, rgba(34,197,94,1), rgba(22,163,74,0.72))"
   } else {
-    el.style.background = "linear-gradient(135deg, rgba(59,130,246,1), rgba(30,64,175,0.7))"
+    el.style.background = "linear-gradient(135deg, rgba(59,130,246,1), rgba(30,64,175,0.72))"
   }
 
   const id = ++idSeq
-
   el.onclick = () => clickNumero(id)
   gameEl.appendChild(el)
 
-  const base = 120 + nivel * 18
   numeros.set(id, {
     el,
-    x,
     y,
-    vy: base,
+    vy: getVelocidadCaida(),
     valor,
     esCorrecto: correcto,
     vivo: true,
@@ -107,29 +128,28 @@ function spawnNumero() {
 
 function clickNumero(id) {
   if (juegoTerminado) return
+
   const item = numeros.get(id)
   if (!item || !item.vivo) return
+
   item.vivo = false
   item.el.remove()
 
   if (item.esCorrecto) {
     aciertos++
     puntaje += 10
-    setLog(`✅ +10 (${item.valor})`)
+    setLog(`+10 (${item.valor})`)
   } else {
     errores++
     puntaje = Math.max(0, puntaje - 8)
-    setLog(`❌ -8 (${item.valor})`)
+    setLog(`-8 (${item.valor})`)
   }
 
-  // Acelerar con el puntaje
-  const nuevoNivel = Math.min(20, 1 + Math.floor(puntaje / 80))
-  if (nuevoNivel !== nivel) {
-    nivel = nuevoNivel
-    setLog(`⚡ ¡Subiste a nivel ${nivel}!`)
-  }
-
+  const nivelAnterior = nivel
   actualizarUI()
+  if (nivel > nivelAnterior) {
+    setLog(`Subiste a nivel ${nivel}`)
+  }
 }
 
 function loop(ts) {
@@ -138,9 +158,8 @@ function loop(ts) {
   const dt = Math.min(0.05, (ts - ultimoTs) / 1000)
   ultimoTs = ts
 
-  // Spawn: más rápido con el nivel
-  const spawnCada = Math.max(0.28, 0.95 - nivel * 0.03)
   spawnAcum += dt
+  const spawnCada = getSpawnCada()
   while (spawnAcum >= spawnCada) {
     spawnAcum -= spawnCada
     spawnNumero()
@@ -152,20 +171,20 @@ function loop(ts) {
       numeros.delete(id)
       continue
     }
-    item.y += item.vy * (1 + nivel * 0.06) * dt
+
+    item.y += item.vy * dt
     item.el.style.top = `${item.y}px`
 
     if (item.y > alto + 30) {
-      // Se escapó
       item.vivo = false
       item.el.remove()
 
       if (item.esCorrecto) {
-        // perder un correcto duele más
         errores++
         puntaje = Math.max(0, puntaje - 12)
-        setLog(`😬 Se escapó ${item.valor} (correcto). -12`)
+        setLog(`Se escapo ${item.valor} (correcto). -12`)
       }
+
       actualizarUI()
     }
   }
@@ -173,17 +192,37 @@ function loop(ts) {
   requestAnimationFrame(loop)
 }
 
-function marcarAdvertencia() {
+async function descalificarPorActividadSospechosa() {
+  if (juegoTerminado) return
+
+  descalificado = true
+  juegoTerminado = true
+  localStorage.setItem("fin_juego", "descalificado")
+  alert("Descalificado por actividad sospechosa")
+  await enviarResultado("descalificado")
+  window.location.href = "final.html"
+}
+
+async function marcarAdvertencia() {
   advertencias++
+
   if (advertencias >= MAX_ADVERTENCIAS) {
-    setLog("❌ Demasiados cambios de pestaña (marcado como inválido)")
+    setLog("Descalificado por actividad sospechosa")
+    await descalificarPorActividadSospechosa()
   } else {
-    setLog(`⚠️ Cambio de pestaña detectado (${advertencias}/${MAX_ADVERTENCIAS})`)
+    alert(advertencias === 1 ? "No cambies de pestana" : "Ultima advertencia")
+    setLog(`Cambio de pestana detectado (${advertencias}/${MAX_ADVERTENCIAS})`)
   }
 }
 
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && !juegoTerminado) marcarAdvertencia()
+document.addEventListener("visibilitychange", async () => {
+  if (!document.hidden || juegoTerminado) return
+
+  const ahora = Date.now()
+  if (ahora - ultimoCambio < 3000) return
+  ultimoCambio = ahora
+
+  await marcarAdvertencia()
 })
 
 async function iniciarCronometro() {
@@ -210,7 +249,7 @@ async function iniciarCronometro() {
       clearInterval(intervalo)
       reloj.innerText = "0:00"
       juegoTerminado = true
-      if (!resultadoEnviado) await enviarResultado("tiempo")
+      if (!resultadoEnviado && !descalificado) await enviarResultado("tiempo")
       window.location.href = "final.html"
       return
     }
@@ -220,8 +259,62 @@ async function iniciarCronometro() {
     reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
   }
 
-  tick()
+  await tick()
   const intervalo = setInterval(tick, 1000)
+}
+
+async function eliminarResultadoNumcatch() {
+  const ranking = await supabase
+    .from("ranking")
+    .delete()
+    .eq("usuario", usuario)
+    .eq("juego", "numcatch")
+
+  if (ranking.error) {
+    console.warn("No se pudo limpiar ranking de numcatch", ranking.error)
+  }
+}
+
+async function guardarResultadoNumcatch(puntosFinal, sospechoso, invalido, motivo) {
+  const payload = {
+    usuario,
+    tiempo: puntosFinal,
+    sospechoso,
+    invalido,
+    motivo,
+    juego: "numcatch",
+  }
+
+  let result = await supabase
+    .from("ranking")
+    .upsert(payload, { onConflict: "usuario,juego" })
+
+  if (!result.error) return true
+
+  result = await supabase
+    .from("ranking")
+    .update({
+      tiempo: puntosFinal,
+      sospechoso,
+      invalido,
+      motivo,
+    })
+    .select("usuario")
+    .eq("usuario", usuario)
+    .eq("juego", "numcatch")
+
+  if (!result.error && result.data && result.data.length > 0) return true
+
+  result = await supabase
+    .from("ranking")
+    .insert(payload)
+
+  if (result.error) {
+    console.error("No se pudo guardar resultado de numcatch", result.error)
+    return false
+  }
+
+  return true
 }
 
 async function enviarResultado(fin) {
@@ -232,21 +325,25 @@ async function enviarResultado(fin) {
   const invalido = advertencias >= MAX_ADVERTENCIAS
   const puntosFinal = invalido ? 0 : puntaje
 
-  await supabase.from("ranking").upsert(
-    {
-      usuario,
-      tiempo: puntosFinal,
+  if (puntosFinal <= 0 || invalido) {
+    await eliminarResultadoNumcatch()
+  } else {
+    const guardado = await guardarResultadoNumcatch(
+      puntosFinal,
       sospechoso,
       invalido,
-      motivo: invalido
-        ? "Demasiados cambios de pestaña"
+      invalido
+        ? "Actividad sospechosa"
         : sospechoso
-          ? "Cambio de pestaña"
-          : "",
-      juego: "numcatch",
-    },
-    { onConflict: "usuario,juego" }
-  )
+          ? "Cambio de pestana"
+          : ""
+    )
+
+    if (!guardado) {
+      resultadoEnviado = false
+      return
+    }
+  }
 
   localStorage.setItem("fin_juego", fin)
   localStorage.setItem("numcatch_puntos", String(puntosFinal))
@@ -265,7 +362,7 @@ async function revisarEstadoTorneo() {
 }
 
 actualizarUI()
-setLog("Cargando condición del torneo...")
+setLog("Cargando condicion del torneo...")
 
 async function cargarCondicionDesdeTorneo(){
   const { data } = await supabase
@@ -279,7 +376,7 @@ async function cargarCondicionDesdeTorneo(){
   condicion = getCondicion(condicionKey)
   esValido = condicion.fn
   condicionEl.innerText = condicion.label
-  setLog(`Listo. ${condicion.label.replace("Condición: ", "Toca solo ")}.`)
+  setLog(`Listo. ${condicion.label.replace("Condicion: ", "Toca solo ")}.`)
 }
 
 await cargarCondicionDesdeTorneo()
@@ -287,4 +384,3 @@ await cargarCondicionDesdeTorneo()
 requestAnimationFrame(loop)
 iniciarCronometro()
 setInterval(revisarEstadoTorneo, 3000)
-

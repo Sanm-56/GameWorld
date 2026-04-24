@@ -3,76 +3,193 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NumCatch - Final</title>
+  <title>NumCatch - Resultados</title>
   <style>
+    :root{
+      --bg-1:#04130e;
+      --bg-2:#0a2419;
+      --panel:#0d2f20;
+      --panel-2:#123925;
+      --line:rgba(110,231,183,0.18);
+      --text:#ecfdf5;
+      --muted:#a7f3d0;
+      --accent:#22c55e;
+      --accent-2:#84cc16;
+      --gold:#facc15;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
     body{
-      font-family: Arial;
-      text-align:center;
-      background:#071a12;
-      color:white;
+      margin:0;
+      min-height:100vh;
+      min-height:100dvh;
       display:flex;
       justify-content:center;
       align-items:center;
-      min-height:100vh;
-      min-height:100dvh;
-      margin:0;
-      padding:16px;
-      overflow-x:hidden;
+      padding:20px;
+      color:var(--text);
+      font-family:Verdana, Geneva, Tahoma, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(34,197,94,0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(250,204,21,0.14), transparent 28%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
     }
+
     .contenedor{
-      width:min(920px, 100%);
-      background:#0b2a1a;
-      border:1px solid rgba(34,197,94,0.2);
-      padding:24px;
-      border-radius:18px;
-      box-shadow:0 20px 60px rgba(0,0,0,0.35);
+      width:min(980px, 100%);
+      background:linear-gradient(180deg, rgba(13,47,32,0.96), rgba(9,34,24,0.98));
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:28px;
+      box-shadow:0 30px 80px rgba(0,0,0,0.38);
     }
+
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(32px, 5vw, 48px);
+    }
+
+    #resultadoFinal{
+      font-size:clamp(24px, 3vw, 34px);
+      font-weight:bold;
+      margin-bottom:6px;
+    }
+
+    #resumenFinal{
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+
+    .posicion-final{
+      margin:18px 0 22px;
+      font-size:clamp(18px, 2.5vw, 28px);
+      color:#dcfce7;
+    }
+
+    #panelResumen{
+      display:grid;
+      grid-template-columns:1.1fr 1fr;
+      gap:18px;
+      align-items:start;
+    }
+
     #podio{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin:18px 0;
+      display:grid;
+      gap:14px;
     }
-    #podio div{
-      background:#071a12;
-      padding:14px 16px;
-      border-radius:14px;
-      min-width:220px;
-      border:1px solid rgba(148,163,184,0.16);
+
+    .podio-card{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(135deg, rgba(17,94,59,0.92), rgba(21,128,61,0.68));
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px;
+      padding:18px 18px 18px 72px;
+      min-height:90px;
     }
+
+    .puesto{
+      position:absolute;
+      left:18px;
+      top:16px;
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      font-weight:bold;
+      color:#062814;
+      background:linear-gradient(135deg, var(--gold), #fde68a);
+    }
+
+    .podio-card h3{
+      margin:0 0 6px;
+      font-size:20px;
+    }
+
+    .podio-card p{
+      margin:0;
+      color:#f0fdf4;
+      font-weight:bold;
+    }
+
     #ranking{
-      margin-top:12px;
-      text-align:left;
-      max-width:520px;
-      margin-left:auto;
-      margin-right:auto;
-      background:#071a12;
-      border:1px solid rgba(148,163,184,0.16);
-      border-radius:14px;
-      padding:14px 16px;
+      background:rgba(4,19,14,0.62);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:14px;
+      min-height:220px;
     }
+
+    .ranking-row{
+      display:grid;
+      grid-template-columns:56px 1fr auto;
+      gap:12px;
+      align-items:center;
+      padding:12px 10px;
+      border-bottom:1px solid rgba(255,255,255,0.07);
+    }
+
+    .ranking-row:last-child{
+      border-bottom:none;
+    }
+
+    .ranking-row.actual{
+      border-radius:14px;
+      background:rgba(34,197,94,0.16);
+      color:#dcfce7;
+    }
+
+    .vacio{
+      margin:0;
+      color:var(--muted);
+      text-align:center;
+      padding:28px 12px;
+    }
+
     button{
-      margin-top:18px;
-      padding:12px 20px;
+      margin-top:22px;
+      padding:14px 22px;
       border:none;
-      border-radius:12px;
+      border-radius:14px;
       cursor:pointer;
       font-weight:bold;
-      background:linear-gradient(135deg, #22c55e, #16a34a);
-      color:white;
+      color:#062814;
+      background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow:0 16px 26px rgba(34,197,94,0.28);
+    }
+
+    @media (max-width:760px){
+      .contenedor{
+        padding:22px;
+      }
+
+      #panelResumen{
+        grid-template-columns:1fr;
+      }
+
+      .ranking-row{
+        grid-template-columns:46px 1fr auto;
+        font-size:14px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="contenedor">
-    <h1>🏁 NumCatch - Resultados</h1>
+    <h1>NumCatch</h1>
     <div id="resultadoFinal"></div>
+    <div id="resumenFinal"></div>
 
-    <div id="podio"></div>
-    <div id="ranking"></div>
+    <section id="panelResumen">
+      <div id="podio"></div>
+      <div id="ranking"></div>
+    </section>
 
-    <button onclick="volverLobby()">🔙 Volver al lobby</button>
+    <button onclick="volverLobby()">Volver al lobby</button>
   </div>
 
   <script type="module" src="./js/final.js"></script>
