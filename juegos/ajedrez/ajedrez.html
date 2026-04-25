@@ -204,11 +204,29 @@ h1{
       </button>
     </div>
   </div>
+  <!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
+<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
+
+<audio loop>
+  <source src="./music/musicasudoku.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
 <script src="vendor/chessboard.js" defer></script>
 <script src="vendor/chess.min.js" defer></script>
 <script type="module" src="./js/ajedrez.js"></script>
+<script>
+/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
 </body>
 </html>

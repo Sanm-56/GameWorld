@@ -186,12 +186,23 @@ h1{
 <div class="result" id="result" style="display:none;margin-top:20px;"></div>
 </div>
 
-<button class="btn musica musica-pos" onclick="reproducirMusica()">Musica</button>
+<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
 <audio loop>
-  <source src="./music/musicadamas.mp3" type="audio/mpeg">
+  <source src="./music/damasmusic.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 
 <script type="module" src="./js/damas.js"></script>
+<script>
+/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
 </body>
 </html>

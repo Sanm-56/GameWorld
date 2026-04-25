@@ -132,6 +132,25 @@ h2{
 <button class="btn" onclick="volverLobby()">🔙 Volver al Lobby</button>
 </div>
 
+<!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
+<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
+
+<audio loop>
+  <source src="./music/dominomusic.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
 <script type="module" src="./js/final.js"></script>
+<script>
+/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
 </body>
 </html>

@@ -231,12 +231,23 @@ button.domino{
 <div class="result" id="result" style="display:none;margin-top:20px;"></div>
 </div>
 
-<button class="btn musica musica-pos" onclick="reproducirMusica()">Musica</button>
+<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
 <audio loop>
-  <source src="./music/musicadomino.mp3" type="audio/mpeg">
+  <source src="./music/dominomusic.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 
 <script type="module" src="./js/domino.js"></script>
+<script>
+/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
 </body>
 </html>
