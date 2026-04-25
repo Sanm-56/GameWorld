@@ -49,6 +49,25 @@ button{
 button:hover{
   transform:scale(1.05);
 }
+/* MORADO PARA MÚSICA */
+.btn.musica{
+background:linear-gradient(135deg, #8b5cf6, #7c3aed);
+color:white;
+width:auto;
+}
+
+/* POSICIÓN MÚSICA */
+.musica-pos{
+position:absolute;
+bottom:20px;
+left:20px;
+}
+
+/* EFECTO */
+.btn:hover{
+transform:translateY(-2px) scale(1.05);
+box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
 
 @media (max-width:500px){
   .contenedor{
@@ -72,7 +91,7 @@ button:hover{
 <button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
 
 <audio loop>
-  <source src="./music/musicasudoku.mp3" type="audio/mpeg">
+  <source src="./music/ajedrezmusic.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 

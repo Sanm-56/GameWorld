@@ -147,6 +147,35 @@
       line-height:1.35;
       min-height:88px;
     }
+/* 🔥 BOTONES PRO */
+.btn{
+padding:12px 20px;
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:all 0.2s ease;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}  
+/* MORADO PARA MÚSICA */
+.btn.musica{
+background:linear-gradient(135deg, #8b5cf6, #7c3aed);
+color:white;
+}
+
+/* POSICIÓN MÚSICA */
+.musica-pos{
+position:absolute;
+bottom:20px;
+left:20px;
+}
+
+/* EFECTO */
+.btn:hover{
+transform:translateY(-2px) scale(1.05);
+box-shadow:0 15px 15px rgba(0,0,0,0.4);
+}
   </style>
 </head>
 <body>
@@ -177,7 +206,8 @@
         <div class="log" id="log">Listo. Toca solo los números correctos…</div>
       </div>
     </div>
-    <!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
+  </div>
+<!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
   <button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
 
   <audio loop>
@@ -185,7 +215,6 @@
     Your browser does not support the audio element.
   </audio>
   </div>
-
   <script type="module" src="./js/numcatch.js"></script>
 
   <script>
