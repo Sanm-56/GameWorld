@@ -64,16 +64,20 @@
   </div>
 
   <audio loop>
-    <source src="./music/musicanumcatch.mp3" type="audio/mpeg" />
+    <source src="./musicc/numcatch.mp3" type="audio/mpeg" />
   </audio>
 
   <script type="module" src="../js/lobby.js"></script>
   <script>
-    function reproducirMusica(){
-      const audio = document.querySelector('audio');
-      if (audio.paused) audio.play();
-      else audio.pause();
-    }
-  </script>
+/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
+function reproducirMusica(){
+  const audio = document.querySelector('audio');
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+</script>
 </body>
 </html>
