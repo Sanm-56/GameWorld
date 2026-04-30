@@ -61,6 +61,7 @@ else if(advertencias >= MAX_ADVERTENCIAS){
 descalificado = true
 juegoTerminado = true
 await guardarResultado(9999, true, true, "Demasiados cambios de pestana")
+await reiniciarRachasSudoku()
 localStorage.setItem("juego_actual", "sudoku")
 window.location.href = "final.html"
 }
@@ -118,6 +119,8 @@ return
 
 const completados = (actual?.completados || 0) + 1
 const completadosSinErrores = (actual?.completados_sin_errores || 0) + (sinErrores ? 1 : 0)
+const rachaCompletadosActual = (actual?.racha_completados_actual || 0) + 1
+const mejorRachaCompletados = Math.max(actual?.mejor_racha_completados || 0, rachaCompletadosActual)
 const rachaActual = sinErrores ? (actual?.racha_sin_errores_actual || 0) + 1 : 0
 const mejorRacha = Math.max(actual?.mejor_racha_sin_errores || 0, rachaActual)
 const mejorTiempoAnterior = actual?.mejor_tiempo
@@ -132,6 +135,8 @@ usuario,
 juego: "sudoku",
 completados,
 completados_sin_errores: completadosSinErrores,
+racha_completados_actual: rachaCompletadosActual,
+mejor_racha_completados: mejorRachaCompletados,
 racha_sin_errores_actual: rachaActual,
 mejor_racha_sin_errores: mejorRacha,
 mejor_tiempo: mejorTiempo,
@@ -140,6 +145,23 @@ updated_at: new Date().toISOString(),
 
 if(error){
 console.warn("No se pudieron guardar estadisticas de logros", error)
+}
+}
+
+async function reiniciarRachasSudoku(){
+
+const { error } = await supabase
+.from("estadisticas_logros")
+.upsert({
+usuario,
+juego: "sudoku",
+racha_completados_actual: 0,
+racha_sin_errores_actual: 0,
+updated_at: new Date().toISOString(),
+}, { onConflict: "usuario,juego" })
+
+if(error){
+console.warn("No se pudieron reiniciar las rachas de logros", error)
 }
 }
 
@@ -280,6 +302,7 @@ reloj.innerText = "0:00"
 
 if(!descalificado){
 await guardarResultado(DURACION, false, false, "Tiempo agotado")
+await reiniciarRachasSudoku()
 }
 
 juegoTerminado = true
@@ -385,6 +408,9 @@ const resultadoGuardado = await guardarResultado(invalido ? 9999 : tiempo, sospe
 
 if(resultadoGuardado && !invalido){
 await guardarEstadisticasSudoku(tiempo, erroresPartida === 0)
+}
+else if(resultadoGuardado && invalido){
+await reiniciarRachasSudoku()
 }
 
 juegoTerminado = true

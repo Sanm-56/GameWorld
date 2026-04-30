@@ -274,6 +274,7 @@ function crearLogrosDeJuego(game, resultado) {
 function crearLogrosSudoku(stats) {
   const completados = stats.completados || 0
   const completadosSinErrores = stats.completados_sin_errores || 0
+  const mejorRachaCompletados = stats.mejor_racha_completados || stats.completados || 0
   const mejorRachaSinErrores = stats.mejor_racha_sin_errores || 0
   const mejorTiempo = typeof stats.mejor_tiempo === 'number' ? stats.mejor_tiempo : null
 
@@ -327,10 +328,34 @@ function crearLogrosSudoku(stats) {
       unlocked: completados >= 350,
     },
     {
+      title: 'Adiccion Numerica',
+      description: 'Creo que ya no puedo dejar este juego... ayuda.',
+      howTo: 'Completa 500 sudokus.',
+      unlocked: completados >= 500,
+    },
+    {
+      title: 'Leyenda Viva',
+      description: 'Dicen que existo... pero nadie me ha visto fallar.',
+      howTo: 'Completa 750 sudokus.',
+      unlocked: completados >= 750,
+    },
+    {
+      title: 'Mas alla del limite',
+      description: 'Ya no estoy jugando... estoy dominando.',
+      howTo: 'Completa 1000 sudokus.',
+      unlocked: completados >= 1000,
+    },
+    {
       title: 'Sin Fallos',
       description: 'Ya este juego me lo se de memoria.',
       howTo: 'Termina un sudoku sin cometer errores.',
       unlocked: completadosSinErrores >= 1,
+    },
+    {
+      title: 'Perfecto... otra vez',
+      description: 'Otra partida perfecta... que sorpresa.',
+      howTo: 'Completa 5 sudokus seguidos sin errores.',
+      unlocked: mejorRachaSinErrores >= 5,
     },
     {
       title: 'Precision Total',
@@ -339,10 +364,22 @@ function crearLogrosSudoku(stats) {
       unlocked: mejorRachaSinErrores >= 15,
     },
     {
+      title: 'Maquina de precision',
+      description: 'Error? No se que es eso.',
+      howTo: 'Completa 25 sudokus seguidos sin errores.',
+      unlocked: mejorRachaSinErrores >= 25,
+    },
+    {
       title: 'Ojo de alcon',
       description: 'Con este ojo no hay nada que no pueda completar.',
       howTo: 'Completa 80 sudokus seguidos sin errores.',
       unlocked: mejorRachaSinErrores >= 80,
+    },
+    {
+      title: 'Modo automatico',
+      description: 'Creo que mis manos juegan solas.',
+      howTo: 'Completa 100 sudokus seguidos sin errores.',
+      unlocked: mejorRachaSinErrores >= 100,
     },
     {
       title: 'Soy un....robot?',
@@ -357,16 +394,34 @@ function crearLogrosSudoku(stats) {
       unlocked: mejorTiempo !== null && mejorTiempo < 420,
     },
     {
+      title: 'Calentando motores',
+      description: 'Eso fue rapido... pero puedo hacerlo mejor.',
+      howTo: 'Resuelve un sudoku en menos de 6 minutos.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 360,
+    },
+    {
       title: 'Rayo Numerico',
       description: 'Oye...creo que no soy humano.',
       howTo: 'Resuelve un sudoku en menos de 5 minutos.',
       unlocked: mejorTiempo !== null && mejorTiempo < 300,
     },
     {
+      title: 'Casi instantaneo',
+      description: 'Parpadee... y ya habia terminado.',
+      howTo: 'Resuelve un sudoku en menos de 4 minutos.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 240,
+    },
+    {
       title: 'Estratega Silencioso',
       description: 'No hay tablero que no pueda resolver.',
       howTo: 'Completa un sudoku en menos de 1 minuto.',
       unlocked: mejorTiempo !== null && mejorTiempo < 60,
+    },
+    {
+      title: 'Sin descanso',
+      description: 'Descansar esta sobrevalorado.',
+      howTo: 'Completa 10 sudokus seguidos.',
+      unlocked: mejorRachaCompletados >= 10,
     },
   ]
 }

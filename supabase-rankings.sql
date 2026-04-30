@@ -4,6 +4,8 @@ create table if not exists public.estadisticas_logros (
   juego text not null,
   completados integer not null default 0,
   completados_sin_errores integer not null default 0,
+  racha_completados_actual integer not null default 0,
+  mejor_racha_completados integer not null default 0,
   racha_sin_errores_actual integer not null default 0,
   mejor_racha_sin_errores integer not null default 0,
   mejor_tiempo integer,
@@ -11,6 +13,12 @@ create table if not exists public.estadisticas_logros (
   updated_at timestamptz not null default now(),
   unique (usuario, juego)
 );
+
+alter table public.estadisticas_logros
+add column if not exists racha_completados_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists mejor_racha_completados integer not null default 0;
 
 create index if not exists estadisticas_logros_usuario_idx
 on public.estadisticas_logros (usuario);
