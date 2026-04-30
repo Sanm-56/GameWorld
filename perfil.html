@@ -23,8 +23,16 @@
   box-sizing:border-box;
 }
 
+html{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+
 body{
   margin:0;
+  width:100%;
+  max-width:100%;
   overflow-x:hidden;
   font-family:Verdana, Geneva, Tahoma, sans-serif;
   background:
@@ -36,9 +44,11 @@ body{
 }
 
 .page{
+  width:100%;
   max-width:1100px;
   margin:0 auto;
   padding:28px 20px 60px;
+  overflow-x:hidden;
 }
 
 .topbar{
@@ -51,6 +61,7 @@ body{
 }
 
 .btn{
+  max-width:100%;
   padding:12px 18px;
   border:none;
   border-radius:12px;
@@ -60,6 +71,7 @@ body{
   cursor:pointer;
   box-shadow:0 10px 24px rgba(0,0,0,0.25);
   transition:transform 0.2s ease, box-shadow 0.2s ease;
+  overflow-wrap:anywhere;
 }
 
 .btn:hover{
@@ -82,6 +94,11 @@ body{
   grid-template-columns:1.2fr 1fr;
   gap:18px;
   margin-bottom:22px;
+  min-width:0;
+}
+
+.hero > *{
+  min-width:0;
 }
 
 .hero h1{
@@ -102,21 +119,26 @@ body{
 }
 
 .pill{
+  max-width:100%;
   padding:10px 14px;
   border-radius:999px;
   background:#0f172a;
   border:1px solid rgba(148,163,184,0.16);
   color:#e2e8f0;
+  overflow-wrap:anywhere;
 }
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(4, 1fr);
+  grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:14px;
   margin-bottom:22px;
 }
 
 .card{
+  width:100%;
+  min-width:0;
+  max-width:100%;
   background:var(--panel);
   border:1px solid rgba(148,163,184,0.12);
   border-radius:14px;
@@ -136,8 +158,12 @@ body{
 
 .layout{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
   gap:20px;
+}
+
+.layout > *{
+  min-width:0;
 }
 
 .section-title{
@@ -151,6 +177,7 @@ body{
   justify-content:space-between;
   gap:12px;
   margin-bottom:14px;
+  min-width:0;
 }
 
 .section-header .section-title{
@@ -169,6 +196,7 @@ body{
 .history-list{
   display:grid;
   gap:12px;
+  min-width:0;
 }
 
 .achievement-grid{
@@ -201,6 +229,7 @@ body{
   padding:14px;
   border-radius:16px;
   background:var(--panel-2);
+  min-width:0;
 }
 
 .medal-icon{
@@ -270,12 +299,14 @@ body{
 
 .game-achievement-tabs{
   display:grid;
-  grid-template-columns:repeat(4, 1fr);
+  grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:10px;
   margin-bottom:16px;
+  min-width:0;
 }
 
 .game-tab{
+  min-width:0;
   min-height:54px;
   padding:10px 12px;
   border:1px solid rgba(148,163,184,0.16);
@@ -289,6 +320,11 @@ body{
   justify-content:center;
   gap:8px;
   transition:transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.game-tab span{
+  min-width:0;
+  overflow-wrap:anywhere;
 }
 
 .game-tab:hover{
@@ -332,6 +368,11 @@ body{
   justify-content:space-between;
   gap:12px;
   align-items:flex-start;
+  min-width:0;
+}
+
+.history-item > div:first-child{
+  min-width:0;
 }
 
 .history-state{
@@ -357,11 +398,11 @@ body{
   }
 
   .stats{
-    grid-template-columns:repeat(2, 1fr);
+    grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 
   .game-achievement-tabs{
-    grid-template-columns:repeat(2, 1fr);
+    grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 
   .achievement-grid{
@@ -376,7 +417,7 @@ body{
 
   .topbar{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
     gap:10px;
     margin-bottom:16px;
   }
@@ -409,6 +450,8 @@ body{
   }
 
   .hero-badges{
+    display:grid;
+    grid-template-columns:1fr;
     gap:8px;
     margin-top:14px;
   }
@@ -445,7 +488,8 @@ body{
     gap:8px;
     overflow-x:auto;
     padding-bottom:4px;
-    margin:0 -2px 14px;
+    margin:0 0 14px;
+    max-width:100%;
     scrollbar-width:thin;
     scroll-snap-type:x proximity;
   }
@@ -496,6 +540,16 @@ body{
 
   .history-state{
     align-self:flex-start;
+  }
+}
+
+@media (max-width:380px){
+  .topbar{
+    grid-template-columns:1fr;
+  }
+
+  .game-tab{
+    flex-basis:124px;
   }
 }
 </style>
