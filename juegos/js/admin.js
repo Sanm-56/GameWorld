@@ -2,6 +2,11 @@ import { supabase } from "./supabase.js"
 
 const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch"])
 const NUMCATCH_DEFAULT_COND = "multiplos_3"
+const TABLAS_RANKING_POR_JUEGO = {
+  ajedrez: "ranking_ajedrez",
+  domino: "ranking_domino",
+  damas: "ranking_damas",
+}
 
 // =============================
 // 🔒 LOGIN ADMIN CON SUPABASE
@@ -118,17 +123,118 @@ mostrar(data || [])
 // =============================
 async function limpiarRanking(){
 
-if(!confirm("¿Seguro que quieres borrar todo el ranking?")) return
+const juego = document.getElementById("juegoSelect")?.value
+
+if(!confirm("¿Seguro que quieres borrar solo el ranking temporal de " + juego + "?")) return
+
+await guardarHistoricoAntesDeLimpiar(juego)
 
 await supabase
 .from("ranking")
 .delete()
-.neq("usuario","")
+.eq("juego", juego)
 
-alert("🧹 Ranking eliminado")
+const tablaExtra = TABLAS_RANKING_POR_JUEGO[juego]
+if(tablaExtra){
+await supabase
+.from(tablaExtra)
+.delete()
+.neq("usuario","")
+}
+
+alert("🧹 Ranking temporal eliminado. Semanal, victorias y global se conservan.")
 
 cargarRanking()
 cargarVistaAdmin()
+}
+
+async function obtenerRankingTemporal(juego){
+const asc = juego ? !JUEGOS_PUNTAJE.has(juego) : true
+
+let { data } = await supabase
+.from("ranking")
+.select("*")
+.eq("juego", juego)
+.eq("invalido", false)
+.order("tiempo", { ascending: asc })
+
+data = data || []
+
+const tablaExtra = TABLAS_RANKING_POR_JUEGO[juego]
+if(tablaExtra){
+const fallback = await supabase
+.from(tablaExtra)
+.select("*")
+.eq("invalido", false)
+.order("tiempo", { ascending: asc })
+
+if(fallback.data){
+const usuarios = new Set(data.map((item) => item.usuario))
+fallback.data.forEach((item) => {
+if(!usuarios.has(item.usuario)){
+data.push(item)
+usuarios.add(item.usuario)
+}
+})
+}
+}
+
+return data
+}
+
+async function guardarHistoricoAntesDeLimpiar(juego){
+if(!juego) return
+
+const ranking = await obtenerRankingTemporal(juego)
+if(!ranking.length) return
+
+const { data: torneo } = await supabase
+.from("estado_torneo")
+.select("inicio_torneo")
+.eq("id",1)
+.single()
+
+const desde = torneo?.inicio_torneo || new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
+const esPuntaje = JUEGOS_PUNTAJE.has(juego)
+const nuevos = []
+
+for(const [index, item] of ranking.entries()){
+const valor = Number(item.tiempo || 0)
+
+let query = supabase
+.from("partidas")
+.select("id")
+.eq("usuario", item.usuario)
+.eq("juego", juego)
+.gte("fecha", desde)
+.limit(1)
+
+query = esPuntaje
+? query.eq("puntos", valor)
+: query.eq("tiempo", valor)
+
+const { data: existente } = await query
+if(existente && existente.length) continue
+
+nuevos.push({
+usuario: item.usuario,
+usuario_id: null,
+juego,
+puntos: esPuntaje ? valor : 0,
+tiempo: esPuntaje ? 0 : valor,
+posicion: index + 1,
+})
+}
+
+if(!nuevos.length) return
+
+const { error } = await supabase
+.from("partidas")
+.insert(nuevos)
+
+if(error){
+console.warn("No se pudo conservar el historico antes de limpiar", error)
+}
 }
 
 // =============================
@@ -136,10 +242,21 @@ cargarVistaAdmin()
 // =============================
 async function eliminar(usuario){
 
+const juego = document.getElementById("juegoSelect")?.value
+
 await supabase
 .from("ranking")
 .delete()
 .eq("usuario", usuario)
+.eq("juego", juego)
+
+const tablaExtra = TABLAS_RANKING_POR_JUEGO[juego]
+if(tablaExtra){
+await supabase
+.from(tablaExtra)
+.delete()
+.eq("usuario", usuario)
+}
 
 cargarRanking()
 cargarVistaAdmin()
