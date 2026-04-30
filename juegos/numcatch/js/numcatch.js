@@ -1,4 +1,5 @@
 import { supabase } from "../../js/supabase.js"
+import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 
 const DURACION = 600
 const MAX_ADVERTENCIAS = 3
@@ -289,7 +290,10 @@ async function guardarResultadoNumcatch(puntosFinal, sospechoso, invalido, motiv
     .from("ranking")
     .upsert(payload, { onConflict: "usuario,juego" })
 
-  if (!result.error) return true
+  if (!result.error) {
+    await registrarPartidaDesdeRanking({ usuario, juego: "numcatch", valor: puntosFinal, modo: "points", invalido })
+    return true
+  }
 
   result = await supabase
     .from("ranking")
@@ -303,7 +307,10 @@ async function guardarResultadoNumcatch(puntosFinal, sospechoso, invalido, motiv
     .eq("usuario", usuario)
     .eq("juego", "numcatch")
 
-  if (!result.error && result.data && result.data.length > 0) return true
+  if (!result.error && result.data && result.data.length > 0) {
+    await registrarPartidaDesdeRanking({ usuario, juego: "numcatch", valor: puntosFinal, modo: "points", invalido })
+    return true
+  }
 
   result = await supabase
     .from("ranking")
@@ -314,6 +321,7 @@ async function guardarResultadoNumcatch(puntosFinal, sospechoso, invalido, motiv
     return false
   }
 
+  await registrarPartidaDesdeRanking({ usuario, juego: "numcatch", valor: puntosFinal, modo: "points", invalido })
   return true
 }
 

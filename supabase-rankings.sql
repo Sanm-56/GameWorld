@@ -1,6 +1,31 @@
 -- Crear tablas de ranking separadas para ajedrez, damas y domino
 -- Si prefieres usar una sola tabla "ranking" con un campo "juego", no necesitas estas tablas.
 
+-- Tabla modular para rankings semanales, victorias y globales.
+-- La web actual puede seguir usando "ranking" para el tiempo real.
+CREATE TABLE IF NOT EXISTS public.partidas (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  usuario_id uuid,
+  usuario text,
+  juego text NOT NULL,
+  puntos int DEFAULT 0,
+  tiempo float DEFAULT 0,
+  posicion int,
+  fecha timestamp with time zone DEFAULT timezone('utc', now()) NOT NULL
+);
+
+ALTER TABLE public.partidas
+  ADD COLUMN IF NOT EXISTS usuario text;
+
+CREATE INDEX IF NOT EXISTS partidas_juego_fecha_idx
+  ON public.partidas(juego, fecha DESC);
+
+CREATE INDEX IF NOT EXISTS partidas_juego_usuario_idx
+  ON public.partidas(juego, usuario_id);
+
+CREATE INDEX IF NOT EXISTS partidas_juego_usuario_text_idx
+  ON public.partidas(juego, usuario);
+
 CREATE TABLE IF NOT EXISTS public.ranking_ajedrez (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   usuario text NOT NULL,

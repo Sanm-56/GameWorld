@@ -1,4 +1,5 @@
 import { supabase } from "../../js/supabase.js"
+import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 
 const pestana = "memoria_activo"
 
@@ -248,6 +249,14 @@ console.error("Error guardando resultado de memoria", error)
 resultadoEnviado = false
 return false
 }
+
+await registrarPartidaDesdeRanking({
+usuario,
+juego: "memoria",
+valor: tiempo,
+modo: "time",
+invalido
+})
 
 return true
 }

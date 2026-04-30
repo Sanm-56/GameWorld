@@ -1,4 +1,5 @@
 import { supabase } from "../../js/supabase.js"
+import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 
 const pestana = "sudoku_activo"
 
@@ -80,6 +81,14 @@ console.error("Error guardando resultado de sudoku", error)
 resultadoEnviado = false
 return false
 }
+
+await registrarPartidaDesdeRanking({
+usuario,
+juego: "sudoku",
+valor: tiempo,
+modo: "time",
+invalido
+})
 
 return true
 }

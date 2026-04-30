@@ -1,4 +1,5 @@
 import { supabase } from '../../js/supabase.js'
+import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
 
 // =============================
 // BLOQUEO MULTI-PESTANA
@@ -548,6 +549,13 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     .upsert(payload, { onConflict: 'usuario,juego' })
 
   if (!error) {
+    await registrarPartidaDesdeRanking({
+      usuario,
+      juego: 'domino',
+      valor: payload.tiempo,
+      modo: 'time',
+      invalido: invalidoFinal,
+    })
     return
   }
 
@@ -557,6 +565,14 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
 
   if (fallback.error) {
     console.error('Error guardando resultado domino', fallback.error)
+  } else {
+    await registrarPartidaDesdeRanking({
+      usuario,
+      juego: 'domino',
+      valor: payload.tiempo,
+      modo: 'time',
+      invalido: invalidoFinal,
+    })
   }
 }
 

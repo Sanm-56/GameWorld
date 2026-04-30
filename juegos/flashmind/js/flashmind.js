@@ -1,4 +1,5 @@
 import { supabase } from "../../js/supabase.js"
+import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 
 const DURACION = 600
 const MAX_ADVERTENCIAS = 3
@@ -268,6 +269,7 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
     .upsert(payload, { onConflict: "usuario,juego" })
 
   if (!result.error) {
+    await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
     return true
   }
 
@@ -286,6 +288,7 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
     .eq("juego", "flashmind")
 
   if (!result.error && result.data && result.data.length > 0) {
+    await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
     return true
   }
 
@@ -300,6 +303,7 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
     return false
   }
 
+  await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
   return true
 }
 

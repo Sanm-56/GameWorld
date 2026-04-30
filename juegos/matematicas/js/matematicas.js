@@ -1,4 +1,5 @@
 import { supabase } from "../../js/supabase.js"
+import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 
 // 🔒 BLOQUEO MULTI-PESTAÑA
 const pestaña = "mate_activo"
@@ -226,6 +227,13 @@ usuario,
 tiempo: correctas * 10,
 juego: "matematicas"
 }, { onConflict: "usuario,juego" })
+
+await registrarPartidaDesdeRanking({
+usuario,
+juego: "matematicas",
+valor: correctas * 10,
+modo: "points"
+})
 
 }
 

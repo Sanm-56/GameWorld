@@ -1,4 +1,5 @@
 import { supabase } from '../../js/supabase.js'
+import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
 
 // =============================
 // 🔒 BLOQUEO MULTI-PESTAÑA
@@ -583,10 +584,24 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
       console.error('Error en ranking_ajedrez', fallback.error)
     } else {
       console.log('Resultado guardado en ranking_ajedrez', fallback.data)
+      await registrarPartidaDesdeRanking({
+        usuario,
+        juego: 'ajedrez',
+        valor: payload.tiempo,
+        modo: 'time',
+        invalido: invalido_final,
+      })
     }
     return
   }
 
+  await registrarPartidaDesdeRanking({
+    usuario,
+    juego: 'ajedrez',
+    valor: payload.tiempo,
+    modo: 'time',
+    invalido: invalido_final,
+  })
   console.log('Resultado ajedrez guardado', data)
 }
 

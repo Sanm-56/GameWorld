@@ -213,6 +213,19 @@ h1{
   opacity:1;
 }
 
+.rankings-btn{
+  position:static;
+  min-height:auto;
+  padding:14px 18px;
+  border-radius:16px;
+  background:linear-gradient(135deg, #ca8a04, #facc15);
+  opacity:0.95;
+}
+
+.rankings-btn:hover{
+  opacity:1;
+}
+
 .acciones{
   position:absolute;
   left:20px;
@@ -223,8 +236,163 @@ h1{
 }
 
 .profile-btn,
-.music-btn{
+.music-btn,
+.rankings-btn{
   position:static;
+}
+
+.ranking-modal{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+  background:rgba(2,6,23,0.72);
+  backdrop-filter:blur(8px);
+  opacity:0;
+  transition:opacity 0.22s ease;
+}
+
+.ranking-modal.abierto{
+  display:flex;
+  opacity:1;
+}
+
+.ranking-panel{
+  width:min(720px, 100%);
+  max-height:min(720px, calc(100vh - 44px));
+  overflow:hidden;
+  border:1px solid rgba(148,163,184,0.18);
+  border-radius:24px;
+  background:rgba(8,15,29,0.96);
+  box-shadow:0 28px 80px rgba(0,0,0,0.45);
+  transform:translateY(12px) scale(0.98);
+  transition:transform 0.22s ease;
+}
+
+.ranking-modal.abierto .ranking-panel{
+  transform:translateY(0) scale(1);
+}
+
+.ranking-head{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:flex-start;
+  padding:22px 22px 14px;
+  border-bottom:1px solid rgba(148,163,184,0.12);
+}
+
+.ranking-head h2{
+  margin:0 0 6px;
+  font-size:24px;
+}
+
+.ranking-head p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.4;
+  font-size:14px;
+}
+
+.ranking-close{
+  border:none;
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  cursor:pointer;
+  background:rgba(148,163,184,0.12);
+  color:white;
+  font-size:24px;
+  line-height:1;
+}
+
+.ranking-body{
+  padding:18px 22px 22px;
+  overflow:auto;
+  max-height:calc(min(720px, 100vh - 44px) - 88px);
+}
+
+.ranking-controls{
+  display:grid;
+  grid-template-columns:minmax(140px, 1fr) 2fr;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.ranking-select{
+  width:100%;
+  border:1px solid rgba(148,163,184,0.18);
+  border-radius:14px;
+  padding:12px 14px;
+  color:white;
+  background:#0f172a;
+  font:inherit;
+}
+
+.ranking-tabs{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:8px;
+}
+
+.ranking-tab{
+  border:1px solid rgba(148,163,184,0.16);
+  border-radius:14px;
+  padding:11px 10px;
+  color:white;
+  background:rgba(15,23,42,0.72);
+  cursor:pointer;
+  font:inherit;
+  transition:background 0.18s ease, border-color 0.18s ease;
+}
+
+.ranking-tab.activo{
+  background:rgba(250,204,21,0.18);
+  border-color:rgba(250,204,21,0.5);
+}
+
+.ranking-status{
+  min-height:22px;
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:10px;
+}
+
+.ranking-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.ranking-row{
+  display:grid;
+  grid-template-columns:46px 1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  border:1px solid rgba(148,163,184,0.12);
+  border-radius:14px;
+  background:rgba(15,23,42,0.62);
+}
+
+.ranking-pos{
+  font-weight:bold;
+  color:#fde68a;
+}
+
+.ranking-user{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.ranking-score{
+  color:#bfdbfe;
+  font-weight:bold;
 }
 
 @media (max-width: 720px){
@@ -285,10 +453,33 @@ h1{
   }
 
   .profile-btn,
-  .music-btn{
+  .music-btn,
+  .rankings-btn{
     padding:11px 14px;
     font-size:14px;
     border-radius:14px;
+  }
+
+  .ranking-controls{
+    grid-template-columns:1fr;
+  }
+
+  .ranking-tabs{
+    grid-template-columns:1fr;
+  }
+
+  .ranking-head,
+  .ranking-body{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .ranking-row{
+    grid-template-columns:38px 1fr;
+  }
+
+  .ranking-score{
+    grid-column:2;
   }
 
   .admin-btn{
@@ -395,7 +586,32 @@ h1{
 <button class="boton admin-btn" onclick="irAdmin()">Admin</button>
 <div class="acciones">
   <button class="boton profile-btn" onclick="irPerfil()">Perfil</button>
+  <button class="boton rankings-btn" data-open-rankings>Rankings</button>
   <button class="boton music-btn" onclick="reproducirMusica()">Musica</button>
+</div>
+
+<div class="ranking-modal" id="rankingModal" aria-hidden="true">
+  <section class="ranking-panel" role="dialog" aria-modal="true" aria-labelledby="rankingTitle">
+    <div class="ranking-head">
+      <div>
+        <h2 id="rankingTitle">Rankings</h2>
+        <p>Consulta clasificaciones semanales, victorias y acumulado global.</p>
+      </div>
+      <button class="ranking-close" type="button" data-close-rankings aria-label="Cerrar ranking">&times;</button>
+    </div>
+    <div class="ranking-body">
+      <div class="ranking-controls">
+        <select class="ranking-select" id="rankingGame" aria-label="Juego"></select>
+        <div class="ranking-tabs" role="tablist" aria-label="Tipos de ranking">
+          <button class="ranking-tab activo" type="button" data-ranking-type="semanal">Semanal</button>
+          <button class="ranking-tab" type="button" data-ranking-type="victorias">Victorias</button>
+          <button class="ranking-tab" type="button" data-ranking-type="global">Global</button>
+        </div>
+      </div>
+      <div class="ranking-status" id="rankingStatus">Listo.</div>
+      <div class="ranking-list" id="rankingList"></div>
+    </div>
+  </section>
 </div>
 
 <audio loop>
@@ -459,5 +675,6 @@ function reproducirMusica(){
   }
 }
 </script>
+<script type="module" src="juegos/js/rankings-modal.js"></script>
 </body>
 </html>
