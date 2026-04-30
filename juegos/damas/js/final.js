@@ -18,22 +18,34 @@ function formatearTiempo(segundos) {
 }
 
 async function cargarResultados() {
-  let result = await supabase
+  const rankingGeneral = await supabase
+    .from('ranking')
+    .select('*')
+    .eq('invalido', false)
+    .eq('juego', 'damas')
+    .order('tiempo', { ascending: true })
+
+  const rankingDamas = await supabase
     .from('ranking_damas')
     .select('*')
     .eq('invalido', false)
     .order('tiempo', { ascending: true })
 
-  if (result.error) {
-    result = await supabase
-      .from('ranking')
-      .select('*')
-      .eq('invalido', false)
-      .eq('juego', 'damas')
-      .order('tiempo', { ascending: true })
-  }
+  const resultadosPorUsuario = new Map()
+  const resultados = [
+    ...(rankingGeneral.error ? [] : rankingGeneral.data || []),
+    ...(rankingDamas.error ? [] : rankingDamas.data || []),
+  ]
 
-  const data = result.data || []
+  resultados.forEach((jugador) => {
+    const actual = resultadosPorUsuario.get(jugador.usuario)
+    if (!actual || jugador.tiempo < actual.tiempo) {
+      resultadosPorUsuario.set(jugador.usuario, jugador)
+    }
+  })
+
+  const data = Array.from(resultadosPorUsuario.values())
+    .sort((a, b) => a.tiempo - b.tiempo)
   const posicionDiv = document.createElement('h2')
 
   if (sinPosicion) {

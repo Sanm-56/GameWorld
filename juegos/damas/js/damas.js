@@ -101,7 +101,6 @@ let board = []
 let selectedPiece = null
 let highlightedMoves = []
 let currentPlayer = 'red'
-let forcedChain = null
 let moveCount = 0
 
 // =============================
@@ -242,7 +241,6 @@ function inicializarTablero() {
   selectedPiece = null
   highlightedMoves = []
   currentPlayer = 'red'
-  forcedChain = null
   moveCount = 0
 
   renderBoard()
@@ -361,55 +359,17 @@ function obtenerMovimientosDePieza(row, col, forceCaptureOnly = false) {
   return moves
 }
 
-function jugadorTieneCaptura(color) {
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const piece = board[row][col]
-      if (piece?.color !== color) continue
-
-      const moves = obtenerMovimientosDePieza(row, col, true)
-      if (moves.some((move) => move.capture)) {
-        return true
-      }
-    }
-  }
-
-  return false
-}
-
 function obtenerMovimientosValidos(row, col) {
   const piece = board[row][col]
   if (!piece) return []
 
-  const mustCapture = jugadorTieneCaptura(piece.color)
-  const moves = obtenerMovimientosDePieza(row, col, mustCapture)
-
-  return mustCapture ? moves.filter((move) => move.capture) : moves
-}
-
-function obtenerCapturasEncadenadas(row, col) {
-  return obtenerMovimientosDePieza(row, col, true).filter((move) => move.capture)
+  return obtenerMovimientosDePieza(row, col, false)
 }
 
 function onSquareClick(row, col) {
   if (juegoTerminado || currentPlayer !== 'red') return
 
   const clickedPiece = board[row][col]
-
-  if (forcedChain) {
-    if (row === forcedChain.row && col === forcedChain.col) {
-      selectedPiece = { row, col }
-      highlightedMoves = obtenerMovimientosValidos(row, col)
-      renderBoard()
-      return
-    }
-
-    const forcedMove = highlightedMoves.find((move) => move.row === row && move.col === col)
-    if (forcedMove) {
-      aplicarMovimiento(forcedChain.row, forcedChain.col, forcedMove)
-    }
-    return
-  }
 
   if (clickedPiece?.color === 'red') {
     const moves = obtenerMovimientosValidos(row, col)
@@ -446,31 +406,6 @@ function aplicarMovimiento(fromRow, fromCol, move) {
   coronarSiAplica(move.row, piece)
   moveCount++
 
-  if (move.capture) {
-    const nextCaptures = obtenerCapturasEncadenadas(move.row, move.col)
-    if (nextCaptures.length > 0) {
-      forcedChain = { row: move.row, col: move.col }
-
-      if (piece.color === 'red') {
-        selectedPiece = { row: move.row, col: move.col }
-        highlightedMoves = nextCaptures
-        statusEl.innerText = 'Debes continuar capturando con la misma ficha.'
-        renderBoard()
-        updateInfo()
-      } else {
-        selectedPiece = null
-        highlightedMoves = []
-        statusEl.innerText = 'El bot sigue capturando...'
-        renderBoard()
-        updateInfo()
-        limpiarTurnoBot()
-        botTimeout = setTimeout(botTurn, 550)
-      }
-      return
-    }
-  }
-
-  forcedChain = null
   selectedPiece = null
   highlightedMoves = []
 
@@ -498,15 +433,13 @@ function coronarSiAplica(row, piece) {
 
 function obtenerTodosLosMovimientos(color) {
   const moves = []
-  const mustCapture = jugadorTieneCaptura(color)
 
   for (let row = 0; row < BOARD_SIZE; row++) {
     for (let col = 0; col < BOARD_SIZE; col++) {
       const piece = board[row][col]
       if (piece?.color !== color) continue
 
-      const pieceMoves = obtenerMovimientosDePieza(row, col, mustCapture)
-        .filter((move) => !mustCapture || move.capture)
+      const pieceMoves = obtenerMovimientosDePieza(row, col, false)
         .map((move) => ({
           fromRow: row,
           fromCol: col,
@@ -523,13 +456,7 @@ function obtenerTodosLosMovimientos(color) {
 function botTurn() {
   if (juegoTerminado || currentPlayer !== 'blue') return
 
-  const moves = forcedChain
-    ? obtenerCapturasEncadenadas(forcedChain.row, forcedChain.col).map((move) => ({
-        fromRow: forcedChain.row,
-        fromCol: forcedChain.col,
-        move,
-      }))
-    : obtenerTodosLosMovimientos('blue')
+  const moves = obtenerTodosLosMovimientos('blue')
   if (moves.length === 0) {
     finishGame('Ganaste. El bot se quedó sin movimientos.')
     return
@@ -615,7 +542,6 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
 
   if (tiempo < 30) {
     sospechosoFinal = true
-    invalidoFinal = true
     motivoFinal += 'Tiempo extremadamente bajo | '
   }
 
