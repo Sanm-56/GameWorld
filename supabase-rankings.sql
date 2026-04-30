@@ -9,6 +9,15 @@ create table if not exists public.estadisticas_logros (
   racha_sin_errores_actual integer not null default 0,
   mejor_racha_sin_errores integer not null default 0,
   mejor_tiempo integer,
+  tiempo_jugado_total integer not null default 0,
+  racha_tiempo_jugado_actual integer not null default 0,
+  mejor_racha_tiempo_jugado integer not null default 0,
+  torneos_participados integer not null default 0,
+  mejor_posicion_torneo integer,
+  victorias_torneos integer not null default 0,
+  racha_top10_torneos_actual integer not null default 0,
+  mejor_racha_top10_torneos integer not null default 0,
+  victorias_sin_errores integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (usuario, juego)
@@ -19,6 +28,33 @@ add column if not exists racha_completados_actual integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists mejor_racha_completados integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists tiempo_jugado_total integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists racha_tiempo_jugado_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists mejor_racha_tiempo_jugado integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists torneos_participados integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists mejor_posicion_torneo integer;
+
+alter table public.estadisticas_logros
+add column if not exists victorias_torneos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists racha_top10_torneos_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists mejor_racha_top10_torneos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists victorias_sin_errores integer not null default 0;
 
 create index if not exists estadisticas_logros_usuario_idx
 on public.estadisticas_logros (usuario);

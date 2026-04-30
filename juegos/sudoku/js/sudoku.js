@@ -103,7 +103,21 @@ invalido
 return true
 }
 
-async function guardarEstadisticasSudoku(tiempo, sinErrores){
+async function obtenerPosicionSudoku(){
+const { data, error } = await supabase
+.from("ranking")
+.select("usuario,tiempo,invalido")
+.eq("juego", "sudoku")
+.eq("invalido", false)
+.order("tiempo", { ascending: true })
+
+if(error || !data) return null
+
+const index = data.findIndex((row) => row.usuario === usuario)
+return index >= 0 ? index + 1 : null
+}
+
+async function guardarEstadisticasSudoku({ tiempo, tiempoJugado, completado, sinErrores, posicion }){
 
 const { data: actual, error: lecturaError } = await supabase
 .from("estadisticas_logros")
@@ -117,16 +131,35 @@ console.warn("No se pudieron leer estadisticas de logros", lecturaError)
 return
 }
 
-const completados = (actual?.completados || 0) + 1
-const completadosSinErrores = (actual?.completados_sin_errores || 0) + (sinErrores ? 1 : 0)
-const rachaCompletadosActual = (actual?.racha_completados_actual || 0) + 1
+const completados = (actual?.completados || 0) + (completado ? 1 : 0)
+const completadosSinErrores = (actual?.completados_sin_errores || 0) + (completado && sinErrores ? 1 : 0)
+const rachaCompletadosActual = completado ? (actual?.racha_completados_actual || 0) + 1 : 0
 const mejorRachaCompletados = Math.max(actual?.mejor_racha_completados || 0, rachaCompletadosActual)
-const rachaActual = sinErrores ? (actual?.racha_sin_errores_actual || 0) + 1 : 0
+const rachaActual = completado && sinErrores ? (actual?.racha_sin_errores_actual || 0) + 1 : 0
 const mejorRacha = Math.max(actual?.mejor_racha_sin_errores || 0, rachaActual)
 const mejorTiempoAnterior = actual?.mejor_tiempo
-const mejorTiempo = typeof mejorTiempoAnterior === "number"
+const mejorTiempo = completado && typeof mejorTiempoAnterior === "number"
 ? Math.min(mejorTiempoAnterior, tiempo)
-: tiempo
+: completado
+? tiempo
+: mejorTiempoAnterior
+const tiempoJugadoSeguro = Math.max(0, Number(tiempoJugado || 0))
+const tiempoJugadoTotal = (actual?.tiempo_jugado_total || 0) + tiempoJugadoSeguro
+const rachaTiempoJugadoActual = tiempoJugadoSeguro > 0
+? (actual?.racha_tiempo_jugado_actual || 0) + tiempoJugadoSeguro
+: 0
+const mejorRachaTiempoJugado = Math.max(actual?.mejor_racha_tiempo_jugado || 0, rachaTiempoJugadoActual)
+const torneosParticipados = (actual?.torneos_participados || 0) + 1
+const mejorPosicionAnterior = actual?.mejor_posicion_torneo
+const mejorPosicionTorneo = typeof posicion === "number"
+? (typeof mejorPosicionAnterior === "number" ? Math.min(mejorPosicionAnterior, posicion) : posicion)
+: mejorPosicionAnterior
+const victoriasTorneos = (actual?.victorias_torneos || 0) + (posicion === 1 ? 1 : 0)
+const rachaTop10Actual = typeof posicion === "number" && posicion <= 10
+? (actual?.racha_top10_torneos_actual || 0) + 1
+: 0
+const mejorRachaTop10 = Math.max(actual?.mejor_racha_top10_torneos || 0, rachaTop10Actual)
+const victoriasSinErrores = (actual?.victorias_sin_errores || 0) + (posicion === 1 && completado && sinErrores ? 1 : 0)
 
 const { error } = await supabase
 .from("estadisticas_logros")
@@ -140,6 +173,15 @@ mejor_racha_completados: mejorRachaCompletados,
 racha_sin_errores_actual: rachaActual,
 mejor_racha_sin_errores: mejorRacha,
 mejor_tiempo: mejorTiempo,
+tiempo_jugado_total: tiempoJugadoTotal,
+racha_tiempo_jugado_actual: rachaTiempoJugadoActual,
+mejor_racha_tiempo_jugado: mejorRachaTiempoJugado,
+torneos_participados: torneosParticipados,
+mejor_posicion_torneo: mejorPosicionTorneo,
+victorias_torneos: victoriasTorneos,
+racha_top10_torneos_actual: rachaTop10Actual,
+mejor_racha_top10_torneos: mejorRachaTop10,
+victorias_sin_errores: victoriasSinErrores,
 updated_at: new Date().toISOString(),
 }, { onConflict: "usuario,juego" })
 
@@ -157,6 +199,8 @@ usuario,
 juego: "sudoku",
 racha_completados_actual: 0,
 racha_sin_errores_actual: 0,
+racha_tiempo_jugado_actual: 0,
+racha_top10_torneos_actual: 0,
 updated_at: new Date().toISOString(),
 }, { onConflict: "usuario,juego" })
 
@@ -301,8 +345,17 @@ clearInterval(intervalo)
 reloj.innerText = "0:00"
 
 if(!descalificado){
-await guardarResultado(DURACION, false, false, "Tiempo agotado")
-await reiniciarRachasSudoku()
+const resultadoGuardado = await guardarResultado(DURACION, false, false, "Tiempo agotado")
+if(resultadoGuardado){
+const posicion = await obtenerPosicionSudoku()
+await guardarEstadisticasSudoku({
+tiempo: DURACION,
+tiempoJugado: DURACION,
+completado: false,
+sinErrores: false,
+posicion,
+})
+}
 }
 
 juegoTerminado = true
@@ -407,7 +460,14 @@ motivo += " | Demasiados cambios"
 const resultadoGuardado = await guardarResultado(invalido ? 9999 : tiempo, sospechoso, invalido, motivo)
 
 if(resultadoGuardado && !invalido){
-await guardarEstadisticasSudoku(tiempo, erroresPartida === 0)
+const posicion = await obtenerPosicionSudoku()
+await guardarEstadisticasSudoku({
+tiempo,
+tiempoJugado: tiempo,
+completado: true,
+sinErrores: erroresPartida === 0,
+posicion,
+})
 }
 else if(resultadoGuardado && invalido){
 await reiniciarRachasSudoku()

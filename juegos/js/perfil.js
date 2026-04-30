@@ -276,6 +276,13 @@ function crearLogrosSudoku(stats) {
   const completadosSinErrores = stats.completados_sin_errores || 0
   const mejorRachaCompletados = stats.mejor_racha_completados || stats.completados || 0
   const mejorRachaSinErrores = stats.mejor_racha_sin_errores || 0
+  const tiempoJugadoTotal = stats.tiempo_jugado_total || 0
+  const mejorRachaTiempoJugado = stats.mejor_racha_tiempo_jugado || 0
+  const torneosParticipados = stats.torneos_participados || 0
+  const mejorPosicionTorneo = typeof stats.mejor_posicion_torneo === 'number' ? stats.mejor_posicion_torneo : null
+  const victoriasTorneos = stats.victorias_torneos || 0
+  const mejorRachaTop10Torneos = stats.mejor_racha_top10_torneos || 0
+  const victoriasSinErrores = stats.victorias_sin_errores || 0
   const mejorTiempo = typeof stats.mejor_tiempo === 'number' ? stats.mejor_tiempo : null
 
   return [
@@ -422,6 +429,144 @@ function crearLogrosSudoku(stats) {
       description: 'Descansar esta sobrevalorado.',
       howTo: 'Completa 10 sudokus seguidos.',
       unlocked: mejorRachaCompletados >= 10,
+    },
+    {
+      title: 'Trasnochador Numerico',
+      description: 'Una mas... y ya duermo... lo juro.',
+      howTo: 'Juega 2 horas seguidas en sudoku.',
+      unlocked: mejorRachaTiempoJugado >= 2 * 60 * 60,
+    },
+    {
+      title: 'Noches de Sudoku',
+      description: 'El reloj avanza... yo tambien.',
+      howTo: 'Juega 3 horas seguidas en sudoku.',
+      unlocked: mejorRachaTiempoJugado >= 3 * 60 * 60,
+    },
+    {
+      title: 'Inquebrantable',
+      description: 'Nada me distrae... absolutamente nada.',
+      howTo: 'Juega 5 horas seguidas en sudoku.',
+      unlocked: mejorRachaTiempoJugado >= 5 * 60 * 60,
+    },
+    {
+      title: 'Sesion Eterna',
+      description: 'Creo que el tiempo dejo de existir hace rato.',
+      howTo: 'Juega 4 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 4 * 60 * 60,
+    },
+    {
+      title: 'Sin Parpadear',
+      description: 'Juraria que no he cerrado los ojos en horas.',
+      howTo: 'Juega 6 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 6 * 60 * 60,
+    },
+    {
+      title: 'Turno Completo',
+      description: 'Esto ya parece un trabajo de tiempo completo.',
+      howTo: 'Juega 8 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 8 * 60 * 60,
+    },
+    {
+      title: 'Absorcion Total',
+      description: 'Este juego ya es parte de mi.',
+      howTo: 'Juega 10 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 10 * 60 * 60,
+    },
+    {
+      title: 'Modo Ermitano',
+      description: 'Salir? No, gracias... tengo numeros.',
+      howTo: 'Juega 15 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 15 * 60 * 60,
+    },
+    {
+      title: 'Fuera del Tiempo',
+      description: 'No se que dia es... pero sigo jugando.',
+      howTo: 'Juega 20 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 20 * 60 * 60,
+    },
+    {
+      title: 'Vida Alternativa',
+      description: 'Creo que vivo mas aqui que en la vida real.',
+      howTo: 'Juega 25 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 25 * 60 * 60,
+    },
+    {
+      title: 'En otro mundo',
+      description: 'Ya ni se si estoy en la tierra....lo estare?',
+      howTo: 'Juega 35 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 35 * 60 * 60,
+    },
+    {
+      title: 'Esto ya es un vicio',
+      description: 'No puedo creer que no pueda parar de jugar.',
+      howTo: 'Juega 100 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 100 * 60 * 60,
+    },
+    {
+      title: 'Toca cesped',
+      description: 'Creo que ya es hora de tocar cesped....verdad?',
+      howTo: 'Juega 200 horas acumuladas en sudoku.',
+      unlocked: tiempoJugadoTotal >= 200 * 60 * 60,
+    },
+    {
+      title: 'Primera Competencia',
+      description: 'Ok... esto ya no es solo por diversion.',
+      howTo: 'Participa en tu primer torneo.',
+      unlocked: torneosParticipados >= 1,
+    },
+    {
+      title: 'En la pelea',
+      description: 'No vine a perder tan facil.',
+      howTo: 'Termina en el top 50 de un torneo.',
+      unlocked: mejorPosicionTorneo !== null && mejorPosicionTorneo <= 50,
+    },
+    {
+      title: 'Top Competidor',
+      description: 'Esto ya se esta poniendo serio.',
+      howTo: 'Termina en el top 10 de un torneo.',
+      unlocked: mejorPosicionTorneo !== null && mejorPosicionTorneo <= 10,
+    },
+    {
+      title: 'Podio',
+      description: 'Creo que estoy empezando a destacar.',
+      howTo: 'Termina entre los 3 primeros en un torneo.',
+      unlocked: mejorPosicionTorneo !== null && mejorPosicionTorneo <= 3,
+    },
+    {
+      title: 'Campeon',
+      description: 'No era suerte... era inevitable.',
+      howTo: 'Gana un torneo.',
+      unlocked: victoriasTorneos >= 1,
+    },
+    {
+      title: 'Racha Competitiva',
+      description: 'Estoy en mi mejor momento.',
+      howTo: 'Termina en el top 10 en 3 torneos seguidos.',
+      unlocked: mejorRachaTop10Torneos >= 3,
+    },
+    {
+      title: 'Imparable en Torneos',
+      description: 'Que alguien me detenga... si puede.',
+      howTo: 'Gana 3 torneos.',
+      unlocked: victoriasTorneos >= 3,
+    },
+    {
+      title: 'Constancia de Hierro',
+      description: 'Siempre estoy ahi.',
+      howTo: 'Participa en 10 torneos.',
+      unlocked: torneosParticipados >= 10,
+    },
+    {
+      title: 'Presion Maxima',
+      description: 'Aqui es donde se separan los buenos.',
+      howTo: 'Completa un sudoku sin errores en un torneo.',
+      unlocked: completadosSinErrores >= 1,
+    },
+    {
+      title: 'Dominio Total',
+      description: 'Ya no compito... impongo.',
+      howTo: 'Gana un torneo sin cometer errores.',
+      unlocked: victoriasSinErrores >= 1,
     },
   ]
 }
