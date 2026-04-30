@@ -70,17 +70,106 @@ let respuestaCorrecta
 const DURACION = 600
 let intervalo = null
 
-// 🧠 GENERAR PREGUNTA
+function aleatorio(min, max){
+return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function redondear2(numero){
+return Math.round((numero + Number.EPSILON) * 100) / 100
+}
+
+function formatearNumero(numero){
+const redondeado = redondear2(numero)
+return Number.isInteger(redondeado) ? String(redondeado) : redondeado.toFixed(2)
+}
+
+function generarDivisionDecimal(){
+const divisor = aleatorio(2, 50)
+const cociente = aleatorio(1000, 9999) / 100
+const dividendo = redondear2(divisor * cociente)
+
+return {
+preguntaTexto: `${dividendo.toFixed(2)} ÷ ${divisor}`,
+resp: cociente
+}
+}
+
+function generarRaizExacta(){
+const base = aleatorio(1, 31)
+const cuadrado = base * base
+
+return {
+preguntaTexto: `√${cuadrado}`,
+resp: base
+}
+}
+
+function generarCombinada(){
+const tipo = aleatorio(0, 4)
+
+if(tipo === 0){
+const n1 = aleatorio(2, 25)
+const n2 = aleatorio(2, 40)
+const n3 = aleatorio(2, 40)
+return {
+preguntaTexto: `${n1} × (${n2} + ${n3})`,
+resp: n1 * (n2 + n3)
+}
+}
+
+if(tipo === 1){
+const n1 = aleatorio(20, 120)
+const n2 = aleatorio(2, 15)
+const n3 = aleatorio(-20, 20)
+const n4 = aleatorio(-20, 20)
+return {
+preguntaTexto: `${n1} - ${n2} × (${n3} + ${n4})`,
+resp: n1 - (n2 * (n3 + n4))
+}
+}
+
+if(tipo === 2){
+const n1 = aleatorio(2, 20)
+const n2 = aleatorio(2, 30)
+const divisor = aleatorio(2, 12)
+const cociente = aleatorio(1, 20)
+const dividendo = divisor * cociente
+return {
+preguntaTexto: `${n1} × (${n2} + ${dividendo} ÷ ${divisor})`,
+resp: n1 * (n2 + cociente)
+}
+}
+
+if(tipo === 3){
+const n1 = aleatorio(2, 60)
+const n2 = aleatorio(2, 60)
+const n3 = aleatorio(20, 90)
+const n4 = aleatorio(1, 19)
+return {
+preguntaTexto: `(${n1} + ${n2}) × (${n3} - ${n4})`,
+resp: (n1 + n2) * (n3 - n4)
+}
+}
+
+const divisor = aleatorio(2, 20)
+const cociente = aleatorio(5, 60)
+const dividendo = divisor * cociente
+const n1 = aleatorio(2, 20)
+const n2 = aleatorio(2, 20)
+return {
+preguntaTexto: `${dividendo} ÷ ${divisor} + ${n1} × ${n2}`,
+resp: cociente + (n1 * n2)
+}
+}
+
 function generarPregunta(){
 
 let preguntaTexto = ""
 let resp = 0
 
-// 🔰 NIVEL 1-5 (SUMA / RESTA)
 if(nivel <= 5){
-
-let n1 = Math.floor(Math.random()*20)
-let n2 = Math.floor(Math.random()*20)
+let n1 = aleatorio(100, 999)
+let n2 = aleatorio(100, 999)
 
 if(Math.random() < 0.5){
 preguntaTexto = `${n1} + ${n2}`
@@ -89,95 +178,68 @@ resp = n1 + n2
 preguntaTexto = `${n1} - ${n2}`
 resp = n1 - n2
 }
-
 }
 
-// 🧩 NIVEL 6-10 (MULTIPLICACIÓN)
 else if(nivel <= 10){
-
-let n1 = Math.floor(Math.random()*10)
-let n2 = Math.floor(Math.random()*10)
+let n1 = aleatorio(100, 999)
+let n2 = aleatorio(100, 999)
 
 preguntaTexto = `${n1} × ${n2}`
 resp = n1 * n2
-
 }
 
-// 🔄 NIVEL 11-15 (COMBINADAS)
 else if(nivel <= 15){
-
-let n1 = Math.floor(Math.random()*10)
-let n2 = Math.floor(Math.random()*10)
-let n3 = Math.floor(Math.random()*10)
+let n1 = aleatorio(100, 999)
+let n2 = aleatorio(100, 999)
+let n3 = aleatorio(100, 999)
 
 preguntaTexto = `${n1} + ${n2} × ${n3}`
 resp = n1 + (n2 * n3)
-
 }
 
-// ➗ NIVEL 16-20 (DIVISIONES EXACTAS)
 else if(nivel <= 20){
-
-let n2 = Math.floor(Math.random()*9) + 1
-let respBase = Math.floor(Math.random()*10) + 1
+let n2 = aleatorio(10, 99)
+let respBase = aleatorio(100, 999)
 let n1 = n2 * respBase
 
 preguntaTexto = `${n1} ÷ ${n2}`
 resp = respBase
-
 }
 
-// 🧠 NIVEL 21+ (AVANZADO 🔥)
-else{
-
-let tipo = Math.floor(Math.random()*3)
-
-if(tipo === 0){
-// raíz exacta
-let base = Math.floor(Math.random()*10) + 1
-let cuadrado = base * base
-
-preguntaTexto = `√${cuadrado}`
-resp = base
+else if(nivel <= 25){
+const pregunta = generarDivisionDecimal()
+preguntaTexto = pregunta.preguntaTexto
+resp = pregunta.resp
 }
 
-else if(tipo === 1){
-// paréntesis
-let n1 = Math.floor(Math.random()*10)
-let n2 = Math.floor(Math.random()*10)
-let n3 = Math.floor(Math.random()*10)
-
-preguntaTexto = `(${n1} + ${n2}) × ${n3}`
-resp = (n1 + n2) * n3
+else if(nivel <= 30){
+const pregunta = generarRaizExacta()
+preguntaTexto = pregunta.preguntaTexto
+resp = pregunta.resp
 }
 
 else{
-// mezcla
-let n1 = Math.floor(Math.random()*20)
-let n2 = Math.floor(Math.random()*10) + 1
-
-preguntaTexto = `${n1} × 2 - ${n2}`
-resp = (n1 * 2) - n2
+const pregunta = generarCombinada()
+preguntaTexto = pregunta.preguntaTexto
+resp = pregunta.resp
 }
 
-}
-
-// 🎯 MOSTRAR
 document.getElementById("pregunta").textContent = preguntaTexto
 document.getElementById("nivel").textContent = "Nivel: " + nivel
 
-respuestaCorrecta = resp
+respuestaCorrecta = redondear2(resp)
 }
 
 window.responder = function(){
 
-let r = parseInt(document.getElementById("respuesta").value)
+let respuestaValor = document.getElementById("respuesta").value.trim()
+let r = respuestaValor === "" ? NaN : Number(respuestaValor.replace(",", "."))
 
-if(r === respuestaCorrecta){
+if(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= 0.01){
 correctas++
 document.getElementById("resultado").textContent = "✅ Bien"
 }else{
-document.getElementById("resultado").textContent = "❌ Mal"
+document.getElementById("resultado").textContent = "❌ Mal. Era " + formatearNumero(respuestaCorrecta)
 }
 
 preguntas++
