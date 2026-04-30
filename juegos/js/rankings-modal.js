@@ -167,7 +167,9 @@ function construirRanking(rows, game, type) {
 
     actual.partidas += 1
     actual.victorias += row.posicion === 1 ? 1 : 0
-    actual.total += game.mode === "points" ? row.puntos : row.tiempo
+    actual.total = game.mode === "points"
+      ? actual.total + row.puntos
+      : Math.min(actual.total || Number.POSITIVE_INFINITY, row.tiempo || Number.POSITIVE_INFINITY)
     actual.mejorTiempo = Math.min(actual.mejorTiempo, row.tiempo || Number.POSITIVE_INFINITY)
     acumulado.set(key, actual)
   })

@@ -220,13 +220,19 @@ if(!resultadoEnviado && !descalificado){
 
 resultadoEnviado = true
 
-await supabase
+const { error } = await supabase
 .from("ranking")
 .upsert({
 usuario,
 tiempo: correctas * 10,
 juego: "matematicas"
 }, { onConflict: "usuario,juego" })
+
+if(error){
+console.error("Error guardando resultado de matematicas", error)
+resultadoEnviado = false
+return
+}
 
 await registrarPartidaDesdeRanking({
 usuario,
