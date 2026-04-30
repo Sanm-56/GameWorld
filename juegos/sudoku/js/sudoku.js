@@ -30,8 +30,17 @@ const MAX_ADVERTENCIAS = 3
 let puzzleActual = ""
 let solucionActual = ""
 let intervalo = null
+let erroresPartida = 0
+const celdasConError = new Set()
 
 const DURACION = 600
+
+function registrarErrorCelda(indice){
+if(!celdasConError.has(indice)){
+celdasConError.add(indice)
+erroresPartida++
+}
+}
 
 document.addEventListener("visibilitychange", async function(){
 
@@ -91,6 +100,47 @@ invalido
 })
 
 return true
+}
+
+async function guardarEstadisticasSudoku(tiempo, sinErrores){
+
+const { data: actual, error: lecturaError } = await supabase
+.from("estadisticas_logros")
+.select("*")
+.eq("usuario", usuario)
+.eq("juego", "sudoku")
+.maybeSingle()
+
+if(lecturaError){
+console.warn("No se pudieron leer estadisticas de logros", lecturaError)
+return
+}
+
+const completados = (actual?.completados || 0) + 1
+const completadosSinErrores = (actual?.completados_sin_errores || 0) + (sinErrores ? 1 : 0)
+const rachaActual = sinErrores ? (actual?.racha_sin_errores_actual || 0) + 1 : 0
+const mejorRacha = Math.max(actual?.mejor_racha_sin_errores || 0, rachaActual)
+const mejorTiempoAnterior = actual?.mejor_tiempo
+const mejorTiempo = typeof mejorTiempoAnterior === "number"
+? Math.min(mejorTiempoAnterior, tiempo)
+: tiempo
+
+const { error } = await supabase
+.from("estadisticas_logros")
+.upsert({
+usuario,
+juego: "sudoku",
+completados,
+completados_sin_errores: completadosSinErrores,
+racha_sin_errores_actual: rachaActual,
+mejor_racha_sin_errores: mejorRacha,
+mejor_tiempo: mejorTiempo,
+updated_at: new Date().toISOString(),
+}, { onConflict: "usuario,juego" })
+
+if(error){
+console.warn("No se pudieron guardar estadisticas de logros", error)
+}
 }
 
 async function cargarSudoku(){
@@ -160,11 +210,17 @@ this.value = this.value.replace(/[^1-9]/g, "")
 })
 
 input.addEventListener("input", function(){
+if(this.value === ""){
+this.style.background = ""
+return
+}
+
 if(this.value === solucionActual[i]){
 this.style.background = "lightgreen"
 }
 else{
 this.style.background = "salmon"
+registrarErrorCelda(i)
 }
 })
 
@@ -251,6 +307,30 @@ alert("No puedes finalizar (descalificado o ya enviado)")
 return
 }
 
+function revisar(){
+const inputs = document.querySelectorAll("#tablero input")
+let correcto = true
+
+for(let i = 0; i < inputs.length; i++){
+if(inputs[i].value === ""){
+inputs[i].style.background = ""
+correcto = false
+continue
+}
+
+if(inputs[i].value === solucionActual[i]){
+inputs[i].style.background = "lightgreen"
+}
+else{
+inputs[i].style.background = "salmon"
+registrarErrorCelda(i)
+correcto = false
+}
+}
+
+alert(correcto ? "Todo esta correcto" : "Hay numeros incorrectos o espacios vacios")
+}
+
 let inputs = document.querySelectorAll("#tablero input")
 
 for(let i = 0; i < inputs.length; i++){
@@ -301,7 +381,11 @@ invalido = true
 motivo += " | Demasiados cambios"
 }
 
-await guardarResultado(invalido ? 9999 : tiempo, sospechoso, invalido, motivo)
+const resultadoGuardado = await guardarResultado(invalido ? 9999 : tiempo, sospechoso, invalido, motivo)
+
+if(resultadoGuardado && !invalido){
+await guardarEstadisticasSudoku(tiempo, erroresPartida === 0)
+}
 
 juegoTerminado = true
 
@@ -336,5 +420,6 @@ cargarSudoku()
 iniciarCronometro()
 
 window.finalizar = finalizar
+window.revisar = revisar
 
 setInterval(revisarEstadoTorneo, 3000)

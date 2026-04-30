@@ -15,6 +15,7 @@ const GAMES = [
 
 let juegoLogrosActivo = GAMES[0].key
 let resultadosPerfil = []
+let estadisticasLogros = {}
 
 const nombreUsuarioEl = document.getElementById('nombreUsuario')
 const perfilResumenEl = document.getElementById('perfilResumen')
@@ -84,6 +85,25 @@ async function obtenerRankingDeJuego(gameKey) {
   return data || []
 }
 
+async function obtenerEstadisticasLogros() {
+  if (!usuario) return {}
+
+  const { data, error } = await supabase
+    .from('estadisticas_logros')
+    .select('*')
+    .eq('usuario', usuario)
+
+  if (error) {
+    console.warn('No se pudieron cargar estadisticas de logros', error)
+    return {}
+  }
+
+  return (data || []).reduce((acc, item) => {
+    acc[item.juego] = item
+    return acc
+  }, {})
+}
+
 async function cargarPerfil() {
   if (!usuario) {
     nombreUsuarioEl.innerText = 'Sin sesion'
@@ -91,6 +111,7 @@ async function cargarPerfil() {
     perfilEstadoEl.innerText = 'Primero entra a cualquier juego con tu apodo y codigo para construir tu perfil.'
     medallasListEl.innerHTML = '<div class="empty">Aun no hay medallas para mostrar.</div>'
     resultadosPerfil = []
+    estadisticasLogros = {}
     renderLogrosJuegos()
     renderLogros()
     historialListEl.innerHTML = '<div class="empty">No hay historial disponible.</div>'
@@ -107,6 +128,7 @@ async function cargarPerfil() {
     .maybeSingle()
 
   const resultados = []
+  estadisticasLogros = await obtenerEstadisticasLogros()
 
   for (const game of GAMES) {
     const ranking = await obtenerRankingDeJuego(game.key)
@@ -215,6 +237,10 @@ function renderLogrosJuegos() {
 }
 
 function crearLogrosDeJuego(game, resultado) {
+  if (game.key === 'sudoku') {
+    return crearLogrosSudoku(estadisticasLogros.sudoku || {})
+  }
+
   return [
     {
       title: `Primer intento en ${game.label}`,
@@ -245,6 +271,106 @@ function crearLogrosDeJuego(game, resultado) {
   ]
 }
 
+function crearLogrosSudoku(stats) {
+  const completados = stats.completados || 0
+  const completadosSinErrores = stats.completados_sin_errores || 0
+  const mejorRachaSinErrores = stats.mejor_racha_sin_errores || 0
+  const mejorTiempo = typeof stats.mejor_tiempo === 'number' ? stats.mejor_tiempo : null
+
+  return [
+    {
+      title: 'Primer Numero',
+      description: 'Yo que hago aqui completando un tablero de....numeros?',
+      howTo: 'Completa tu primer sudoku.',
+      unlocked: completados >= 1,
+    },
+    {
+      title: 'Mente en Marcha',
+      description: 'Cada vez mas cerca de volverme un profesional.',
+      howTo: 'Completa 3 sudokus.',
+      unlocked: completados >= 3,
+    },
+    {
+      title: 'Ritmo Constante',
+      description: 'Este juego esta muy facil...cuando se acaba el tutorial?',
+      howTo: 'Completa 15 sudokus.',
+      unlocked: completados >= 15,
+    },
+    {
+      title: 'Racha Imparable',
+      description: 'No hay nada que me pare.....verdad que no?',
+      howTo: 'Completa 35 sudokus.',
+      unlocked: completados >= 35,
+    },
+    {
+      title: 'Maestro del Sudoku',
+      description: 'Acaso ya me estoy convirtiendo en un sabio en este juego?',
+      howTo: 'Completa 80 sudokus.',
+      unlocked: completados >= 80,
+    },
+    {
+      title: 'Gran maestro del Sudoku',
+      description: 'Cada vez mas cerca de ser un sabio....',
+      howTo: 'Completa 100 sudokus.',
+      unlocked: completados >= 100,
+    },
+    {
+      title: 'Sabio del Sudoku',
+      description: 'Ya este juego me lo he pasado....o tal vez no?',
+      howTo: 'Completa 250 sudokus.',
+      unlocked: completados >= 250,
+    },
+    {
+      title: 'Anciano del Sudoku',
+      description: 'Que recuerdos cuando inicie en este juego.',
+      howTo: 'Completa 350 sudokus.',
+      unlocked: completados >= 350,
+    },
+    {
+      title: 'Sin Fallos',
+      description: 'Ya este juego me lo se de memoria.',
+      howTo: 'Termina un sudoku sin cometer errores.',
+      unlocked: completadosSinErrores >= 1,
+    },
+    {
+      title: 'Precision Total',
+      description: 'No hay algo mas dificil?....Me estoy aburriendo.',
+      howTo: 'Completa 15 sudokus seguidos sin errores.',
+      unlocked: mejorRachaSinErrores >= 15,
+    },
+    {
+      title: 'Ojo de alcon',
+      description: 'Con este ojo no hay nada que no pueda completar.',
+      howTo: 'Completa 80 sudokus seguidos sin errores.',
+      unlocked: mejorRachaSinErrores >= 80,
+    },
+    {
+      title: 'Soy un....robot?',
+      description: 'Cada vez me estoy convirtiendo mas en un robot.',
+      howTo: 'Completa 250 sudokus seguidos sin errores.',
+      unlocked: mejorRachaSinErrores >= 250,
+    },
+    {
+      title: 'Velocidad Mental',
+      description: 'Con esta cabeza todo es facil...',
+      howTo: 'Resuelve un sudoku en menos de 7 minutos.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 420,
+    },
+    {
+      title: 'Rayo Numerico',
+      description: 'Oye...creo que no soy humano.',
+      howTo: 'Resuelve un sudoku en menos de 5 minutos.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 300,
+    },
+    {
+      title: 'Estratega Silencioso',
+      description: 'No hay tablero que no pueda resolver.',
+      howTo: 'Completa un sudoku en menos de 1 minuto.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 60,
+    },
+  ]
+}
+
 function seleccionarJuegoLogros(gameKey) {
   juegoLogrosActivo = gameKey
   renderLogrosJuegos()
@@ -270,6 +396,7 @@ function renderLogros() {
       <br>
       <strong>${achievement.title}</strong>
       <p>${achievement.description}</p>
+      <small>${achievement.howTo || ''}</small>
     `
     logrosListEl.appendChild(div)
   })

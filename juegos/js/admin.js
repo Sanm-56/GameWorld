@@ -570,6 +570,7 @@ await supabase.from("ranking_ajedrez").delete().neq("usuario","")
 await supabase.from("ranking_domino").delete().neq("usuario","")
 await supabase.from("ranking_damas").delete().neq("usuario","")
 await supabase.from("partidas").delete().neq("usuario","")
+await supabase.from("estadisticas_logros").delete().neq("usuario","")
 
 // Resetear datos de usuarios, incluyendo los tableros unicos de Sudoku
 await supabase.from("usuarios").update({
