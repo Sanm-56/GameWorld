@@ -171,6 +171,29 @@ body{
   gap:12px;
 }
 
+.achievement-grid{
+  max-height:min(620px, 68vh);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding-right:8px;
+  scrollbar-color:#38bdf8 #0f172a;
+  scrollbar-width:thin;
+}
+
+.achievement-grid::-webkit-scrollbar{
+  width:9px;
+}
+
+.achievement-grid::-webkit-scrollbar-track{
+  background:#0f172a;
+  border-radius:999px;
+}
+
+.achievement-grid::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg, #38bdf8, #22c55e);
+  border-radius:999px;
+}
+
 .medal{
   display:flex;
   align-items:center;
@@ -208,10 +231,22 @@ body{
   border-radius:12px;
   background:var(--panel-2);
   border:1px solid rgba(148,163,184,0.08);
+  min-width:0;
 }
 
 .achievement-card.locked{
   opacity:0.68;
+}
+
+.achievement-card strong,
+.medal strong,
+.history-item strong{
+  overflow-wrap:anywhere;
+}
+
+.achievement-card p{
+  margin:8px 0;
+  line-height:1.45;
 }
 
 .achievement-state{
@@ -328,15 +363,139 @@ body{
   .game-achievement-tabs{
     grid-template-columns:repeat(2, 1fr);
   }
+
+  .achievement-grid{
+    max-height:560px;
+  }
 }
 
 @media (max-width:560px){
+  .page{
+    padding:16px 12px 36px;
+  }
+
+  .topbar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:16px;
+  }
+
+  .btn{
+    width:100%;
+    padding:11px 10px;
+    border-radius:10px;
+    font-size:0.9rem;
+  }
+
+  .hero{
+    padding:16px;
+    border-radius:16px;
+    gap:12px;
+    margin-bottom:14px;
+  }
+
+  .hero h1{
+    font-size:1.65rem;
+    overflow-wrap:anywhere;
+  }
+
+  .hero p,
+  .section-note,
+  .stat-label,
+  .empty{
+    font-size:0.9rem;
+    line-height:1.45;
+  }
+
+  .hero-badges{
+    gap:8px;
+    margin-top:14px;
+  }
+
+  .pill{
+    width:100%;
+    padding:9px 11px;
+    border-radius:12px;
+    overflow-wrap:anywhere;
+  }
+
   .stats{
     grid-template-columns:1fr;
+    gap:10px;
+    margin-bottom:14px;
+  }
+
+  .card{
+    padding:14px;
+    border-radius:12px;
+  }
+
+  .stat-value{
+    font-size:1.55rem;
+    margin-bottom:4px;
+  }
+
+  .layout{
+    gap:14px;
   }
 
   .game-achievement-tabs{
-    grid-template-columns:1fr;
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:4px;
+    margin:0 -2px 14px;
+    scrollbar-width:thin;
+    scroll-snap-type:x proximity;
+  }
+
+  .game-tab{
+    flex:0 0 136px;
+    min-height:48px;
+    padding:9px 10px;
+    font-size:0.86rem;
+    scroll-snap-align:start;
+  }
+
+  .game-tab .history-state{
+    display:none;
+  }
+
+  .achievement-heading{
+    align-items:center;
+    margin-bottom:10px;
+  }
+
+  .achievement-grid{
+    max-height:430px;
+    padding-right:6px;
+    gap:10px;
+  }
+
+  .achievement-card{
+    padding:13px;
+  }
+
+  .achievement-state,
+  .history-state,
+  .achievement-count{
+    font-size:0.74rem;
+  }
+
+  .medal,
+  .history-item{
+    padding:13px;
+    border-radius:12px;
+  }
+
+  .history-item{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .history-state{
+    align-self:flex-start;
   }
 }
 </style>
