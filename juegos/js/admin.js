@@ -455,23 +455,129 @@ alert("🛑 Torneo detenido")
 // =============================
 // ♻️ RESET TOTAL
 // =============================
+function obtenerJuegoSeleccionado(){
+return document.getElementById("juegoSelect")?.value || "sudoku"
+}
+
+function inicioDeSemanaISO(){
+const hoy = new Date()
+const dia = hoy.getDay() || 7
+const inicio = new Date(hoy)
+inicio.setDate(hoy.getDate() - dia + 1)
+inicio.setHours(0, 0, 0, 0)
+return inicio.toISOString()
+}
+
+async function borrarRankingSemana(){
+const juego = obtenerJuegoSeleccionado()
+
+if(!confirm("Esto borrara el ranking semanal de " + juego + ". El global y las victorias historicas se conservan.")) return
+
+const { error } = await supabase
+.from("partidas")
+.delete()
+.eq("juego", juego)
+.gte("fecha", inicioDeSemanaISO())
+
+if(error){
+console.warn("No se pudo borrar el ranking semanal", error)
+alert("No se pudo borrar el ranking semanal")
+return
+}
+
+alert("Ranking semanal eliminado para " + juego)
+cargarRanking()
+cargarVistaAdmin()
+}
+
+async function borrarRankingVictorias(){
+const juego = obtenerJuegoSeleccionado()
+
+if(!confirm("Esto borrara las victorias acumuladas de " + juego + " sin borrar los resultados globales.")) return
+
+const { error } = await supabase
+.from("partidas")
+.update({ posicion: 0 })
+.eq("juego", juego)
+.eq("posicion", 1)
+
+if(error){
+console.warn("No se pudo borrar el ranking de victorias", error)
+alert("No se pudo borrar el ranking de victorias")
+return
+}
+
+alert("Ranking de victorias eliminado para " + juego)
+cargarRanking()
+cargarVistaAdmin()
+}
+
+async function borrarRankingGlobal(){
+const juego = obtenerJuegoSeleccionado()
+
+if(!confirm("Esto borrara el ranking global y el historial de " + juego + ". El ranking temporal actual tambien se limpiara.")) return
+
+await borrarRankingTemporal(juego)
+
+const { error } = await supabase
+.from("partidas")
+.delete()
+.eq("juego", juego)
+.neq("usuario","")
+
+if(error){
+console.warn("No se pudo borrar el ranking global", error)
+alert("No se pudo borrar el ranking global")
+return
+}
+
+alert("Ranking global eliminado para " + juego)
+cargarRanking()
+cargarVistaAdmin()
+}
+
+async function borrarRankingTemporal(juego){
+const ranking = await supabase
+.from("ranking")
+.delete()
+.eq("juego", juego)
+
+if(ranking.error){
+console.warn("No se pudo limpiar ranking generico", ranking.error)
+}
+
+const tablaExtra = TABLAS_RANKING_POR_JUEGO[juego]
+if(tablaExtra){
+const extra = await supabase
+.from(tablaExtra)
+.delete()
+.neq("usuario","")
+
+if(extra.error){
+console.warn("No se pudo limpiar " + tablaExtra, extra.error)
+}
+}
+}
+
 async function resetTotal(){
 
-if(!confirm("⚠️ Esto borrará TODO el torneo")) return
+const confirmacion = prompt("Esto borrara rankings, historial y tableros unicos de Sudoku. Escribe RESET para confirmar.")
+if(confirmacion !== "RESET") return
 
-// Borrar todas las tablas de ranking
+// Borrar todas las tablas de ranking e historial
 await supabase.from("ranking").delete().neq("usuario","")
 await supabase.from("ranking_ajedrez").delete().neq("usuario","")
 await supabase.from("ranking_domino").delete().neq("usuario","")
 await supabase.from("ranking_damas").delete().neq("usuario","")
+await supabase.from("partidas").delete().neq("usuario","")
 
-// Resetear datos de usuarios
+// Resetear datos de usuarios, incluyendo los tableros unicos de Sudoku
 await supabase.from("usuarios").update({
 tablero_id: null,
 cartas_memoria: null
 }).neq("usuario","")
 
-alert("♻️ Torneo reiniciado COMPLETO")
+alert("Torneo reiniciado completo. Los tableros de Sudoku se reasignaran cuando entren los usuarios.")
 
 cargarRanking()
 cargarVistaAdmin()
@@ -508,6 +614,9 @@ window.verSospechosos = verSospechosos
 window.verInvalidos = verInvalidos
 window.limpiarRanking = limpiarRanking
 window.cargarRanking = cargarRanking
+window.borrarRankingSemana = borrarRankingSemana
+window.borrarRankingVictorias = borrarRankingVictorias
+window.borrarRankingGlobal = borrarRankingGlobal
 window.resetTotal = resetTotal
 
 function syncNumcatchUI(){

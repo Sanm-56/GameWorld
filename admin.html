@@ -33,6 +33,22 @@ button:hover{
 background:#2563eb;
 }
 
+.danger{
+background:#dc2626;
+}
+
+.danger:hover{
+background:#b91c1c;
+}
+
+.reset-actions{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:6px;
+margin-top:10px;
+}
+
 #panelAdmin{
 display:none;
 }
@@ -148,7 +164,13 @@ font-size:14px;
 
 <button onclick="iniciarTorneo()">🚀 Iniciar Torneo</button>
 <button onclick="detenerTorneo()">🛑 Detener Torneo</button>
-<button onclick="resetTotal()">♻️ RESET TOTAL</button>
+
+<div class="reset-actions">
+<button onclick="borrarRankingSemana()">Borrar ranking semana</button>
+<button onclick="borrarRankingVictorias()">Borrar ranking victorias</button>
+<button onclick="borrarRankingGlobal()">Borrar ranking global</button>
+<button class="danger" onclick="resetTotal()">Resetear torneo completo</button>
+</div>
 </div>
 
 <!-- CONTROL RANKING -->
