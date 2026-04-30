@@ -3,15 +3,18 @@ import { supabase } from './supabase.js'
 const usuario = localStorage.getItem('usuario')
 
 const GAMES = [
-  { key: 'sudoku', label: 'Sudoku' },
-  { key: 'matematicas', label: 'Matematicas' },
-  { key: 'memoria', label: 'Memoria' },
-  { key: 'flashmind', label: 'FlashMind' },
-  { key: 'numcatch', label: 'NumCatch' },
-  { key: 'ajedrez', label: 'Ajedrez' },
-  { key: 'domino', label: 'Domino' },
-  { key: 'damas', label: 'Damas' },
+  { key: 'sudoku', label: 'Sudoku', icon: 'S' },
+  { key: 'memoria', label: 'Memoria', icon: 'M' },
+  { key: 'matematicas', label: 'Matematicas', icon: '+' },
+  { key: 'flashmind', label: 'FlashMind', icon: 'F' },
+  { key: 'numcatch', label: 'NumCatch', icon: 'N' },
+  { key: 'ajedrez', label: 'Ajedrez', icon: 'A' },
+  { key: 'domino', label: 'Domino', icon: 'D' },
+  { key: 'damas', label: 'Damas', icon: 'K' },
 ]
+
+let juegoLogrosActivo = GAMES[0].key
+let resultadosPerfil = []
 
 const nombreUsuarioEl = document.getElementById('nombreUsuario')
 const perfilResumenEl = document.getElementById('perfilResumen')
@@ -24,6 +27,9 @@ const statOrosEl = document.getElementById('statOros')
 const statPodiosEl = document.getElementById('statPodios')
 const statMejorEl = document.getElementById('statMejor')
 const medallasListEl = document.getElementById('medallasList')
+const logrosJuegosEl = document.getElementById('logrosJuegos')
+const logrosTituloJuegoEl = document.getElementById('logrosTituloJuego')
+const logrosContadorEl = document.getElementById('logrosContador')
 const logrosListEl = document.getElementById('logrosList')
 const historialListEl = document.getElementById('historialList')
 
@@ -84,7 +90,9 @@ async function cargarPerfil() {
     perfilResumenEl.innerText = 'Todavia no hay un usuario activo en este navegador.'
     perfilEstadoEl.innerText = 'Primero entra a cualquier juego con tu apodo y codigo para construir tu perfil.'
     medallasListEl.innerHTML = '<div class="empty">Aun no hay medallas para mostrar.</div>'
-    logrosListEl.innerHTML = '<div class="achievement-card"><strong>Logros personalizados</strong><p>Cuando me digas cuales quieres, te los agrego aqui.</p></div>'
+    resultadosPerfil = []
+    renderLogrosJuegos()
+    renderLogros()
     historialListEl.innerHTML = '<div class="empty">No hay historial disponible.</div>'
     return
   }
@@ -107,6 +115,7 @@ async function cargarPerfil() {
     if (posicion !== -1) {
       resultados.push({
         ...ranking[posicion],
+        juego: game.key,
         juegoLabel: game.label,
         posicion: posicion + 1,
         total: ranking.length,
@@ -141,7 +150,14 @@ async function cargarPerfil() {
     : 'No se encontro una ficha completa en la tabla de usuarios, pero si pudimos leer tus resultados.'
 
   renderMedallas(resultados)
-  renderLogros(resultados, podios, mejorPosicion)
+  resultadosPerfil = resultados
+  if (resultadosPerfil.length && !resultadosPerfil.some((item) => item.juego === juegoLogrosActivo)) {
+    juegoLogrosActivo = resultadosPerfil[0].juego
+  } else if (!GAMES.some((game) => game.key === juegoLogrosActivo)) {
+    juegoLogrosActivo = GAMES[0].key
+  }
+  renderLogrosJuegos()
+  renderLogros()
   renderHistorial(resultados)
 }
 
@@ -180,37 +196,79 @@ function renderMedallas(resultados) {
   })
 }
 
-function renderLogros(resultados, podios, mejorPosicion) {
-  logrosListEl.innerHTML = ''
+function renderLogrosJuegos() {
+  logrosJuegosEl.innerHTML = ''
 
-  const baseLogros = [
+  GAMES.forEach((game) => {
+    const resultado = resultadosPerfil.find((item) => item.juego === game.key)
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = `game-tab${game.key === juegoLogrosActivo ? ' active' : ''}`
+    button.onclick = () => seleccionarJuegoLogros(game.key)
+    button.innerHTML = `
+      <span>${game.icon}</span>
+      <span>${game.label}</span>
+      ${resultado ? '<span class="history-state ok">OK</span>' : ''}
+    `
+    logrosJuegosEl.appendChild(button)
+  })
+}
+
+function crearLogrosDeJuego(game, resultado) {
+  return [
     {
-      title: 'Primer registro',
-      description: resultados.length ? 'Ya tienes al menos un resultado guardado en el torneo.' : 'Todavia no se desbloquea.',
-      unlocked: resultados.length > 0,
+      title: `Primer intento en ${game.label}`,
+      description: resultado
+        ? `Ya tienes resultado guardado: posicion #${resultado.posicion} de ${resultado.total}.`
+        : `Juega ${game.label} para registrar tu primer resultado.`,
+      unlocked: Boolean(resultado),
     },
     {
-      title: 'Coleccionista de podios',
-      description: podios ? `Ya reuniste ${podios} podio(s).` : 'Consigue un top 3 para desbloquearlo.',
-      unlocked: podios > 0,
+      title: `Podio en ${game.label}`,
+      description: resultado?.posicion <= 3
+        ? `Alcanzaste el top 3 en ${game.label}.`
+        : `Queda entre los 3 mejores de ${game.label}.`,
+      unlocked: Boolean(resultado && resultado.posicion <= 3),
     },
     {
-      title: 'Competidor serio',
-      description: mejorPosicion === 1 ? 'Ya alcanzaste al menos un primer lugar.' : 'Gana un juego para desbloquearlo.',
-      unlocked: mejorPosicion === 1,
+      title: `Campeon de ${game.label}`,
+      description: resultado?.posicion === 1
+        ? `Conseguiste el primer lugar en ${game.label}.`
+        : `Consigue el puesto #1 en ${game.label}.`,
+      unlocked: Boolean(resultado && resultado.posicion === 1),
     },
     {
-      title: 'Logros personalizados',
-      description: 'Este bloque queda listo para que luego me digas exactamente que logros quieres agregar.',
-      unlocked: true,
+      title: 'Logro personalizado',
+      description: 'Reservado para el nombre y descripcion que me pases despues.',
+      unlocked: false,
     },
   ]
+}
 
-  baseLogros.forEach((achievement) => {
+function seleccionarJuegoLogros(gameKey) {
+  juegoLogrosActivo = gameKey
+  renderLogrosJuegos()
+  renderLogros()
+}
+
+function renderLogros() {
+  logrosListEl.innerHTML = ''
+
+  const game = GAMES.find((item) => item.key === juegoLogrosActivo) || GAMES[0]
+  const resultado = resultadosPerfil.find((item) => item.juego === game.key)
+  const logros = crearLogrosDeJuego(game, resultado)
+  const desbloqueados = logros.filter((achievement) => achievement.unlocked).length
+
+  logrosTituloJuegoEl.innerText = game.label
+  logrosContadorEl.innerText = `${desbloqueados}/${logros.length}`
+
+  logros.forEach((achievement) => {
     const div = document.createElement('div')
-    div.className = 'achievement-card'
+    div.className = `achievement-card${achievement.unlocked ? '' : ' locked'}`
     div.innerHTML = `
-      <strong>${achievement.unlocked ? 'Desbloqueado' : 'Bloqueado'}: ${achievement.title}</strong>
+      <span class="achievement-state ${achievement.unlocked ? 'unlocked' : 'locked'}">${achievement.unlocked ? 'Desbloqueado' : 'Bloqueado'}</span>
+      <br>
+      <strong>${achievement.title}</strong>
       <p>${achievement.description}</p>
     `
     logrosListEl.appendChild(div)
@@ -244,6 +302,7 @@ function renderHistorial(resultados) {
 }
 
 window.recargarPerfil = cargarPerfil
+window.seleccionarJuegoLogros = seleccionarJuegoLogros
 window.volverMenu = function () {
   window.location.href = 'index.html'
 }
