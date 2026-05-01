@@ -42,8 +42,19 @@ button,
 }
 
 #ranking{
+  width:min(640px, 100%);
+  margin-left:auto;
+  margin-right:auto;
+  max-height:min(380px, 48vh);
   overflow-y:auto;
   overscroll-behavior:contain;
+}
+
+html body #ranking{
+  width:min(640px, 100%);
+  max-width:100%;
+  margin-left:auto;
+  margin-right:auto;
 }
 
 #ranking .ranking-row{
@@ -52,6 +63,7 @@ button,
   gap:12px;
   align-items:center;
   padding:12px 10px;
+  width:100%;
 }
 
 #ranking .ranking-row.actual{
@@ -67,6 +79,12 @@ button,
   justify-self:end;
   text-align:right;
   white-space:nowrap;
+}
+
+#ranking > div:not(.ranking-row){
+  max-width:100%;
+  margin-left:auto;
+  margin-right:auto;
 }
 
 .vacio{
