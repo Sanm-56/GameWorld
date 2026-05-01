@@ -158,6 +158,77 @@ h1{
   }
 }
 </style>
+<style>
+html{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+}
+
+body{
+width:100%;
+max-width:100%;
+}
+
+.contenedor{
+width:100%;
+box-sizing:border-box;
+overflow-x:hidden;
+padding:20px 16px 76px;
+}
+
+#board{
+width:min(480px, calc(100vw - 32px));
+max-width:100%;
+}
+
+.status,
+.result,
+.history{
+max-width:100%;
+overflow-wrap:anywhere;
+}
+
+.btn{
+max-width:100%;
+overflow-wrap:anywhere;
+}
+
+.musica-pos{
+bottom:14px;
+left:14px;
+}
+
+.promotion-modal .musica-pos{
+display:none;
+}
+
+@media (max-width:520px){
+.contenedor{
+padding:16px 12px 72px;
+}
+
+#board{
+width:min(320px, calc(100vw - 32px));
+}
+
+.status,
+.result,
+.history{
+min-width:0;
+width:100%;
+}
+
+.control .btn{
+flex:1 1 130px;
+}
+
+.btn.musica{
+width:auto;
+max-width:calc(100vw - 28px);
+}
+}
+</style>
 </head>
 
 <body>
@@ -180,6 +251,10 @@ h1{
 </div>
 
 <button class="btn musica musica-pos" onclick="reproducirMusica()">Musica</button>
+<audio loop>
+  <source src="./music/ajedrezmusic.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 
 <div class="promotion-modal" id="promotionModal">
   <div class="promotion-card">
@@ -205,12 +280,6 @@ h1{
     </div>
   </div>
   <!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
-<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
-
-<audio loop>
-  <source src="./music/ajedrezmusic.mp3" type="audio/mpeg">
-  Your browser does not support the audio element.
-</audio>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>

@@ -192,7 +192,116 @@ left:20px;
 transform:translateY(-2px) scale(1.05);
 box-shadow:0 6px 15px rgba(0,0,0,0.4);
 }
-  </style>
+</style>
+<style>
+html{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+}
+
+body{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+}
+
+.contenedor,
+.zona,
+.cue,
+.panel,
+.top,
+.estado,
+.grid,
+.log,
+.pill,
+.badge{
+min-width:0;
+max-width:100%;
+}
+
+.top > div{
+min-width:0;
+}
+
+h1,
+.sub,
+.hint,
+.log,
+.pill,
+.badge{
+overflow-wrap:anywhere;
+}
+
+.zona{
+grid-template-columns:minmax(0, 1fr) minmax(0, 320px);
+}
+
+.cue .pantalla{
+font-size:clamp(42px, 14vw, 74px);
+}
+
+.btn{
+max-width:100%;
+overflow-wrap:anywhere;
+}
+
+.btn.musica{
+position:fixed !important;
+bottom:14px !important;
+left:14px !important;
+z-index:1000;
+}
+
+@media (max-width:860px){
+body{
+align-items:flex-start;
+padding:12px 10px 72px;
+}
+
+.contenedor{
+border-radius:18px;
+padding:16px;
+}
+
+.zona{
+grid-template-columns:1fr;
+}
+
+.cue{
+min-height:260px;
+padding:14px;
+}
+
+.panel{
+padding:14px;
+}
+}
+
+@media (max-width:480px){
+h1{
+font-size:1.55rem;
+}
+
+.sub{
+font-size:0.92rem;
+}
+
+.grid{
+grid-template-columns:1fr;
+}
+
+.btn{
+padding:13px 10px;
+font-size:15px;
+}
+
+.btn.musica{
+width:auto;
+max-width:calc(100vw - 28px);
+}
+}
+</style>
 </head>
 <body>
   <div class="contenedor">

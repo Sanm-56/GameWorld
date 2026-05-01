@@ -140,6 +140,39 @@ button:hover{
   }
 }
 </style>
+<style>
+html, body{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+}
+
+.container{
+max-width:100%;
+min-width:0;
+}
+
+h2, p, button, input{
+overflow-wrap:anywhere;
+}
+
+@media (max-width:480px){
+body{
+padding:12px;
+}
+
+.container{
+width:100%;
+padding:24px 16px;
+border-radius:18px;
+}
+
+button{
+padding:13px 12px;
+font-size:15px;
+}
+}
+</style>
 </head>
 
 <body>

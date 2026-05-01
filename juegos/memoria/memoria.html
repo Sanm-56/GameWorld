@@ -152,6 +152,48 @@ font-size:clamp(16px, 5vw, 30px);
 }
 
 </style>
+<style>
+html{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+}
+
+body{
+width:100%;
+max-width:100%;
+padding:14px 10px 74px;
+box-sizing:border-box;
+}
+
+#tablero{
+max-width:100%;
+min-width:0;
+}
+
+.musica-pos{
+position:fixed;
+bottom:14px;
+left:14px;
+z-index:1000;
+}
+
+@media (max-width:520px){
+h1{
+font-size:1.5rem;
+overflow-wrap:anywhere;
+}
+
+#tablero{
+max-width:100%;
+padding:0;
+}
+
+.btn.musica{
+max-width:calc(100vw - 28px);
+}
+}
+</style>
 </head>
 
 <body>

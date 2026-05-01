@@ -195,7 +195,21 @@ box-shadow:0 6px 15px rgba(0,0,0,0.4);
         font-size:14px;
       }
     }
-  </style>
+</style>
+<style>
+html, body{width:100%;max-width:100%;overflow-x:hidden;}
+body{box-sizing:border-box;}
+.contenedor,.layout,#ranking,.ranking-row{max-width:100%;min-width:0;box-sizing:border-box;}
+#ranking div,h1,h2,p,button,.ranking-user,.ranking-score{overflow-wrap:anywhere;}
+.musica-pos{position:fixed;bottom:14px;left:14px;z-index:1000;}
+@media (max-width:760px){
+body{padding-bottom:74px;}
+.ranking-row{grid-template-columns:42px minmax(0, 1fr);}
+.ranking-score{grid-column:2;justify-self:start;}
+button{max-width:100%;font-size:15px;}
+.btn.musica{width:auto;max-width:calc(100vw - 28px);}
+}
+</style>
 </head>
 <body>
   <div class="contenedor">

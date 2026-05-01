@@ -185,6 +185,89 @@ button.domino{
   }
 }
 </style>
+<style>
+html{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+}
+
+body{
+width:100%;
+max-width:100%;
+}
+
+.contenedor{
+width:100%;
+box-sizing:border-box;
+overflow-x:hidden;
+padding:20px 16px 76px;
+}
+
+.game-container,
+.players,
+#table,
+#hand,
+.player,
+.status,
+.result{
+min-width:0;
+max-width:100%;
+}
+
+#table{
+width:100%;
+box-sizing:border-box;
+overflow-x:hidden;
+}
+
+.player-stats{
+gap:8px;
+flex-wrap:wrap;
+}
+
+.domino{
+width:clamp(42px, 14vw, 60px);
+height:clamp(70px, 23vw, 100px);
+font-size:clamp(1rem, 5vw, 1.5em);
+}
+
+.btn{
+max-width:100%;
+overflow-wrap:anywhere;
+}
+
+.musica-pos{
+bottom:14px;
+left:14px;
+}
+
+@media (max-width:768px){
+.contenedor{
+padding:16px 12px 72px;
+}
+
+.game-container{
+gap:14px;
+}
+
+#table,
+#hand{
+padding:14px;
+}
+
+.status,
+.result,
+.control .btn{
+width:100%;
+}
+
+.btn.musica{
+width:auto;
+max-width:calc(100vw - 28px);
+}
+}
+</style>
 </head>
 
 <body>

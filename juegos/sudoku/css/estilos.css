@@ -119,3 +119,69 @@ font-size:14px;
 width:100%;
 }
 }
+
+/* Ajustes responsive contra desbordamiento horizontal */
+html{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+}
+
+body{
+width:100%;
+max-width:100%;
+min-height:100dvh;
+padding:14px;
+box-sizing:border-box;
+}
+
+.contenedor{
+min-width:0;
+padding:20px 0 74px;
+}
+
+#tablero{
+width:min(100%, calc(100vw - 28px));
+max-width:500px;
+margin:0 auto 24px;
+box-sizing:border-box;
+}
+
+#tablero input{
+min-width:0;
+}
+
+.musica-pos{
+position:fixed;
+bottom:14px;
+left:14px;
+z-index:1000;
+}
+
+@media (max-width:500px){
+.contenedor{
+padding-bottom:68px;
+}
+
+h1{
+font-size:1.55rem;
+}
+
+#tablero input{
+font-size:clamp(13px, 4vw, 18px);
+}
+
+.botones{
+gap:10px;
+}
+
+.btn{
+padding:11px 12px;
+font-size:15px;
+}
+
+.btn.musica{
+width:auto;
+max-width:calc(100vw - 28px);
+}
+}

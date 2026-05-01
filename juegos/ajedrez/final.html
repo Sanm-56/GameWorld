@@ -75,6 +75,18 @@ box-shadow:0 6px 15px rgba(0,0,0,0.4);
   }
 }
 </style>
+<style>
+html, body{width:100%;max-width:100%;overflow-x:hidden;}
+body{padding:14px;box-sizing:border-box;}
+.contenedor,#ranking{max-width:100%;min-width:0;box-sizing:border-box;}
+#ranking div,h1,h2,p,button{overflow-wrap:anywhere;}
+.musica-pos{position:fixed;bottom:14px;left:14px;z-index:1000;}
+@media (max-width:500px){
+body{align-items:flex-start;padding-bottom:74px;}
+button{max-width:100%;font-size:15px;}
+.btn.musica{width:auto;max-width:calc(100vw - 28px);}
+}
+</style>
 </head>
 
 <body>

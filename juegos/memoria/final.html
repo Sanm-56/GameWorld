@@ -107,6 +107,19 @@ max-width:160px;
 }
 
 </style>
+<style>
+html, body{width:100%;max-width:100%;overflow-x:hidden;}
+body{padding:14px;box-sizing:border-box;}
+#podio,#ranking{max-width:100%;min-width:0;box-sizing:border-box;}
+#podio div,#ranking div,h1,h2,button{overflow-wrap:anywhere;}
+.musica-pos{position:fixed;bottom:14px;left:14px;z-index:1000;}
+@media (max-width:500px){
+body{align-items:flex-start;padding-bottom:74px;}
+#podio{max-width:100%;}
+button{max-width:100%;font-size:15px;}
+.btn.musica{width:auto;max-width:calc(100vw - 28px);}
+}
+</style>
 </head>
 
 <body>
