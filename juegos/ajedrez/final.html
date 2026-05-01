@@ -88,6 +88,53 @@ button{max-width:100%;font-size:15px;}
 }
 </style>
 <link rel="stylesheet" href="../css/finales.css">
+<style>
+body{
+  background:
+    linear-gradient(45deg, rgba(15,23,42,0.92) 25%, rgba(30,41,59,0.92) 25% 50%, rgba(15,23,42,0.92) 50% 75%, rgba(30,41,59,0.92) 75%),
+    #0f172a;
+  background-size:80px 80px;
+}
+.contenedor{
+  max-width:620px;
+  padding:28px;
+  border-radius:16px;
+  background:#f8fafc;
+  color:#111827;
+  border:8px solid #111827;
+  box-shadow:0 26px 70px rgba(0,0,0,0.42);
+}
+h1{
+  color:#111827;
+}
+h2{
+  color:#7c2d12;
+}
+#resultadoFinal,
+#ranking{
+  background:#e7d8c7;
+  color:#111827;
+  border:2px solid #78350f;
+}
+#podio{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:12px;
+}
+#podio div{
+  padding:14px;
+  border-radius:10px;
+  background:#111827;
+  color:#f8fafc;
+  border:3px solid #d6b48d;
+}
+button:not(.musica){
+  background:linear-gradient(135deg, #78350f, #111827);
+}
+@media (max-width:640px){
+  #podio{grid-template-columns:1fr;}
+}
+</style>
 </head>
 
 <body>

@@ -121,6 +121,60 @@ button{max-width:100%;font-size:15px;}
 }
 </style>
 <link rel="stylesheet" href="../css/finales.css">
+<style>
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(236,72,153,0.25), transparent 28%),
+    radial-gradient(circle at 80% 10%, rgba(56,189,248,0.2), transparent 24%),
+    #160f2f;
+  color:#f8fafc;
+}
+body > h1,
+body > h2,
+body > #podio,
+body > #ranking,
+body > button:not(.musica){
+  width:min(760px, 100%);
+}
+h1{
+  margin:10px auto 18px;
+  font-size:clamp(2rem, 7vw, 3.2rem);
+}
+h2{
+  color:#f9a8d4;
+}
+#podio{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:14px;
+}
+#podio div{
+  width:auto;
+  min-height:130px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg, #312e81, #831843);
+  border:1px solid rgba(244,114,182,0.36);
+  border-radius:18px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.28);
+}
+#ranking{
+  max-width:620px;
+  border-radius:18px;
+  background:rgba(15,23,42,0.72);
+  border:1px solid rgba(244,114,182,0.28);
+}
+#ranking div{
+  padding:10px 12px;
+}
+button:not(.musica){
+  background:linear-gradient(135deg, #ec4899, #8b5cf6);
+}
+@media (max-width:640px){
+  #podio{grid-template-columns:1fr;}
+}
+</style>
 </head>
 
 <body>
