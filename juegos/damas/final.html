@@ -148,7 +148,6 @@ body{padding-bottom:74px;}
 .btn.musica{width:auto;max-width:calc(100vw - 28px);}
 }
 </style>
-<link rel="stylesheet" href="../css/finales.css">
 <style>
 body{
   background:
@@ -242,6 +241,37 @@ button.btn:not(.musica){
 @media (max-width:560px){
   #ranking .ranking-row{grid-template-columns:42px minmax(0, 1fr);}
   #ranking .ranking-row span:last-child{grid-column:2;justify-self:start;text-align:left;}
+}
+</style>
+<link rel="stylesheet" href="../css/finales.css">
+<style>
+body{
+  background:
+    linear-gradient(45deg, rgba(127,29,29,0.72) 25%, transparent 25% 75%, rgba(127,29,29,0.72) 75%),
+    linear-gradient(45deg, rgba(15,23,42,0.95) 25%, rgba(69,10,10,0.95) 25% 75%, rgba(15,23,42,0.95) 75%),
+    #0f172a !important;
+  background-position:0 0, 40px 40px !important;
+  background-size:80px 80px !important;
+}
+.contenedor{
+  background:linear-gradient(180deg, rgba(17,24,39,0.96), rgba(69,10,10,0.96)) !important;
+  border-color:rgba(248,113,113,0.34) !important;
+  box-shadow:0 28px 80px rgba(0,0,0,0.48) !important;
+}
+h1,
+h2,
+h3{
+  color:#fecaca !important;
+}
+#resultadoFinal{
+  color:#fee2e2 !important;
+  background:linear-gradient(135deg, rgba(220,38,38,0.2), rgba(127,29,29,0.22)) !important;
+  border-color:rgba(248,113,113,0.35) !important;
+}
+.contenedor > button:not(.musica),
+.contenedor > .btn:not(.musica){
+  background:linear-gradient(135deg, #dc2626, #7f1d1d) !important;
+  color:white !important;
 }
 </style>
 </head>

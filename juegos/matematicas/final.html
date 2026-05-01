@@ -192,8 +192,6 @@ button{font-size:15px;}
 .btn.musica{width:auto;max-width:calc(100vw - 28px);}
 }
 </style>
-
-<link rel="stylesheet" href="../css/finales.css">
 <style>
 body{
   background:
@@ -287,6 +285,31 @@ button:not(.musica){
 @media (max-width:560px){
   #ranking .ranking-row{grid-template-columns:42px minmax(0, 1fr);}
   #ranking .ranking-row span:last-child{grid-column:2;justify-self:start;text-align:left;}
+}
+</style>
+<link rel="stylesheet" href="../css/finales.css">
+<style>
+body{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(250,204,21,0.18), transparent 30%),
+    linear-gradient(135deg, #111827, #1f2937) !important;
+}
+.contenedor{
+  background:linear-gradient(180deg, #111827, #020617) !important;
+  border-color:rgba(250,204,21,0.3) !important;
+  box-shadow:0 28px 80px rgba(0,0,0,0.5) !important;
+}
+h1{
+  color:#fde68a !important;
+}
+#resultadoFinal{
+  color:#fef3c7 !important;
+  background:linear-gradient(135deg, rgba(250,204,21,0.16), rgba(249,115,22,0.12)) !important;
+  border-color:rgba(250,204,21,0.3) !important;
+}
+.contenedor > button:not(.musica){
+  background:linear-gradient(135deg, #facc15, #f97316) !important;
+  color:#111827 !important;
 }
 </style>
 </head>
