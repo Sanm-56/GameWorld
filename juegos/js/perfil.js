@@ -868,6 +868,13 @@ window.seleccionarJuegoLogros = seleccionarJuegoLogros
 window.volverMenu = function () {
   window.location.href = 'index.html'
 }
+window.cerrarSesion = function () {
+  const confirmar = confirm('Quieres cerrar sesion en este navegador?')
+  if (!confirmar) return
+
+  localStorage.removeItem('usuario')
+  window.location.href = 'index.html'
+}
 
 cargarPerfil()
 
