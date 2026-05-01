@@ -2,133 +2,103 @@ import { supabase } from "../../js/supabase.js"
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
-
 const usuario = localStorage.getItem("usuario")
-
-// 🧠 POSICIÓN DEL JUGADOR (FIX 🔥)
 const posicionDiv = document.createElement("h2")
+
 document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
 
-// ⏱️ FORMATEAR TIEMPO
-function formatearTiempo(segundos){
-let minutos = Math.floor(segundos/60)
-let seg = segundos%60
-return minutos + ":" + (seg<10?"0":"") + seg
+function formatearTiempo(segundos) {
+  const minutos = Math.floor(segundos / 60)
+  const seg = segundos % 60
+  return minutos + ":" + (seg < 10 ? "0" : "") + seg
 }
 
-async function cargarResultados(){
+async function cargarResultados() {
+  const juegoActual = localStorage.getItem("juego_actual") || "sudoku"
+  const { data } = await supabase
+    .from("ranking")
+    .select("*")
+    .eq("invalido", false)
+    .eq("juego", juegoActual)
+    .order("tiempo", { ascending: true })
 
-let juegoActual = localStorage.getItem("juego_actual") || "sudoku"
+  if (!data) return
 
-let { data } = await supabase
-.from("ranking")
-.select("*")
-.eq("invalido", false)
-.eq("juego", juegoActual)
-.order("tiempo", { ascending: true })
+  const posicion = data.findIndex((j) => j.usuario === usuario)
 
-if(!data) return
+  if (posicion !== -1) {
+    let mensaje = `Quedaste #${posicion + 1} de ${data.length}`
 
-// 🎯 POSICIÓN
-let posicion = data.findIndex(j => j.usuario === usuario)
+    if (posicion === 0) {
+      mensaje += " - GANASTE"
+      setTimeout(lanzarConfeti, 500)
+    } else if (posicion < 3) {
+      mensaje += " - Podio"
+    } else {
+      mensaje += " - Buen intento"
+    }
 
-if(posicion !== -1){
+    posicionDiv.innerText = mensaje
+  } else {
+    posicionDiv.innerText = "No estas en el ranking"
+  }
 
-let mensaje = `Quedaste #${posicion+1} de ${data.length}`
+  podioDiv.innerHTML = ""
+  data.slice(0, 3).forEach((j, i) => {
+    const etiqueta = ["#1", "#2", "#3"][i]
+    const div = document.createElement("div")
+    div.innerHTML = `
+      <h3>${etiqueta} ${j.usuario}</h3>
+      <p>${formatearTiempo(j.tiempo)}</p>
+    `
+    podioDiv.appendChild(div)
+  })
 
-if(posicion === 0){
-mensaje += " 🥇 ¡GANASTE!"
-setTimeout(lanzarConfeti,500)
-}
-else if(posicion < 3){
-mensaje += " 🏆 Podio"
-}
-else{
-mensaje += " 👍"
-}
+  rankingDiv.innerHTML = ""
+  data.forEach((j, i) => {
+    const destacado = j.usuario === usuario
+      ? "style='color:#22c55e; font-weight:bold'"
+      : ""
 
-posicionDiv.innerHTML = "🎯 " + mensaje
-
-}else{
-posicionDiv.innerHTML = "No estás en el ranking"
-}
-
-// 🏆 PODIO
-podioDiv.innerHTML = ""
-
-let top3 = data.slice(0,3)
-
-top3.forEach((j,i)=>{
-
-let emoji = ["🥇","🥈","🥉"][i]
-
-let div = document.createElement("div")
-
-div.innerHTML = `
-<h3>${emoji} ${j.usuario}</h3>
-<p>⏱️ ${formatearTiempo(j.tiempo)}</p>
-`
-
-podioDiv.appendChild(div)
-
-})
-
-// 📊 RANKING
-rankingDiv.innerHTML = ""
-
-data.forEach((j,i)=>{
-
-let destacado = j.usuario === usuario 
-? "style='color:#22c55e; font-weight:bold'" 
-: ""
-
-rankingDiv.innerHTML += `
-<div ${destacado}>
-#${i+1} - ${j.usuario} (${formatearTiempo(j.tiempo)})
-</div>
-`
-
-})
-
+    rankingDiv.innerHTML += `
+      <div ${destacado}>
+        #${i + 1} - ${j.usuario} (${formatearTiempo(j.tiempo)})
+      </div>
+    `
+  })
 }
 
-// 🎉 CONFETI
-function lanzarConfeti(){
-for(let i=0;i<80;i++){
-let c = document.createElement("div")
-c.classList.add("confeti")
-c.style.left = Math.random()*100 + "vw"
-c.style.background = `hsl(${Math.random()*360},100%,50%)`
-c.style.animationDuration = (Math.random()*2+2)+"s"
-document.body.appendChild(c)
-setTimeout(()=>c.remove(),4000)
-}
+function lanzarConfeti() {
+  for (let i = 0; i < 80; i += 1) {
+    const c = document.createElement("div")
+    c.classList.add("confeti")
+    c.style.left = Math.random() * 100 + "vw"
+    c.style.background = `hsl(${Math.random() * 360},100%,50%)`
+    c.style.animationDuration = (Math.random() * 2 + 2) + "s"
+    document.body.appendChild(c)
+    setTimeout(() => c.remove(), 4000)
+  }
 }
 
-// 🔴 TIEMPO REAL
 supabase
-.channel("final-ranking")
-.on("postgres_changes",
-{ event: "*", schema: "public", table: "ranking" },
-() => cargarResultados()
-)
-.subscribe()
+  .channel("final-ranking")
+  .on("postgres_changes", { event: "*", schema: "public", table: "ranking" }, () => cargarResultados())
+  .subscribe()
 
 cargarResultados()
 
-// 🔙 BOTÓN
-window.volverLobby = async function(){
-const { data } = await supabase
-.from("estado_torneo")
-.select("estado")
-.eq("id",1)
-.single()
+window.volverLobby = async function () {
+  const { data } = await supabase
+    .from("estado_torneo")
+    .select("estado")
+    .eq("id", 1)
+    .single()
 
-if(data?.estado !== "espera"){
-alert("Torneo aun activo")
-return
-}
+  if (data?.estado !== "espera") {
+    alert("Torneo aun activo")
+    return
+  }
 
-localStorage.removeItem("juego_actual")
-window.location.href = "lobby.html"
+  localStorage.removeItem("juego_actual")
+  window.location.href = "lobby.html"
 }

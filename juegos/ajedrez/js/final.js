@@ -25,7 +25,7 @@ async function cargarResultados() {
     .order('tiempo', { ascending: true })
 
   if (result.error) {
-    console.warn('ranking_ajedrez no disponible, usando ranking genérico', result.error)
+    console.warn('ranking_ajedrez no disponible, usando ranking generico', result.error)
     result = await supabase
       .from('ranking')
       .select('*')
@@ -39,32 +39,33 @@ async function cargarResultados() {
 
   const posicion = data.findIndex((j) => j.usuario === usuario)
   const posicionDiv = document.createElement('h2')
+
   if (posicion !== -1) {
     let mensaje = `Quedaste #${posicion + 1} de ${data.length}`
-    if (posicion === 0) mensaje += ' 🥇 ¡GANASTE!'
-    else if (posicion < 3) mensaje += ' 🏆 Podio'
-    else mensaje += ' 👍'
-    posicionDiv.innerText = `🎯 ${mensaje}`
+    if (posicion === 0) mensaje += ' - GANASTE'
+    else if (posicion < 3) mensaje += ' - Podio'
+    else mensaje += ' - Buen intento'
+    posicionDiv.innerText = mensaje
   } else {
-    posicionDiv.innerText = 'No estás en el ranking'
+    posicionDiv.innerText = 'No estas en el ranking'
   }
 
   document.querySelector('.contenedor').insertBefore(posicionDiv, podioDiv)
 
   podioDiv.innerHTML = ''
   data.slice(0, 3).forEach((j, i) => {
-    const emoji = ['🥇', '🥈', '🥉'][i]
+    const etiqueta = ['#1', '#2', '#3'][i]
     const div = document.createElement('div')
     div.innerHTML = `
-      <h3>${emoji} ${j.usuario}</h3>
-      <p>⏱️ ${formatearTiempo(j.tiempo)}</p>
+      <h3>${etiqueta} ${j.usuario}</h3>
+      <p>${formatearTiempo(j.tiempo)}</p>
     `
     podioDiv.appendChild(div)
   })
 
   rankingDiv.innerHTML = ''
   if (data.length === 0) {
-    rankingDiv.innerHTML = '<p>No hay resultados de ajedrez todavía.</p>'
+    rankingDiv.innerHTML = '<p>No hay resultados de ajedrez todavia.</p>'
   } else {
     data.forEach((j, i) => {
       const destacado = j.usuario === usuario ? 'style="color:#22c55e; font-weight:bold"' : ''
@@ -77,7 +78,7 @@ async function cargarResultados() {
 
 cargarResultados()
 
-window.volverLobby = async function() {
+window.volverLobby = async function () {
   const { data } = await supabase
     .from('estado_torneo')
     .select('estado')
