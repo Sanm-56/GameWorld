@@ -261,7 +261,7 @@ export async function registrarXpPorLogros(usuario, logros, origen = 'perfil') {
       accion: 'logro_desbloqueado',
       xpGanado: XP_ACCIONES.logro_desbloqueado,
       detalle: { origen, titulo: logro.title },
-      accionKey: `logro:${origen}:${logro.title}`,
+      accionKey: `logro:${origen}:${logro.title}:${logro.howTo || ''}`,
     }))
   }
 
