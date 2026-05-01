@@ -80,13 +80,14 @@ async function cargarResultados() {
   }
 
   data.forEach((jugador, index) => {
-    const destacado = jugador.usuario === usuario && !sinPosicion
-      ? 'style="color:#22c55e; font-weight:bold"'
-      : ''
-
-    rankingDiv.innerHTML += `
-      <div ${destacado}>#${index + 1} - ${jugador.usuario} (${formatearTiempo(jugador.tiempo)})</div>
+    const div = document.createElement('div')
+    div.className = `ranking-row${jugador.usuario === usuario && !sinPosicion ? ' actual' : ''}`
+    div.innerHTML = `
+      <span>#${index + 1}</span>
+      <strong>${jugador.usuario}</strong>
+      <span>${formatearTiempo(jugador.tiempo)}</span>
     `
+    rankingDiv.appendChild(div)
   })
 }
 

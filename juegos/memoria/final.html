@@ -137,6 +137,15 @@ body > #ranking,
 body > button:not(.musica){
   width:min(760px, 100%);
 }
+.contenedor{
+  width:min(980px, 100%);
+  margin:0 auto;
+  padding:28px;
+  border-radius:24px;
+  background:rgba(15,23,42,0.64);
+  border:1px solid rgba(244,114,182,0.24);
+  box-shadow:0 28px 70px rgba(0,0,0,0.34);
+}
 h1{
   margin:10px auto 18px;
   font-size:clamp(2rem, 7vw, 3.2rem);
@@ -146,7 +155,6 @@ h2{
 }
 #podio{
   display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:14px;
 }
 #podio div{
@@ -160,7 +168,7 @@ h2{
   box-shadow:0 20px 40px rgba(0,0,0,0.28);
 }
 #ranking{
-  max-width:620px;
+  max-width:100%;
   border-radius:18px;
   background:rgba(15,23,42,0.72);
   border:1px solid rgba(244,114,182,0.28);
@@ -171,25 +179,38 @@ h2{
 button:not(.musica){
   background:linear-gradient(135deg, #ec4899, #8b5cf6);
 }
+#panelResumen{
+  display:grid;
+  grid-template-columns:1.05fr 1fr;
+  gap:18px;
+  align-items:start;
+}
 @media (max-width:640px){
-  #podio{grid-template-columns:1fr;}
+  .contenedor{padding:20px 14px;}
+  #panelResumen{grid-template-columns:1fr;}
 }
 </style>
 </head>
 
 <body>
 
+<div class="contenedor">
+
 <h1>Resultados del Torneo</h1>
 
 <!-- 🧠 POSICIÓN se inserta con JS -->
 
 <!-- 🥇 PODIO -->
+<section id="panelResumen">
 <div id="podio"></div>
 
 <!-- 📊 RANKING -->
 <div id="ranking"></div>
+</section>
 
 <button onclick="volverLobby()">Volver al lobby</button>
+
+</div>
 
 <!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
 <button class="btn musica musica-pos" onclick="reproducirMusica()">Musica</button>

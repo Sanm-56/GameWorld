@@ -5,8 +5,9 @@ const rankingDiv = document.getElementById("ranking")
 const usuario = localStorage.getItem("usuario")
 const juegoActual = localStorage.getItem("juego_actual") || "memoria"
 const posicionDiv = document.createElement("h2")
+posicionDiv.className = "posicion-final"
 
-document.body.insertBefore(posicionDiv, podioDiv)
+document.querySelector(".contenedor").insertBefore(posicionDiv, document.getElementById("panelResumen"))
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -55,9 +56,11 @@ async function cargarResultados() {
   rankingDiv.innerHTML = ""
   data.forEach((j, i) => {
     const div = document.createElement("div")
+    div.className = `ranking-row${j.usuario === usuario ? " actual" : ""}`
     div.innerHTML = `
-      #${i + 1} - ${j.usuario} (${formatearTiempo(j.tiempo)})
-      ${j.sospechoso ? "Sospechoso" : ""}
+      <span>#${i + 1}</span>
+      <strong>${j.usuario}</strong>
+      <span>${formatearTiempo(j.tiempo)}${j.sospechoso ? " - Sospechoso" : ""}</span>
     `
     rankingDiv.appendChild(div)
   })

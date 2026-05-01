@@ -46,6 +46,35 @@ button,
   overscroll-behavior:contain;
 }
 
+#ranking .ranking-row{
+  display:grid;
+  grid-template-columns:52px minmax(0, 1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:12px 10px;
+}
+
+#ranking .ranking-row.actual{
+  border-radius:12px;
+  background:rgba(34,197,94,0.14);
+}
+
+#ranking .ranking-row strong{
+  min-width:0;
+}
+
+#ranking .ranking-row span:last-child{
+  justify-self:end;
+  text-align:right;
+  white-space:nowrap;
+}
+
+.vacio{
+  margin:0;
+  padding:24px 12px;
+  text-align:center;
+}
+
 button,
 .btn{
   max-width:100%;
@@ -83,11 +112,11 @@ button,
     max-width:100%;
   }
 
-  .ranking-row{
+  #ranking .ranking-row{
     grid-template-columns:42px minmax(0, 1fr);
   }
 
-  .ranking-row span:last-child,
+  #ranking .ranking-row span:last-child,
   .ranking-score{
     grid-column:2;
     justify-self:start;

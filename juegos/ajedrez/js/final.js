@@ -68,10 +68,14 @@ async function cargarResultados() {
     rankingDiv.innerHTML = '<p>No hay resultados de ajedrez todavia.</p>'
   } else {
     data.forEach((j, i) => {
-      const destacado = j.usuario === usuario ? 'style="color:#22c55e; font-weight:bold"' : ''
-      rankingDiv.innerHTML += `
-        <div ${destacado}>#${i + 1} - ${j.usuario} (${formatearTiempo(j.tiempo)})</div>
+      const div = document.createElement('div')
+      div.className = `ranking-row${j.usuario === usuario ? ' actual' : ''}`
+      div.innerHTML = `
+        <span>#${i + 1}</span>
+        <strong>${j.usuario}</strong>
+        <span>${formatearTiempo(j.tiempo)}</span>
       `
+      rankingDiv.appendChild(div)
     })
   }
 }
