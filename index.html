@@ -4,20 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Torneo de Juegos</title>
+<link rel="stylesheet" href="juegos/css/responsive-desktop.css">
 <style>
 :root{
-  --bg:#07111f;
-  --bg-2:#10233f;
-  --panel:rgba(10, 20, 36, 0.78);
-  --panel-border:rgba(148, 163, 184, 0.14);
+  --bg:#020617;
+  --bg-2:#08172c;
+  --panel:rgba(8, 16, 30, 0.72);
+  --panel-border:rgba(148, 163, 184, 0.18);
   --text:#f8fafc;
-  --muted:#cbd5e1;
-  --card-1:#1d4ed8;
-  --card-2:#0f766e;
-  --card-3:#ca8a04;
-  --card-4:#dc2626;
-  --card-5:#7c3aed;
-  --card-6:#ea580c;
+  --muted:#b7c4d8;
+  --soft:#dbeafe;
 }
 
 *{
@@ -26,94 +22,136 @@
 
 body{
   margin:0;
-  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  font-family:Inter, Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(59,130,246,0.18), transparent 24%),
-    radial-gradient(circle at top right, rgba(249,115,22,0.16), transparent 24%),
-    radial-gradient(circle at bottom, rgba(34,197,94,0.12), transparent 26%),
-    linear-gradient(140deg, var(--bg), var(--bg-2));
+    radial-gradient(circle at 16% 6%, rgba(56,189,248,0.18), transparent 28%),
+    radial-gradient(circle at 86% 14%, rgba(244,114,182,0.11), transparent 26%),
+    linear-gradient(145deg, var(--bg-2) 0%, var(--bg) 58%, #000 100%);
   color:var(--text);
   display:flex;
-  flex-direction:column;
   justify-content:center;
   align-items:center;
   min-height:100vh;
-  padding:32px 24px;
+  padding:24px;
   overflow-x:hidden;
 }
 
 h1{
-  font-size:clamp(42px, 7vw, 68px);
-  letter-spacing:1px;
-  margin:0 0 12px;
+  font-size:clamp(46px, 4.2vw, 72px);
+  line-height:1;
+  letter-spacing:0;
+  margin:0 0 14px;
   text-align:center;
   text-shadow:0 12px 30px rgba(0,0,0,0.34);
 }
 
-.subtitulo{
+.dashboard{
+  width:min(1200px, 100%);
+  display:grid;
+  grid-template-columns:190px minmax(0, 1fr);
+  gap:20px;
+  align-items:stretch;
+}
+
+.sidebar,
+.panel-principal{
+  border:1px solid var(--panel-border);
+  background:var(--panel);
+  box-shadow:0 30px 80px rgba(0,0,0,0.36);
+  backdrop-filter:blur(14px);
+}
+
+.sidebar{
+  min-height:650px;
+  border-radius:22px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.sidebar-brand{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  color:var(--soft);
+  font-weight:800;
+}
+
+.sidebar-brand span{
   color:var(--muted);
-  margin:0 0 18px;
-  text-align:center;
-  max-width:680px;
-  line-height:1.6;
+  font-size:13px;
+  font-weight:500;
+}
+
+.panel-principal{
+  border-radius:28px;
+  padding:34px 30px 30px;
 }
 
 .hero{
-  width:min(1100px, 100%);
-  background:var(--panel);
-  border:1px solid var(--panel-border);
-  border-radius:36px;
-  padding:34px 26px 32px;
-  box-shadow:0 30px 70px rgba(0,0,0,0.34);
-  backdrop-filter:blur(10px);
+  width:100%;
 }
 
 .etiqueta{
-  display:inline-flex;
+  display:flex;
   align-items:center;
-  gap:8px;
-  padding:8px 14px;
+  justify-content:center;
+  width:max-content;
+  margin:0 auto 18px;
+  padding:8px 16px;
   border-radius:999px;
-  margin-bottom:18px;
   background:rgba(15,23,42,0.55);
   border:1px solid rgba(148,163,184,0.16);
   color:#bfdbfe;
   font-size:14px;
-  font-weight:bold;
+  font-weight:800;
+}
+
+.subtitulo{
+  color:var(--muted);
+  margin:0 auto;
+  text-align:center;
+  max-width:620px;
+  line-height:1.6;
+  font-size:clamp(15px, 1.25vw, 18px);
 }
 
 .menu{
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
-  gap:18px;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:20px;
   width:100%;
-  margin-top:28px;
+  margin-top:32px;
 }
 
 .boton{
   position:relative;
-  min-height:128px;
-  padding:24px 20px;
-  font-size:22px;
+  min-height:154px;
+  padding:22px 20px;
+  font:inherit;
+  font-size:20px;
   border:none;
-  border-radius:24px;
+  border-radius:18px;
   cursor:pointer;
-  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease, border-color 0.22s ease, background 0.22s ease;
   color:white;
-  box-shadow:0 18px 30px rgba(0,0,0,0.24);
+  box-shadow:0 18px 38px rgba(0,0,0,0.25);
   text-align:left;
   overflow:hidden;
+  border:1px solid rgba(255,255,255,0.12);
 }
 
 .boton:hover{
-  transform:translateY(-6px);
-  filter:saturate(1.05);
+  transform:translateY(-5px) scale(1.02);
+  filter:saturate(1.1) brightness(1.06);
+  box-shadow:0 24px 48px rgba(14,165,233,0.18), 0 18px 38px rgba(0,0,0,0.28);
 }
 
 .boton::before{
   content:"";
   position:absolute;
-  inset:auto -25% -35% auto;
+  inset:auto -28% -38% auto;
   width:120px;
   height:120px;
   border-radius:50%;
@@ -126,22 +164,29 @@ h1{
 }
 
 .boton .emoji{
-  display:block;
-  font-size:34px;
-  margin-bottom:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:46px;
+  height:46px;
+  border-radius:15px;
+  margin-bottom:16px;
+  background:rgba(255,255,255,0.14);
+  font-size:26px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
 .boton .titulo{
   display:block;
-  font-weight:bold;
-  margin-bottom:6px;
+  font-weight:800;
+  margin-bottom:8px;
 }
 
 .boton .detalle{
   display:block;
   font-size:14px;
-  line-height:1.4;
-  color:rgba(255,255,255,0.86);
+  line-height:1.45;
+  color:rgba(255,255,255,0.84);
 }
 
 .sudoku{
@@ -176,65 +221,7 @@ h1{
   background:linear-gradient(135deg, #16a34a, #22c55e);
 }
 
-.admin-btn{
-  position:absolute;
-  bottom:20px;
-  right:20px;
-  min-height:auto;
-  padding:12px 18px;
-  border-radius:14px;
-  background:rgba(15,23,42,0.55);
-  backdrop-filter:blur(8px);
-  opacity:0.35;
-}
-
-.admin-btn:hover{
-  opacity:1;
-}
-
-.music-btn{
-  position:absolute;
-  bottom:20px;
-  left:20px;
-  min-height:auto;
-  padding:14px 18px;
-  border-radius:16px;
-  background:linear-gradient(135deg, #0f766e, #14b8a6);
-  opacity:0.85;
-}
-
-.profile-btn{
-  position:absolute;
-  bottom:98px;
-  left:20px;
-  min-height:auto;
-  padding:14px 18px;
-  border-radius:16px;
-  background:linear-gradient(135deg, #2563eb, #60a5fa);
-  opacity:0.95;
-}
-
-.music-btn:hover{
-  opacity:1;
-}
-
-.rankings-btn{
-  position:static;
-  min-height:auto;
-  padding:14px 18px;
-  border-radius:16px;
-  background:linear-gradient(135deg, #ca8a04, #facc15);
-  opacity:0.95;
-}
-
-.rankings-btn:hover{
-  opacity:1;
-}
-
 .acciones{
-  position:absolute;
-  left:20px;
-  bottom:20px;
   display:flex;
   flex-direction:column;
   gap:12px;
@@ -242,8 +229,43 @@ h1{
 
 .profile-btn,
 .music-btn,
+.rankings-btn,
+.admin-btn{
+  min-height:auto;
+  padding:14px 16px;
+  border-radius:16px;
+  background:rgba(15,23,42,0.72);
+  border:1px solid rgba(148,163,184,0.16);
+  opacity:0.95;
+  font-size:15px;
+  text-align:left;
+  box-shadow:0 10px 28px rgba(0,0,0,0.18);
+}
+
+.profile-btn:hover,
+.music-btn:hover,
+.rankings-btn:hover,
+.admin-btn:hover{
+  background:rgba(30,41,59,0.86);
+  transform:translateY(-2px);
+}
+
+.profile-btn{
+  border-color:rgba(96,165,250,0.34);
+}
+
 .rankings-btn{
-  position:static;
+  border-color:rgba(250,204,21,0.34);
+}
+
+.music-btn{
+  border-color:rgba(45,212,191,0.34);
+}
+
+.admin-btn{
+  opacity:0.55;
+  font-size:14px;
+  text-align:center;
 }
 
 .ranking-modal{
@@ -400,27 +422,78 @@ h1{
   font-weight:bold;
 }
 
-@media (max-width: 720px){
+@media (max-width: 980px){
   body{
     justify-content:flex-start;
-    align-items:stretch;
-    padding:18px 14px calc(112px + env(safe-area-inset-bottom));
+    padding:22px 18px calc(112px + env(safe-area-inset-bottom));
   }
 
+  .dashboard{
+    grid-template-columns:1fr;
+  }
+
+  .sidebar{
+    order:2;
+    min-height:0;
+    padding:10px;
+    position:fixed;
+    z-index:30;
+    left:max(14px, env(safe-area-inset-left));
+    right:max(14px, env(safe-area-inset-right));
+    bottom:max(12px, env(safe-area-inset-bottom));
+    display:block;
+    border-radius:22px;
+    background:rgba(7,17,31,0.9);
+  }
+
+  .sidebar-brand,
+  .admin-btn{
+    display:none;
+  }
+
+  .acciones{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:8px;
+  }
+
+  .panel-principal{
+    padding:28px 22px 24px;
+    border-radius:24px;
+  }
+
+  .menu{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:16px;
+  }
+
+  .profile-btn,
+  .music-btn,
+  .rankings-btn{
+    width:100%;
+    min-height:46px;
+    padding:10px 8px;
+    font-size:13px;
+    border-radius:14px;
+    text-align:center;
+    white-space:nowrap;
+    box-shadow:none;
+  }
+}
+
+@media (max-width: 720px){
   h1{
-    font-size:clamp(32px, 10vw, 46px);
+    font-size:clamp(34px, 10vw, 46px);
     line-height:1.05;
+  }
+
+  .panel-principal{
+    padding:22px 16px 18px;
+    border-radius:22px;
   }
 
   .subtitulo{
     font-size:15px;
-    margin-bottom:14px;
-  }
-
-  .hero{
-    width:100%;
-    padding:22px 16px 20px;
-    border-radius:26px;
   }
 
   .etiqueta{
@@ -439,15 +512,17 @@ h1{
 
   .boton{
     min-height:0;
-    padding:16px 16px;
+    padding:16px;
     font-size:18px;
     border-radius:18px;
     box-shadow:0 12px 22px rgba(0,0,0,0.22);
   }
 
   .boton .emoji{
-    font-size:28px;
-    margin-bottom:6px;
+    width:40px;
+    height:40px;
+    font-size:24px;
+    margin-bottom:10px;
   }
 
   .boton .titulo{
@@ -457,43 +532,6 @@ h1{
   .boton .detalle{
     font-size:13px;
     line-height:1.35;
-  }
-
-  .acciones{
-    position:fixed;
-    z-index:30;
-    left:max(12px, env(safe-area-inset-left));
-    right:max(12px, env(safe-area-inset-right));
-    bottom:max(10px, env(safe-area-inset-bottom));
-    display:grid;
-    grid-template-columns:repeat(3, minmax(0, 1fr));
-    gap:8px;
-    padding:8px;
-    border:1px solid rgba(148,163,184,0.18);
-    border-radius:22px;
-    background:rgba(7,17,31,0.9);
-    box-shadow:0 18px 42px rgba(0,0,0,0.4);
-    backdrop-filter:blur(14px);
-  }
-
-  .profile-btn,
-  .music-btn,
-  .rankings-btn{
-    width:100%;
-    min-height:46px;
-    padding:10px 8px;
-    font-size:13px;
-    border-radius:14px;
-    text-align:center;
-    box-shadow:none;
-    opacity:1;
-    white-space:nowrap;
-  }
-
-  .profile-btn:hover,
-  .music-btn:hover,
-  .rankings-btn:hover{
-    transform:translateY(-2px);
   }
 
   .ranking-controls{
@@ -517,16 +555,6 @@ h1{
   .ranking-score{
     grid-column:2;
   }
-
-  .admin-btn{
-    position:static;
-    align-self:center;
-    margin:14px auto 0;
-    padding:10px 14px;
-    font-size:14px;
-    opacity:0.45;
-    box-shadow:none;
-  }
 }
 
 @media (max-width: 420px){
@@ -534,9 +562,9 @@ h1{
     padding:14px 10px calc(108px + env(safe-area-inset-bottom));
   }
 
-  .hero{
+  .panel-principal{
     padding:18px 12px 16px;
-    border-radius:22px;
+    border-radius:20px;
   }
 
   h1{
@@ -555,8 +583,8 @@ h1{
   }
 
   .boton .emoji{
-    font-size:24px;
-    margin-bottom:4px;
+    font-size:22px;
+    margin-bottom:8px;
   }
 
   .boton .detalle{
@@ -565,11 +593,7 @@ h1{
   }
 
   .acciones{
-    left:8px;
-    right:8px;
     gap:6px;
-    padding:7px;
-    border-radius:18px;
   }
 
   .profile-btn,
@@ -581,64 +605,73 @@ h1{
   }
 }
 </style>
-<link rel="stylesheet" href="juegos/css/responsive-desktop.css">
 </head>
 <body>
 
-<section class="hero">
-  <div class="etiqueta">GameWorld</div>
-  <h1>Torneo de Juegos</h1>
-  <p class="subtitulo">Elige tu siguiente reto y entra al lobby del juego que quieras disputar. Juega, disfruta y domina las clasificaciones de cada torneo.</p>
+<div class="dashboard">
+  <aside class="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-brand">
+      GameWorld
+      <span>Panel del torneo</span>
+    </div>
+    <div class="acciones">
+      <button class="boton profile-btn" onclick="irPerfil()">Perfil</button>
+      <button class="boton rankings-btn" data-open-rankings>Rankings</button>
+      <button class="boton music-btn" onclick="reproducirMusica()">Música</button>
+    </div>
+    <button class="boton admin-btn" onclick="irAdmin()">Admin</button>
+  </aside>
 
-  <div class="menu">
-    <button class="boton sudoku" onclick="irSudoku()">
-      <span class="emoji">🧩</span>
-      <span class="titulo">Sudoku</span>
-      <span class="detalle">Resuelve rápido y sube posiciones en el ranking.</span>
-    </button>
-    <button class="boton matematicas" onclick="irMatematicas()">
-      <span class="emoji">🧠</span>
-      <span class="titulo">Matematicas</span>
-      <span class="detalle">Pon a prueba tu velocidad mental y precisión.</span>
-    </button>
-    <button class="boton memoria" onclick="irMemoria()">
-      <span class="emoji">🃏</span>
-      <span class="titulo">Memoria</span>
-      <span class="detalle">Encuentra parejas y completa el tablero en el menor tiempo.</span>
-    </button>
-    <button class="boton ajedrez" onclick="irAjedrez()">
-      <span class="emoji">♟️</span>
-      <span class="titulo">Ajedrez</span>
-      <span class="detalle">Derrota al rival y clasifica solo si realmente ganas.</span>
-    </button>
-    <button class="boton domino" onclick="irDomino()">
-      <span class="emoji">🎲</span>
-      <span class="titulo">Dominó</span>
-      <span class="detalle">Entra al juego y compite contra otros jugadores.</span>
-    </button>
-    <button class="boton damas" onclick="irDamas()">
-      <span class="emoji">🔴</span>
-      <span class="titulo">Damas</span>
-      <span class="detalle">Domina el tablero y gana puntos en cada partida.</span>
-    </button>
-    <button class="boton flashmind" onclick="irFlashMind()">
-      <span class="emoji">⚡</span>
-      <span class="titulo">FlashMind</span>
-      <span class="detalle">Reacciona al color o símbolo correcto. Cada vez más rápido.</span>
-    </button>
-    <button class="boton numcatch" onclick="irNumCatch()">
-      <span class="emoji">🔢</span>
-      <span class="titulo">NumCatch</span>
-      <span class="detalle">Atrapa solo los números que cumplan la condición.</span>
-    </button>
-  </div>
-</section>
+  <main class="panel-principal">
+    <section class="hero">
+      <div class="etiqueta">GameWorld</div>
+      <h1>Torneo de Juegos</h1>
+      <p class="subtitulo">Elige tu siguiente reto, entra al lobby y compite por los mejores puestos del torneo.</p>
+    </section>
 
-<button class="boton admin-btn" onclick="irAdmin()">Admin</button>
-<div class="acciones">
-  <button class="boton profile-btn" onclick="irPerfil()">Perfil</button>
-  <button class="boton rankings-btn" data-open-rankings>Rankings</button>
-  <button class="boton music-btn" onclick="reproducirMusica()">Musica</button>
+    <section class="menu" aria-label="Juegos disponibles">
+      <button class="boton sudoku" onclick="irSudoku()">
+        <span class="emoji">🧩</span>
+        <span class="titulo">Sudoku</span>
+        <span class="detalle">Resuelve rápido y sube posiciones en el ranking.</span>
+      </button>
+      <button class="boton matematicas" onclick="irMatematicas()">
+        <span class="emoji">🧠</span>
+        <span class="titulo">Matemáticas</span>
+        <span class="detalle">Pon a prueba tu velocidad mental y precisión.</span>
+      </button>
+      <button class="boton memoria" onclick="irMemoria()">
+        <span class="emoji">🃏</span>
+        <span class="titulo">Memoria</span>
+        <span class="detalle">Encuentra parejas y completa el tablero en el menor tiempo.</span>
+      </button>
+      <button class="boton ajedrez" onclick="irAjedrez()">
+        <span class="emoji">♟️</span>
+        <span class="titulo">Ajedrez</span>
+        <span class="detalle">Derrota al rival y clasifica solo si realmente ganas.</span>
+      </button>
+      <button class="boton domino" onclick="irDomino()">
+        <span class="emoji">🎲</span>
+        <span class="titulo">Dominó</span>
+        <span class="detalle">Entra al juego y compite contra otros jugadores.</span>
+      </button>
+      <button class="boton damas" onclick="irDamas()">
+        <span class="emoji">🔴</span>
+        <span class="titulo">Damas</span>
+        <span class="detalle">Domina el tablero y gana puntos en cada partida.</span>
+      </button>
+      <button class="boton flashmind" onclick="irFlashMind()">
+        <span class="emoji">⚡</span>
+        <span class="titulo">FlashMind</span>
+        <span class="detalle">Reacciona al color o símbolo correcto. Cada vez más rápido.</span>
+      </button>
+      <button class="boton numcatch" onclick="irNumCatch()">
+        <span class="emoji">🔢</span>
+        <span class="titulo">NumCatch</span>
+        <span class="detalle">Atrapa solo los números que cumplan la condición.</span>
+      </button>
+    </section>
+  </main>
 </div>
 
 <div class="ranking-modal" id="rankingModal" aria-hidden="true">
