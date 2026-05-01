@@ -18,6 +18,17 @@ create table if not exists public.estadisticas_logros (
   racha_top10_torneos_actual integer not null default 0,
   mejor_racha_top10_torneos integer not null default 0,
   victorias_sin_errores integer not null default 0,
+  ultima_posicion_torneo integer,
+  top15_torneos integer not null default 0,
+  cuartos_lugares integer not null default 0,
+  posiciones_mejoradas integer not null default 0,
+  max_posiciones_subidas integer not null default 0,
+  mejores_historicas_superadas integer not null default 0,
+  jugadores_mejor_rankeados_superados integer not null default 0,
+  max_jugadores_mejor_rankeados_superados integer not null default 0,
+  torneos_mismo_dia_fecha text,
+  torneos_mismo_dia_actual integer not null default 0,
+  mejor_torneos_mismo_dia integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (usuario, juego)
@@ -55,6 +66,39 @@ add column if not exists mejor_racha_top10_torneos integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists victorias_sin_errores integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ultima_posicion_torneo integer;
+
+alter table public.estadisticas_logros
+add column if not exists top15_torneos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cuartos_lugares integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists posiciones_mejoradas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists max_posiciones_subidas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists mejores_historicas_superadas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists jugadores_mejor_rankeados_superados integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists max_jugadores_mejor_rankeados_superados integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists torneos_mismo_dia_fecha text;
+
+alter table public.estadisticas_logros
+add column if not exists torneos_mismo_dia_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists mejor_torneos_mismo_dia integer not null default 0;
 
 create index if not exists estadisticas_logros_usuario_idx
 on public.estadisticas_logros (usuario);

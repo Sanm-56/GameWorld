@@ -117,7 +117,14 @@ const index = data.findIndex((row) => row.usuario === usuario)
 return index >= 0 ? index + 1 : null
 }
 
-async function guardarEstadisticasSudoku({ tiempo, tiempoJugado, completado, sinErrores, posicion }){
+function obtenerDiaLocal(){
+const ahora = new Date()
+const mes = String(ahora.getMonth() + 1).padStart(2, "0")
+const dia = String(ahora.getDate()).padStart(2, "0")
+return `${ahora.getFullYear()}-${mes}-${dia}`
+}
+
+async function guardarEstadisticasSudoku({ tiempo, tiempoJugado, completado, sinErrores, posicion, posicionInicial }){
 
 const { data: actual, error: lecturaError } = await supabase
 .from("estadisticas_logros")
@@ -160,6 +167,28 @@ const rachaTop10Actual = typeof posicion === "number" && posicion <= 10
 : 0
 const mejorRachaTop10 = Math.max(actual?.mejor_racha_top10_torneos || 0, rachaTop10Actual)
 const victoriasSinErrores = (actual?.victorias_sin_errores || 0) + (posicion === 1 && completado && sinErrores ? 1 : 0)
+const top15Torneos = (actual?.top15_torneos || 0) + (typeof posicion === "number" && posicion <= 15 ? 1 : 0)
+const cuartosLugares = (actual?.cuartos_lugares || 0) + (posicion === 4 ? 1 : 0)
+const ultimaPosicionAnterior = actual?.ultima_posicion_torneo
+const posicionesMejoradas = (typeof posicion === "number" && typeof ultimaPosicionAnterior === "number" && posicion < ultimaPosicionAnterior)
+? (actual?.posiciones_mejoradas || 0) + 1
+: (actual?.posiciones_mejoradas || 0)
+const posicionesSubidas = (typeof posicion === "number" && typeof posicionInicial === "number")
+? Math.max(0, posicionInicial - posicion)
+: 0
+const maxPosicionesSubidas = Math.max(actual?.max_posiciones_subidas || 0, posicionesSubidas)
+const mejoresHistoricasSuperadas = (typeof posicion === "number" && typeof mejorPosicionAnterior === "number" && posicion < mejorPosicionAnterior)
+? (actual?.mejores_historicas_superadas || 0) + 1
+: (actual?.mejores_historicas_superadas || 0)
+const jugadoresMejorRankeadosSuperados = posicionesSubidas > 0
+? (actual?.jugadores_mejor_rankeados_superados || 0) + 1
+: (actual?.jugadores_mejor_rankeados_superados || 0)
+const maxJugadoresMejorRankeadosSuperados = Math.max(actual?.max_jugadores_mejor_rankeados_superados || 0, posicionesSubidas)
+const diaTorneoActual = obtenerDiaLocal()
+const torneosMismoDiaActual = actual?.torneos_mismo_dia_fecha === diaTorneoActual
+? (actual?.torneos_mismo_dia_actual || 0) + 1
+: 1
+const mejorTorneosMismoDia = Math.max(actual?.mejor_torneos_mismo_dia || 0, torneosMismoDiaActual)
 
 const { error } = await supabase
 .from("estadisticas_logros")
@@ -182,6 +211,17 @@ victorias_torneos: victoriasTorneos,
 racha_top10_torneos_actual: rachaTop10Actual,
 mejor_racha_top10_torneos: mejorRachaTop10,
 victorias_sin_errores: victoriasSinErrores,
+ultima_posicion_torneo: posicion,
+top15_torneos: top15Torneos,
+cuartos_lugares: cuartosLugares,
+posiciones_mejoradas: posicionesMejoradas,
+max_posiciones_subidas: maxPosicionesSubidas,
+mejores_historicas_superadas: mejoresHistoricasSuperadas,
+jugadores_mejor_rankeados_superados: jugadoresMejorRankeadosSuperados,
+max_jugadores_mejor_rankeados_superados: maxJugadoresMejorRankeadosSuperados,
+torneos_mismo_dia_fecha: diaTorneoActual,
+torneos_mismo_dia_actual: torneosMismoDiaActual,
+mejor_torneos_mismo_dia: mejorTorneosMismoDia,
 updated_at: new Date().toISOString(),
 }, { onConflict: "usuario,juego" })
 
@@ -345,6 +385,7 @@ clearInterval(intervalo)
 reloj.innerText = "0:00"
 
 if(!descalificado){
+const posicionInicial = await obtenerPosicionSudoku()
 const resultadoGuardado = await guardarResultado(DURACION, false, false, "Tiempo agotado")
 if(resultadoGuardado){
 const posicion = await obtenerPosicionSudoku()
@@ -354,6 +395,7 @@ tiempoJugado: DURACION,
 completado: false,
 sinErrores: false,
 posicion,
+posicionInicial,
 })
 }
 }
@@ -457,6 +499,7 @@ invalido = true
 motivo += " | Demasiados cambios"
 }
 
+const posicionInicial = invalido ? null : await obtenerPosicionSudoku()
 const resultadoGuardado = await guardarResultado(invalido ? 9999 : tiempo, sospechoso, invalido, motivo)
 
 if(resultadoGuardado && !invalido){
@@ -467,6 +510,7 @@ tiempoJugado: tiempo,
 completado: true,
 sinErrores: erroresPartida === 0,
 posicion,
+posicionInicial,
 })
 }
 else if(resultadoGuardado && invalido){

@@ -283,6 +283,14 @@ function crearLogrosSudoku(stats) {
   const victoriasTorneos = stats.victorias_torneos || 0
   const mejorRachaTop10Torneos = stats.mejor_racha_top10_torneos || 0
   const victoriasSinErrores = stats.victorias_sin_errores || 0
+  const top15Torneos = stats.top15_torneos || 0
+  const cuartosLugares = stats.cuartos_lugares || 0
+  const posicionesMejoradas = stats.posiciones_mejoradas || 0
+  const maxPosicionesSubidas = stats.max_posiciones_subidas || 0
+  const mejoresHistoricasSuperadas = stats.mejores_historicas_superadas || 0
+  const jugadoresMejorRankeadosSuperados = stats.jugadores_mejor_rankeados_superados || 0
+  const maxJugadoresMejorRankeadosSuperados = stats.max_jugadores_mejor_rankeados_superados || 0
+  const mejorTorneosMismoDia = stats.mejor_torneos_mismo_dia || 0
   const mejorTiempo = typeof stats.mejor_tiempo === 'number' ? stats.mejor_tiempo : null
 
   return [
@@ -521,6 +529,12 @@ function crearLogrosSudoku(stats) {
       unlocked: mejorPosicionTorneo !== null && mejorPosicionTorneo <= 50,
     },
     {
+      title: 'Debut Prometedor',
+      description: 'No gane... pero ya me estan mirando.',
+      howTo: 'Termina en el top 25 de un torneo.',
+      unlocked: mejorPosicionTorneo !== null && mejorPosicionTorneo <= 25,
+    },
+    {
       title: 'Top Competidor',
       description: 'Esto ya se esta poniendo serio.',
       howTo: 'Termina en el top 10 de un torneo.',
@@ -533,10 +547,58 @@ function crearLogrosSudoku(stats) {
       unlocked: mejorPosicionTorneo !== null && mejorPosicionTorneo <= 3,
     },
     {
+      title: 'Al Filo del Podio',
+      description: 'Tan cerca... lo puedo sentir.',
+      howTo: 'Termina en el 4 lugar en un torneo.',
+      unlocked: cuartosLugares >= 1,
+    },
+    {
       title: 'Campeon',
       description: 'No era suerte... era inevitable.',
       howTo: 'Gana un torneo.',
       unlocked: victoriasTorneos >= 1,
+    },
+    {
+      title: 'Escalando Posiciones',
+      description: 'Poco a poco... pero sin parar.',
+      howTo: 'Mejora tu posicion respecto al torneo anterior.',
+      unlocked: posicionesMejoradas >= 1,
+    },
+    {
+      title: 'Sorpresa del Torneo',
+      description: 'Nadie lo vio venir... ni yo.',
+      howTo: 'Sube mas de 20 posiciones respecto a tu ranking inicial en un torneo.',
+      unlocked: maxPosicionesSubidas > 20,
+    },
+    {
+      title: 'Golpe de Autoridad',
+      description: 'Hoy vine diferente.',
+      howTo: 'Supera tu mejor posicion historica en un torneo.',
+      unlocked: mejoresHistoricasSuperadas >= 1,
+    },
+    {
+      title: 'Competidor Incansable',
+      description: 'Otra ronda? Vamos.',
+      howTo: 'Participa en 3 torneos en un mismo dia.',
+      unlocked: mejorTorneosMismoDia >= 3,
+    },
+    {
+      title: 'Rival a Temer',
+      description: 'Ya empiezan a reconocer mi nombre.',
+      howTo: 'Derrota a un jugador mejor rankeado que tu en un torneo.',
+      unlocked: jugadoresMejorRankeadosSuperados >= 1,
+    },
+    {
+      title: 'Cazador de Gigantes',
+      description: 'Entre mas alto caen... mejor.',
+      howTo: 'Supera a 5 jugadores mejor rankeados en un mismo torneo.',
+      unlocked: maxJugadoresMejorRankeadosSuperados >= 5,
+    },
+    {
+      title: 'Consistencia Competitiva',
+      description: 'No es suerte... es nivel.',
+      howTo: 'Termina en el top 15 en 5 torneos diferentes.',
+      unlocked: top15Torneos >= 5,
     },
     {
       title: 'Racha Competitiva',
@@ -555,6 +617,12 @@ function crearLogrosSudoku(stats) {
       description: 'Siempre estoy ahi.',
       howTo: 'Participa en 10 torneos.',
       unlocked: torneosParticipados >= 10,
+    },
+    {
+      title: 'Siempre Presente',
+      description: 'No importa el resultado... siempre aparezco.',
+      howTo: 'Participa en 20 torneos.',
+      unlocked: torneosParticipados >= 20,
     },
     {
       title: 'Presion Maxima',
