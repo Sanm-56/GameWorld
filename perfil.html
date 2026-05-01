@@ -391,6 +391,100 @@ body{
   color:var(--muted);
 }
 
+.season-pass{
+  display:grid;
+  gap:14px;
+}
+
+.level-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.level-number{
+  font-size:2.4rem;
+  font-weight:bold;
+  line-height:1;
+}
+
+.level-meta{
+  color:var(--muted);
+  font-size:0.9rem;
+}
+
+.progress-shell{
+  width:100%;
+  height:16px;
+  border-radius:999px;
+  background:#020617;
+  border:1px solid rgba(148,163,184,0.18);
+  overflow:hidden;
+}
+
+.progress-fill{
+  width:0%;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, #22c55e, #38bdf8, #f59e0b);
+  transition:width 0.35s ease;
+}
+
+.progress-detail{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:#cbd5e1;
+  font-size:0.9rem;
+}
+
+.reward-preview{
+  padding:12px;
+  border-radius:12px;
+  background:rgba(56,189,248,0.09);
+  border:1px solid rgba(56,189,248,0.16);
+}
+
+.reward-preview small,
+.level-ranking small{
+  color:var(--muted);
+}
+
+.level-ranking{
+  display:grid;
+  gap:10px;
+}
+
+.level-row{
+  display:grid;
+  grid-template-columns:44px minmax(0, 1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:12px;
+  border-radius:12px;
+  background:var(--panel-2);
+}
+
+.level-row.current{
+  border:1px solid rgba(34,197,94,0.55);
+  background:linear-gradient(135deg, rgba(34,197,94,0.16), rgba(56,189,248,0.08));
+}
+
+.level-rank-pos{
+  color:#7dd3fc;
+  font-weight:bold;
+}
+
+.level-rank-user{
+  overflow-wrap:anywhere;
+}
+
+.level-rank-score{
+  text-align:right;
+  white-space:nowrap;
+}
+
 @media (max-width:900px){
   .hero,
   .layout{
@@ -541,6 +635,21 @@ body{
   .history-state{
     align-self:flex-start;
   }
+
+  .level-head,
+  .progress-detail{
+    display:grid;
+    gap:6px;
+  }
+
+  .level-row{
+    grid-template-columns:34px minmax(0, 1fr);
+  }
+
+  .level-rank-score{
+    grid-column:2;
+    text-align:left;
+  }
 }
 
 @media (max-width:380px){
@@ -569,11 +678,30 @@ body{
         <div class="pill" id="pillUsuario">Usuario: -</div>
         <div class="pill" id="pillPartidas">Partidas: 0</div>
         <div class="pill" id="pillMedallas">Medallas: 0</div>
+        <div class="pill" id="pillNivel">Nivel: 1</div>
       </div>
     </div>
-    <div class="card" style="background:#0f172a;">
+    <div class="card season-pass" style="background:#0f172a;">
       <h2 class="section-title">Progreso del perfil</h2>
       <p id="perfilEstado" class="empty">Buscando informacion del jugador...</p>
+      <div class="level-head">
+        <div>
+          <div class="level-number" id="nivelActual">1</div>
+          <div class="level-meta" id="xpActual">0 XP acumulado</div>
+        </div>
+        <div class="level-meta" id="porcentajeNivel">0%</div>
+      </div>
+      <div class="progress-shell" aria-label="Progreso hacia el siguiente nivel">
+        <div class="progress-fill" id="barraNivel"></div>
+      </div>
+      <div class="progress-detail">
+        <span id="xpNivelDetalle">0 / 100 XP</span>
+        <span id="xpRestante">Faltan 100 XP</span>
+      </div>
+      <div class="reward-preview">
+        <small>Proxima recompensa</small>
+        <div id="recompensaSiguiente">Cargando recompensa...</div>
+      </div>
     </div>
   </section>
 
@@ -600,6 +728,11 @@ body{
     <article class="card">
       <h2 class="section-title">Medallas obtenidas</h2>
       <div class="medal-grid" id="medallasList"></div>
+    </article>
+
+    <article class="card">
+      <h2 class="section-title">Ranking por nivel</h2>
+      <div class="level-ranking" id="rankingNivelList"></div>
     </article>
 
     <article class="card">

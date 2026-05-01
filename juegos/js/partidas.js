@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js"
+import { registrarXpPorPartida } from "./progreso-nivel.js"
 
 const FALLBACK_TABLES = {
   ajedrez: "ranking_ajedrez",
@@ -27,7 +28,14 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
 
   if (error) {
     console.warn("No se pudo registrar la partida", error)
+    return
   }
+
+  await registrarXpPorPartida({
+    usuario,
+    juego,
+    posicion,
+  })
 }
 
 async function obtenerPosicion(usuario, juego, modo) {

@@ -1,4 +1,11 @@
 import { supabase } from './supabase.js'
+import {
+  NIVEL_MAXIMO,
+  obtenerProgresoNivel,
+  obtenerRankingNivel,
+  obtenerRecompensaNivel,
+  registrarXpPorLogros,
+} from './progreso-nivel.js'
 
 const usuario = localStorage.getItem('usuario')
 
@@ -23,6 +30,7 @@ const perfilEstadoEl = document.getElementById('perfilEstado')
 const pillUsuarioEl = document.getElementById('pillUsuario')
 const pillPartidasEl = document.getElementById('pillPartidas')
 const pillMedallasEl = document.getElementById('pillMedallas')
+const pillNivelEl = document.getElementById('pillNivel')
 const statJuegosEl = document.getElementById('statJuegos')
 const statOrosEl = document.getElementById('statOros')
 const statPodiosEl = document.getElementById('statPodios')
@@ -33,6 +41,14 @@ const logrosTituloJuegoEl = document.getElementById('logrosTituloJuego')
 const logrosContadorEl = document.getElementById('logrosContador')
 const logrosListEl = document.getElementById('logrosList')
 const historialListEl = document.getElementById('historialList')
+const nivelActualEl = document.getElementById('nivelActual')
+const xpActualEl = document.getElementById('xpActual')
+const porcentajeNivelEl = document.getElementById('porcentajeNivel')
+const barraNivelEl = document.getElementById('barraNivel')
+const xpNivelDetalleEl = document.getElementById('xpNivelDetalle')
+const xpRestanteEl = document.getElementById('xpRestante')
+const recompensaSiguienteEl = document.getElementById('recompensaSiguiente')
+const rankingNivelListEl = document.getElementById('rankingNivelList')
 
 function formatearTiempo(segundos) {
   if (typeof segundos !== 'number' || Number.isNaN(segundos)) return '-'
@@ -110,6 +126,7 @@ async function cargarPerfil() {
     perfilResumenEl.innerText = 'Todavia no hay un usuario activo en este navegador.'
     perfilEstadoEl.innerText = 'Primero entra a cualquier juego con tu apodo y codigo para construir tu perfil.'
     medallasListEl.innerHTML = '<div class="empty">Aun no hay medallas para mostrar.</div>'
+    renderProgresoNivel()
     resultadosPerfil = []
     estadisticasLogros = {}
     renderLogrosJuegos()
@@ -181,6 +198,8 @@ async function cargarPerfil() {
   renderLogrosJuegos()
   renderLogros()
   renderHistorial(resultados)
+  await sincronizarXpDeLogros()
+  await renderProgresoNivel()
 }
 
 function renderMedallas(resultados) {
@@ -670,6 +689,94 @@ function renderLogros() {
   })
 }
 
+async function sincronizarXpDeLogros() {
+  if (!usuario) return
+
+  for (const game of GAMES) {
+    const resultado = resultadosPerfil.find((item) => item.juego === game.key)
+    const logros = crearLogrosDeJuego(game, resultado)
+    await registrarXpPorLogros(usuario, logros, game.key)
+  }
+}
+
+async function renderProgresoNivel() {
+  if (!usuario) {
+    nivelActualEl.innerText = '1'
+    xpActualEl.innerText = '0 XP acumulado'
+    porcentajeNivelEl.innerText = '0%'
+    barraNivelEl.style.width = '0%'
+    xpNivelDetalleEl.innerText = '0 / 100 XP'
+    xpRestanteEl.innerText = 'Faltan 100 XP'
+    pillNivelEl.innerText = 'Nivel: 1'
+    recompensaSiguienteEl.innerText = 'Inicia sesion para ver recompensas.'
+    rankingNivelListEl.innerHTML = '<div class="empty">No hay ranking de nivel disponible.</div>'
+    return
+  }
+
+  const progreso = await obtenerProgresoNivel(usuario)
+  const siguienteNivel = Math.min(NIVEL_MAXIMO, progreso.nivel + 1)
+  const recompensa = progreso.nivel >= NIVEL_MAXIMO
+    ? null
+    : await obtenerRecompensaNivel(siguienteNivel)
+
+  nivelActualEl.innerText = String(progreso.nivel)
+  xpActualEl.innerText = `${progreso.xp} XP acumulado`
+  porcentajeNivelEl.innerText = `${progreso.porcentaje}%`
+  barraNivelEl.style.width = `${progreso.porcentaje}%`
+  pillNivelEl.innerText = `Nivel: ${progreso.nivel}`
+
+  if (progreso.nivel >= NIVEL_MAXIMO) {
+    xpNivelDetalleEl.innerText = 'Nivel maximo alcanzado'
+    xpRestanteEl.innerText = 'Temporada completada'
+    recompensaSiguienteEl.innerText = 'Ya desbloqueaste todas las recompensas.'
+  } else {
+    xpNivelDetalleEl.innerText = `${progreso.xpEnNivel} / ${progreso.xpSiguiente} XP`
+    xpRestanteEl.innerText = `Faltan ${progreso.xpParaSiguiente} XP`
+    recompensaSiguienteEl.innerText = recompensa
+      ? `Nivel ${recompensa.nivel}: ${formatearTipoRecompensa(recompensa.tipo)} - ${recompensa.valor}`
+      : `Nivel ${siguienteNivel}: recompensa pendiente`
+  }
+
+  await renderRankingNivel()
+}
+
+async function renderRankingNivel() {
+  const ranking = await obtenerRankingNivel(10)
+
+  if (!ranking.length) {
+    rankingNivelListEl.innerHTML = '<div class="empty">Todavia no hay jugadores con XP de nivel.</div>'
+    return
+  }
+
+  rankingNivelListEl.innerHTML = ''
+  ranking.forEach((item, index) => {
+    const div = document.createElement('div')
+    div.className = `level-row${item.usuario_id === usuario ? ' current' : ''}`
+    div.innerHTML = `
+      <div class="level-rank-pos">#${index + 1}</div>
+      <div class="level-rank-user">
+        <strong>${item.usuario_id}</strong>
+        <br>
+        <small>${item.xp} XP</small>
+      </div>
+      <div class="level-rank-score">Nivel ${item.nivel}</div>
+    `
+    rankingNivelListEl.appendChild(div)
+  })
+}
+
+function formatearTipoRecompensa(tipo) {
+  const labels = {
+    titulo: 'Titulo',
+    medalla: 'Medalla',
+    estilo: 'Estilo',
+    logro: 'Logro',
+    xp_bonus: 'Bonus',
+  }
+
+  return labels[tipo] || tipo
+}
+
 function renderHistorial(resultados) {
   historialListEl.innerHTML = ''
 
@@ -703,3 +810,10 @@ window.volverMenu = function () {
 }
 
 cargarPerfil()
+
+supabase
+  .channel('perfil-progreso-nivel')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'progreso_nivel' }, () => {
+    renderProgresoNivel()
+  })
+  .subscribe()
