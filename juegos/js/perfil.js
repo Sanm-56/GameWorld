@@ -314,6 +314,8 @@ function crearLogrosNumcatch(stats) {
   const victorias1Error = stats.numcatch_victorias_1_error || 0
   const victorias2Errores = stats.numcatch_victorias_2_errores || 0
   const victoriasMenos14Errores = stats.numcatch_victorias_menos_14_errores || 0
+  const mejorRachaVictorias400 = stats.numcatch_mejor_racha_victorias_400 || 0
+  const mejorRachaVictorias1200 = stats.numcatch_mejor_racha_victorias_1200 || 0
 
   return [
     {
@@ -447,6 +449,18 @@ function crearLogrosNumcatch(stats) {
       description: 'La precisi&oacute;n define al ganador.',
       howTo: 'Gana 5 torneos con menos de 14 errores.',
       unlocked: victoriasMenos14Errores >= 5,
+    },
+    {
+      title: 'El N&uacute;cleo de Theryon',
+      description: 'Todo gira a mi alrededor.',
+      howTo: 'Gana 2 torneos consecutivos con m&aacute;s de 400 puntos.',
+      unlocked: mejorRachaVictorias400 >= 2,
+    },
+    {
+      title: 'El Eco de Dravok',
+      description: 'La victoria se repite... sin explicaci&oacute;n.',
+      howTo: 'Gana 4 torneos seguidos con m&aacute;s de 1200 puntos.',
+      unlocked: mejorRachaVictorias1200 >= 4,
     },
   ]
 }

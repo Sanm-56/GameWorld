@@ -101,6 +101,10 @@ create table if not exists public.estadisticas_logros (
   numcatch_victorias_1_error integer not null default 0,
   numcatch_victorias_2_errores integer not null default 0,
   numcatch_victorias_menos_14_errores integer not null default 0,
+  numcatch_racha_victorias_400_actual integer not null default 0,
+  numcatch_mejor_racha_victorias_400 integer not null default 0,
+  numcatch_racha_victorias_1200_actual integer not null default 0,
+  numcatch_mejor_racha_victorias_1200 integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -388,6 +392,18 @@ add column if not exists numcatch_victorias_2_errores integer not null default 0
 
 alter table public.estadisticas_logros
 add column if not exists numcatch_victorias_menos_14_errores integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists numcatch_racha_victorias_400_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists numcatch_mejor_racha_victorias_400 integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists numcatch_racha_victorias_1200_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists numcatch_mejor_racha_victorias_1200 integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists ultimo_tiempo integer;
