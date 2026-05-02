@@ -481,3 +481,83 @@ select
   jsonb_build_object('season_pass', true)
 from generate_series(1, 100) as nivel
 on conflict (nivel, tipo, valor) do nothing;
+
+create or replace function public.limpiar_datos_usuario_torneo(usuario_borrado text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  objetivo record;
+begin
+  if usuario_borrado is null or btrim(usuario_borrado) = '' then
+    return;
+  end if;
+
+  for objetivo in
+    select *
+    from (values
+      ('ranking', 'usuario'),
+      ('ranking', 'usuario_id'),
+      ('ranking_ajedrez', 'usuario'),
+      ('ranking_ajedrez', 'usuario_id'),
+      ('ranking_domino', 'usuario'),
+      ('ranking_domino', 'usuario_id'),
+      ('ranking_damas', 'usuario'),
+      ('ranking_damas', 'usuario_id'),
+      ('partidas', 'usuario'),
+      ('partidas', 'usuario_id'),
+      ('estadisticas_logros', 'usuario'),
+      ('progreso_nivel', 'usuario_id'),
+      ('historial_xp', 'usuario_id'),
+      ('recompensas_desbloqueadas', 'usuario_id')
+    ) as pendientes(tabla, columna)
+    where to_regclass('public.' || pendientes.tabla) is not null
+      and exists (
+        select 1
+        from information_schema.columns
+        where table_schema = 'public'
+          and table_name = pendientes.tabla
+          and column_name = pendientes.columna
+      )
+  loop
+    execute format('delete from public.%I where %I = $1', objetivo.tabla, objetivo.columna)
+    using usuario_borrado;
+  end loop;
+end;
+$$;
+
+create or replace function public.limpiar_datos_usuario_torneo_trigger()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  perform public.limpiar_datos_usuario_torneo(old.usuario);
+  return old;
+end;
+$$;
+
+do $$
+begin
+  if to_regclass('public.usuarios') is not null
+    and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'usuarios'
+        and column_name = 'usuario'
+    )
+  then
+    execute 'drop trigger if exists usuarios_limpiar_datos_torneo on public.usuarios';
+    execute '
+      create trigger usuarios_limpiar_datos_torneo
+      after delete on public.usuarios
+      for each row
+      execute function public.limpiar_datos_usuario_torneo_trigger()
+    ';
+  end if;
+end;
+$$;
