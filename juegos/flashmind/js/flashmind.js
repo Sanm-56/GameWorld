@@ -30,6 +30,8 @@ let ultimoCambio = 0
 let ronda = 0
 let aciertos = 0
 let nivel = 1
+let rachaCorrectas = 0
+let mejorRachaCorrectas = 0
 
 let esperando = false
 let objetivoActual = null
@@ -130,6 +132,7 @@ function siguienteRonda() {
     esperando = false
     totalIntentos++
     sumaMs += PENALIZACION_TIMEOUT_MS
+    rachaCorrectas = 0
     setLog(`Muy lento. Penalizacion +${PENALIZACION_TIMEOUT_MS}ms`)
     limpiarPantalla()
     actualizarStats()
@@ -152,9 +155,12 @@ function elegir(key) {
 
   if (ok) {
     aciertos++
+    rachaCorrectas++
+    mejorRachaCorrectas = Math.max(mejorRachaCorrectas, rachaCorrectas)
     sumaMs += rt
     setLog(`Correcto: ${rt} ms`)
   } else {
+    rachaCorrectas = 0
     sumaMs += Math.max(1200, rt + PENALIZACION_ERROR_BASE_MS)
     setLog(`Incorrecto (${key}). Penalizacion`)
   }
@@ -307,6 +313,43 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
   return true
 }
 
+async function guardarEstadisticasFlashmind() {
+  const { data: actual, error: lecturaError } = await supabase
+    .from("estadisticas_logros")
+    .select("*")
+    .eq("usuario", usuario)
+    .eq("juego", "flashmind")
+    .maybeSingle()
+
+  if (lecturaError) {
+    console.warn("No se pudieron leer estadisticas de flashmind", lecturaError)
+    return
+  }
+
+  const sinErrores = totalIntentos > 0 && aciertos === totalIntentos
+  const rachaSinErroresActual = sinErrores ? (actual?.racha_sin_errores_actual || 0) + 1 : 0
+
+  const payload = {
+    usuario,
+    juego: "flashmind",
+    completados: (actual?.completados || 0) + 1,
+    completados_sin_errores: (actual?.completados_sin_errores || 0) + (sinErrores ? 1 : 0),
+    racha_sin_errores_actual: rachaSinErroresActual,
+    mejor_racha_sin_errores: Math.max(actual?.mejor_racha_sin_errores || 0, rachaSinErroresActual),
+    flashmind_total_correctas: (actual?.flashmind_total_correctas || 0) + aciertos,
+    flashmind_mejor_racha_correctas: Math.max(actual?.flashmind_mejor_racha_correctas || 0, mejorRachaCorrectas),
+    updated_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase
+    .from("estadisticas_logros")
+    .upsert(payload, { onConflict: "usuario,juego" })
+
+  if (error) {
+    console.warn("No se pudieron guardar estadisticas de flashmind", error)
+  }
+}
+
 async function enviarResultado(fin) {
   if (resultadoEnviado) return
   resultadoEnviado = true
@@ -333,6 +376,8 @@ async function enviarResultado(fin) {
       resultadoEnviado = false
       return
     }
+
+    await guardarEstadisticasFlashmind()
   }
 
   localStorage.setItem("fin_juego", fin)

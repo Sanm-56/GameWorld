@@ -87,6 +87,8 @@ create table if not exists public.estadisticas_logros (
   matematicas_mejor_racha_3s integer not null default 0,
   matematicas_mejor_racha_5s integer not null default 0,
   matematicas_mejor_correctas_60s integer not null default 0,
+  flashmind_total_correctas integer not null default 0,
+  flashmind_mejor_racha_correctas integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -332,6 +334,12 @@ add column if not exists matematicas_mejor_racha_5s integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists matematicas_mejor_correctas_60s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists flashmind_total_correctas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists flashmind_mejor_racha_correctas integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists ultimo_tiempo integer;

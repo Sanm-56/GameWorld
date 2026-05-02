@@ -268,6 +268,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosMatematicas(estadisticasLogros.matematicas || {})
   }
 
+  if (game.key === 'flashmind') {
+    return crearLogrosFlashmind(estadisticasLogros.flashmind || {})
+  }
+
   return [
     {
       title: `Primer intento en ${game.label}`,
@@ -296,6 +300,39 @@ function crearLogrosDeJuego(game, resultado) {
       unlocked: false,
     },
   ]
+}
+
+function crearLogrosFlashmind(stats) {
+  const mejorRachaCorrectas = stats.flashmind_mejor_racha_correctas || 0
+  const logros = [
+    ['Encendido neuronal', 'Algo se activ&oacute;... y no se apag&oacute;.', 'Consigue 5 respuestas correctas seguidas.', 5],
+    ['Chispa sostenida', 'Peque&ntilde;o inicio... gran se&ntilde;al.', 'Consigue 7 respuestas correctas consecutivas.', 7],
+    ['Vector ascendente', 'Voy en subida constante.', 'Consigue 15 respuestas correctas seguidas.', 15],
+    ['Pulso sincronizado', 'Todo late al mismo ritmo.', 'Consigue 17 respuestas correctas consecutivas.', 17],
+    ['L&iacute;nea sin quiebre', 'Nada interrumpe el trazo.', 'Consigue 19 respuestas correctas seguidas.', 19],
+    ['Tr&aacute;nsito limpio', 'Sin ruido... solo aciertos.', 'Consigue 21 respuestas correctas consecutivas.', 21],
+    ['Frecuencia perfecta', 'Estoy en la misma onda.', 'Consigue 23 respuestas correctas seguidas.', 23],
+    ['&Oacute;rbita estable', 'No me salgo del camino.', 'Consigue 31 respuestas correctas consecutivas.', 31],
+    ['N&uacute;cleo activo', 'Todo gira alrededor de esto.', 'Consigue 37 respuestas correctas seguidas.', 37],
+    ['Trayectoria pura', 'Cada paso tiene direcci&oacute;n.', 'Consigue 49 respuestas correctas consecutivas.', 49],
+    ['Impulso constante', 'Nada desacelera.', 'Consigue 52 respuestas correctas seguidas.', 52],
+    ['Cascada de aciertos', 'Uno cae... luego otro... y otro.', 'Consigue 56 respuestas correctas consecutivas.', 56],
+    ['Resonancia mental', 'Todo vibra igual.', 'Consigue 60 respuestas correctas seguidas.', 60],
+    ['Eje dominante', 'Todo gira bajo control.', 'Consigue 35 respuestas correctas consecutivas.', 35],
+    ['Campo estable', 'Nada altera el equilibrio.', 'Consigue 40 respuestas correctas seguidas.', 40],
+    ['Tramo invicto', 'No hay ruptura posible.', 'Consigue 45 respuestas correctas consecutivas.', 45],
+    ['Matriz intacta', 'Todo sigue en orden perfecto.', 'Consigue 50 respuestas correctas seguidas.', 50],
+    ['Arquitectura mental', 'Cada pieza encaja sin error.', 'Consigue 70 respuestas correctas consecutivas.', 70],
+    ['Horizonte claro', 'Nada nubla el camino.', 'Consigue 75 respuestas correctas seguidas.', 75],
+    ['Dominio absoluto', 'Ya no hay oposici&oacute;n.', 'Consigue 100 respuestas correctas consecutivas.', 100],
+  ]
+
+  return logros.map(([title, description, howTo, requisito]) => ({
+    title,
+    description,
+    howTo,
+    unlocked: mejorRachaCorrectas >= requisito,
+  }))
 }
 
 function crearLogrosMatematicas(stats) {
