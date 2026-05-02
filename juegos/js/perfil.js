@@ -272,6 +272,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosFlashmind(estadisticasLogros.flashmind || {})
   }
 
+  if (game.key === 'numcatch') {
+    return crearLogrosNumcatch(estadisticasLogros.numcatch || {})
+  }
+
   return [
     {
       title: `Primer intento en ${game.label}`,
@@ -298,6 +302,40 @@ function crearLogrosDeJuego(game, resultado) {
       title: 'Logro personalizado',
       description: 'Reservado para el nombre y descripcion que me pases despues.',
       unlocked: false,
+    },
+  ]
+}
+
+function crearLogrosNumcatch(stats) {
+  const mejorRachaAciertosVictoria = stats.numcatch_mejor_racha_aciertos_victoria || 0
+  const minErroresVictoria = typeof stats.numcatch_min_errores_victoria === 'number'
+    ? stats.numcatch_min_errores_victoria
+    : null
+
+  return [
+    {
+      title: 'El Veredicto de Astryx',
+      description: 'Cuando todo termina... solo quedo yo.',
+      howTo: 'Gana un torneo superando los 500 aciertos seguidos.',
+      unlocked: mejorRachaAciertosVictoria > 500,
+    },
+    {
+      title: 'El Fragmento de Lurien',
+      description: 'Una pieza... suficiente para dominar.',
+      howTo: 'Gana un torneo con menos de 40 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 40,
+    },
+    {
+      title: 'El Sello de Kaeroth',
+      description: 'Cada fallo evitado... suma poder.',
+      howTo: 'Gana un torneo con menos de 35 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 35,
+    },
+    {
+      title: 'Pureza de Vhalion',
+      description: 'La perfecci&oacute;n no es un mito.',
+      howTo: 'Gana un torneo con menos de 30 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 30,
     },
   ]
 }

@@ -32,6 +32,8 @@ let aciertos = 0
 let errores = 0
 let puntaje = 0
 let nivel = 1
+let rachaAciertos = 0
+let mejorRachaAciertos = 0
 
 let condicionKey = "multiplos_3"
 
@@ -138,10 +140,13 @@ function clickNumero(id) {
 
   if (item.esCorrecto) {
     aciertos++
+    rachaAciertos++
+    mejorRachaAciertos = Math.max(mejorRachaAciertos, rachaAciertos)
     puntaje += 10
     setLog(`+10 (${item.valor})`)
   } else {
     errores++
+    rachaAciertos = 0
     puntaje = Math.max(0, puntaje - 8)
     setLog(`-8 (${item.valor})`)
   }
@@ -182,6 +187,7 @@ function loop(ts) {
 
       if (item.esCorrecto) {
         errores++
+        rachaAciertos = 0
         puntaje = Math.max(0, puntaje - 12)
         setLog(`Se escapo ${item.valor} (correcto). -12`)
       }
@@ -325,6 +331,72 @@ async function guardarResultadoNumcatch(puntosFinal, sospechoso, invalido, motiv
   return true
 }
 
+async function obtenerPosicionNumcatch() {
+  const { data, error } = await supabase
+    .from("ranking")
+    .select("usuario")
+    .eq("juego", "numcatch")
+    .eq("invalido", false)
+    .order("tiempo", { ascending: false })
+
+  if (error || !data) {
+    console.warn("No se pudo calcular posicion de numcatch", error)
+    return null
+  }
+
+  const index = data.findIndex((item) => item.usuario === usuario)
+  return index >= 0 ? index + 1 : null
+}
+
+async function guardarEstadisticasNumcatch(posicion) {
+  const { data: actual, error: lecturaError } = await supabase
+    .from("estadisticas_logros")
+    .select("*")
+    .eq("usuario", usuario)
+    .eq("juego", "numcatch")
+    .maybeSingle()
+
+  if (lecturaError) {
+    console.warn("No se pudieron leer estadisticas de numcatch", lecturaError)
+    return
+  }
+
+  const esVictoria = posicion === 1
+  const minErroresVictoriaAnterior = actual?.numcatch_min_errores_victoria
+  const numcatchMinErroresVictoria = esVictoria
+    ? (typeof minErroresVictoriaAnterior === "number" ? Math.min(minErroresVictoriaAnterior, errores) : errores)
+    : minErroresVictoriaAnterior
+  const mejorPosicionAnterior = actual?.mejor_posicion_torneo
+  const mejorPosicionTorneo = typeof posicion === "number"
+    ? (typeof mejorPosicionAnterior === "number" ? Math.min(mejorPosicionAnterior, posicion) : posicion)
+    : mejorPosicionAnterior
+
+  const payload = {
+    usuario,
+    juego: "numcatch",
+    completados: (actual?.completados || 0) + 1,
+    torneos_participados: (actual?.torneos_participados || 0) + 1,
+    mejor_posicion_torneo: mejorPosicionTorneo,
+    victorias_torneos: (actual?.victorias_torneos || 0) + (esVictoria ? 1 : 0),
+    numcatch_total_aciertos: (actual?.numcatch_total_aciertos || 0) + aciertos,
+    numcatch_mejor_racha_aciertos: Math.max(actual?.numcatch_mejor_racha_aciertos || 0, mejorRachaAciertos),
+    numcatch_mejor_racha_aciertos_victoria: esVictoria
+      ? Math.max(actual?.numcatch_mejor_racha_aciertos_victoria || 0, mejorRachaAciertos)
+      : (actual?.numcatch_mejor_racha_aciertos_victoria || 0),
+    numcatch_min_errores_victoria: numcatchMinErroresVictoria,
+    ultima_posicion_torneo: posicion,
+    updated_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase
+    .from("estadisticas_logros")
+    .upsert(payload, { onConflict: "usuario,juego" })
+
+  if (error) {
+    console.warn("No se pudieron guardar estadisticas de numcatch", error)
+  }
+}
+
 async function enviarResultado(fin) {
   if (resultadoEnviado) return
   resultadoEnviado = true
@@ -351,6 +423,9 @@ async function enviarResultado(fin) {
       resultadoEnviado = false
       return
     }
+
+    const posicion = await obtenerPosicionNumcatch()
+    await guardarEstadisticasNumcatch(posicion)
   }
 
   localStorage.setItem("fin_juego", fin)
