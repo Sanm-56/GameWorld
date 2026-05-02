@@ -276,6 +276,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosNumcatch(estadisticasLogros.numcatch || {})
   }
 
+  if (game.key === 'ajedrez') {
+    return crearLogrosAjedrez(estadisticasLogros.ajedrez || {})
+  }
+
   return [
     {
       title: `Primer intento en ${game.label}`,
@@ -302,6 +306,131 @@ function crearLogrosDeJuego(game, resultado) {
       title: 'Logro personalizado',
       description: 'Reservado para el nombre y descripcion que me pases despues.',
       unlocked: false,
+    },
+  ]
+}
+
+function crearLogrosAjedrez(stats) {
+  return [
+    {
+      title: 'La Corona del Silencio',
+      description: 'El tablero call&oacute; cuando entendi&oacute; qui&eacute;n mandaba.',
+      howTo: 'Gana una partida sin perder ninguna pieza.',
+      unlocked: (stats.ajedrez_victorias_sin_perder_piezas || 0) >= 1,
+    },
+    {
+      title: '&Uacute;ltimo Or&aacute;culo',
+      description: 'Vi el jaque mate diez movimientos antes de que naciera.',
+      howTo: 'Realiza un mate forzado despu&eacute;s de sacrificar tu reina.',
+      unlocked: (stats.ajedrez_mate_tras_sacrificar_reina || 0) >= 1,
+    },
+    {
+      title: 'Sombras sobre Eryndor',
+      description: 'Los reyes tiemblan cuando las sombras aprenden a jugar.',
+      howTo: 'Gana una partida utilizando &uacute;nicamente piezas menores y peones en el final.',
+      unlocked: (stats.ajedrez_final_menores_peones || 0) >= 1,
+    },
+    {
+      title: 'El Pacto de las Cenizas',
+      description: 'De las ruinas de mi reino levant&eacute; la victoria.',
+      howTo: 'Remonta una partida despu&eacute;s de estar con 15 puntos de material abajo.',
+      unlocked: (stats.ajedrez_remontada_15_material || 0) >= 1,
+    },
+    {
+      title: 'La Vigilia del Cuervo Blanco',
+      description: 'Nadie entendi&oacute; el sacrificio... hasta que fue demasiado tarde.',
+      howTo: 'Sacrifica dos piezas consecutivas y gana la partida.',
+      unlocked: (stats.ajedrez_dos_sacrificios_consecutivos || 0) >= 1,
+    },
+    {
+      title: 'Los Ecos de Nhar&rsquo;Zul',
+      description: 'Cada movimiento dej&oacute; una cicatriz en el tiempo.',
+      howTo: 'Juega una partida de m&aacute;s de 80 movimientos y gana.',
+      unlocked: (stats.ajedrez_victorias_80_movimientos || 0) >= 1,
+    },
+    {
+      title: 'El Trono Vac&iacute;o',
+      description: 'El rey sobrevivi&oacute;, aunque todo lo dem&aacute;s pereci&oacute;.',
+      howTo: 'Gana teniendo &uacute;nicamente al rey y un pe&oacute;n contra varias piezas enemigas.',
+      unlocked: (stats.ajedrez_rey_peon_vs_piezas || 0) >= 1,
+    },
+    {
+      title: 'L&aacute;grimas del Tit&aacute;n Negro',
+      description: 'Hasta los gigantes caen cuando el destino mueve primero.',
+      howTo: 'Derrota a un jugador con mucho mayor rango que t&uacute;.',
+      unlocked: (stats.ajedrez_derrota_mayor_rango || 0) >= 1,
+    },
+    {
+      title: 'El Ritual de las Trece Lunas',
+      description: 'Cada jugada fue una ofrenda al caos.',
+      howTo: 'Encadena 13 movimientos consecutivos sin cometer errores seg&uacute;n el an&aacute;lisis del juego.',
+      unlocked: (stats.ajedrez_racha_13_sin_errores || 0) >= 1,
+    },
+    {
+      title: 'La Puerta de Obsidiana',
+      description: 'Entr&oacute; como aprendiz. Sali&oacute; como leyenda.',
+      howTo: 'Gana 50 partidas clasificatorias.',
+      unlocked: (stats.ajedrez_victorias_clasificatorias || 0) >= 50,
+    },
+    {
+      title: 'El Susurro del Rey Ca&iacute;do',
+      description: 'Escuch&eacute; el miedo detr&aacute;s del jaque.',
+      howTo: 'Forza al enemigo a permanecer en jaque durante 5 turnos seguidos.',
+      unlocked: (stats.ajedrez_jaque_5_turnos || 0) >= 1,
+    },
+    {
+      title: 'Fuego en los Jardines de Helkar',
+      description: 'Las diagonales ardieron bajo mi voluntad.',
+      howTo: 'Gana una partida utilizando ambos alfiles para ejecutar el mate final.',
+      unlocked: (stats.ajedrez_mate_dos_alfiles || 0) >= 1,
+    },
+    {
+      title: 'La Danza del Abismo',
+      description: 'Cada paso cerca de la derrota hizo m&aacute;s dulce la victoria.',
+      howTo: 'Gana con menos de 10 segundos restantes en el reloj.',
+      unlocked: (stats.ajedrez_victoria_menos_10s || 0) >= 1,
+    },
+    {
+      title: 'El Heredero del Vac&iacute;o',
+      description: 'No nac&iacute; para defender reinos... nac&iacute; para destruirlos.',
+      howTo: 'Consigue jaque mate antes del movimiento 15.',
+      unlocked: (stats.ajedrez_mate_antes_15 || 0) >= 1,
+    },
+    {
+      title: 'Los Mil Ojos de Vareth',
+      description: 'Nada escap&oacute; a mi mirada.',
+      howTo: 'Detecta y castiga tres errores consecutivos del rival en una misma partida.',
+      unlocked: (stats.ajedrez_castiga_3_errores || 0) >= 1,
+    },
+    {
+      title: 'La Catedral de Huesos',
+      description: 'Constru&iacute; mi victoria sobre los restos de los imprudentes.',
+      howTo: 'Captura todas las piezas mayores enemigas antes del mate final.',
+      unlocked: (stats.ajedrez_captura_mayores_antes_mate || 0) >= 1,
+    },
+    {
+      title: 'El Eclipse del Monarca',
+      description: 'Cuando la luz muri&oacute;, mi rey a&uacute;n respiraba.',
+      howTo: 'Gana una partida sin enrocarte.',
+      unlocked: (stats.ajedrez_victoria_sin_enrocar || 0) >= 1,
+    },
+    {
+      title: 'El Guardi&aacute;n de la Octava Fila',
+      description: 'Nadie cruza el umbral de los inmortales.',
+      howTo: 'Corona tres peones en una sola partida.',
+      unlocked: (stats.ajedrez_3_promociones || 0) >= 1,
+    },
+    {
+      title: 'La Profec&iacute;a de Kael&rsquo;Thir',
+      description: 'El destino ya estaba escrito en el primer movimiento.',
+      howTo: 'Gana una partida usando exactamente la misma apertura durante 10 victorias consecutivas.',
+      unlocked: (stats.ajedrez_mejor_racha_apertura || 0) >= 10,
+    },
+    {
+      title: 'Donde Mueren los Reyes',
+      description: 'Al final de todas las guerras... solo qued&oacute; mi nombre.',
+      howTo: 'Convi&eacute;rtete en campe&oacute;n de un torneo invicto.',
+      unlocked: (stats.ajedrez_campeon_invicto || 0) >= 1,
     },
   ]
 }

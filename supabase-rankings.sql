@@ -108,6 +108,28 @@ create table if not exists public.estadisticas_logros (
   numcatch_racha_top3_sin_bajar_actual integer not null default 0,
   numcatch_mejor_racha_top3_sin_bajar integer not null default 0,
   numcatch_victoria_tras_fuera_podio integer not null default 0,
+  ajedrez_victorias_clasificatorias integer not null default 0,
+  ajedrez_victorias_sin_perder_piezas integer not null default 0,
+  ajedrez_mate_tras_sacrificar_reina integer not null default 0,
+  ajedrez_final_menores_peones integer not null default 0,
+  ajedrez_remontada_15_material integer not null default 0,
+  ajedrez_dos_sacrificios_consecutivos integer not null default 0,
+  ajedrez_victorias_80_movimientos integer not null default 0,
+  ajedrez_rey_peon_vs_piezas integer not null default 0,
+  ajedrez_derrota_mayor_rango integer not null default 0,
+  ajedrez_racha_13_sin_errores integer not null default 0,
+  ajedrez_jaque_5_turnos integer not null default 0,
+  ajedrez_mate_dos_alfiles integer not null default 0,
+  ajedrez_victoria_menos_10s integer not null default 0,
+  ajedrez_mate_antes_15 integer not null default 0,
+  ajedrez_castiga_3_errores integer not null default 0,
+  ajedrez_captura_mayores_antes_mate integer not null default 0,
+  ajedrez_victoria_sin_enrocar integer not null default 0,
+  ajedrez_3_promociones integer not null default 0,
+  ajedrez_apertura_actual text,
+  ajedrez_racha_apertura_actual integer not null default 0,
+  ajedrez_mejor_racha_apertura integer not null default 0,
+  ajedrez_campeon_invicto integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -416,6 +438,72 @@ add column if not exists numcatch_mejor_racha_top3_sin_bajar integer not null de
 
 alter table public.estadisticas_logros
 add column if not exists numcatch_victoria_tras_fuera_podio integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_victorias_clasificatorias integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_victorias_sin_perder_piezas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_mate_tras_sacrificar_reina integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_final_menores_peones integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_remontada_15_material integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_dos_sacrificios_consecutivos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_victorias_80_movimientos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_rey_peon_vs_piezas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_derrota_mayor_rango integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_racha_13_sin_errores integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_jaque_5_turnos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_mate_dos_alfiles integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_victoria_menos_10s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_mate_antes_15 integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_castiga_3_errores integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_captura_mayores_antes_mate integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_victoria_sin_enrocar integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_3_promociones integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_apertura_actual text;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_racha_apertura_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_mejor_racha_apertura integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ajedrez_campeon_invicto integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists ultimo_tiempo integer;
