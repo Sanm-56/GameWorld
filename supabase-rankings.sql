@@ -15,8 +15,13 @@ create table if not exists public.estadisticas_logros (
   torneos_participados integer not null default 0,
   mejor_posicion_torneo integer,
   victorias_torneos integer not null default 0,
+  racha_victorias_torneos_actual integer not null default 0,
+  mejor_racha_victorias_torneos integer not null default 0,
   racha_top10_torneos_actual integer not null default 0,
   mejor_racha_top10_torneos integer not null default 0,
+  top3_torneos integer not null default 0,
+  racha_top3_torneos_actual integer not null default 0,
+  mejor_racha_top3_torneos integer not null default 0,
   victorias_sin_errores integer not null default 0,
   ultima_posicion_torneo integer,
   top15_torneos integer not null default 0,
@@ -120,10 +125,25 @@ alter table public.estadisticas_logros
 add column if not exists victorias_torneos integer not null default 0;
 
 alter table public.estadisticas_logros
+add column if not exists racha_victorias_torneos_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists mejor_racha_victorias_torneos integer not null default 0;
+
+alter table public.estadisticas_logros
 add column if not exists racha_top10_torneos_actual integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists mejor_racha_top10_torneos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists top3_torneos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists racha_top3_torneos_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists mejor_racha_top3_torneos integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists victorias_sin_errores integer not null default 0;

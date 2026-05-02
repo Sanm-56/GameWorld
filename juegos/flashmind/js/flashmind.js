@@ -313,7 +313,24 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
   return true
 }
 
-async function guardarEstadisticasFlashmind() {
+async function obtenerPosicionFlashmind() {
+  const { data, error } = await supabase
+    .from("ranking")
+    .select("usuario")
+    .eq("juego", "flashmind")
+    .eq("invalido", false)
+    .order("tiempo", { ascending: false })
+
+  if (error || !data) {
+    console.warn("No se pudo calcular posicion de flashmind", error)
+    return null
+  }
+
+  const index = data.findIndex((item) => item.usuario === usuario)
+  return index >= 0 ? index + 1 : null
+}
+
+async function guardarEstadisticasFlashmind(posicion) {
   const { data: actual, error: lecturaError } = await supabase
     .from("estadisticas_logros")
     .select("*")
@@ -328,6 +345,14 @@ async function guardarEstadisticasFlashmind() {
 
   const sinErrores = totalIntentos > 0 && aciertos === totalIntentos
   const rachaSinErroresActual = sinErrores ? (actual?.racha_sin_errores_actual || 0) + 1 : 0
+  const esVictoria = posicion === 1
+  const esTop3 = typeof posicion === "number" && posicion <= 3
+  const rachaVictoriasActual = esVictoria ? (actual?.racha_victorias_torneos_actual || 0) + 1 : 0
+  const rachaTop3Actual = esTop3 ? (actual?.racha_top3_torneos_actual || 0) + 1 : 0
+  const mejorPosicionAnterior = actual?.mejor_posicion_torneo
+  const mejorPosicionTorneo = typeof posicion === "number"
+    ? (typeof mejorPosicionAnterior === "number" ? Math.min(mejorPosicionAnterior, posicion) : posicion)
+    : mejorPosicionAnterior
 
   const payload = {
     usuario,
@@ -336,6 +361,16 @@ async function guardarEstadisticasFlashmind() {
     completados_sin_errores: (actual?.completados_sin_errores || 0) + (sinErrores ? 1 : 0),
     racha_sin_errores_actual: rachaSinErroresActual,
     mejor_racha_sin_errores: Math.max(actual?.mejor_racha_sin_errores || 0, rachaSinErroresActual),
+    torneos_participados: (actual?.torneos_participados || 0) + 1,
+    mejor_posicion_torneo: mejorPosicionTorneo,
+    victorias_torneos: (actual?.victorias_torneos || 0) + (esVictoria ? 1 : 0),
+    racha_victorias_torneos_actual: rachaVictoriasActual,
+    mejor_racha_victorias_torneos: Math.max(actual?.mejor_racha_victorias_torneos || 0, rachaVictoriasActual),
+    top3_torneos: (actual?.top3_torneos || 0) + (esTop3 ? 1 : 0),
+    racha_top3_torneos_actual: rachaTop3Actual,
+    mejor_racha_top3_torneos: Math.max(actual?.mejor_racha_top3_torneos || 0, rachaTop3Actual),
+    victorias_sin_errores: (actual?.victorias_sin_errores || 0) + (esVictoria && sinErrores ? 1 : 0),
+    ultima_posicion_torneo: posicion,
     flashmind_total_correctas: (actual?.flashmind_total_correctas || 0) + aciertos,
     flashmind_mejor_racha_correctas: Math.max(actual?.flashmind_mejor_racha_correctas || 0, mejorRachaCorrectas),
     updated_at: new Date().toISOString(),
@@ -377,7 +412,8 @@ async function enviarResultado(fin) {
       return
     }
 
-    await guardarEstadisticasFlashmind()
+    const posicion = await obtenerPosicionFlashmind()
+    await guardarEstadisticasFlashmind(posicion)
   }
 
   localStorage.setItem("fin_juego", fin)

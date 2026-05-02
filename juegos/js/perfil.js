@@ -304,6 +304,9 @@ function crearLogrosDeJuego(game, resultado) {
 
 function crearLogrosFlashmind(stats) {
   const mejorRachaCorrectas = stats.flashmind_mejor_racha_correctas || 0
+  const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
+  const mejorRachaTop3 = stats.mejor_racha_top3_torneos || 0
+  const victoriasSinErrores = stats.victorias_sin_errores || 0
   const logros = [
     ['Encendido neuronal', 'Algo se activ&oacute;... y no se apag&oacute;.', 'Consigue 5 respuestas correctas seguidas.', 5],
     ['Chispa sostenida', 'Peque&ntilde;o inicio... gran se&ntilde;al.', 'Consigue 7 respuestas correctas consecutivas.', 7],
@@ -350,12 +353,136 @@ function crearLogrosFlashmind(stats) {
     ['La Trama de Ilyon', 'Cada hilo lleva al siguiente.', 'Consigue 420 respuestas correctas consecutivas.', 420],
   ]
 
-  return logros.map(([title, description, howTo, requisito]) => ({
+  const logrosRachaCorrectas = logros.map(([title, description, howTo, requisito]) => ({
     title,
     description,
     howTo,
     unlocked: mejorRachaCorrectas >= requisito,
   }))
+
+  return [
+    ...logrosRachaCorrectas,
+    {
+      title: 'Trono de Aetherion',
+      description: 'El primer lugar me reconoce.',
+      howTo: 'Gana 2 torneo consecutivos.',
+      unlocked: mejorRachaVictorias >= 2,
+    },
+    {
+      title: 'Ascenso de Valkryon',
+      description: 'Sub&iacute;... y no pienso bajar.',
+      howTo: 'Gana 4 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 4,
+    },
+    {
+      title: 'Marca de Elyndor',
+      description: 'Mi nombre empieza a pesar.',
+      howTo: 'Gana 6 torneos seguidos.',
+      unlocked: mejorRachaVictorias >= 6,
+    },
+    {
+      title: 'Cima de Thalrex',
+      description: 'Desde aqu&iacute; todo se ve distinto.',
+      howTo: 'Termina en el top 3 en 4 torneos consecutivos.',
+      unlocked: mejorRachaTop3 >= 4,
+    },
+    {
+      title: 'Ecos de la victoria',
+      description: 'El triunfo se repite.',
+      howTo: 'Gana 8 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 8,
+    },
+    {
+      title: 'Sello del Campe&oacute;n',
+      description: 'Esto ya no es casualidad.',
+      howTo: 'Gana 10 torneos seguidos.',
+      unlocked: mejorRachaVictorias >= 10,
+    },
+    {
+      title: 'El Anillo de Vireon',
+      description: 'Solo unos pocos llegan aqu&iacute;.',
+      howTo: 'Termina en el top 3 en 10 torneos.',
+      unlocked: mejorRachaTop3 >= 10,
+    },
+    {
+      title: 'Legado de Zoryth',
+      description: 'Mi rastro queda marcado.',
+      howTo: 'Gana 12 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 12,
+    },
+    {
+      title: 'Podio eterno',
+      description: 'Siempre estoy arriba.',
+      howTo: 'Termina en el top 3 en 14 torneos consecutivos.',
+      unlocked: mejorRachaTop3 >= 14,
+    },
+    {
+      title: 'Corona de Nythera',
+      description: 'No hay discusi&oacute;n.',
+      howTo: 'Gana 14 torneos seguidos.',
+      unlocked: mejorRachaVictorias >= 14,
+    },
+    {
+      title: 'Dominio de Kharion',
+      description: 'Nadie logra bajarme.',
+      howTo: 'Gana 16 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 16,
+    },
+    {
+      title: 'El pacto de Orlath',
+      description: 'El triunfo ya es costumbre.',
+      howTo: 'Termina en el top 3 en 25 torneos consecutivos.',
+      unlocked: mejorRachaTop3 >= 25,
+    },
+    {
+      title: 'Sombra del invicto',
+      description: 'Nadie me alcanza.',
+      howTo: 'Gana 18 torneos seguidos.',
+      unlocked: mejorRachaVictorias >= 18,
+    },
+    {
+      title: 'El ciclo perfecto',
+      description: 'Ganar... repetir... dominar.',
+      howTo: 'Gana 20 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 20,
+    },
+    {
+      title: 'Presencia de Valyrex',
+      description: 'Estar arriba ya es normal.',
+      howTo: 'Termina en el top 3 en 42 torneos consecutivos.',
+      unlocked: mejorRachaTop3 >= 42,
+    },
+    {
+      title: 'Imperio de Solthar',
+      description: 'Todo gira a mi alrededor.',
+      howTo: 'Gana 22 torneos seguidos.',
+      unlocked: mejorRachaVictorias >= 22,
+    },
+    {
+      title: 'El juicio final',
+      description: 'Aqu&iacute; se define todo.',
+      howTo: 'Gana un torneo sin cometer ni un error.',
+      unlocked: victoriasSinErrores >= 1,
+    },
+    {
+      title: 'Leyenda de Umbryon',
+      description: 'Mi nombre ya no se olvida.',
+      howTo: 'Termina en el top 3 en 55 torneos consecutivos.',
+      unlocked: mejorRachaTop3 >= 55,
+    },
+    {
+      title: 'Voluntad absoluta',
+      description: 'Nada me detiene.',
+      howTo: 'Gana 400 torneos seguidos.',
+      unlocked: mejorRachaVictorias >= 400,
+    },
+    {
+      title: 'El trono infinito',
+      description: 'No hay final para esto.',
+      howTo: 'Gana 100 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 100,
+    },
+  ]
 }
 
 function crearLogrosMatematicas(stats) {
