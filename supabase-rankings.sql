@@ -60,6 +60,13 @@ create table if not exists public.estadisticas_logros (
   memoria_sin_cartas_falladas_repetidas integer not null default 0,
   memoria_inicio_4_pares integer not null default 0,
   memoria_final_4_pares integer not null default 0,
+  matematicas_total_correctas integer not null default 0,
+  matematicas_sesiones_sin_errores integer not null default 0,
+  matematicas_ejercicios_menos_15s integer not null default 0,
+  matematicas_mejor_racha_correctas integer not null default 0,
+  matematicas_mejor_racha_3s integer not null default 0,
+  matematicas_mejor_racha_5s integer not null default 0,
+  matematicas_mejor_correctas_60s integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -224,6 +231,27 @@ add column if not exists memoria_inicio_4_pares integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists memoria_final_4_pares integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_total_correctas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_sesiones_sin_errores integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_15s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_mejor_racha_correctas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_mejor_racha_3s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_mejor_racha_5s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_mejor_correctas_60s integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists ultimo_tiempo integer;

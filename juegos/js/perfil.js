@@ -264,6 +264,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosMemoria(estadisticasLogros.memoria || {})
   }
 
+  if (game.key === 'matematicas') {
+    return crearLogrosMatematicas(estadisticasLogros.matematicas || {})
+  }
+
   return [
     {
       title: `Primer intento en ${game.label}`,
@@ -290,6 +294,139 @@ function crearLogrosDeJuego(game, resultado) {
       title: 'Logro personalizado',
       description: 'Reservado para el nombre y descripcion que me pases despues.',
       unlocked: false,
+    },
+  ]
+}
+
+function crearLogrosMatematicas(stats) {
+  const totalCorrectas = stats.matematicas_total_correctas || 0
+  const sesionesSinErrores = stats.matematicas_sesiones_sin_errores || 0
+  const ejerciciosMenos15s = stats.matematicas_ejercicios_menos_15s || 0
+  const mejorRachaCorrectas = stats.matematicas_mejor_racha_correctas || 0
+  const mejorRacha3s = stats.matematicas_mejor_racha_3s || 0
+  const mejorRacha5s = stats.matematicas_mejor_racha_5s || 0
+  const mejorCorrectas60s = stats.matematicas_mejor_correctas_60s || 0
+
+  return [
+    {
+      title: 'Eso era todo?',
+      description: 'Pense que iba a ser mas dificil...',
+      howTo: 'Resuelve un ejercicio en menos de 15 segundos.',
+      unlocked: ejerciciosMenos15s >= 1,
+    },
+    {
+      title: 'Cerebro encendido',
+      description: 'Algo hizo click... y no se apago.',
+      howTo: 'Resuelve 12 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 12,
+    },
+    {
+      title: 'Error inexistente',
+      description: 'Busque fallar... no lo encontre.',
+      howTo: 'Completa una sesion sin errores.',
+      unlocked: sesionesSinErrores >= 1,
+    },
+    {
+      title: 'Calculo silencioso',
+      description: 'Ni movi los labios.',
+      howTo: 'Resuelve 15 ejercicios seguidos en menos de 3 segundos cada uno.',
+      unlocked: mejorRacha3s >= 15,
+    },
+    {
+      title: 'Ritmo perfecto',
+      description: 'Todo fluye... sin esfuerzo.',
+      howTo: 'Resuelve 20 ejercicios consecutivos.',
+      unlocked: mejorRachaCorrectas >= 20,
+    },
+    {
+      title: 'Tiempo comprimido',
+      description: 'Un minuto... muchas respuestas.',
+      howTo: 'Resuelve 18 ejercicios en menos de 60 segundos.',
+      unlocked: mejorCorrectas60s >= 18,
+    },
+    {
+      title: 'Dominio creciente',
+      description: 'Cada vez mas rapido... mas preciso.',
+      howTo: 'Resuelve 175 ejercicios en total.',
+      unlocked: totalCorrectas >= 175,
+    },
+    {
+      title: 'Eco mental',
+      description: 'La respuesta llega antes que la duda.',
+      howTo: 'Resuelve 14 ejercicios seguidos en menos de 5 segundos cada uno.',
+      unlocked: mejorRacha5s >= 14,
+    },
+    {
+      title: 'Concentracion absoluta',
+      description: 'Nada me distrae.',
+      howTo: 'Resuelve 29 ejercicios seguidos en menos de 5 segundos cada uno.',
+      unlocked: mejorRacha5s >= 29,
+    },
+    {
+      title: 'La ultima operacion',
+      description: 'Despues de esto... todo tiene sentido.',
+      howTo: 'Resuelve 40 ejercicios seguidos.',
+      unlocked: mejorRachaCorrectas >= 40,
+    },
+    {
+      title: 'Cadena de aciertos',
+      description: 'Uno lleva al otro... y no se detiene.',
+      howTo: 'Resuelve 74 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 74,
+    },
+    {
+      title: 'Sin interrupciones',
+      description: 'Nada se interpone entre yo y el resultado.',
+      howTo: 'Completa 98 ejercicios consecutivos sin fallar.',
+      unlocked: mejorRachaCorrectas >= 98,
+    },
+    {
+      title: 'Mente en linea recta',
+      description: 'No hay desvios... solo respuestas.',
+      howTo: 'Resuelve 122 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 122,
+    },
+    {
+      title: 'Ritual de numeros',
+      description: 'Cada operacion forma parte de algo mayor.',
+      howTo: 'Completa 26 ejercicios consecutivos.',
+      unlocked: mejorRachaCorrectas >= 26,
+    },
+    {
+      title: 'Secuencia perfecta',
+      description: 'Todo encaja... uno tras otro.',
+      howTo: 'Resuelve 80 ejercicios seguidos sin errores.',
+      unlocked: mejorRachaCorrectas >= 80,
+    },
+    {
+      title: 'Camino inevitable',
+      description: 'Cada paso ya estaba escrito.',
+      howTo: 'Completa 134 ejercicios consecutivos correctamente.',
+      unlocked: mejorRachaCorrectas >= 134,
+    },
+    {
+      title: 'Dominio progresivo',
+      description: 'Mientras mas avanzo... mas claro se vuelve.',
+      howTo: 'Resuelve 38 ejercicios seguidos sin fallar.',
+      unlocked: mejorRachaCorrectas >= 38,
+    },
+    {
+      title: 'Flujo matematico',
+      description: 'No pienso... solo continuo.',
+      howTo: 'Completa 142 ejercicios consecutivos.',
+      unlocked: mejorRachaCorrectas >= 142,
+    },
+    {
+      title: 'Inercia mental',
+      description: 'Ya no puedo parar aunque quiera.',
+      howTo: 'Resuelve 48 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 48,
+    },
+    {
+      title: 'Tramo infinito',
+      description: 'No veo el final... y sigo.',
+      howTo: 'Completa 156 ejercicios consecutivos sin errores.',
+      unlocked: mejorRachaCorrectas >= 156,
     },
   ]
 }

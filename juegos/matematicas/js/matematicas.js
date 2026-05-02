@@ -66,6 +66,16 @@ let nivel = 1
 let preguntas = 0
 let correctas = 0
 let respuestaCorrecta
+let preguntaInicioMs = performance.now()
+const inicioSesionMs = performance.now()
+let rachaCorrectas = 0
+let mejorRachaCorrectas = 0
+let rachaRapida3s = 0
+let mejorRachaRapida3s = 0
+let rachaRapida5s = 0
+let mejorRachaRapida5s = 0
+let ejerciciosMenos15s = 0
+let correctasTiempos = []
 
 const DURACION = 600
 let intervalo = null
@@ -228,18 +238,47 @@ document.getElementById("pregunta").textContent = preguntaTexto
 document.getElementById("nivel").textContent = "Nivel: " + nivel
 
 respuestaCorrecta = redondear2(resp)
+preguntaInicioMs = performance.now()
 }
 
 window.responder = function(){
 
 let respuestaValor = document.getElementById("respuesta").value.trim()
 let r = respuestaValor === "" ? NaN : Number(respuestaValor.replace(",", "."))
+const segundosRespuesta = (performance.now() - preguntaInicioMs) / 1000
 
 if(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= 0.01){
 correctas++
+rachaCorrectas++
+mejorRachaCorrectas = Math.max(mejorRachaCorrectas, rachaCorrectas)
+
+if(segundosRespuesta < 15){
+ejerciciosMenos15s++
+}
+
+if(segundosRespuesta < 3){
+rachaRapida3s++
+}else{
+rachaRapida3s = 0
+}
+mejorRachaRapida3s = Math.max(mejorRachaRapida3s, rachaRapida3s)
+
+if(segundosRespuesta < 5){
+rachaRapida5s++
+}else{
+rachaRapida5s = 0
+}
+mejorRachaRapida5s = Math.max(mejorRachaRapida5s, rachaRapida5s)
+correctasTiempos.push((performance.now() - inicioSesionMs) / 1000)
 document.getElementById("resultado").textContent = "✅ Bien"
 }else{
 document.getElementById("resultado").textContent = "❌ Mal. Era " + formatearNumero(respuestaCorrecta)
+}
+
+if(!(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= 0.01)){
+rachaCorrectas = 0
+rachaRapida3s = 0
+rachaRapida5s = 0
 }
 
 preguntas++
@@ -251,6 +290,65 @@ generarPregunta()
 }
 
 // ⏱️ CRONÓMETRO (IGUAL QUE SUDOKU)
+function calcularMejorCorrectas60s(){
+let mejor = 0
+let izquierda = 0
+
+for(let derecha = 0; derecha < correctasTiempos.length; derecha++){
+while(correctasTiempos[derecha] - correctasTiempos[izquierda] > 60){
+izquierda++
+}
+mejor = Math.max(mejor, derecha - izquierda + 1)
+}
+
+return mejor
+}
+
+async function guardarEstadisticasMatematicas(){
+const { data: actual, error: lecturaError } = await supabase
+.from("estadisticas_logros")
+.select("*")
+.eq("usuario", usuario)
+.eq("juego", "matematicas")
+.maybeSingle()
+
+if(lecturaError){
+console.warn("No se pudieron leer estadisticas de matematicas", lecturaError)
+return
+}
+
+const sinErrores = preguntas > 0 && correctas === preguntas
+const completados = (actual?.completados || 0) + 1
+const completadosSinErrores = (actual?.completados_sin_errores || 0) + (sinErrores ? 1 : 0)
+const rachaSinErroresActual = sinErrores ? (actual?.racha_sin_errores_actual || 0) + 1 : 0
+const mejorRachaSinErrores = Math.max(actual?.mejor_racha_sin_errores || 0, rachaSinErroresActual)
+
+const payload = {
+usuario,
+juego: "matematicas",
+completados,
+completados_sin_errores: completadosSinErrores,
+racha_sin_errores_actual: rachaSinErroresActual,
+mejor_racha_sin_errores: mejorRachaSinErrores,
+matematicas_total_correctas: (actual?.matematicas_total_correctas || 0) + correctas,
+matematicas_sesiones_sin_errores: (actual?.matematicas_sesiones_sin_errores || 0) + (sinErrores ? 1 : 0),
+matematicas_ejercicios_menos_15s: (actual?.matematicas_ejercicios_menos_15s || 0) + ejerciciosMenos15s,
+matematicas_mejor_racha_correctas: Math.max(actual?.matematicas_mejor_racha_correctas || 0, mejorRachaCorrectas),
+matematicas_mejor_racha_3s: Math.max(actual?.matematicas_mejor_racha_3s || 0, mejorRachaRapida3s),
+matematicas_mejor_racha_5s: Math.max(actual?.matematicas_mejor_racha_5s || 0, mejorRachaRapida5s),
+matematicas_mejor_correctas_60s: Math.max(actual?.matematicas_mejor_correctas_60s || 0, calcularMejorCorrectas60s()),
+updated_at: new Date().toISOString(),
+}
+
+const { error } = await supabase
+.from("estadisticas_logros")
+.upsert(payload, { onConflict: "usuario,juego" })
+
+if(error){
+console.warn("No se pudieron guardar estadisticas de matematicas", error)
+}
+}
+
 async function iniciarCronometro(){
 
 const reloj = document.getElementById("reloj")
@@ -302,6 +400,8 @@ juego: "matematicas",
 valor: correctas * 10,
 modo: "points"
 })
+
+await guardarEstadisticasMatematicas()
 
 }
 
