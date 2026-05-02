@@ -10,6 +10,23 @@ alert("Completa los campos")
 return
 }
 
+const { data: loginRpc, error: loginRpcError } = await supabase
+.rpc("login_usuario_torneo", {
+p_usuario: usuario,
+p_codigo: codigo
+})
+
+if(!loginRpcError && loginRpc){
+if(loginRpc.ok){
+localStorage.setItem("usuario", usuario)
+window.location.href="lobby.html"
+return
+}
+
+alert(loginRpc.mensaje || "No se pudo entrar")
+return
+}
+
 // BUSCAR USUARIO
 let { data:user } = await supabase
 .from("usuarios")

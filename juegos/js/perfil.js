@@ -140,7 +140,7 @@ async function cargarPerfil() {
 
   const { data: userData } = await supabase
     .from('usuarios')
-    .select('*')
+    .select('usuario')
     .eq('usuario', usuario)
     .maybeSingle()
 

@@ -1164,3 +1164,164 @@ grant execute on function public.admin_borrar_ranking_semana(text, text) to anon
 grant execute on function public.admin_borrar_ranking_victorias(text, text) to anon, authenticated;
 grant execute on function public.admin_borrar_ranking_global(text, text) to anon, authenticated;
 grant execute on function public.admin_reset_total(text) to anon, authenticated;
+
+create or replace function public.login_usuario_torneo(p_usuario text, p_codigo text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  usuario_limpio text := btrim(coalesce(p_usuario, ''));
+  codigo_limpio text := btrim(coalesce(p_codigo, ''));
+  codigo_usuario text;
+  codigo_disponible boolean := false;
+begin
+  if usuario_limpio = '' or codigo_limpio = '' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Completa los campos');
+  end if;
+
+  if to_regclass('public.usuarios') is null or to_regclass('public.codigos_invitacion') is null then
+    return jsonb_build_object('ok', false, 'mensaje', 'La base de datos no esta lista para iniciar sesion');
+  end if;
+
+  execute 'select codigo::text from public.usuarios where usuario = $1 limit 1'
+  into codigo_usuario
+  using usuario_limpio;
+
+  if codigo_usuario is not null then
+    if codigo_usuario = codigo_limpio then
+      return jsonb_build_object('ok', true, 'mensaje', 'Entrada correcta');
+    end if;
+
+    return jsonb_build_object('ok', false, 'mensaje', 'Ese apodo ya esta en uso con otro codigo');
+  end if;
+
+  execute
+    'select exists (
+       select 1
+       from public.codigos_invitacion
+       where codigo = $1
+         and coalesce(usado, false) = false
+     )'
+  into codigo_disponible
+  using codigo_limpio;
+
+  if not coalesce(codigo_disponible, false) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Codigo invalido o ya usado');
+  end if;
+
+  execute 'insert into public.usuarios (usuario, codigo) values ($1, $2)'
+  using usuario_limpio, codigo_limpio;
+
+  execute 'update public.codigos_invitacion set usado = true where codigo = $1'
+  using codigo_limpio;
+
+  return jsonb_build_object('ok', true, 'mensaje', 'Usuario creado');
+exception
+  when unique_violation then
+    return jsonb_build_object('ok', false, 'mensaje', 'Ese apodo o codigo ya fue usado');
+  when others then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo iniciar sesion');
+end;
+$$;
+
+grant execute on function public.login_usuario_torneo(text, text) to anon, authenticated;
+
+do $$
+declare
+  tabla text;
+  columnas_usuarios_select text;
+  columnas_usuarios_update text;
+  tablas_publicas text[] := array[
+    'ranking',
+    'ranking_ajedrez',
+    'ranking_domino',
+    'ranking_damas',
+    'partidas',
+    'estadisticas_logros',
+    'temporadas_nivel',
+    'progreso_nivel',
+    'recompensas_nivel',
+    'historial_xp',
+    'recompensas_desbloqueadas',
+    'usuarios',
+    'estado_torneo',
+    'tableros'
+  ];
+begin
+  foreach tabla in array tablas_publicas
+  loop
+    if to_regclass('public.' || tabla) is not null then
+      execute format('alter table public.%I enable row level security', tabla);
+
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_select', tabla);
+      execute format(
+        'create policy %I on public.%I for select to anon, authenticated using (true)',
+        tabla || '_anon_select',
+        tabla
+      );
+
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_insert', tabla);
+      execute format(
+        'create policy %I on public.%I for insert to anon, authenticated with check (true)',
+        tabla || '_anon_insert',
+        tabla
+      );
+
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_update', tabla);
+      execute format(
+        'create policy %I on public.%I for update to anon, authenticated using (true) with check (true)',
+        tabla || '_anon_update',
+        tabla
+      );
+    end if;
+  end loop;
+
+  foreach tabla in array array['ranking', 'ranking_ajedrez', 'ranking_domino', 'ranking_damas']
+  loop
+    if to_regclass('public.' || tabla) is not null then
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_delete', tabla);
+      execute format(
+        'create policy %I on public.%I for delete to anon, authenticated using (true)',
+        tabla || '_anon_delete',
+        tabla
+      );
+    end if;
+  end loop;
+
+  foreach tabla in array array['configuracion', 'codigos_invitacion']
+  loop
+    if to_regclass('public.' || tabla) is not null then
+      execute format('alter table public.%I enable row level security', tabla);
+      execute format('revoke all on table public.%I from anon, authenticated', tabla);
+    end if;
+  end loop;
+
+  if to_regclass('public.usuarios') is not null then
+    execute 'revoke all on table public.usuarios from anon, authenticated';
+
+    select string_agg(quote_ident(column_name), ', ')
+    into columnas_usuarios_select
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'usuarios'
+      and column_name in ('id', 'usuario', 'tablero_id', 'cartas_memoria');
+
+    if columnas_usuarios_select is not null then
+      execute 'grant select (' || columnas_usuarios_select || ') on public.usuarios to anon, authenticated';
+    end if;
+
+    select string_agg(quote_ident(column_name), ', ')
+    into columnas_usuarios_update
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'usuarios'
+      and column_name in ('tablero_id', 'cartas_memoria');
+
+    if columnas_usuarios_update is not null then
+      execute 'grant update (' || columnas_usuarios_update || ') on public.usuarios to anon, authenticated';
+    end if;
+  end if;
+end;
+$$;
