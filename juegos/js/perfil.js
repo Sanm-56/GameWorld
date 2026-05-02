@@ -321,6 +321,12 @@ function crearLogrosMatematicas(stats) {
       unlocked: mejorRachaCorrectas >= 12,
     },
     {
+      title: 'El hilo invisible',
+      description: 'Algo conecta cada respuesta... y no se rompe.',
+      howTo: 'Resuelve 11 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 11,
+    },
+    {
       title: 'Error inexistente',
       description: 'Busque fallar... no lo encontre.',
       howTo: 'Completa una sesion sin errores.',
@@ -337,6 +343,12 @@ function crearLogrosMatematicas(stats) {
       description: 'Todo fluye... sin esfuerzo.',
       howTo: 'Resuelve 20 ejercicios consecutivos.',
       unlocked: mejorRachaCorrectas >= 20,
+    },
+    {
+      title: 'Destino numerico',
+      description: 'Cada resultado ya estaba escrito.',
+      howTo: 'Completa 23 operaciones consecutivas sin fallar.',
+      unlocked: mejorRachaCorrectas >= 23,
     },
     {
       title: 'Tiempo comprimido',
@@ -357,6 +369,12 @@ function crearLogrosMatematicas(stats) {
       unlocked: mejorRacha5s >= 14,
     },
     {
+      title: 'Alineacion perfecta',
+      description: 'Todo cae justo donde debe.',
+      howTo: 'Resuelve 7 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 7,
+    },
+    {
       title: 'Concentracion absoluta',
       description: 'Nada me distrae.',
       howTo: 'Resuelve 29 ejercicios seguidos en menos de 5 segundos cada uno.',
@@ -369,10 +387,28 @@ function crearLogrosMatematicas(stats) {
       unlocked: mejorRachaCorrectas >= 40,
     },
     {
+      title: 'La secuencia despierta',
+      description: 'Los numeros empiezan a moverse solos.',
+      howTo: 'Completa 44 operaciones consecutivas sin errores.',
+      unlocked: mejorRachaCorrectas >= 44,
+    },
+    {
       title: 'Cadena de aciertos',
       description: 'Uno lleva al otro... y no se detiene.',
       howTo: 'Resuelve 74 ejercicios seguidos correctamente.',
       unlocked: mejorRachaCorrectas >= 74,
+    },
+    {
+      title: 'Eco de precision',
+      description: 'Una respuesta llama a la siguiente.',
+      howTo: 'Resuelve 67 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 67,
+    },
+    {
+      title: 'Cadena encantada',
+      description: 'No hay forma de romper esto.',
+      howTo: 'Completa 70 operaciones consecutivas sin fallar.',
+      unlocked: mejorRachaCorrectas >= 70,
     },
     {
       title: 'Sin interrupciones',
@@ -381,10 +417,34 @@ function crearLogrosMatematicas(stats) {
       unlocked: mejorRachaCorrectas >= 98,
     },
     {
+      title: 'Rastro infinito',
+      description: 'Voy dejando aciertos atras.',
+      howTo: 'Resuelve 87 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 87,
+    },
+    {
+      title: 'La formula eterna',
+      description: 'Siempre hay una respuesta mas.',
+      howTo: 'Completa 95 operaciones consecutivas sin errores.',
+      unlocked: mejorRachaCorrectas >= 95,
+    },
+    {
       title: 'Mente en linea recta',
       description: 'No hay desvios... solo respuestas.',
       howTo: 'Resuelve 122 ejercicios seguidos correctamente.',
       unlocked: mejorRachaCorrectas >= 122,
+    },
+    {
+      title: 'Conexion absoluta',
+      description: 'Nada se pierde en el proceso.',
+      howTo: 'Resuelve 111 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 111,
+    },
+    {
+      title: 'Orden oculto',
+      description: 'El caos... en realidad no existe.',
+      howTo: 'Completa 128 operaciones consecutivas sin fallar.',
+      unlocked: mejorRachaCorrectas >= 128,
     },
     {
       title: 'Ritual de numeros',
@@ -405,6 +465,12 @@ function crearLogrosMatematicas(stats) {
       unlocked: mejorRachaCorrectas >= 134,
     },
     {
+      title: 'Pulso matematico',
+      description: 'Late... y nunca se detiene.',
+      howTo: 'Resuelve 137 ejercicios seguidos correctamente.',
+      unlocked: mejorRachaCorrectas >= 137,
+    },
+    {
       title: 'Dominio progresivo',
       description: 'Mientras mas avanzo... mas claro se vuelve.',
       howTo: 'Resuelve 38 ejercicios seguidos sin fallar.',
@@ -417,6 +483,12 @@ function crearLogrosMatematicas(stats) {
       unlocked: mejorRachaCorrectas >= 142,
     },
     {
+      title: 'La rueda gira',
+      description: 'Y yo sigo dentro.',
+      howTo: 'Completa 149 operaciones consecutivas sin errores.',
+      unlocked: mejorRachaCorrectas >= 149,
+    },
+    {
       title: 'Inercia mental',
       description: 'Ya no puedo parar aunque quiera.',
       howTo: 'Resuelve 48 ejercicios seguidos correctamente.',
@@ -427,6 +499,12 @@ function crearLogrosMatematicas(stats) {
       description: 'No veo el final... y sigo.',
       howTo: 'Completa 156 ejercicios consecutivos sin errores.',
       unlocked: mejorRachaCorrectas >= 156,
+    },
+    {
+      title: 'Simetria mental',
+      description: 'Yo soy uno con el juego...',
+      howTo: 'Completa 200 operaciones consecutivas sin errores.',
+      unlocked: mejorRachaCorrectas >= 200,
     },
   ]
 }
