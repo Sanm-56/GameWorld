@@ -280,6 +280,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosAjedrez(estadisticasLogros.ajedrez || {})
   }
 
+  if (game.key === 'domino') {
+    return crearLogrosDomino(estadisticasLogros.domino || {})
+  }
+
   return [
     {
       title: `Primer intento en ${game.label}`,
@@ -599,6 +603,74 @@ function crearLogrosAjedrez(stats) {
       description: 'Desterrado del reino... coronado por el destino.',
       howTo: 'Gana 5 torneos consecutivas despu&eacute;s de haber perdido una partida previa.',
       unlocked: (stats.ajedrez_mejor_racha_victoria_tras_derrota || 0) >= 5,
+    },
+  ]
+}
+
+function crearLogrosDomino(stats) {
+  const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
+  const mejorRachaInvicto = stats.domino_mejor_racha_invicto || 0
+
+  return [
+    {
+      title: 'El Imperio de Marfil Negro',
+      description: 'Cada ficha colocada sell&oacute; otra victoria.',
+      howTo: 'Gana 3 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 3,
+    },
+    {
+      title: 'La Mesa de los Ca&iacute;dos',
+      description: 'Nadie logr&oacute; romper tu racha.',
+      howTo: 'Gana 5 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 5,
+    },
+    {
+      title: 'El Legado de Varkhul',
+      description: 'Las fichas obedecieron tu voluntad.',
+      howTo: 'Gana 7 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 7,
+    },
+    {
+      title: 'La Sombra del &Uacute;ltimo Jugador',
+      description: 'Cuando te sentaste en la mesa, el destino ya estaba escrito.',
+      howTo: 'Gana 4 torneos consecutivos sin perder una ronda.',
+      unlocked: mejorRachaInvicto >= 4,
+    },
+    {
+      title: 'El Trono de las Seis Caras',
+      description: 'Los maestros del domin&oacute; inclinaron la cabeza ante ti.',
+      howTo: 'Gana 10 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 10,
+    },
+    {
+      title: 'El Pacto de las Fichas Eternas',
+      description: 'Tu racha convirti&oacute; la mesa en territorio prohibido.',
+      howTo: 'Gana 6 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 6,
+    },
+    {
+      title: 'La Maldici&oacute;n de Korvath',
+      description: 'Cada torneo ganado dej&oacute; otro rival en ruinas.',
+      howTo: 'Gana 8 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 8,
+    },
+    {
+      title: 'Los Ecos de la Mesa Oscura',
+      description: 'Las fichas a&uacute;n recuerdan tu dominio absoluto.',
+      howTo: 'Gana 12 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 12,
+    },
+    {
+      title: 'El Ascenso de Draemor',
+      description: 'No jugabas para ganar... jugabas para conquistar.',
+      howTo: 'Gana 15 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 15,
+    },
+    {
+      title: 'El Fin de los Invictos',
+      description: 'Tu nombre termin&oacute; con todas las leyendas.',
+      howTo: 'Gana 20 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 20,
     },
   ]
 }

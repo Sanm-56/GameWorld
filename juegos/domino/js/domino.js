@@ -556,6 +556,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
       modo: 'time',
       invalido: invalidoFinal,
     })
+    localStorage.setItem('dominoEstadisticasPendientes', 'true')
     return
   }
 
@@ -573,6 +574,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
       modo: 'time',
       invalido: invalidoFinal,
     })
+    localStorage.setItem('dominoEstadisticasPendientes', 'true')
   }
 }
 

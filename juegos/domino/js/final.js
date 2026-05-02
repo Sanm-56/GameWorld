@@ -6,6 +6,7 @@ const rankingDiv = document.getElementById('ranking')
 const usuario = localStorage.getItem('usuario')
 const resultado = localStorage.getItem('dominoResultado') || 'Partida finalizada.'
 const sinPosicion = localStorage.getItem('dominoSinPosicion') === 'true'
+const estadisticasPendientes = localStorage.getItem('dominoEstadisticasPendientes') === 'true'
 
 resultadoFinal.innerText = resultado.toLowerCase().includes('descalificado')
   ? 'Descalificado por actividad sospechosa'
@@ -15,6 +16,54 @@ function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
   const seg = segundos % 60
   return `${minutos}:${seg < 10 ? '0' : ''}${seg}`
+}
+
+async function guardarEstadisticasDomino(posicion) {
+  if (!usuario || !estadisticasPendientes || typeof posicion !== 'number') return
+
+  const { data: actual, error: lecturaError } = await supabase
+    .from('estadisticas_logros')
+    .select('*')
+    .eq('usuario', usuario)
+    .eq('juego', 'domino')
+    .maybeSingle()
+
+  if (lecturaError) {
+    console.warn('No se pudieron leer estadisticas de domino', lecturaError)
+    return
+  }
+
+  const esVictoria = posicion === 1
+  const rachaVictoriasActual = esVictoria ? (actual?.racha_victorias_torneos_actual || 0) + 1 : 0
+  const rachaInvictoActual = esVictoria ? (actual?.domino_racha_invicto_actual || 0) + 1 : 0
+  const mejorPosicionAnterior = actual?.mejor_posicion_torneo
+  const mejorPosicionTorneo = typeof mejorPosicionAnterior === 'number'
+    ? Math.min(mejorPosicionAnterior, posicion)
+    : posicion
+
+  const { error } = await supabase
+    .from('estadisticas_logros')
+    .upsert({
+      usuario,
+      juego: 'domino',
+      completados: (actual?.completados || 0) + 1,
+      torneos_participados: (actual?.torneos_participados || 0) + 1,
+      mejor_posicion_torneo: mejorPosicionTorneo,
+      victorias_torneos: (actual?.victorias_torneos || 0) + (esVictoria ? 1 : 0),
+      racha_victorias_torneos_actual: rachaVictoriasActual,
+      mejor_racha_victorias_torneos: Math.max(actual?.mejor_racha_victorias_torneos || 0, rachaVictoriasActual),
+      domino_racha_invicto_actual: rachaInvictoActual,
+      domino_mejor_racha_invicto: Math.max(actual?.domino_mejor_racha_invicto || 0, rachaInvictoActual),
+      ultima_posicion_torneo: posicion,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'usuario,juego' })
+
+  if (error) {
+    console.warn('No se pudieron guardar estadisticas de domino', error)
+    return
+  }
+
+  localStorage.removeItem('dominoEstadisticasPendientes')
 }
 
 async function cargarResultados() {
@@ -42,7 +91,9 @@ async function cargarResultados() {
     const posicion = data.findIndex((jugador) => jugador.usuario === usuario)
 
     if (posicion !== -1) {
-      posicionDiv.innerText = `Quedaste #${posicion + 1} de ${data.length}`
+      const posicionFinal = posicion + 1
+      posicionDiv.innerText = `Quedaste #${posicionFinal} de ${data.length}`
+      await guardarEstadisticasDomino(posicionFinal)
     } else {
       posicionDiv.innerText = 'No estas en el ranking'
     }
@@ -95,5 +146,6 @@ window.volverLobby = async function () {
 
   localStorage.removeItem('juego_actual')
   localStorage.removeItem('dominoSinPosicion')
+  localStorage.removeItem('dominoEstadisticasPendientes')
   window.location.href = 'lobby.html'
 }

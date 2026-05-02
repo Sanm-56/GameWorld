@@ -108,6 +108,8 @@ create table if not exists public.estadisticas_logros (
   numcatch_racha_top3_sin_bajar_actual integer not null default 0,
   numcatch_mejor_racha_top3_sin_bajar integer not null default 0,
   numcatch_victoria_tras_fuera_podio integer not null default 0,
+  domino_racha_invicto_actual integer not null default 0,
+  domino_mejor_racha_invicto integer not null default 0,
   ajedrez_victorias_clasificatorias integer not null default 0,
   ajedrez_victorias_sin_perder_piezas integer not null default 0,
   ajedrez_mate_tras_sacrificar_reina integer not null default 0,
@@ -458,6 +460,12 @@ add column if not exists numcatch_mejor_racha_top3_sin_bajar integer not null de
 
 alter table public.estadisticas_logros
 add column if not exists numcatch_victoria_tras_fuera_podio integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists domino_racha_invicto_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists domino_mejor_racha_invicto integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists ajedrez_victorias_clasificatorias integer not null default 0;
