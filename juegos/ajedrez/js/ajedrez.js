@@ -1004,6 +1004,10 @@ async function guardarEstadisticasAjedrez(tiempo, posicion) {
   const rachaVictoriaTrasDerrota = actual?.ajedrez_perdio_partida_previa
     ? (actual?.ajedrez_racha_victoria_tras_derrota_actual || 0) + 1
     : 0
+  const esVictoria = posicion === 1
+  const rachaVictoriasTorneosActual = esVictoria
+    ? (actual?.racha_victorias_torneos_actual || 0) + 1
+    : 0
   const mejorPosicionAnterior = actual?.mejor_posicion_torneo
   const mejorPosicionTorneo = typeof posicion === 'number'
     ? (typeof mejorPosicionAnterior === 'number' ? Math.min(mejorPosicionAnterior, posicion) : posicion)
@@ -1014,7 +1018,9 @@ async function guardarEstadisticasAjedrez(tiempo, posicion) {
     juego: 'ajedrez',
     completados: (actual?.completados || 0) + 1,
     torneos_participados: (actual?.torneos_participados || 0) + 1,
-    victorias_torneos: (actual?.victorias_torneos || 0) + (posicion === 1 ? 1 : 0),
+    victorias_torneos: (actual?.victorias_torneos || 0) + (esVictoria ? 1 : 0),
+    racha_victorias_torneos_actual: rachaVictoriasTorneosActual,
+    mejor_racha_victorias_torneos: Math.max(actual?.mejor_racha_victorias_torneos || 0, rachaVictoriasTorneosActual),
     mejor_posicion_torneo: mejorPosicionTorneo,
     ultima_posicion_torneo: posicion,
     mejor_tiempo: typeof actual?.mejor_tiempo === 'number' ? Math.min(actual.mejor_tiempo, tiempo) : tiempo,

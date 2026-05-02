@@ -433,6 +433,24 @@ function crearLogrosAjedrez(stats) {
       unlocked: (stats.ajedrez_campeon_invicto || 0) >= 1,
     },
     {
+      title: 'El Ojo de Dren&rsquo;Kai',
+      description: 'Nada escap&oacute; a tu dominio del tablero.',
+      howTo: 'Gana 14 torneos consecutivas.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 14,
+    },
+    {
+      title: 'La Profec&iacute;a del Rey Negro',
+      description: 'Todo estaba escrito desde tu primer movimiento.',
+      howTo: 'Gana 15 torneos consecutivas.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 15,
+    },
+    {
+      title: 'Las Ruinas de Elyrion',
+      description: 'Construiste tu imperio sobre derrotas ajenas.',
+      howTo: 'Gana 15 torneos consecutivas.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 15,
+    },
+    {
       title: 'El Ascenso de Drak&rsquo;Thul',
       description: 'Los d&eacute;biles rezan. Los reyes conquistan.',
       howTo: 'Gana 20 torneos seguidos sin bajar del primer puesto.',
@@ -443,6 +461,30 @@ function crearLogrosAjedrez(stats) {
       description: 'Solo aquellos que sobreviven al fuego merecen la corona.',
       howTo: 'Gana 30 torneos seguidos sin bajar del primer puesto.',
       unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 30,
+    },
+    {
+      title: 'La &Uacute;ltima Marcha de Vorynth',
+      description: 'Cada paso hacia la victoria fue una sentencia.',
+      howTo: 'Gana 39 torneos consecutivas.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 39,
+    },
+    {
+      title: 'El Pacto Carmes&iacute;',
+      description: 'La sangre del rey enemigo sell&oacute; tu destino.',
+      howTo: 'Gana 53 torneos consecutivas.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 53,
+    },
+    {
+      title: 'El Reino sin Amanecer',
+      description: 'Tras tu victoria, no volvi&oacute; a salir el sol.',
+      howTo: 'Gana 75 torneos consecutivas.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 75,
+    },
+    {
+      title: 'La Llama de Morghast',
+      description: 'El fuego consume. T&uacute; conquistaste.',
+      howTo: 'Gana 96 torneos consecutivas.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 96,
     },
     {
       title: 'La Noche de Vaelor',
