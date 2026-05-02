@@ -284,6 +284,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosDomino(estadisticasLogros.domino || {})
   }
 
+  if (game.key === 'damas') {
+    return crearLogrosDamas(estadisticasLogros.damas || {})
+  }
+
   return [
     {
       title: `Primer intento en ${game.label}`,
@@ -792,6 +796,134 @@ function crearLogrosDomino(stats) {
       description: 'Tu nombre qued&oacute; grabado m&aacute;s all&aacute; del &uacute;ltimo torneo.',
       howTo: 'Termina top 10 en 100 torneos consecutivos.',
       unlocked: mejorRachaTop10 >= 100,
+    },
+  ]
+}
+
+function crearLogrosDamas(stats) {
+  const mejorRachaSegundo = stats.damas_mejor_racha_segundo || 0
+  const mejorRachaTercero = stats.damas_mejor_racha_tercero || 0
+
+  return [
+    {
+      title: 'El Ascenso de Velkar',
+      description: 'El tablero inclin&oacute; su voluntad ante tu inicio.',
+      howTo: 'Termina en 2er puesto en 2 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 2,
+    },
+    {
+      title: 'La Marca de Therys',
+      description: 'Cada victoria dej&oacute; una huella imposible de borrar.',
+      howTo: 'Termina en 2er puesto en 3 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 3,
+    },
+    {
+      title: 'El Trono de Khar&rsquo;Vel',
+      description: 'Los reyes de damas reconocieron a su nuevo amo.',
+      howTo: 'Termina en 2er puesto en 4 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 4,
+    },
+    {
+      title: 'La Senda de Umbriel',
+      description: 'Nadie logr&oacute; desviarte del destino marcado.',
+      howTo: 'Termina en 2er puesto en 5 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 5,
+    },
+    {
+      title: 'El Juramento de Valkor',
+      description: 'Prometiste dominar... y cumpliste.',
+      howTo: 'Termina en 2er puesto en 6 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 6,
+    },
+    {
+      title: 'Las Sombras de Nareth',
+      description: 'Cada torneo fue otro reino conquistado.',
+      howTo: 'Termina en 2er puesto en 7 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 7,
+    },
+    {
+      title: 'El Legado de Mor&rsquo;Thal',
+      description: 'Tu nombre empez&oacute; a repetirse como una advertencia.',
+      howTo: 'Termina en 2er puesto en 8 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 8,
+    },
+    {
+      title: 'La Corona de Drezkal',
+      description: 'El dominio ya no era casualidad... era ley.',
+      howTo: 'Termina en 2er puesto en 9 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 9,
+    },
+    {
+      title: 'El Eclipse de Varenth',
+      description: 'Cuando jugabas, la luz de otros se apagaba.',
+      howTo: 'Termina en 2er puesto en 10 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 10,
+    },
+    {
+      title: 'El Reino de las Fichas Rojas',
+      description: 'La victoria siempre eligi&oacute; tu lado.',
+      howTo: 'Termina en 3er puesto en 12 torneos consecutivos.',
+      unlocked: mejorRachaTercero >= 12,
+    },
+    {
+      title: 'El Juicio de Khaelor',
+      description: 'Los rivales enfrentaron su destino al sentarse contigo.',
+      howTo: 'Termina en 3er puesto en 14 torneos consecutivos.',
+      unlocked: mejorRachaTercero >= 14,
+    },
+    {
+      title: 'La Profec&iacute;a de Zaryth',
+      description: 'Todo estaba escrito desde tu primera jugada.',
+      howTo: 'Termina en 3er puesto en 16 torneos consecutivos.',
+      unlocked: mejorRachaTercero >= 16,
+    },
+    {
+      title: 'El Ocaso de Vel&rsquo;Rath',
+      description: 'Las derrotas ajenas marcaron tu camino.',
+      howTo: 'Termina en 3er puesto en 18 torneos consecutivos.',
+      unlocked: mejorRachaTercero >= 18,
+    },
+    {
+      title: 'La Eternidad de Mor&rsquo;Khael',
+      description: 'El tiempo dej&oacute; de importar ante tu dominio.',
+      howTo: 'Termina en 3er puesto en 20 torneos consecutivos.',
+      unlocked: mejorRachaTercero >= 20,
+    },
+    {
+      title: 'Las Ruinas de Thar&rsquo;Zel',
+      description: 'Construiste tu imperio sobre campeones ca&iacute;dos.',
+      howTo: 'Termina en 3er puesto en 25 torneos consecutivos.',
+      unlocked: mejorRachaTercero >= 25,
+    },
+    {
+      title: 'El Trono Inquebrantable',
+      description: 'Nadie pudo arrebatarte la cima.',
+      howTo: 'Termina en 2er puesto en 30 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 30,
+    },
+    {
+      title: 'La Maldici&oacute;n de Vornath',
+      description: 'Cada torneo sell&oacute; el destino de otro rival.',
+      howTo: 'Termina en 2er puesto en 35 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 35,
+    },
+    {
+      title: 'El Portal de Damas Eternas',
+      description: 'Tu racha trascendi&oacute; toda l&oacute;gica.',
+      howTo: 'Termina en 2er puesto en 40 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 40,
+    },
+    {
+      title: 'El Fin de los Aspirantes',
+      description: 'Ya no quedaban contendientes dignos.',
+      howTo: 'Termina en 3er puesto en 45 torneos consecutivos.',
+      unlocked: mejorRachaTercero >= 45,
+    },
+    {
+      title: 'El Nombre que Perdura',
+      description: 'M&aacute;s all&aacute; de la &uacute;ltima partida... solo quedaste t&uacute;.',
+      howTo: 'Termina en 2er puesto en 50 torneos consecutivos.',
+      unlocked: mejorRachaSegundo >= 50,
     },
   ]
 }
