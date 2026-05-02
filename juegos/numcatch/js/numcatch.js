@@ -362,11 +362,13 @@ async function guardarEstadisticasNumcatch(posicion) {
   }
 
   const esVictoria = posicion === 1
+  const esTop3 = typeof posicion === "number" && posicion <= 3
   const minErroresVictoriaAnterior = actual?.numcatch_min_errores_victoria
   const numcatchMinErroresVictoria = esVictoria
     ? (typeof minErroresVictoriaAnterior === "number" ? Math.min(minErroresVictoriaAnterior, errores) : errores)
     : minErroresVictoriaAnterior
   const mejorPosicionAnterior = actual?.mejor_posicion_torneo
+  const ultimaPosicionAnterior = actual?.ultima_posicion_torneo
   const mejorPosicionTorneo = typeof posicion === "number"
     ? (typeof mejorPosicionAnterior === "number" ? Math.min(mejorPosicionAnterior, posicion) : posicion)
     : mejorPosicionAnterior
@@ -376,6 +378,16 @@ async function guardarEstadisticasNumcatch(posicion) {
   const rachaVictorias1200Actual = esVictoria && puntaje > 1200
     ? (actual?.numcatch_racha_victorias_1200_actual || 0) + 1
     : 0
+  const rachaVictoriasActual = esVictoria ? (actual?.racha_victorias_torneos_actual || 0) + 1 : 0
+  const rachaTop3Actual = esTop3 ? (actual?.racha_top3_torneos_actual || 0) + 1 : 0
+  const noBajoDePosicion = typeof posicion === "number"
+    && typeof ultimaPosicionAnterior === "number"
+    && posicion <= ultimaPosicionAnterior
+  const rachaTop3SinBajarActual = esTop3 && noBajoDePosicion
+    ? (actual?.numcatch_racha_top3_sin_bajar_actual || 0) + 1
+    : esTop3
+      ? 1
+      : 0
 
   const payload = {
     usuario,
@@ -384,6 +396,11 @@ async function guardarEstadisticasNumcatch(posicion) {
     torneos_participados: (actual?.torneos_participados || 0) + 1,
     mejor_posicion_torneo: mejorPosicionTorneo,
     victorias_torneos: (actual?.victorias_torneos || 0) + (esVictoria ? 1 : 0),
+    racha_victorias_torneos_actual: rachaVictoriasActual,
+    mejor_racha_victorias_torneos: Math.max(actual?.mejor_racha_victorias_torneos || 0, rachaVictoriasActual),
+    top3_torneos: (actual?.top3_torneos || 0) + (esTop3 ? 1 : 0),
+    racha_top3_torneos_actual: rachaTop3Actual,
+    mejor_racha_top3_torneos: Math.max(actual?.mejor_racha_top3_torneos || 0, rachaTop3Actual),
     numcatch_total_aciertos: (actual?.numcatch_total_aciertos || 0) + aciertos,
     numcatch_mejor_racha_aciertos: Math.max(actual?.numcatch_mejor_racha_aciertos || 0, mejorRachaAciertos),
     numcatch_mejor_racha_aciertos_victoria: esVictoria
@@ -397,6 +414,10 @@ async function guardarEstadisticasNumcatch(posicion) {
     numcatch_mejor_racha_victorias_400: Math.max(actual?.numcatch_mejor_racha_victorias_400 || 0, rachaVictorias400Actual),
     numcatch_racha_victorias_1200_actual: rachaVictorias1200Actual,
     numcatch_mejor_racha_victorias_1200: Math.max(actual?.numcatch_mejor_racha_victorias_1200 || 0, rachaVictorias1200Actual),
+    numcatch_racha_top3_sin_bajar_actual: rachaTop3SinBajarActual,
+    numcatch_mejor_racha_top3_sin_bajar: Math.max(actual?.numcatch_mejor_racha_top3_sin_bajar || 0, rachaTop3SinBajarActual),
+    numcatch_victoria_tras_fuera_podio: (actual?.numcatch_victoria_tras_fuera_podio || 0)
+      + (esVictoria && typeof ultimaPosicionAnterior === "number" && ultimaPosicionAnterior > 3 ? 1 : 0),
     ultima_posicion_torneo: posicion,
     updated_at: new Date().toISOString(),
   }

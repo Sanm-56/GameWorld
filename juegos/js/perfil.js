@@ -314,6 +314,10 @@ function crearLogrosNumcatch(stats) {
   const victorias1Error = stats.numcatch_victorias_1_error || 0
   const victorias2Errores = stats.numcatch_victorias_2_errores || 0
   const victoriasMenos14Errores = stats.numcatch_victorias_menos_14_errores || 0
+  const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
+  const top3Torneos = stats.top3_torneos || 0
+  const victoriaTrasFueraPodio = stats.numcatch_victoria_tras_fuera_podio || 0
+  const mejorRachaTop3SinBajar = stats.numcatch_mejor_racha_top3_sin_bajar || 0
   const mejorRachaVictorias400 = stats.numcatch_mejor_racha_victorias_400 || 0
   const mejorRachaVictorias1200 = stats.numcatch_mejor_racha_victorias_1200 || 0
 
@@ -461,6 +465,108 @@ function crearLogrosNumcatch(stats) {
       description: 'La victoria se repite... sin explicaci&oacute;n.',
       howTo: 'Gana 4 torneos seguidos con m&aacute;s de 1200 puntos.',
       unlocked: mejorRachaVictorias1200 >= 4,
+    },
+    {
+      title: 'Ascenso de Morvhal',
+      description: 'No fue suerte... fue destino.',
+      howTo: 'Gana 2 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 2,
+    },
+    {
+      title: 'Cumbre de Elarion',
+      description: 'El lugar m&aacute;s alto... y el m&aacute;s solitario.',
+      howTo: 'Gana 5 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 5,
+    },
+    {
+      title: 'El Juramento de Krynn',
+      description: 'No fallar&eacute;... otra vez.',
+      howTo: 'Gana 10 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 10,
+    },
+    {
+      title: 'Dominio de Xerathis',
+      description: 'No hay espacio para otros.',
+      howTo: 'Gana 25 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 25,
+    },
+    {
+      title: 'El Sello de Varok',
+      description: 'Soy marcado como invencible.',
+      howTo: 'Gana 36 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 36,
+    },
+    {
+      title: 'Voluntad de Zenthra',
+      description: 'No cedo... no dudo.',
+      howTo: 'Gana 55 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 55,
+    },
+    {
+      title: 'La Corona de Nyvex',
+      description: 'No hay discusi&oacute;n... yo soy el rey.',
+      howTo: 'Gana 75 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 75,
+    },
+    {
+      title: 'El V&iacute;nculo de Artheon',
+      description: 'Estoy conectado al triunfo.',
+      howTo: 'Gana 88 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 88,
+    },
+    {
+      title: 'El Final Infinito',
+      description: 'Esto no termina... se transforma.',
+      howTo: 'Gana 100 torneos seguidos sin bajar del primer puesto.',
+      unlocked: mejorRachaVictorias >= 100,
+    },
+    {
+      title: 'Sombras de Velkar',
+      description: 'Nadie vio c&oacute;mo llegu&eacute;... pero llegu&eacute;.',
+      howTo: 'Termina en el top 3 en 5 torneos diferentes.',
+      unlocked: top3Torneos >= 5,
+    },
+    {
+      title: 'La Llama de Iryth',
+      description: 'Arde... y no se apaga.',
+      howTo: 'Termina en el top 3 en 15 torneos diferentes.',
+      unlocked: top3Torneos >= 15,
+    },
+    {
+      title: 'El Tr&aacute;nsito de Noxar',
+      description: 'Cruzo... y no regreso.',
+      howTo: 'Termina en el top 3 en 25 torneos diferentes.',
+      unlocked: top3Torneos >= 25,
+    },
+    {
+      title: 'Rastro de Kelyth',
+      description: 'Mi paso deja huella.',
+      howTo: 'Termina en el top 3 en 36 torneos diferentes.',
+      unlocked: top3Torneos >= 36,
+    },
+    {
+      title: 'El Ocaso de Valenx',
+      description: 'Cuando todos caen... yo sigo.',
+      howTo: 'Gana un torneo despu&eacute;s de haber quedado fuera del podio en un torneo anterior.',
+      unlocked: victoriaTrasFueraPodio >= 1,
+    },
+    {
+      title: 'Senda de Orphion',
+      description: 'Siempre hay un camino hacia arriba.',
+      howTo: 'Termina en el top 3 en 46 torneos diferentes.',
+      unlocked: top3Torneos >= 46,
+    },
+    {
+      title: 'El Horizonte de Myrath',
+      description: 'M&aacute;s all&aacute;... siempre m&aacute;s all&aacute;.',
+      howTo: 'Termina en el top 3 en 8 torneos consecutivos sin bajar de posici&oacute;n.',
+      unlocked: mejorRachaTop3SinBajar >= 8,
+    },
+    {
+      title: 'Voluntad de Zenthra',
+      description: 'No cedo... no dudo.',
+      howTo: 'Termina en el top 3 en 28 torneos consecutivos sin bajar de posici&oacute;n.',
+      unlocked: mejorRachaTop3SinBajar >= 28,
     },
   ]
 }
