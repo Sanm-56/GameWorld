@@ -2978,9 +2978,27 @@ function obtenerIconoSudoku(achievement) {
   return '3×3'
 }
 
+function obtenerIconoSudokuVisual(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  if (objetivoTexto.includes('tiempo') || objetivoTexto.includes('horas') || objetivoTexto.includes('minuto')) {
+    return { label: 'TIME', className: 'time' }
+  }
+  if (objetivoTexto.includes('torneo') || objetivoTexto.includes('top') || objetivoTexto.includes('gana')) {
+    return { label: 'CROWN', className: 'crown' }
+  }
+  if (objetivoTexto.includes('sin errores') || objetivoTexto.includes('sin cometer')) {
+    return { label: 'EYE', className: 'precision' }
+  }
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('consecut')) {
+    return { label: 'CHAIN', className: 'streak' }
+  }
+  return { label: '3x3', className: 'grid' }
+}
+
 function renderLogroSudoku(achievement, stats) {
   const progress = obtenerProgresoSudoku(achievement, stats)
   const rarity = obtenerRarezaSudoku(progress, achievement)
+  const icon = obtenerIconoSudokuVisual(achievement)
   const rarityLabel = {
     common: 'Comun',
     rare: 'Raro',
@@ -2990,19 +3008,26 @@ function renderLogroSudoku(achievement, stats) {
   const div = document.createElement('div')
   div.className = `achievement-card sudoku-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
   div.innerHTML = `
-    <div class="sudoku-relic-icon" aria-hidden="true">${escaparHtml(obtenerIconoSudoku(achievement))}</div>
-    <div class="sudoku-relic-main">
-      <div class="sudoku-relic-top">
+    <div class="sudoku-relic-header">
+      <div class="sudoku-relic-icon ${escaparHtml(icon.className)}" aria-hidden="true">
+        <span>${escaparHtml(icon.label)}</span>
+      </div>
+      <div class="sudoku-relic-badges">
         <span class="sudoku-relic-rarity">${rarityLabel}</span>
         <span class="sudoku-relic-state">${achievement.unlocked ? 'Desbloqueado' : 'Sellado'}</span>
       </div>
+    </div>
+    <div class="sudoku-relic-main">
       <strong class="sudoku-relic-title">${escaparHtml(textoPlano(achievement.title))}</strong>
-      <p>${escaparHtml(textoPlano(achievement.description))}</p>
-      <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      <p class="sudoku-relic-prophecy">${escaparHtml(textoPlano(achievement.description))}</p>
+      <div class="sudoku-objective">
+        <span>Objetivo</span>
+        <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      </div>
       <div class="sudoku-progress" aria-label="Progreso">
         <div class="sudoku-progress-meta">
           <span>Progreso</span>
-          <span>${escaparHtml(progress.label)}</span>
+          <span>${progress.percent}% - ${escaparHtml(progress.label)}</span>
         </div>
         <div class="sudoku-progress-track">
           <div class="sudoku-progress-fill" style="width:${progress.percent}%"></div>

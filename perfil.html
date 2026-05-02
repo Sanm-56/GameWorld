@@ -644,6 +644,254 @@ body.sudoku-screen-shake{
   72%{ transform:translateX(-2px); }
 }
 
+.achievement-card.sudoku-relic{
+  --relic-main:#64748b;
+  --relic-soft:rgba(100,116,139,0.18);
+  --relic-glow:rgba(100,116,139,0.16);
+  display:block;
+  padding:0;
+  min-height:232px;
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 18% 0, var(--relic-glow), transparent 34%),
+    radial-gradient(circle at 82% 12%, rgba(15,23,42,0.2), transparent 32%),
+    linear-gradient(145deg, rgba(3,7,18,0.98), rgba(13,18,35,0.96) 54%, rgba(4,9,20,0.98));
+  border:1px solid color-mix(in srgb, var(--relic-main) 45%, transparent);
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.46),
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 0 1px rgba(15,23,42,0.9);
+}
+
+.achievement-card.sudoku-relic::before{
+  background:
+    linear-gradient(rgba(226,232,240,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,232,240,0.04) 1px, transparent 1px),
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(125,211,252,0.035) 18px 19px),
+    radial-gradient(circle at 78% 24%, transparent 0 42px, rgba(148,163,184,0.045) 43px 44px, transparent 45px);
+  background-size:30px 30px, 30px 30px, 100% 100%, 100% 100%;
+  opacity:0.9;
+}
+
+.achievement-card.sudoku-relic::after{
+  content:"07 13 21 34 55 89";
+  top:18px;
+  right:-32px;
+  bottom:auto;
+  color:color-mix(in srgb, var(--relic-main) 22%, transparent);
+  opacity:0.24;
+}
+
+.achievement-card.sudoku-relic:hover{
+  transform:translateY(-4px);
+  border-color:color-mix(in srgb, var(--relic-main) 78%, white 4%);
+  box-shadow:
+    0 24px 58px rgba(0,0,0,0.58),
+    0 0 32px var(--relic-glow),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.sudoku-relic-header{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 16px 0;
+}
+
+.sudoku-relic-badges{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:7px;
+}
+
+.sudoku-relic-icon{
+  position:relative;
+  width:76px;
+  height:76px;
+  border-radius:16px;
+  color:#f8fafc;
+  font-size:0.72rem;
+  letter-spacing:0.08em;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--relic-main) 24%, transparent), transparent 66%),
+    linear-gradient(145deg, rgba(15,23,42,0.96), rgba(2,6,23,0.88));
+  border:1px solid color-mix(in srgb, var(--relic-main) 54%, transparent);
+  box-shadow:
+    inset 0 0 24px color-mix(in srgb, var(--relic-main) 16%, transparent),
+    0 0 26px var(--relic-glow);
+}
+
+.sudoku-relic-icon::before,
+.sudoku-relic-icon::after{
+  content:"";
+  position:absolute;
+  inset:14px;
+  border:1px solid color-mix(in srgb, var(--relic-main) 58%, transparent);
+  border-radius:6px;
+  opacity:0.75;
+}
+
+.sudoku-relic-icon::after{
+  inset:23px;
+  transform:rotate(45deg);
+}
+
+.sudoku-relic-icon span{
+  position:relative;
+  z-index:1;
+  text-shadow:0 0 14px var(--relic-main);
+}
+
+.sudoku-relic-icon.time::before{
+  border-radius:50%;
+}
+
+.sudoku-relic-icon.time::after{
+  width:18px;
+  height:1px;
+  inset:37px auto auto 37px;
+  border:0;
+  border-top:2px solid color-mix(in srgb, var(--relic-main) 78%, white 8%);
+  transform:rotate(-35deg);
+}
+
+.sudoku-relic-icon.precision::before{
+  inset:21px 12px;
+  border-radius:50%;
+}
+
+.sudoku-relic-icon.precision::after{
+  inset:30px;
+  border-radius:50%;
+  transform:none;
+  background:var(--relic-main);
+  box-shadow:0 0 18px var(--relic-main);
+}
+
+.sudoku-relic-icon.streak::before{
+  border-radius:999px;
+  transform:rotate(28deg);
+}
+
+.sudoku-relic-icon.streak::after{
+  border-radius:999px;
+  transform:rotate(-28deg);
+}
+
+.sudoku-relic-icon.crown::before{
+  inset:24px 14px 22px;
+  border-radius:4px 4px 10px 10px;
+}
+
+.sudoku-relic-icon.crown::after{
+  inset:17px 22px 36px;
+  border-radius:3px;
+  transform:rotate(45deg);
+}
+
+.sudoku-relic-main{
+  padding:12px 16px 16px;
+}
+
+.sudoku-relic-title{
+  font-size:1.18rem;
+  line-height:1.12;
+  color:#fff;
+}
+
+.sudoku-relic-prophecy{
+  margin:9px 0 13px;
+  color:rgba(226,232,240,0.72);
+  font-size:0.92rem;
+  line-height:1.45;
+}
+
+.sudoku-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(15,23,42,0.78), rgba(2,6,23,0.52));
+  border:1px solid color-mix(in srgb, var(--relic-main) 24%, transparent);
+}
+
+.sudoku-objective span{
+  color:color-mix(in srgb, var(--relic-main) 84%, white 12%);
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.sudoku-objective small{
+  color:rgba(226,232,240,0.88);
+}
+
+.sudoku-progress-track{
+  height:10px;
+  padding:1px;
+  background:linear-gradient(180deg, rgba(2,6,23,0.94), rgba(15,23,42,0.88));
+  border-color:color-mix(in srgb, var(--relic-main) 24%, transparent);
+}
+
+.sudoku-progress-fill{
+  background:linear-gradient(90deg, color-mix(in srgb, var(--relic-main) 52%, #0ea5e9), var(--relic-main));
+  box-shadow:0 0 18px var(--relic-glow), 0 0 8px var(--relic-main);
+}
+
+.sudoku-progress-meta{
+  color:rgba(226,232,240,0.78);
+  font-weight:800;
+}
+
+.sudoku-relic.common{
+  --relic-main:#94a3b8;
+  --relic-glow:rgba(148,163,184,0.12);
+}
+
+.sudoku-relic.rare{
+  --relic-main:#38bdf8;
+  --relic-glow:rgba(56,189,248,0.24);
+}
+
+.sudoku-relic.epic{
+  --relic-main:#a855f7;
+  --relic-glow:rgba(168,85,247,0.28);
+  animation:sudokuEpicPulse 3s ease-in-out infinite;
+}
+
+.sudoku-relic.epic::before{
+  animation:sudokuParticles 5s linear infinite;
+}
+
+.sudoku-relic.legendary{
+  --relic-main:#facc15;
+  --relic-glow:rgba(250,204,21,0.3);
+  animation:sudokuLegendaryShine 3.2s ease-in-out infinite;
+}
+
+.sudoku-relic.legendary::before{
+  opacity:1;
+}
+
+.sudoku-relic.legendary::after{
+  color:rgba(250,204,21,0.08);
+  opacity:0.8;
+}
+
+@keyframes sudokuParticles{
+  0%{ background-position:0 0, 0 0, 0 0, 0 0; }
+  100%{ background-position:30px 30px, -30px 30px, 80px 0, 0 0; }
+}
+
+@keyframes sudokuLegendaryShine{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.46), 0 0 22px rgba(250,204,21,0.12); }
+  50%{ box-shadow:0 24px 62px rgba(0,0,0,0.6), 0 0 42px rgba(250,204,21,0.32), 0 0 24px rgba(56,189,248,0.12); }
+}
+
 .history-item{
   padding:16px;
   border-radius:16px;
@@ -900,18 +1148,27 @@ body.sudoku-screen-shake{
   }
 
   .achievement-card.sudoku-relic{
-    grid-template-columns:1fr;
-    padding:14px;
+    padding:0;
+    min-height:0;
   }
 
   .sudoku-relic-icon{
-    width:58px;
-    height:58px;
-    font-size:1.35rem;
+    width:62px;
+    height:62px;
+    font-size:0.64rem;
   }
 
-  .sudoku-relic-top{
-    align-items:flex-start;
+  .sudoku-relic-header{
+    padding:14px 14px 0;
+    gap:10px;
+  }
+
+  .sudoku-relic-main{
+    padding:11px 14px 14px;
+  }
+
+  .sudoku-relic-badges{
+    gap:6px;
   }
 
   .sudoku-relic-rarity,
