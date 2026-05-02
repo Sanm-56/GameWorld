@@ -29,6 +29,25 @@ create table if not exists public.estadisticas_logros (
   torneos_mismo_dia_fecha text,
   torneos_mismo_dia_actual integer not null default 0,
   mejor_torneos_mismo_dia integer not null default 0,
+  memoria_errores_total integer not null default 0,
+  memoria_max_errores_partida integer not null default 0,
+  memoria_mejor_racha_pares integer not null default 0,
+  memoria_mejor_racha_fallos integer not null default 0,
+  memoria_pares_antes_1min integer not null default 0,
+  memoria_max_intentos_partida integer not null default 0,
+  memoria_mejor_movimientos integer,
+  memoria_menos_20_movimientos integer not null default 0,
+  memoria_mejoras_tiempo integer not null default 0,
+  memoria_fallo_ultimo_par integer not null default 0,
+  memoria_acierto_tras_5_fallos integer not null default 0,
+  memoria_par_menos_2s integer not null default 0,
+  memoria_acierto_tras_2_fallos integer not null default 0,
+  memoria_par_sin_ver_previo integer not null default 0,
+  memoria_sin_repetir_error_par integer not null default 0,
+  memoria_partidas_ventana_inicio text,
+  memoria_partidas_ventana_actual integer not null default 0,
+  memoria_mejor_partidas_10min integer not null default 0,
+  ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (usuario, juego)
@@ -99,6 +118,63 @@ add column if not exists torneos_mismo_dia_actual integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists mejor_torneos_mismo_dia integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_errores_total integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_max_errores_partida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_mejor_racha_pares integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_mejor_racha_fallos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_pares_antes_1min integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_max_intentos_partida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_mejor_movimientos integer;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_menos_20_movimientos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_mejoras_tiempo integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_fallo_ultimo_par integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_acierto_tras_5_fallos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_par_menos_2s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_acierto_tras_2_fallos integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_par_sin_ver_previo integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_sin_repetir_error_par integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_partidas_ventana_inicio text;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_partidas_ventana_actual integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_mejor_partidas_10min integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists ultimo_tiempo integer;
 
 create index if not exists estadisticas_logros_usuario_idx
 on public.estadisticas_logros (usuario);

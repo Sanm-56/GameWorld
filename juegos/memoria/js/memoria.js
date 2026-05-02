@@ -45,7 +45,10 @@ else if(advertencias >= MAX_ADVERTENCIAS){
 descalificado = true
 juegoTerminado = true
 
-await guardarResultado(9999, true, true, "Cambio de pestana")
+const guardado = await guardarResultado(9999, true, true, "Cambio de pestana")
+if(guardado){
+await guardarEstadisticasMemoria({ tiempo: DURACION, completado: false })
+}
 
 alert("Descalificado")
 localStorage.setItem("juego_actual", "memoria")
@@ -62,8 +65,25 @@ let encontradas = 0
 
 let rachaBuena = 0
 let rachaMala = 0
+let inicioLocalMs = performance.now()
+let movimientosPartida = 0
+let erroresPartida = 0
+let maxRachaParesPartida = 0
+let maxRachaFallosPartida = 0
+let paresAntes1Minuto = 0
+let falloUltimoPar = false
+let aciertoTras5Fallos = false
+let aciertoTras2Fallos = false
+let parMenos2s = false
+let parSinVerPrevio = false
+let repitioErrorMismoPar = false
+let primeraSeleccionTs = 0
+const volteosPorCarta = new Map()
+const paresErrados = new Set()
+const fallosPorValor = new Map()
 
 function iniciarMemoria(){
+inicioLocalMs = performance.now()
 generarCartas()
 renderizarTablero()
 }
@@ -82,12 +102,13 @@ function renderizarTablero(){
 let tablero = document.getElementById("tablero")
 tablero.innerHTML = ""
 
-cartas.forEach((valor) => {
+cartas.forEach((valor, index) => {
 
 let carta = document.createElement("div")
 
 carta.classList.add("carta")
 carta.dataset.valor = valor
+carta.dataset.indice = String(index)
 
 carta.innerHTML = `
 <div class="carta-inner">
@@ -134,21 +155,36 @@ if(juegoTerminado) return
 if(seleccionadas.length === 2) return
 if(carta.classList.contains("volteada")) return
 
+carta.dataset.vistosAntes = String(volteosPorCarta.get(carta.dataset.indice) || 0)
+volteosPorCarta.set(carta.dataset.indice, Number(carta.dataset.vistosAntes) + 1)
+
+if(seleccionadas.length === 0){
+primeraSeleccionTs = performance.now()
+}
+
 carta.classList.add("volteada")
 seleccionadas.push(carta)
 
 if(seleccionadas.length === 2){
 
 let [c1, c2] = seleccionadas
+movimientosPartida++
 
 if(c1.dataset.valor === c2.dataset.valor){
 
+if(rachaMala >= 5) aciertoTras5Fallos = true
+if((fallosPorValor.get(c1.dataset.valor) || 0) >= 2) aciertoTras2Fallos = true
+if(performance.now() - primeraSeleccionTs <= 2000) parMenos2s = true
+if(c1.dataset.vistosAntes === "0" && c2.dataset.vistosAntes === "0") parSinVerPrevio = true
+
 actualizarRacha("buena")
+maxRachaParesPartida = Math.max(maxRachaParesPartida, rachaBuena)
 
 c1.classList.add("acierto")
 c2.classList.add("acierto")
 
 encontradas++
+if(obtenerSegundosPartidaLocal() <= 60) paresAntes1Minuto++
 seleccionadas = []
 
 if(encontradas === 18){
@@ -158,7 +194,19 @@ finalizar()
 }
 else{
 
+erroresPartida++
+if(encontradas === 17) falloUltimoPar = true
+
+const errorKey = obtenerParErrorKey(c1, c2)
+if(paresErrados.has(errorKey)){
+repitioErrorMismoPar = true
+}
+paresErrados.add(errorKey)
+fallosPorValor.set(c1.dataset.valor, (fallosPorValor.get(c1.dataset.valor) || 0) + 1)
+fallosPorValor.set(c2.dataset.valor, (fallosPorValor.get(c2.dataset.valor) || 0) + 1)
+
 actualizarRacha("mala")
+maxRachaFallosPartida = Math.max(maxRachaFallosPartida, rachaMala)
 
 c1.classList.add("error")
 c2.classList.add("error")
@@ -173,6 +221,14 @@ seleccionadas = []
 
 }
 
+}
+
+function obtenerParErrorKey(c1, c2){
+return [c1.dataset.indice, c2.dataset.indice].sort().join("-")
+}
+
+function obtenerSegundosPartidaLocal(){
+return Math.floor((performance.now() - inicioLocalMs) / 1000)
 }
 
 let intervalo = null
@@ -205,7 +261,10 @@ clearInterval(intervalo)
 reloj.innerText = "0:00"
 
 if(!resultadoEnviado){
-await guardarResultado(9999, false, false, "Tiempo agotado")
+const guardado = await guardarResultado(9999, false, false, "Tiempo agotado")
+if(guardado){
+await guardarEstadisticasMemoria({ tiempo: DURACION, completado: false })
+}
 }
 
 juegoTerminado = true
@@ -261,6 +320,83 @@ invalido
 return true
 }
 
+async function guardarEstadisticasMemoria({ tiempo, completado }){
+const { data: actual, error: lecturaError } = await supabase
+.from("estadisticas_logros")
+.select("*")
+.eq("usuario", usuario)
+.eq("juego", "memoria")
+.maybeSingle()
+
+if(lecturaError){
+console.warn("No se pudieron leer estadisticas de memoria", lecturaError)
+return
+}
+
+const completados = (actual?.completados || 0) + (completado ? 1 : 0)
+const completadosSinErrores = (actual?.completados_sin_errores || 0) + (completado && erroresPartida === 0 ? 1 : 0)
+const rachaCompletadosActual = completado ? (actual?.racha_completados_actual || 0) + 1 : 0
+const mejorRachaCompletados = Math.max(actual?.mejor_racha_completados || 0, rachaCompletadosActual)
+const rachaSinErroresActual = completado && erroresPartida === 0 ? (actual?.racha_sin_errores_actual || 0) + 1 : 0
+const mejorRachaSinErrores = Math.max(actual?.mejor_racha_sin_errores || 0, rachaSinErroresActual)
+const mejorTiempoAnterior = actual?.mejor_tiempo
+const mejorTiempo = completado
+? (typeof mejorTiempoAnterior === "number" ? Math.min(mejorTiempoAnterior, tiempo) : tiempo)
+: mejorTiempoAnterior
+const ultimoTiempoAnterior = actual?.ultimo_tiempo
+const mejorasTiempo = completado && typeof ultimoTiempoAnterior === "number" && tiempo < ultimoTiempoAnterior
+? (actual?.memoria_mejoras_tiempo || 0) + 1
+: (actual?.memoria_mejoras_tiempo || 0)
+const ahora = new Date()
+const ventanaInicio = actual?.memoria_partidas_ventana_inicio ? new Date(actual.memoria_partidas_ventana_inicio) : null
+const dentroVentana = ventanaInicio && ahora - ventanaInicio <= 10 * 60 * 1000
+const ventanaActual = completado ? (dentroVentana ? (actual?.memoria_partidas_ventana_actual || 0) + 1 : 1) : (actual?.memoria_partidas_ventana_actual || 0)
+const ventanaInicioIso = completado ? (dentroVentana ? actual.memoria_partidas_ventana_inicio : ahora.toISOString()) : actual?.memoria_partidas_ventana_inicio
+
+const payload = {
+usuario,
+juego: "memoria",
+completados,
+completados_sin_errores: completadosSinErrores,
+racha_completados_actual: rachaCompletadosActual,
+mejor_racha_completados: mejorRachaCompletados,
+racha_sin_errores_actual: rachaSinErroresActual,
+mejor_racha_sin_errores: mejorRachaSinErrores,
+mejor_tiempo: mejorTiempo,
+ultimo_tiempo: completado ? tiempo : ultimoTiempoAnterior,
+tiempo_jugado_total: (actual?.tiempo_jugado_total || 0) + Math.max(0, Number(tiempo || 0)),
+memoria_errores_total: (actual?.memoria_errores_total || 0) + erroresPartida,
+memoria_max_errores_partida: completado ? Math.max(actual?.memoria_max_errores_partida || 0, erroresPartida) : (actual?.memoria_max_errores_partida || 0),
+memoria_mejor_racha_pares: Math.max(actual?.memoria_mejor_racha_pares || 0, maxRachaParesPartida),
+memoria_mejor_racha_fallos: Math.max(actual?.memoria_mejor_racha_fallos || 0, maxRachaFallosPartida),
+memoria_pares_antes_1min: Math.max(actual?.memoria_pares_antes_1min || 0, paresAntes1Minuto),
+memoria_max_intentos_partida: completado ? Math.max(actual?.memoria_max_intentos_partida || 0, movimientosPartida) : (actual?.memoria_max_intentos_partida || 0),
+memoria_mejor_movimientos: completado
+? (typeof actual?.memoria_mejor_movimientos === "number" ? Math.min(actual.memoria_mejor_movimientos, movimientosPartida) : movimientosPartida)
+: actual?.memoria_mejor_movimientos,
+memoria_menos_20_movimientos: (actual?.memoria_menos_20_movimientos || 0) + (completado && movimientosPartida < 20 ? 1 : 0),
+memoria_mejoras_tiempo: mejorasTiempo,
+memoria_fallo_ultimo_par: (actual?.memoria_fallo_ultimo_par || 0) + (completado && falloUltimoPar ? 1 : 0),
+memoria_acierto_tras_5_fallos: (actual?.memoria_acierto_tras_5_fallos || 0) + (completado && aciertoTras5Fallos ? 1 : 0),
+memoria_par_menos_2s: (actual?.memoria_par_menos_2s || 0) + (parMenos2s ? 1 : 0),
+memoria_acierto_tras_2_fallos: (actual?.memoria_acierto_tras_2_fallos || 0) + (completado && aciertoTras2Fallos ? 1 : 0),
+memoria_par_sin_ver_previo: (actual?.memoria_par_sin_ver_previo || 0) + (parSinVerPrevio ? 1 : 0),
+memoria_sin_repetir_error_par: (actual?.memoria_sin_repetir_error_par || 0) + (completado && !repitioErrorMismoPar ? 1 : 0),
+memoria_partidas_ventana_inicio: ventanaInicioIso,
+memoria_partidas_ventana_actual: ventanaActual,
+memoria_mejor_partidas_10min: Math.max(actual?.memoria_mejor_partidas_10min || 0, ventanaActual),
+updated_at: new Date().toISOString(),
+}
+
+const { error } = await supabase
+.from("estadisticas_logros")
+.upsert(payload, { onConflict: "usuario,juego" })
+
+if(error){
+console.warn("No se pudieron guardar estadisticas de memoria", error)
+}
+}
+
 async function finalizar(){
 
 if(resultadoEnviado || descalificado) return
@@ -280,7 +416,10 @@ const ahora = Date.parse(horaServer)
 
 let tiempo = Math.floor((ahora - inicio) / 1000)
 
-await guardarResultado(tiempo)
+const guardado = await guardarResultado(tiempo)
+if(guardado){
+await guardarEstadisticasMemoria({ tiempo, completado: true })
+}
 
 juegoTerminado = true
 
@@ -302,7 +441,10 @@ let { data } = await supabase
 if(data?.estado == "espera"){
 
 if(!juegoTerminado){
-await guardarResultado(9999, true, true, "Torneo detenido")
+const guardado = await guardarResultado(9999, true, true, "Torneo detenido")
+if(guardado){
+await guardarEstadisticasMemoria({ tiempo: DURACION, completado: false })
+}
 }
 
 alert("Torneo detenido por el admin")

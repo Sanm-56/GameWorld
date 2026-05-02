@@ -260,6 +260,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosSudoku(estadisticasLogros.sudoku || {})
   }
 
+  if (game.key === 'memoria') {
+    return crearLogrosMemoria(estadisticasLogros.memoria || {})
+  }
+
   return [
     {
       title: `Primer intento en ${game.label}`,
@@ -286,6 +290,150 @@ function crearLogrosDeJuego(game, resultado) {
       title: 'Logro personalizado',
       description: 'Reservado para el nombre y descripcion que me pases despues.',
       unlocked: false,
+    },
+  ]
+}
+
+function crearLogrosMemoria(stats) {
+  const completados = stats.completados || 0
+  const completadosSinErrores = stats.completados_sin_errores || 0
+  const mejorRachaCompletados = stats.mejor_racha_completados || 0
+  const mejorRachaPares = stats.memoria_mejor_racha_pares || 0
+  const mejorRachaFallos = stats.memoria_mejor_racha_fallos || 0
+  const maxErroresPartida = stats.memoria_max_errores_partida || 0
+  const mejorTiempo = typeof stats.mejor_tiempo === 'number' ? stats.mejor_tiempo : null
+  const paresAntes1Minuto = stats.memoria_pares_antes_1min || 0
+  const mejorPartidas10Min = stats.memoria_mejor_partidas_10min || 0
+  const falloUltimoPar = stats.memoria_fallo_ultimo_par || 0
+  const aciertoTras5Fallos = stats.memoria_acierto_tras_5_fallos || 0
+  const parMenos2s = stats.memoria_par_menos_2s || 0
+  const aciertoTras2Fallos = stats.memoria_acierto_tras_2_fallos || 0
+  const parSinVerPrevio = stats.memoria_par_sin_ver_previo || 0
+  const menos20Movimientos = stats.memoria_menos_20_movimientos || 0
+  const mejorasTiempo = stats.memoria_mejoras_tiempo || 0
+  const maxIntentosPartida = stats.memoria_max_intentos_partida || 0
+  const sinRepetirErrorPar = stats.memoria_sin_repetir_error_par || 0
+
+  return [
+    {
+      title: 'Donde estaba?',
+      description: 'Lo tenia claro... hace un segundo.',
+      howTo: 'Encuentra 5 pares seguidos sin fallar.',
+      unlocked: mejorRachaPares >= 5,
+    },
+    {
+      title: 'Memoria sospechosa',
+      description: 'Esto ya no es normal.',
+      howTo: 'Completa una partida sin equivocarte.',
+      unlocked: completadosSinErrores >= 1,
+    },
+    {
+      title: 'Corto circuito',
+      description: 'Mi cerebro hizo "click".',
+      howTo: 'Falla 10 veces en una sola partida y aun asi termina.',
+      unlocked: maxErroresPartida >= 10 && completados >= 1,
+    },
+    {
+      title: 'Visual fotografico',
+      description: 'Lo vi una vez... y fue suficiente.',
+      howTo: 'Encuentra todos los pares en menos de 2 minutos.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 120,
+    },
+    {
+      title: 'Confianza excesiva',
+      description: 'Seguro esta aqui... no?',
+      howTo: 'Levanta 3 pares incorrectos seguidos.',
+      unlocked: mejorRachaFallos >= 3,
+    },
+    {
+      title: 'Ahora si me acuerdo',
+      description: 'Ok... ya entendi como funciona.',
+      howTo: 'Completa 3 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 3,
+    },
+    {
+      title: 'Memoria en modo turbo',
+      description: 'No necesito pensar tanto.',
+      howTo: 'Encuentra 10 pares en menos de 1 minuto.',
+      unlocked: paresAntes1Minuto >= 10,
+    },
+    {
+      title: 'Patron descubierto',
+      description: 'Todo empieza a tener sentido.',
+      howTo: 'Encuentra 8 pares seguidos correctamente.',
+      unlocked: mejorRachaPares >= 8,
+    },
+    {
+      title: 'Sobrecarga mental',
+      description: 'Demasiada informacion... pero sigo.',
+      howTo: 'Juega 5 partidas en menos de 10 minutos.',
+      unlocked: mejorPartidas10Min >= 5,
+    },
+    {
+      title: 'Imposible olvidar',
+      description: 'Esto se quedo grabado.',
+      howTo: 'Completa 15 partidas en total.',
+      unlocked: completados >= 15,
+    },
+    {
+      title: 'Casi lo tenia',
+      description: 'Estuve tan cerca... que duele.',
+      howTo: 'Falla el ultimo par antes de completar una partida.',
+      unlocked: falloUltimoPar >= 1,
+    },
+    {
+      title: 'Memoria selectiva',
+      description: 'Recuerdo lo importante... a veces.',
+      howTo: 'Acierta un par despues de 5 intentos fallidos seguidos.',
+      unlocked: aciertoTras5Fallos >= 1,
+    },
+    {
+      title: 'Caos controlado',
+      description: 'No se que hago... pero funciona.',
+      howTo: 'Completa una partida con mas de 15 errores.',
+      unlocked: maxErroresPartida > 15,
+    },
+    {
+      title: 'Reflejo mental',
+      description: 'Ni lo pense... solo paso.',
+      howTo: 'Encuentra un par en menos de 2 segundos.',
+      unlocked: parMenos2s >= 1,
+    },
+    {
+      title: 'Doble o nada',
+      description: 'Si fallo otra vez... mejor no digo nada.',
+      howTo: 'Acierta un par justo despues de fallar el mismo dos veces.',
+      unlocked: aciertoTras2Fallos >= 1,
+    },
+    {
+      title: 'Conexion inesperada',
+      description: 'Ah... estaban ahi todo el tiempo.',
+      howTo: 'Encuentra un par sin haber volteado esas cartas antes.',
+      unlocked: parSinVerPrevio >= 1,
+    },
+    {
+      title: 'Orden en el desorden',
+      description: 'Todo parecia aleatorio... hasta que no.',
+      howTo: 'Completa una partida usando menos de 20 movimientos.',
+      unlocked: menos20Movimientos >= 1,
+    },
+    {
+      title: 'Memoria en construccion',
+      description: 'Voy mejorando... creo.',
+      howTo: 'Mejora tu tiempo respecto a tu partida anterior.',
+      unlocked: mejorasTiempo >= 1,
+    },
+    {
+      title: 'Persistente nivel dios',
+      description: 'No me rendi... y aqui estamos.',
+      howTo: 'Termina una partida despues de mas de 25 intentos.',
+      unlocked: maxIntentosPartida > 25,
+    },
+    {
+      title: 'Todo encaja',
+      description: 'Por fin... todo tiene sentido.',
+      howTo: 'Completa una partida sin repetir errores en el mismo par.',
+      unlocked: sinRepetirErrorPar >= 1,
     },
   ]
 }
