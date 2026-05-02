@@ -591,10 +591,40 @@ function crearLogrosMemoria(stats) {
       unlocked: mejorRachaCompletados >= 160,
     },
     {
+      title: 'El inicio del fin',
+      description: 'Aqui fue donde deje de contar.',
+      howTo: 'Completa 160 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 160,
+    },
+    {
+      title: 'Horizonte sin limite',
+      description: 'Sigo avanzando... pero nunca llego.',
+      howTo: 'Completa 176 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 176,
+    },
+    {
       title: 'Ecos en la mente',
       description: 'Las cartas aparecen antes de verlas.',
       howTo: 'Completa 188 partidas consecutivas.',
       unlocked: mejorRachaCompletados >= 188,
+    },
+    {
+      title: 'Memoria trascendida',
+      description: 'Ya no recuerdo... simplemente se.',
+      howTo: 'Completa 192 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 192,
+    },
+    {
+      title: 'Pulso inquebrantable',
+      description: 'Nada me hace dudar.',
+      howTo: 'Completa 208 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 208,
+    },
+    {
+      title: 'Dimension paralela',
+      description: 'El tiempo aqui funciona diferente.',
+      howTo: 'Completa 224 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 224,
     },
     {
       title: 'El ciclo no se rompe',
@@ -603,9 +633,33 @@ function crearLogrosMemoria(stats) {
       unlocked: mejorRachaCompletados >= 226,
     },
     {
+      title: 'La rutina perfecta',
+      description: 'Cada movimiento... inevitable.',
+      howTo: 'Completa 240 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 240,
+    },
+    {
+      title: 'Mas alla del jugador',
+      description: 'Esto ya no es un juego.',
+      howTo: 'Completa 256 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 256,
+    },
+    {
+      title: 'Codigo interno',
+      description: 'Creo que descifre todo.',
+      howTo: 'Completa 272 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 272,
+    },
+    {
       title: 'Mas alla del cansancio humano',
       description: 'Esto ya no deberia ser posible.',
       howTo: 'Completa 288 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 288,
+    },
+    {
+      title: 'El observador eterno',
+      description: 'Siempre estoy... siempre veo.',
+      howTo: 'Completa 288 partidas seguidas.',
       unlocked: mejorRachaCompletados >= 288,
     },
     {
@@ -615,10 +669,58 @@ function crearLogrosMemoria(stats) {
       unlocked: mejorRachaCompletados >= 304,
     },
     {
+      title: 'Sin principio ni final',
+      description: 'No recuerdo cuando empezo.',
+      howTo: 'Completa 304 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 304,
+    },
+    {
       title: 'Ritual interminable',
       description: 'Siempre hay otra mas... siempre.',
       howTo: 'Completa 320 partidas consecutivas.',
       unlocked: mejorRachaCompletados >= 320,
+    },
+    {
+      title: 'Conciencia del tablero',
+      description: 'Entiendo cada rincon.',
+      howTo: 'Completa 320 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 320,
+    },
+    {
+      title: 'Latido constante',
+      description: 'Uno mas... siempre uno mas.',
+      howTo: 'Completa 336 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 336,
+    },
+    {
+      title: 'Frontera inexistente',
+      description: 'No hay limite que alcanzar.',
+      howTo: 'Completa 352 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 352,
+    },
+    {
+      title: 'Realidad alterada',
+      description: 'Esto ya no se siente normal.',
+      howTo: 'Completa 368 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 368,
+    },
+    {
+      title: 'El ciclo perfecto',
+      description: 'Nada falla... nada cambia.',
+      howTo: 'Completa 384 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 384,
+    },
+    {
+      title: 'Presencia absoluta',
+      description: 'Estoy en cada movimiento.',
+      howTo: 'Completa 400 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 400,
+    },
+    {
+      title: 'El final que no llega',
+      description: 'Pense que terminaria... pero no.',
+      howTo: 'Completa 420 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 420,
     },
     {
       title: 'El ultimo recuerdo',
