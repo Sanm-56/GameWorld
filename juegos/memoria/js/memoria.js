@@ -75,12 +75,24 @@ let falloUltimoPar = false
 let aciertoTras5Fallos = false
 let aciertoTras2Fallos = false
 let parMenos2s = false
+let parMenos20s = false
 let parSinVerPrevio = false
 let repitioErrorMismoPar = false
 let primeraSeleccionTs = 0
+let primerMovimientoPar = false
+let ordenLineal = true
+let siguienteIndiceLineal = 0
+let sinPatronRepetido = true
+let anticipacionTotal = false
+let seleccionoCartaFalladaPrevia = false
+let inicio4Pares = true
+let final4Pares = true
 const volteosPorCarta = new Map()
+const ultimoMovimientoVista = new Map()
 const paresErrados = new Set()
 const fallosPorValor = new Map()
+const cartasFalladas = new Set()
+const patronesSeleccion = new Set()
 
 function iniciarMemoria(){
 inicioLocalMs = performance.now()
@@ -155,8 +167,25 @@ if(juegoTerminado) return
 if(seleccionadas.length === 2) return
 if(carta.classList.contains("volteada")) return
 
+const indiceCarta = Number(carta.dataset.indice)
 carta.dataset.vistosAntes = String(volteosPorCarta.get(carta.dataset.indice) || 0)
+carta.dataset.ultimoMovimientoVista = ultimoMovimientoVista.has(carta.dataset.indice)
+? String(ultimoMovimientoVista.get(carta.dataset.indice))
+: ""
+
+if(!volteosPorCarta.has(carta.dataset.indice)){
+if(indiceCarta !== siguienteIndiceLineal){
+ordenLineal = false
+}
+siguienteIndiceLineal++
+}
+
+if(cartasFalladas.has(carta.dataset.indice)){
+seleccionoCartaFalladaPrevia = true
+}
+
 volteosPorCarta.set(carta.dataset.indice, Number(carta.dataset.vistosAntes) + 1)
+ultimoMovimientoVista.set(carta.dataset.indice, movimientosPartida)
 
 if(seleccionadas.length === 0){
 primeraSeleccionTs = performance.now()
@@ -169,13 +198,17 @@ if(seleccionadas.length === 2){
 
 let [c1, c2] = seleccionadas
 movimientosPartida++
+registrarPatronSeleccion(c1, c2)
 
 if(c1.dataset.valor === c2.dataset.valor){
 
 if(rachaMala >= 5) aciertoTras5Fallos = true
 if((fallosPorValor.get(c1.dataset.valor) || 0) >= 2) aciertoTras2Fallos = true
 if(performance.now() - primeraSeleccionTs <= 2000) parMenos2s = true
+if(performance.now() - primeraSeleccionTs <= 20000) parMenos20s = true
 if(c1.dataset.vistosAntes === "0" && c2.dataset.vistosAntes === "0") parSinVerPrevio = true
+if(movimientosPartida === 1) primerMovimientoPar = true
+if(esAnticipacion(c2, movimientosPartida)) anticipacionTotal = true
 
 actualizarRacha("buena")
 maxRachaParesPartida = Math.max(maxRachaParesPartida, rachaBuena)
@@ -185,6 +218,7 @@ c2.classList.add("acierto")
 
 encontradas++
 if(obtenerSegundosPartidaLocal() <= 60) paresAntes1Minuto++
+if(encontradas <= 4 && erroresPartida > 0) inicio4Pares = false
 seleccionadas = []
 
 if(encontradas === 18){
@@ -196,6 +230,8 @@ else{
 
 erroresPartida++
 if(encontradas === 17) falloUltimoPar = true
+if(encontradas < 4) inicio4Pares = false
+if(encontradas >= 14) final4Pares = false
 
 const errorKey = obtenerParErrorKey(c1, c2)
 if(paresErrados.has(errorKey)){
@@ -204,6 +240,8 @@ repitioErrorMismoPar = true
 paresErrados.add(errorKey)
 fallosPorValor.set(c1.dataset.valor, (fallosPorValor.get(c1.dataset.valor) || 0) + 1)
 fallosPorValor.set(c2.dataset.valor, (fallosPorValor.get(c2.dataset.valor) || 0) + 1)
+cartasFalladas.add(c1.dataset.indice)
+cartasFalladas.add(c2.dataset.indice)
 
 actualizarRacha("mala")
 maxRachaFallosPartida = Math.max(maxRachaFallosPartida, rachaMala)
@@ -225,6 +263,22 @@ seleccionadas = []
 
 function obtenerParErrorKey(c1, c2){
 return [c1.dataset.indice, c2.dataset.indice].sort().join("-")
+}
+
+function registrarPatronSeleccion(c1, c2){
+const i1 = Number(c1.dataset.indice)
+const i2 = Number(c2.dataset.indice)
+const patron = `${Math.sign(i2 - i1)}:${Math.abs(i2 - i1)}`
+if(patronesSeleccion.has(patron)){
+sinPatronRepetido = false
+}
+patronesSeleccion.add(patron)
+}
+
+function esAnticipacion(carta, movimientoActual){
+if(carta.dataset.vistosAntes === "0") return true
+const ultimo = Number(carta.dataset.ultimoMovimientoVista)
+return Number.isFinite(ultimo) && movimientoActual - ultimo > 5
 }
 
 function obtenerSegundosPartidaLocal(){
@@ -352,6 +406,10 @@ const ventanaInicio = actual?.memoria_partidas_ventana_inicio ? new Date(actual.
 const dentroVentana = ventanaInicio && ahora - ventanaInicio <= 10 * 60 * 1000
 const ventanaActual = completado ? (dentroVentana ? (actual?.memoria_partidas_ventana_actual || 0) + 1 : 1) : (actual?.memoria_partidas_ventana_actual || 0)
 const ventanaInicioIso = completado ? (dentroVentana ? actual.memoria_partidas_ventana_inicio : ahora.toISOString()) : actual?.memoria_partidas_ventana_inicio
+const ventana15Inicio = actual?.memoria_partidas_ventana_15_inicio ? new Date(actual.memoria_partidas_ventana_15_inicio) : null
+const dentroVentana15 = ventana15Inicio && ahora - ventana15Inicio <= 15 * 60 * 1000
+const ventana15Actual = completado ? (dentroVentana15 ? (actual?.memoria_partidas_ventana_15_actual || 0) + 1 : 1) : (actual?.memoria_partidas_ventana_15_actual || 0)
+const ventana15InicioIso = completado ? (dentroVentana15 ? actual.memoria_partidas_ventana_15_inicio : ahora.toISOString()) : actual?.memoria_partidas_ventana_15_inicio
 
 const payload = {
 usuario,
@@ -366,6 +424,9 @@ mejor_tiempo: mejorTiempo,
 ultimo_tiempo: completado ? tiempo : ultimoTiempoAnterior,
 tiempo_jugado_total: (actual?.tiempo_jugado_total || 0) + Math.max(0, Number(tiempo || 0)),
 memoria_errores_total: (actual?.memoria_errores_total || 0) + erroresPartida,
+memoria_min_errores_partida: completado
+? (typeof actual?.memoria_min_errores_partida === "number" ? Math.min(actual.memoria_min_errores_partida, erroresPartida) : erroresPartida)
+: actual?.memoria_min_errores_partida,
 memoria_max_errores_partida: completado ? Math.max(actual?.memoria_max_errores_partida || 0, erroresPartida) : (actual?.memoria_max_errores_partida || 0),
 memoria_mejor_racha_pares: Math.max(actual?.memoria_mejor_racha_pares || 0, maxRachaParesPartida),
 memoria_mejor_racha_fallos: Math.max(actual?.memoria_mejor_racha_fallos || 0, maxRachaFallosPartida),
@@ -374,17 +435,31 @@ memoria_max_intentos_partida: completado ? Math.max(actual?.memoria_max_intentos
 memoria_mejor_movimientos: completado
 ? (typeof actual?.memoria_mejor_movimientos === "number" ? Math.min(actual.memoria_mejor_movimientos, movimientosPartida) : movimientosPartida)
 : actual?.memoria_mejor_movimientos,
+memoria_mejor_tiempo_sin_errores: completado && erroresPartida === 0
+? (typeof actual?.memoria_mejor_tiempo_sin_errores === "number" ? Math.min(actual.memoria_mejor_tiempo_sin_errores, tiempo) : tiempo)
+: actual?.memoria_mejor_tiempo_sin_errores,
 memoria_menos_20_movimientos: (actual?.memoria_menos_20_movimientos || 0) + (completado && movimientosPartida < 20 ? 1 : 0),
 memoria_mejoras_tiempo: mejorasTiempo,
 memoria_fallo_ultimo_par: (actual?.memoria_fallo_ultimo_par || 0) + (completado && falloUltimoPar ? 1 : 0),
 memoria_acierto_tras_5_fallos: (actual?.memoria_acierto_tras_5_fallos || 0) + (completado && aciertoTras5Fallos ? 1 : 0),
 memoria_par_menos_2s: (actual?.memoria_par_menos_2s || 0) + (parMenos2s ? 1 : 0),
+memoria_par_menos_20s: (actual?.memoria_par_menos_20s || 0) + (parMenos20s ? 1 : 0),
 memoria_acierto_tras_2_fallos: (actual?.memoria_acierto_tras_2_fallos || 0) + (completado && aciertoTras2Fallos ? 1 : 0),
 memoria_par_sin_ver_previo: (actual?.memoria_par_sin_ver_previo || 0) + (parSinVerPrevio ? 1 : 0),
 memoria_sin_repetir_error_par: (actual?.memoria_sin_repetir_error_par || 0) + (completado && !repitioErrorMismoPar ? 1 : 0),
 memoria_partidas_ventana_inicio: ventanaInicioIso,
 memoria_partidas_ventana_actual: ventanaActual,
 memoria_mejor_partidas_10min: Math.max(actual?.memoria_mejor_partidas_10min || 0, ventanaActual),
+memoria_partidas_ventana_15_inicio: ventana15InicioIso,
+memoria_partidas_ventana_15_actual: ventana15Actual,
+memoria_mejor_partidas_15min: Math.max(actual?.memoria_mejor_partidas_15min || 0, ventana15Actual),
+memoria_primer_movimiento_par: (actual?.memoria_primer_movimiento_par || 0) + (primerMovimientoPar ? 1 : 0),
+memoria_lineal: (actual?.memoria_lineal || 0) + (completado && ordenLineal ? 1 : 0),
+memoria_sin_patron_repetido: (actual?.memoria_sin_patron_repetido || 0) + (completado && sinPatronRepetido ? 1 : 0),
+memoria_anticipacion: (actual?.memoria_anticipacion || 0) + (anticipacionTotal ? 1 : 0),
+memoria_sin_cartas_falladas_repetidas: (actual?.memoria_sin_cartas_falladas_repetidas || 0) + (completado && !seleccionoCartaFalladaPrevia ? 1 : 0),
+memoria_inicio_4_pares: (actual?.memoria_inicio_4_pares || 0) + (completado && inicio4Pares ? 1 : 0),
+memoria_final_4_pares: (actual?.memoria_final_4_pares || 0) + (completado && final4Pares ? 1 : 0),
 updated_at: new Date().toISOString(),
 }
 

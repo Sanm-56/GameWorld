@@ -301,18 +301,29 @@ function crearLogrosMemoria(stats) {
   const mejorRachaPares = stats.memoria_mejor_racha_pares || 0
   const mejorRachaFallos = stats.memoria_mejor_racha_fallos || 0
   const maxErroresPartida = stats.memoria_max_errores_partida || 0
+  const minErroresPartida = typeof stats.memoria_min_errores_partida === 'number' ? stats.memoria_min_errores_partida : null
   const mejorTiempo = typeof stats.mejor_tiempo === 'number' ? stats.mejor_tiempo : null
+  const mejorTiempoSinErrores = typeof stats.memoria_mejor_tiempo_sin_errores === 'number' ? stats.memoria_mejor_tiempo_sin_errores : null
   const paresAntes1Minuto = stats.memoria_pares_antes_1min || 0
   const mejorPartidas10Min = stats.memoria_mejor_partidas_10min || 0
   const falloUltimoPar = stats.memoria_fallo_ultimo_par || 0
   const aciertoTras5Fallos = stats.memoria_acierto_tras_5_fallos || 0
   const parMenos2s = stats.memoria_par_menos_2s || 0
+  const parMenos20s = stats.memoria_par_menos_20s || 0
   const aciertoTras2Fallos = stats.memoria_acierto_tras_2_fallos || 0
   const parSinVerPrevio = stats.memoria_par_sin_ver_previo || 0
   const menos20Movimientos = stats.memoria_menos_20_movimientos || 0
   const mejorasTiempo = stats.memoria_mejoras_tiempo || 0
   const maxIntentosPartida = stats.memoria_max_intentos_partida || 0
   const sinRepetirErrorPar = stats.memoria_sin_repetir_error_par || 0
+  const primerMovimientoPar = stats.memoria_primer_movimiento_par || 0
+  const lineal = stats.memoria_lineal || 0
+  const sinPatronRepetido = stats.memoria_sin_patron_repetido || 0
+  const anticipacion = stats.memoria_anticipacion || 0
+  const sinCartasFalladasRepetidas = stats.memoria_sin_cartas_falladas_repetidas || 0
+  const inicio4Pares = stats.memoria_inicio_4_pares || 0
+  const final4Pares = stats.memoria_final_4_pares || 0
+  const mejorPartidas15Min = stats.memoria_mejor_partidas_15min || 0
 
   return [
     {
@@ -434,6 +445,186 @@ function crearLogrosMemoria(stats) {
       description: 'Por fin... todo tiene sentido.',
       howTo: 'Completa una partida sin repetir errores en el mismo par.',
       unlocked: sinRepetirErrorPar >= 1,
+    },
+    {
+      title: 'Memoria instantanea',
+      description: 'Lo vi... y nunca mas lo olvide.',
+      howTo: 'Encuentra un par usando exactamente los dos primeros movimientos de la partida.',
+      unlocked: primerMovimientoPar >= 1,
+    },
+    {
+      title: 'Cambio de estrategia',
+      description: 'Ok... asi no era.',
+      howTo: 'Encuentra un par inmediatamente despues de equivocarte 2 veces.',
+      unlocked: aciertoTras2Fallos >= 1,
+    },
+    {
+      title: 'Barrido perfecto',
+      description: 'De izquierda a derecha... sin perder el ritmo.',
+      howTo: 'Completa una partida siguiendo un orden lineal sin saltarte cartas.',
+      unlocked: lineal >= 1,
+    },
+    {
+      title: 'Patron invisible',
+      description: 'No se como lo vi... pero lo vi.',
+      howTo: 'Encuentra 6 pares seguidos sin equivocarte.',
+      unlocked: mejorRachaPares >= 6,
+    },
+    {
+      title: 'Cierre quirurgico',
+      description: 'Ni un movimiento extra.',
+      howTo: 'Completa la partida usando el numero minimo posible de movimientos.',
+      unlocked: typeof stats.memoria_mejor_movimientos === 'number' && stats.memoria_mejor_movimientos <= 18,
+    },
+    {
+      title: 'Memoria a largo plazo',
+      description: 'Eso lo vi hace rato...',
+      howTo: 'Encuentra un par en menos de 20 segundos.',
+      unlocked: parMenos20s >= 1,
+    },
+    {
+      title: 'Desorden calculado',
+      description: 'Parece caos... pero no lo es.',
+      howTo: 'Completa una partida sin seguir ningun patron repetido de seleccion.',
+      unlocked: sinPatronRepetido >= 1,
+    },
+    {
+      title: 'Anticipacion total',
+      description: 'Ya sabia donde estaba antes de verlo.',
+      howTo: 'Selecciona correctamente la segunda carta de un par sin haber visto esa posicion en los ultimos 5 movimientos.',
+      unlocked: anticipacion >= 1,
+    },
+    {
+      title: 'Sin referencias',
+      description: 'Ni pistas... ni ayudas... solo mente.',
+      howTo: 'Completa una partida sin repetir ninguna carta fallada anteriormente.',
+      unlocked: sinCartasFalladasRepetidas >= 1,
+    },
+    {
+      title: 'Lectura del tablero',
+      description: 'No memorizo... entiendo.',
+      howTo: 'Completa la partida sin intentar dos veces la misma combinacion incorrecta.',
+      unlocked: sinRepetirErrorPar >= 1,
+    },
+    {
+      title: 'Velocidad pura',
+      description: 'No hubo tiempo ni de pensar.',
+      howTo: 'Completa una partida en menos de 2 minutos.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 120,
+    },
+    {
+      title: 'Paso firme',
+      description: 'Sin prisa... pero sin pausa.',
+      howTo: 'Completa una partida en menos de 3 minutos.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 180,
+    },
+    {
+      title: 'Ritmo constante',
+      description: 'Ni muy rapido, ni muy lento... perfecto.',
+      howTo: 'Completa 4 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 4,
+    },
+    {
+      title: 'Sin margen de error',
+      description: 'Aqui no se perdona nada.',
+      howTo: 'Completa 2 partidas consecutivas sin fallos.',
+      unlocked: (stats.mejor_racha_sin_errores || 0) >= 2,
+    },
+    {
+      title: 'Precision rapida',
+      description: 'Rapido... y bien hecho...',
+      howTo: 'Completa una partida en menos de 2 minutos sin errores.',
+      unlocked: mejorTiempoSinErrores !== null && mejorTiempoSinErrores < 120,
+    },
+    {
+      title: 'Inicio dominante',
+      description: 'Desde el comienzo marque el ritmo.',
+      howTo: 'Encuentra 4 pares correctos seguidos al iniciar una partida.',
+      unlocked: inicio4Pares >= 1,
+    },
+    {
+      title: 'Final limpio',
+      description: 'Cerre como se debe.',
+      howTo: 'Encuentra los ultimos 4 pares sin equivocarte.',
+      unlocked: final4Pares >= 1,
+    },
+    {
+      title: 'Resistencia activa',
+      description: 'No me detuve ni un segundo.',
+      howTo: 'Completa 6 partidas en menos de 15 minutos.',
+      unlocked: mejorPartidas15Min >= 6,
+    },
+    {
+      title: 'Control total',
+      description: 'Todo bajo control... siempre.',
+      howTo: 'Completa una partida con menos de 5 errores.',
+      unlocked: minErroresPartida !== null && minErroresPartida < 5,
+    },
+    {
+      title: 'Constancia mental',
+      description: 'Una tras otra... sin fallar.',
+      howTo: 'Completa 12 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 12,
+    },
+    {
+      title: 'El punto sin retorno',
+      description: 'En algun momento pude parar... creo.',
+      howTo: 'Completa 36 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 36,
+    },
+    {
+      title: 'Susurros del tablero',
+      description: 'Siento que el juego ya me habla.',
+      howTo: 'Completa 54 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 54,
+    },
+    {
+      title: 'Juramento silencioso',
+      description: 'No dije nada... pero sabia que no iba a parar.',
+      howTo: 'Completa 72 partidas sin interrupcion.',
+      unlocked: mejorRachaCompletados >= 72,
+    },
+    {
+      title: 'La mirada infinita',
+      description: 'Parpadear es opcional.',
+      howTo: 'Completa 160 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 160,
+    },
+    {
+      title: 'Ecos en la mente',
+      description: 'Las cartas aparecen antes de verlas.',
+      howTo: 'Completa 188 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 188,
+    },
+    {
+      title: 'El ciclo no se rompe',
+      description: 'Empieza... termina... vuelve a empezar.',
+      howTo: 'Completa 226 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 226,
+    },
+    {
+      title: 'Mas alla del cansancio humano',
+      description: 'Esto ya no deberia ser posible.',
+      howTo: 'Completa 288 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 288,
+    },
+    {
+      title: 'El tablero te eligio',
+      description: 'Ya no juegas tu... juega a traves de ti.',
+      howTo: 'Completa 304 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 304,
+    },
+    {
+      title: 'Ritual interminable',
+      description: 'Siempre hay otra mas... siempre.',
+      howTo: 'Completa 320 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 320,
+    },
+    {
+      title: 'El ultimo recuerdo',
+      description: 'Despues de esto... todo cambia.',
+      howTo: 'Completa 444 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 444,
     },
   ]
 }
