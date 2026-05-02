@@ -63,6 +63,26 @@ create table if not exists public.estadisticas_logros (
   matematicas_total_correctas integer not null default 0,
   matematicas_sesiones_sin_errores integer not null default 0,
   matematicas_ejercicios_menos_15s integer not null default 0,
+  matematicas_ejercicios_menos_14s integer not null default 0,
+  matematicas_ejercicios_menos_13s integer not null default 0,
+  matematicas_ejercicios_menos_12s integer not null default 0,
+  matematicas_ejercicios_menos_11s integer not null default 0,
+  matematicas_ejercicios_menos_10s integer not null default 0,
+  matematicas_ejercicios_menos_9s integer not null default 0,
+  matematicas_ejercicios_menos_8s integer not null default 0,
+  matematicas_ejercicios_menos_7s integer not null default 0,
+  matematicas_ejercicios_menos_6s integer not null default 0,
+  matematicas_ejercicios_menos_5s integer not null default 0,
+  matematicas_ejercicios_menos_4s integer not null default 0,
+  matematicas_ejercicios_menos_3_5s integer not null default 0,
+  matematicas_ejercicios_menos_3s integer not null default 0,
+  matematicas_ejercicios_menos_2_5s integer not null default 0,
+  matematicas_ejercicios_menos_2s integer not null default 0,
+  matematicas_ejercicios_menos_1_8s integer not null default 0,
+  matematicas_ejercicios_menos_1_5s integer not null default 0,
+  matematicas_ejercicios_menos_1_2s integer not null default 0,
+  matematicas_ejercicios_menos_1s integer not null default 0,
+  matematicas_ejercicios_menos_0_8s integer not null default 0,
   matematicas_mejor_racha_correctas integer not null default 0,
   matematicas_mejor_racha_3s integer not null default 0,
   matematicas_mejor_racha_5s integer not null default 0,
@@ -240,6 +260,66 @@ add column if not exists matematicas_sesiones_sin_errores integer not null defau
 
 alter table public.estadisticas_logros
 add column if not exists matematicas_ejercicios_menos_15s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_14s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_13s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_12s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_11s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_10s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_9s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_8s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_7s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_6s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_5s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_4s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_3_5s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_3s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_2_5s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_2s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_1_8s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_1_5s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_1_2s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_1s integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists matematicas_ejercicios_menos_0_8s integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists matematicas_mejor_racha_correctas integer not null default 0;

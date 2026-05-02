@@ -76,6 +76,29 @@ let rachaRapida5s = 0
 let mejorRachaRapida5s = 0
 let ejerciciosMenos15s = 0
 let correctasTiempos = []
+const umbralesRapidez = [
+  ["14s", 14],
+  ["13s", 13],
+  ["12s", 12],
+  ["11s", 11],
+  ["10s", 10],
+  ["9s", 9],
+  ["8s", 8],
+  ["7s", 7],
+  ["6s", 6],
+  ["5s", 5],
+  ["4s", 4],
+  ["3_5s", 3.5],
+  ["3s", 3],
+  ["2_5s", 2.5],
+  ["2s", 2],
+  ["1_8s", 1.8],
+  ["1_5s", 1.5],
+  ["1_2s", 1.2],
+  ["1s", 1],
+  ["0_8s", 0.8],
+]
+const ejerciciosRapidos = Object.fromEntries(umbralesRapidez.map(([key]) => [key, 0]))
 
 const DURACION = 600
 let intervalo = null
@@ -256,6 +279,12 @@ if(segundosRespuesta < 15){
 ejerciciosMenos15s++
 }
 
+umbralesRapidez.forEach(([key, limite]) => {
+if(segundosRespuesta < limite){
+ejerciciosRapidos[key]++
+}
+})
+
 if(segundosRespuesta < 3){
 rachaRapida3s++
 }else{
@@ -333,6 +362,10 @@ mejor_racha_sin_errores: mejorRachaSinErrores,
 matematicas_total_correctas: (actual?.matematicas_total_correctas || 0) + correctas,
 matematicas_sesiones_sin_errores: (actual?.matematicas_sesiones_sin_errores || 0) + (sinErrores ? 1 : 0),
 matematicas_ejercicios_menos_15s: (actual?.matematicas_ejercicios_menos_15s || 0) + ejerciciosMenos15s,
+...Object.fromEntries(umbralesRapidez.map(([key]) => {
+const columna = `matematicas_ejercicios_menos_${key}`
+return [columna, (actual?.[columna] || 0) + ejerciciosRapidos[key]]
+})),
 matematicas_mejor_racha_correctas: Math.max(actual?.matematicas_mejor_racha_correctas || 0, mejorRachaCorrectas),
 matematicas_mejor_racha_3s: Math.max(actual?.matematicas_mejor_racha_3s || 0, mejorRachaRapida3s),
 matematicas_mejor_racha_5s: Math.max(actual?.matematicas_mejor_racha_5s || 0, mejorRachaRapida5s),

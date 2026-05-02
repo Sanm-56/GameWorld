@@ -301,19 +301,136 @@ function crearLogrosDeJuego(game, resultado) {
 function crearLogrosMatematicas(stats) {
   const totalCorrectas = stats.matematicas_total_correctas || 0
   const sesionesSinErrores = stats.matematicas_sesiones_sin_errores || 0
-  const ejerciciosMenos15s = stats.matematicas_ejercicios_menos_15s || 0
   const mejorRachaCorrectas = stats.matematicas_mejor_racha_correctas || 0
   const mejorRacha3s = stats.matematicas_mejor_racha_3s || 0
   const mejorRacha5s = stats.matematicas_mejor_racha_5s || 0
   const mejorCorrectas60s = stats.matematicas_mejor_correctas_60s || 0
+  const ejerciciosMenos = (key) => stats[`matematicas_ejercicios_menos_${key}`] || 0
+  const logrosRapidez = [
+    {
+      title: '¿Ya terminé?',
+      description: 'Se sintió demasiado fácil.',
+      howTo: 'Resuelve 4 ejercicios en menos de 14 segundos.',
+      unlocked: ejerciciosMenos('14s') >= 4,
+    },
+    {
+      title: 'Ni lo noté',
+      description: 'Pasó sin darme cuenta.',
+      howTo: 'Resuelve 5 ejercicios en menos de 13 segundos.',
+      unlocked: ejerciciosMenos('13s') >= 5,
+    },
+    {
+      title: 'Demasiado rápido',
+      description: 'Eso no debería contar.',
+      howTo: 'Resuelve 9 ejercicios en menos de 12 segundos.',
+      unlocked: ejerciciosMenos('12s') >= 9,
+    },
+    {
+      title: 'Fue automático',
+      description: 'Mi mente fue sola.',
+      howTo: 'Resuelve 11 ejercicios en menos de 11 segundos.',
+      unlocked: ejerciciosMenos('11s') >= 11,
+    },
+    {
+      title: 'Sin esfuerzo',
+      description: 'Ni siquiera intenté.',
+      howTo: 'Resuelve 17 ejercicios en menos de 10 segundos.',
+      unlocked: ejerciciosMenos('10s') >= 17,
+    },
+    {
+      title: 'Como respirar',
+      description: 'Natural... instantáneo.',
+      howTo: 'Resuelve 31 ejercicios en menos de 9 segundos.',
+      unlocked: ejerciciosMenos('9s') >= 31,
+    },
+    {
+      title: 'Casi instantáneo',
+      description: 'Ni tiempo de pensar.',
+      howTo: 'Resuelve 41 ejercicios en menos de 8 segundos.',
+      unlocked: ejerciciosMenos('8s') >= 41,
+    },
+    {
+      title: '¿En serio?',
+      description: 'Esperaba algo más de este juego.',
+      howTo: 'Resuelve 51 ejercicios en menos de 7 segundos.',
+      unlocked: ejerciciosMenos('7s') >= 51,
+    },
+    {
+      title: 'Flash mental',
+      description: 'Un destello y ya.',
+      howTo: 'Resuelve 12 ejercicios en menos de 6 segundos.',
+      unlocked: ejerciciosMenos('6s') >= 12,
+    },
+    {
+      title: 'Ni parpadeé',
+      description: 'Y ya estaba lista la respuesta.',
+      howTo: 'Resuelve 10 ejercicios en menos de 5 segundos.',
+      unlocked: ejerciciosMenos('5s') >= 10,
+    },
+    {
+      title: 'Demasiado fácil',
+      description: 'Esto se está poniendo raro.',
+      howTo: 'Resuelve 6 ejercicios en menos de 4 segundos.',
+      unlocked: ejerciciosMenos('4s') >= 6,
+    },
+    {
+      title: 'Reflejo puro',
+      description: 'Ni lo procesé y ya tenía la respuesta.',
+      howTo: 'Resuelve 14 ejercicios en menos de 3.5 segundos.',
+      unlocked: ejerciciosMenos('3_5s') >= 14,
+    },
+    {
+      title: 'Instinto activo',
+      description: 'Solo reaccioné puro instinto.',
+      howTo: 'Resuelve 7 ejercicios en menos de 3 segundos.',
+      unlocked: ejerciciosMenos('3s') >= 7,
+    },
+    {
+      title: 'Respuesta fantasma',
+      description: 'Apareció sola sin que pensara.',
+      howTo: 'Resuelve 3 ejercicios en menos de 2.5 segundos.',
+      unlocked: ejerciciosMenos('2_5s') >= 3,
+    },
+    {
+      title: 'Tiempo mínimo',
+      description: 'Esto ya no es normal....',
+      howTo: 'Resuelve 2 ejercicios en menos de 2 segundos.',
+      unlocked: ejerciciosMenos('2s') >= 2,
+    },
+    {
+      title: 'Rompí el reloj',
+      description: 'Algo no cuadra....no debería contar o sí?.',
+      howTo: 'Resuelve 1 ejercicio en menos de 1.8 segundos.',
+      unlocked: ejerciciosMenos('1_8s') >= 1,
+    },
+    {
+      title: 'Fuera del tiempo',
+      description: 'El reloj se quedó atrás.',
+      howTo: 'Resuelve 1 ejercicio en menos de 1.5 segundos.',
+      unlocked: ejerciciosMenos('1_5s') >= 1,
+    },
+    {
+      title: 'Antes de pensar',
+      description: 'La respuesta llegó primero antes de que me diera cuenta.',
+      howTo: 'Resuelve 1 ejercicio en menos de 1.2 segundos.',
+      unlocked: ejerciciosMenos('1_2s') >= 1,
+    },
+    {
+      title: 'Imposible',
+      description: 'Esto no debería pasar....verdad?',
+      howTo: 'Resuelve 1 ejercicio en menos de 1 segundo.',
+      unlocked: ejerciciosMenos('1s') >= 1,
+    },
+    {
+      title: 'Más rápido que la duda',
+      description: 'Ni la duda es más rápida que yo...',
+      howTo: 'Resuelve 1 ejercicio en menos de 0.8 segundos.',
+      unlocked: ejerciciosMenos('0_8s') >= 1,
+    },
+  ]
 
   return [
-    {
-      title: 'Eso era todo?',
-      description: 'Pense que iba a ser mas dificil...',
-      howTo: 'Resuelve un ejercicio en menos de 15 segundos.',
-      unlocked: ejerciciosMenos15s >= 1,
-    },
+    ...logrosRapidez,
     {
       title: 'Cerebro encendido',
       description: 'Algo hizo click... y no se apago.',
