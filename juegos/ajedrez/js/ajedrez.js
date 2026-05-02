@@ -109,6 +109,9 @@ const PIECE_VALUES = {
   q: 900,
   k: 20000,
 }
+const STOCKFISH_URL = 'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js'
+const STOCKFISH_DEPTH = 8
+const STOCKFISH_MULTIPV = 3
 const TRACKED_ACHIEVEMENTS = [
   'ajedrez_victorias_sin_perder_piezas',
   'ajedrez_mate_tras_sacrificar_reina',
@@ -152,6 +155,18 @@ let maxPiezasBlancasPerdidasConsecutivas = 0
 let rachaLimpiaBlanca = 0
 let maxRachaLimpiaBlanca = 0
 let ultimoMovimientoBlanco = null
+let perdioTorreBlanca = false
+let primerJaqueBlancoMovimiento = null
+let stockfish = null
+let stockfishDisponible = false
+let stockfishListo = false
+let stockfishPendiente = null
+let colaAnalisisStockfish = Promise.resolve()
+let rachaEngineBlanca = 0
+let maxRachaEngineBlanca = 0
+let erroresConsecutivosRival = 0
+let maxErroresConsecutivosRival = 0
+let mateForzadoTrasSacrificioReina = false
 
 // =============================
 // 🎮 UI ELEMENTS
@@ -212,6 +227,7 @@ function initializeChess() {
 
   game = new Chess()
   reiniciarMetricasAjedrez()
+  iniciarStockfish()
   board = Chessboard('board', {
     draggable: true,
     position: 'start',
@@ -329,6 +345,7 @@ function applyPromotionChoice(promotion) {
   closePromotionModal()
 
   const materialAntes = calcularMaterialBlanco()
+  const fenAntes = game.fen()
   const move = game.move({ from: source, to: target, promotion })
   if (move === null) {
     board.position(game.fen())
@@ -336,6 +353,7 @@ function applyPromotionChoice(promotion) {
   }
 
   registrarMovimiento(move, materialAntes)
+  encolarAnalisisMovimiento(fenAntes, move)
   updateBoard()
 
   if (!game.game_over() && game.turn() === 'b') {
@@ -350,6 +368,7 @@ function handleMove(source, target) {
   }
 
   const materialAntes = calcularMaterialBlanco()
+  const fenAntes = game.fen()
   const move = game.move({ from: source, to: target, promotion: 'q' })
 
   if (move === null) {
@@ -357,6 +376,7 @@ function handleMove(source, target) {
   }
 
   registrarMovimiento(move, materialAntes)
+  encolarAnalisisMovimiento(fenAntes, move)
   updateBoard()
 
   if (!game.game_over() && game.turn() === 'b') {
@@ -394,8 +414,10 @@ function makeBotMove() {
   const chosen = topMoves[Math.floor(Math.random() * topMoves.length)].move
 
   const materialAntes = calcularMaterialBlanco()
+  const fenAntes = game.fen()
   const move = game.move({ from: chosen.from, to: chosen.to, promotion: chosen.promotion || 'q' })
   registrarMovimiento(move, materialAntes)
+  encolarAnalisisMovimiento(fenAntes, move)
   updateBoard()
 }
 
@@ -506,6 +528,163 @@ function contarDefensoresNegros(square, movingPiece) {
   }).length
 }
 
+function iniciarStockfish() {
+  if (stockfish || typeof Worker === 'undefined') return
+
+  try {
+    const workerCode = `importScripts("${STOCKFISH_URL}");`
+    const workerUrl = URL.createObjectURL(new Blob([workerCode], { type: 'application/javascript' }))
+    stockfish = new Worker(workerUrl)
+    URL.revokeObjectURL(workerUrl)
+    stockfishDisponible = true
+
+    stockfish.onmessage = (event) => manejarMensajeStockfish(String(event.data || event))
+    stockfish.onerror = (error) => {
+      console.warn('Stockfish no esta disponible, usando logros aproximados', error)
+      stockfishDisponible = false
+      resolverStockfishPendiente(null)
+    }
+
+    enviarStockfish('uci')
+    enviarStockfish(`setoption name MultiPV value ${STOCKFISH_MULTIPV}`)
+    enviarStockfish('isready')
+  } catch (error) {
+    console.warn('No se pudo iniciar Stockfish', error)
+    stockfishDisponible = false
+  }
+}
+
+function manejarMensajeStockfish(texto) {
+  if (texto === 'uciok' || texto === 'readyok') {
+    stockfishListo = true
+  }
+
+  if (!stockfishPendiente) return
+
+  stockfishPendiente.lines.push(texto)
+
+  if (texto.startsWith('bestmove')) {
+    const pendiente = stockfishPendiente
+    stockfishPendiente = null
+    pendiente.resolve(parsearAnalisisStockfish(pendiente.lines))
+  }
+}
+
+function enviarStockfish(command) {
+  if (!stockfishDisponible || !stockfish) return
+  stockfish.postMessage(command)
+}
+
+function resolverStockfishPendiente(valor) {
+  if (!stockfishPendiente) return
+  const pendiente = stockfishPendiente
+  stockfishPendiente = null
+  pendiente.resolve(valor)
+}
+
+function analizarConStockfish(fen) {
+  if (!stockfishDisponible || !stockfish) return Promise.resolve(null)
+
+  return new Promise((resolve) => {
+    stockfishPendiente = { resolve, lines: [] }
+    enviarStockfish('stop')
+    enviarStockfish(`setoption name MultiPV value ${STOCKFISH_MULTIPV}`)
+    enviarStockfish(`position fen ${fen}`)
+    enviarStockfish(`go depth ${STOCKFISH_DEPTH}`)
+
+    setTimeout(() => {
+      if (stockfishPendiente?.resolve === resolve) {
+        resolverStockfishPendiente(null)
+      }
+    }, 4500)
+  })
+}
+
+function parsearAnalisisStockfish(lines) {
+  const mejores = new Map()
+  let mate = null
+
+  lines.forEach((line) => {
+    const pvMatch = line.match(/\bmultipv\s+(\d+).*?\bpv\s+([a-h][1-8][a-h][1-8][qrbn]?)/)
+    const scoreMatch = line.match(/\bscore\s+(cp|mate)\s+(-?\d+)/)
+
+    if (scoreMatch?.[1] === 'mate') {
+      const mateValue = Number(scoreMatch[2])
+      if (mate === null || Math.abs(mateValue) < Math.abs(mate)) {
+        mate = mateValue
+      }
+    }
+
+    if (pvMatch) {
+      mejores.set(Number(pvMatch[1]), pvMatch[2])
+    }
+  })
+
+  const bestLine = lines.find((line) => line.startsWith('bestmove')) || ''
+  const bestMove = bestLine.split(/\s+/)[1] || null
+  const topMoves = [...mejores.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([, move]) => move)
+
+  if (bestMove && !topMoves.includes(bestMove)) {
+    topMoves.unshift(bestMove)
+  }
+
+  return { bestMove, topMoves, mate }
+}
+
+function moveToUci(move) {
+  return `${move.from}${move.to}${move.promotion || ''}`
+}
+
+function encolarAnalisisMovimiento(fenAntes, move) {
+  if (!fenAntes || !move) return
+
+  colaAnalisisStockfish = colaAnalisisStockfish
+    .then(async () => {
+      const analisis = await analizarConStockfish(fenAntes)
+      aplicarAnalisisMovimiento(move, analisis)
+    })
+    .catch((error) => {
+      console.warn('Fallo el analisis de Stockfish', error)
+    })
+}
+
+function aplicarAnalisisMovimiento(move, analisis) {
+  if (!analisis?.topMoves?.length) return
+
+  const uci = moveToUci(move)
+  const esMovimientoBueno = analisis.topMoves.includes(uci)
+
+    if (move.color === 'w') {
+    if (esMovimientoBueno) {
+      rachaEngineBlanca++
+      maxRachaEngineBlanca = Math.max(maxRachaEngineBlanca, rachaEngineBlanca)
+    } else {
+      rachaEngineBlanca = 0
+    }
+
+    if (reinaBlancaSacrificada && analisis.mate !== null && analisis.mate > 0) {
+      mateForzadoTrasSacrificioReina = true
+    }
+  } else if (move.color === 'b') {
+    if (!esMovimientoBueno) {
+      erroresConsecutivosRival++
+      maxErroresConsecutivosRival = Math.max(maxErroresConsecutivosRival, erroresConsecutivosRival)
+    } else {
+      erroresConsecutivosRival = 0
+    }
+  }
+}
+
+async function esperarAnalisisStockfish() {
+  try {
+    await colaAnalisisStockfish
+  } catch (error) {
+    console.warn('No se pudo completar el analisis pendiente', error)
+  }
+}
+
 function reiniciarMetricasAjedrez() {
   piezasBlancasPerdidas = 0
   reinaBlancaSacrificada = false
@@ -522,6 +701,14 @@ function reiniciarMetricasAjedrez() {
   rachaLimpiaBlanca = 0
   maxRachaLimpiaBlanca = 0
   ultimoMovimientoBlanco = null
+  perdioTorreBlanca = false
+  primerJaqueBlancoMovimiento = null
+  rachaEngineBlanca = 0
+  maxRachaEngineBlanca = 0
+  erroresConsecutivosRival = 0
+  maxErroresConsecutivosRival = 0
+  mateForzadoTrasSacrificioReina = false
+  colaAnalisisStockfish = Promise.resolve()
 }
 
 function contarPiezas(color) {
@@ -578,6 +765,9 @@ function registrarMovimiento(move, materialAntes) {
     if (game.in_check()) {
       jaquesConsecutivosBlancos++
       maxJaquesConsecutivosBlancos = Math.max(maxJaquesConsecutivosBlancos, jaquesConsecutivosBlancos)
+      if (primerJaqueBlancoMovimiento === null) {
+        primerJaqueBlancoMovimiento = Math.ceil(game.history().length / 2)
+      }
     } else {
       jaquesConsecutivosBlancos = 0
     }
@@ -594,6 +784,10 @@ function registrarMovimiento(move, materialAntes) {
 
       if (move.captured === 'q') {
         reinaBlancaSacrificada = true
+      }
+
+      if (move.captured === 'r') {
+        perdioTorreBlanca = true
       }
     } else {
       piezasBlancasPerdidasConsecutivas = 0
@@ -698,6 +892,43 @@ function obtenerClaveApertura() {
     .join(' ')
 }
 
+function parsearHistorialAperturas(valor) {
+  if (!valor) return []
+  try {
+    const parsed = JSON.parse(valor)
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : []
+  } catch {
+    return []
+  }
+}
+
+function calcularRachaAperturasDiferentes(actual, apertura) {
+  const historialPrevio = parsearHistorialAperturas(actual?.ajedrez_aperturas_diferentes_historial)
+  let historial = historialPrevio
+
+  if (!apertura) {
+    historial = []
+  } else if (historial.includes(apertura)) {
+    historial = [apertura]
+  } else {
+    historial = [...historial, apertura].slice(-12)
+  }
+
+  return {
+    historial,
+    actual: historial.length,
+    mejor: Math.max(actual?.ajedrez_mejor_racha_aperturas_diferentes || 0, historial.length),
+  }
+}
+
+function actualizarRacha(actual, condicion, actualKey, mejorKey) {
+  const valorActual = condicion ? (actual?.[actualKey] || 0) + 1 : 0
+  return {
+    actual: valorActual,
+    mejor: Math.max(actual?.[mejorKey] || 0, valorActual),
+  }
+}
+
 function evaluarLogrosAjedrez(tiempo, posicion) {
   const history = game.history({ verbose: true })
   const piezasBlancas = contarPiezas('w')
@@ -714,28 +945,39 @@ function evaluarLogrosAjedrez(tiempo, posicion) {
     apertura,
     logros: {
       ajedrez_victorias_sin_perder_piezas: piezasBlancasPerdidas === 0,
-      ajedrez_mate_tras_sacrificar_reina: reinaBlancaSacrificada && game.in_checkmate(),
+      ajedrez_mate_tras_sacrificar_reina: reinaBlancaSacrificada && (mateForzadoTrasSacrificioReina || game.in_checkmate()),
       ajedrez_final_menores_peones: sinTorresNiReina && tieneMenoresOPeones,
       ajedrez_remontada_15_material: minMaterialBlanco <= -1500,
       ajedrez_dos_sacrificios_consecutivos: maxPiezasBlancasPerdidasConsecutivas >= 2,
       ajedrez_victorias_80_movimientos: history.length > 80,
       ajedrez_rey_peon_vs_piezas: piezasBlancas.p === 1 && piezasBlancasNoRey === 1 && piezasNegrasNoRey >= 2,
       ajedrez_derrota_mayor_rango: false,
-      ajedrez_racha_13_sin_errores: maxRachaLimpiaBlanca >= 13,
+      ajedrez_racha_13_sin_errores: Math.max(maxRachaEngineBlanca, maxRachaLimpiaBlanca) >= 13,
       ajedrez_jaque_5_turnos: maxJaquesConsecutivosBlancos >= 5,
       ajedrez_mate_dos_alfiles: ultimoMovimientoBlanco?.piece === 'b' && piezasBlancas.b >= 2 && game.in_checkmate(),
       ajedrez_victoria_menos_10s: tiempoRestante > 0 && tiempoRestante < 10,
       ajedrez_mate_antes_15: jugadasCompletas < 15 && game.in_checkmate(),
-      ajedrez_castiga_3_errores: maxCapturasConsecutivasBlancas >= 3,
+      ajedrez_castiga_3_errores: Math.max(maxErroresConsecutivosRival, maxCapturasConsecutivasBlancas) >= 3,
       ajedrez_captura_mayores_antes_mate: piezasNegras.q === 0 && piezasNegras.r === 0 && game.in_checkmate(),
       ajedrez_victoria_sin_enrocar: !jugadorEnroco,
       ajedrez_3_promociones: promocionesBlancas >= 3,
       ajedrez_campeon_invicto: posicion === 1 && piezasBlancasPerdidas === 0,
     },
+    condicionesRacha: {
+      terminoConMate: game.in_checkmate(),
+      menos25Movimientos: jugadasCompletas < 25,
+      sinTablas: !game.in_draw(),
+      sacrificoPieza: piezasBlancasPerdidas > 0,
+      sinPerderTorre: !perdioTorreBlanca,
+      jaqueAntes10: primerJaqueBlancoMovimiento !== null && primerJaqueBlancoMovimiento < 10,
+      remontadaMaterial: minMaterialBlanco < 0,
+    },
   }
 }
 
 async function guardarEstadisticasAjedrez(tiempo, posicion) {
+  await esperarAnalisisStockfish()
+
   const { data: actual, error: lecturaError } = await supabase
     .from('estadisticas_logros')
     .select('*')
@@ -751,6 +993,17 @@ async function guardarEstadisticasAjedrez(tiempo, posicion) {
   const evaluacion = evaluarLogrosAjedrez(tiempo, posicion)
   const mismaApertura = actual?.ajedrez_apertura_actual === evaluacion.apertura
   const rachaApertura = mismaApertura ? (actual?.ajedrez_racha_apertura_actual || 0) + 1 : 1
+  const rachaAperturasDiferentes = calcularRachaAperturasDiferentes(actual, evaluacion.apertura)
+  const rachaMate = actualizarRacha(actual, evaluacion.condicionesRacha.terminoConMate, 'ajedrez_racha_mate_actual', 'ajedrez_mejor_racha_mate')
+  const rachaMenos25 = actualizarRacha(actual, evaluacion.condicionesRacha.menos25Movimientos, 'ajedrez_racha_menos_25_movimientos_actual', 'ajedrez_mejor_racha_menos_25_movimientos')
+  const rachaSinTablas = actualizarRacha(actual, evaluacion.condicionesRacha.sinTablas, 'ajedrez_racha_sin_tablas_actual', 'ajedrez_mejor_racha_sin_tablas')
+  const rachaSacrificio = actualizarRacha(actual, evaluacion.condicionesRacha.sacrificoPieza, 'ajedrez_racha_sacrificio_actual', 'ajedrez_mejor_racha_sacrificio')
+  const rachaSinPerderTorre = actualizarRacha(actual, evaluacion.condicionesRacha.sinPerderTorre, 'ajedrez_racha_sin_perder_torre_actual', 'ajedrez_mejor_racha_sin_perder_torre')
+  const rachaJaqueAntes10 = actualizarRacha(actual, evaluacion.condicionesRacha.jaqueAntes10, 'ajedrez_racha_jaque_antes_10_actual', 'ajedrez_mejor_racha_jaque_antes_10')
+  const rachaRemontada = actualizarRacha(actual, evaluacion.condicionesRacha.remontadaMaterial, 'ajedrez_racha_remontada_material_actual', 'ajedrez_mejor_racha_remontada_material')
+  const rachaVictoriaTrasDerrota = actual?.ajedrez_perdio_partida_previa
+    ? (actual?.ajedrez_racha_victoria_tras_derrota_actual || 0) + 1
+    : 0
   const mejorPosicionAnterior = actual?.mejor_posicion_torneo
   const mejorPosicionTorneo = typeof posicion === 'number'
     ? (typeof mejorPosicionAnterior === 'number' ? Math.min(mejorPosicionAnterior, posicion) : posicion)
@@ -769,6 +1022,26 @@ async function guardarEstadisticasAjedrez(tiempo, posicion) {
     ajedrez_apertura_actual: evaluacion.apertura,
     ajedrez_racha_apertura_actual: rachaApertura,
     ajedrez_mejor_racha_apertura: Math.max(actual?.ajedrez_mejor_racha_apertura || 0, rachaApertura),
+    ajedrez_racha_mate_actual: rachaMate.actual,
+    ajedrez_mejor_racha_mate: rachaMate.mejor,
+    ajedrez_racha_aperturas_diferentes_actual: rachaAperturasDiferentes.actual,
+    ajedrez_mejor_racha_aperturas_diferentes: rachaAperturasDiferentes.mejor,
+    ajedrez_aperturas_diferentes_historial: JSON.stringify(rachaAperturasDiferentes.historial),
+    ajedrez_racha_menos_25_movimientos_actual: rachaMenos25.actual,
+    ajedrez_mejor_racha_menos_25_movimientos: rachaMenos25.mejor,
+    ajedrez_racha_sin_tablas_actual: rachaSinTablas.actual,
+    ajedrez_mejor_racha_sin_tablas: rachaSinTablas.mejor,
+    ajedrez_racha_sacrificio_actual: rachaSacrificio.actual,
+    ajedrez_mejor_racha_sacrificio: rachaSacrificio.mejor,
+    ajedrez_racha_sin_perder_torre_actual: rachaSinPerderTorre.actual,
+    ajedrez_mejor_racha_sin_perder_torre: rachaSinPerderTorre.mejor,
+    ajedrez_racha_jaque_antes_10_actual: rachaJaqueAntes10.actual,
+    ajedrez_mejor_racha_jaque_antes_10: rachaJaqueAntes10.mejor,
+    ajedrez_racha_remontada_material_actual: rachaRemontada.actual,
+    ajedrez_mejor_racha_remontada_material: rachaRemontada.mejor,
+    ajedrez_perdio_partida_previa: false,
+    ajedrez_racha_victoria_tras_derrota_actual: rachaVictoriaTrasDerrota,
+    ajedrez_mejor_racha_victoria_tras_derrota: Math.max(actual?.ajedrez_mejor_racha_victoria_tras_derrota || 0, rachaVictoriaTrasDerrota),
     updated_at: new Date().toISOString(),
   }
 
@@ -894,6 +1167,29 @@ async function eliminarResultadoAjedrez() {
   }
 }
 
+async function marcarDerrotaAjedrez() {
+  const { data: actual } = await supabase
+    .from('estadisticas_logros')
+    .select('ajedrez_racha_victoria_tras_derrota_actual')
+    .eq('usuario', usuario)
+    .eq('juego', 'ajedrez')
+    .maybeSingle()
+
+  const { error } = await supabase
+    .from('estadisticas_logros')
+    .upsert({
+      usuario,
+      juego: 'ajedrez',
+      ajedrez_perdio_partida_previa: true,
+      ajedrez_racha_victoria_tras_derrota_actual: actual?.ajedrez_racha_victoria_tras_derrota_actual || 0,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'usuario,juego' })
+
+  if (error) {
+    console.warn('No se pudo marcar derrota de ajedrez', error)
+  }
+}
+
 async function finishGame(message, wasVictory = true) {
   if (juegoTerminado) return
   juegoTerminado = true
@@ -908,6 +1204,7 @@ async function finishGame(message, wasVictory = true) {
     await guardarResultado(tiempo)
   } else {
     await eliminarResultadoAjedrez()
+    await marcarDerrotaAjedrez()
   }
 
   localStorage.setItem('juego_actual', 'ajedrez')
@@ -969,6 +1266,7 @@ function resign() {
 
   setTimeout(async () => {
     await eliminarResultadoAjedrez()
+    await marcarDerrotaAjedrez()
     window.location.href = 'final.html'
   }, 1400)
 }

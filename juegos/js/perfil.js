@@ -432,6 +432,72 @@ function crearLogrosAjedrez(stats) {
       howTo: 'Convi&eacute;rtete en campe&oacute;n de un torneo invicto.',
       unlocked: (stats.ajedrez_campeon_invicto || 0) >= 1,
     },
+    {
+      title: 'El Ascenso de Drak&rsquo;Thul',
+      description: 'Los d&eacute;biles rezan. Los reyes conquistan.',
+      howTo: 'Gana 20 torneos seguidos sin bajar del primer puesto.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 20,
+    },
+    {
+      title: 'El Juicio de las Cenizas',
+      description: 'Solo aquellos que sobreviven al fuego merecen la corona.',
+      howTo: 'Gana 30 torneos seguidos sin bajar del primer puesto.',
+      unlocked: (stats.mejor_racha_victorias_torneos || 0) >= 30,
+    },
+    {
+      title: 'La Noche de Vaelor',
+      description: 'El tablero record&oacute; tu nombre con miedo.',
+      howTo: 'Gana 5 torneos consecutivas terminando con jaque mate.',
+      unlocked: (stats.ajedrez_mejor_racha_mate || 0) >= 5,
+    },
+    {
+      title: 'El Trono de Umbraxis',
+      description: 'Nadie vio venir al verdadero soberano.',
+      howTo: 'Gana 7 torneos consecutivas usando aperturas diferentes.',
+      unlocked: (stats.ajedrez_mejor_racha_aperturas_diferentes || 0) >= 7,
+    },
+    {
+      title: 'La Ca&iacute;da de Arkaneth',
+      description: 'Incluso los gigantes terminan arrodillados.',
+      howTo: 'Gana 3 torneos seguidas en menos de 25 movimientos.',
+      unlocked: (stats.ajedrez_mejor_racha_menos_25_movimientos || 0) >= 3,
+    },
+    {
+      title: 'El Eco de los Mil Reyes',
+      description: 'Cada victoria despert&oacute; un antiguo temor.',
+      howTo: 'Gana 10 torneos consecutivas sin terminar en tablas.',
+      unlocked: (stats.ajedrez_mejor_racha_sin_tablas || 0) >= 10,
+    },
+    {
+      title: 'La Marca de Nethor',
+      description: 'Tu estrategia dej&oacute; cicatrices eternas.',
+      howTo: 'Gana 5 torneos seguidas sacrificando al menos una pieza.',
+      unlocked: (stats.ajedrez_mejor_racha_sacrificio || 0) >= 5,
+    },
+    {
+      title: 'El Despertar del Vac&iacute;o',
+      description: 'Cuando abriste los ojos, el reino ya hab&iacute;a ca&iacute;do.',
+      howTo: 'Gana 8 torneos consecutivas sin perder ninguna torre.',
+      unlocked: (stats.ajedrez_mejor_racha_sin_perder_torre || 0) >= 8,
+    },
+    {
+      title: 'Los Susurros de Valkerys',
+      description: 'La derrota del enemigo comenz&oacute; antes del primer movimiento.',
+      howTo: 'Gana 6 torneos consecutivas realizando jaque antes del movimiento 10.',
+      unlocked: (stats.ajedrez_mejor_racha_jaque_antes_10 || 0) >= 6,
+    },
+    {
+      title: 'El Legado de Thar&rsquo;Zul',
+      description: 'Las leyendas nacen donde otros abandonan.',
+      howTo: 'Gana 12 torneos consecutivas remontando desventaja material.',
+      unlocked: (stats.ajedrez_mejor_racha_remontada_material || 0) >= 12,
+    },
+    {
+      title: 'La Corona del Exiliado',
+      description: 'Desterrado del reino... coronado por el destino.',
+      howTo: 'Gana 5 torneos consecutivas despu&eacute;s de haber perdido una partida previa.',
+      unlocked: (stats.ajedrez_mejor_racha_victoria_tras_derrota || 0) >= 5,
+    },
   ]
 }
 
