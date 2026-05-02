@@ -7,6 +7,37 @@ const TABLAS_RANKING_POR_JUEGO = {
   domino: "ranking_domino",
   damas: "ranking_damas",
 }
+let claveAdminSesion = ""
+
+function escapeHtml(valor){
+return String(valor ?? "")
+.replaceAll("&", "&amp;")
+.replaceAll("<", "&lt;")
+.replaceAll(">", "&gt;")
+.replaceAll('"', "&quot;")
+.replaceAll("'", "&#039;")
+}
+
+function escapeJsString(valor){
+return String(valor ?? "")
+.replaceAll("\\", "\\\\")
+.replaceAll("'", "\\'")
+.replaceAll("\n", "\\n")
+.replaceAll("\r", "\\r")
+}
+
+async function validarAdminConRpc(clave){
+const { data, error } = await supabase.rpc("validar_admin_torneo", { p_clave: clave })
+if(error) return null
+return data === true
+}
+
+async function ejecutarRpcAdmin(nombre, args = {}){
+if(!claveAdminSesion) return { ok: false, error: new Error("Sin clave admin en sesion") }
+const { data, error } = await supabase.rpc(nombre, { p_clave: claveAdminSesion, ...args })
+if(error) return { ok: false, error }
+return { ok: data !== false, data }
+}
 
 // =============================
 // 🔒 LOGIN ADMIN CON SUPABASE
@@ -14,6 +45,21 @@ const TABLAS_RANKING_POR_JUEGO = {
 window.entrarAdmin = async function(){
 
 let claveInput = document.getElementById("clave").value
+const claveLimpia = claveInput.trim()
+
+const adminValidoRpc = await validarAdminConRpc(claveLimpia)
+
+if(adminValidoRpc === true){
+claveAdminSesion = claveLimpia
+
+document.getElementById("loginAdmin").style.display = "none"
+document.getElementById("panelAdmin").style.display = "block"
+
+cargarRanking()
+cargarVistaAdmin()
+verEstado()
+return
+}
 
 let { data, error } = await supabase
 .from("configuracion")
@@ -27,6 +73,7 @@ return
 }
 
 if(claveInput.trim() == String(data.clave_admin).trim()){
+claveAdminSesion = claveLimpia
 
 document.getElementById("loginAdmin").style.display = "none"
 document.getElementById("panelAdmin").style.display = "block"
@@ -126,6 +173,14 @@ async function limpiarRanking(){
 const juego = document.getElementById("juegoSelect")?.value
 
 if(!confirm("¿Seguro que quieres borrar solo el ranking temporal de " + juego + "?")) return
+
+const rpc = await ejecutarRpcAdmin("admin_limpiar_ranking_temporal", { p_juego: juego })
+if(rpc.ok){
+alert("ðŸ§¹ Ranking temporal eliminado. Semanal, victorias y global se conservan.")
+cargarRanking()
+cargarVistaAdmin()
+return
+}
 
 await guardarHistoricoAntesDeLimpiar(juego)
 
@@ -244,6 +299,16 @@ async function eliminar(usuario){
 
 const juego = document.getElementById("juegoSelect")?.value
 
+const rpc = await ejecutarRpcAdmin("admin_eliminar_jugador_ranking", {
+p_usuario: usuario,
+p_juego: juego,
+})
+if(rpc.ok){
+cargarRanking()
+cargarVistaAdmin()
+return
+}
+
 await supabase
 .from("ranking")
 .delete()
@@ -296,13 +361,13 @@ fila.classList.add("normal")
 
 fila.innerHTML = `
 <td>${i+1}</td>
-<td>${j.usuario}</td>
+<td>${escapeHtml(j.usuario)}</td>
 <td>${formatearResultado(j.tiempo, esPuntaje)}</td>
 <td>
 ${j.invalido ? "❌ Inválido" : j.sospechoso ? "⚠️ Sospechoso" : "✅ Normal"}
 </td>
 <td>
-<button onclick="eliminar('${j.usuario}')">❌</button>
+<button onclick="eliminar('${escapeJsString(j.usuario)}')">❌</button>
 </td>
 `
 
@@ -343,7 +408,7 @@ let emoji = ["🥇","🥈","🥉"][i]
 let div = document.createElement("div")
 const esPuntaje = juego && JUEGOS_PUNTAJE.has(juego)
 
-div.innerHTML = `<b>${emoji} ${j.usuario}</b> - ${formatearResultado(j.tiempo, esPuntaje)}`
+div.innerHTML = `<b>${emoji} ${escapeHtml(j.usuario)}</b> - ${formatearResultado(j.tiempo, esPuntaje)}`
 
 podioDiv.appendChild(div)
 
@@ -361,7 +426,7 @@ let div = document.createElement("div")
 const esPuntaje = juego && JUEGOS_PUNTAJE.has(juego)
 
 div.innerHTML = `
-#${i+1} - ${j.usuario} (${formatearResultado(j.tiempo, esPuntaje)})
+#${i+1} - ${escapeHtml(j.usuario)} (${formatearResultado(j.tiempo, esPuntaje)})
 ${j.sospechoso ? "⚠️" : ""}
 `
 
@@ -406,13 +471,24 @@ cargarVistaAdmin()
 // =============================
 async function iniciarTorneo(){
 
+const juegoAdmin = document.getElementById("juegoSelect").value
+const numcatchCondicionAdmin = document.getElementById("numcatchCondicion")?.value || NUMCATCH_DEFAULT_COND
+const rpcAdmin = await ejecutarRpcAdmin("admin_iniciar_torneo", {
+p_juego: juegoAdmin,
+p_numcatch_condicion: numcatchCondicionAdmin,
+})
+if(rpcAdmin.ok){
+alert("Torneo iniciado: " + juegoAdmin)
+return
+}
+
 let { data } = await supabase
 .from("estado_torneo")
 .select("estado")
 .eq("id",1)
 .single()
 
-if(data.estado === "iniciado"){
+if(data?.estado === "iniciado"){
 alert("⚠️ Ya hay un torneo activo")
 return
 }
@@ -420,6 +496,15 @@ return
 let juego = document.getElementById("juegoSelect").value
 
 let numcatchCondicion = document.getElementById("numcatchCondicion")?.value || NUMCATCH_DEFAULT_COND
+
+const rpc = await ejecutarRpcAdmin("admin_iniciar_torneo", {
+p_juego: juego,
+p_numcatch_condicion: numcatchCondicion,
+})
+if(rpc.ok){
+alert("ðŸ”¥ Torneo iniciado: " + juego)
+return
+}
 
 const payload = {
 estado: "iniciado",
@@ -443,6 +528,12 @@ alert("🔥 Torneo iniciado: " + juego)
 // 🛑 DETENER TORNEO
 // =============================
 async function detenerTorneo(){
+
+const rpc = await ejecutarRpcAdmin("admin_detener_torneo")
+if(rpc.ok){
+alert("ðŸ›‘ Torneo detenido")
+return
+}
 
 await supabase
 .from("estado_torneo")
@@ -473,6 +564,14 @@ const juego = obtenerJuegoSeleccionado()
 
 if(!confirm("Esto borrara el ranking semanal de " + juego + ". El global y las victorias historicas se conservan.")) return
 
+const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_semana", { p_juego: juego })
+if(rpc.ok){
+alert("Ranking semanal eliminado para " + juego)
+cargarRanking()
+cargarVistaAdmin()
+return
+}
+
 const { error } = await supabase
 .from("partidas")
 .delete()
@@ -495,6 +594,14 @@ const juego = obtenerJuegoSeleccionado()
 
 if(!confirm("Esto borrara las victorias acumuladas de " + juego + " sin borrar los resultados globales.")) return
 
+const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_victorias", { p_juego: juego })
+if(rpc.ok){
+alert("Ranking de victorias eliminado para " + juego)
+cargarRanking()
+cargarVistaAdmin()
+return
+}
+
 const { error } = await supabase
 .from("partidas")
 .update({ posicion: 0 })
@@ -516,6 +623,14 @@ async function borrarRankingGlobal(){
 const juego = obtenerJuegoSeleccionado()
 
 if(!confirm("Esto borrara el ranking global y el historial de " + juego + ". El ranking temporal actual tambien se limpiara.")) return
+
+const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_global", { p_juego: juego })
+if(rpc.ok){
+alert("Ranking global eliminado para " + juego)
+cargarRanking()
+cargarVistaAdmin()
+return
+}
 
 await borrarRankingTemporal(juego)
 
@@ -563,6 +678,14 @@ async function resetTotal(){
 
 const confirmacion = prompt("Esto borrara rankings, historial y tableros unicos de Sudoku. Escribe RESET para confirmar.")
 if(confirmacion !== "RESET") return
+
+const rpc = await ejecutarRpcAdmin("admin_reset_total")
+if(rpc.ok){
+alert("Torneo reiniciado completo. Los tableros de Sudoku se reasignaran cuando entren los usuarios.")
+cargarRanking()
+cargarVistaAdmin()
+return
+}
 
 // Borrar todas las tablas de ranking e historial
 await supabase.from("ranking").delete().neq("usuario","")

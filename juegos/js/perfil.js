@@ -3488,7 +3488,7 @@ async function renderRankingNivel() {
     div.innerHTML = `
       <div class="level-rank-pos">#${index + 1}</div>
       <div class="level-rank-user">
-        <strong>${item.usuario_id}</strong>
+        <strong>${escaparHtml(item.usuario_id)}</strong>
         <br>
         <small>${item.xp} XP</small>
       </div>
@@ -3524,11 +3524,11 @@ function renderHistorial(resultados) {
     div.className = 'history-item'
     div.innerHTML = `
       <div>
-        <strong>${result.juegoLabel}</strong>
+        <strong>${escaparHtml(result.juegoLabel)}</strong>
         <br>
         <small>Posicion #${result.posicion} de ${result.total} | Tiempo: ${formatearTiempo(result.tiempo)}</small>
         <br>
-        <small>${result.motivo || 'Sin observaciones.'}</small>
+        <small>${escaparHtml(result.motivo || 'Sin observaciones.')}</small>
       </div>
       <div class="history-state ${estado.className}">${estado.label}</div>
     `

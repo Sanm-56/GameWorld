@@ -6,6 +6,15 @@ const rankingDiv = document.getElementById("ranking")
 const usuario = localStorage.getItem("usuario")
 const fin = localStorage.getItem("fin_juego")
 
+function escapeHtml(valor){
+return String(valor ?? "")
+.replaceAll("&", "&amp;")
+.replaceAll("<", "&lt;")
+.replaceAll(">", "&gt;")
+.replaceAll('"', "&quot;")
+.replaceAll("'", "&#039;")
+}
+
 const mensajeDiv = document.createElement("h2")
 document.querySelector(".contenedor").insertBefore(mensajeDiv, podioDiv)
 
@@ -48,15 +57,15 @@ posicionDiv.innerHTML = "Sin posicion"
 podioDiv.innerHTML = ""
 
 if(data[1]){
-podioDiv.innerHTML += `<div>2 ${data[1].usuario}<br>${data[1].tiempo}</div>`
+podioDiv.innerHTML += `<div>2 ${escapeHtml(data[1].usuario)}<br>${data[1].tiempo}</div>`
 }
 
 if(data[0]){
-podioDiv.innerHTML += `<div>1 ${data[0].usuario}<br>${data[0].tiempo}</div>`
+podioDiv.innerHTML += `<div>1 ${escapeHtml(data[0].usuario)}<br>${data[0].tiempo}</div>`
 }
 
 if(data[2]){
-podioDiv.innerHTML += `<div>3 ${data[2].usuario}<br>${data[2].tiempo}</div>`
+podioDiv.innerHTML += `<div>3 ${escapeHtml(data[2].usuario)}<br>${data[2].tiempo}</div>`
 }
 
 rankingDiv.innerHTML = ""
@@ -67,7 +76,7 @@ const div = document.createElement("div")
 div.className = `ranking-row${j.usuario === usuario ? " actual" : ""}`
 div.innerHTML = `
 <span>#${i+1}</span>
-<strong>${j.usuario}</strong>
+<strong>${escapeHtml(j.usuario)}</strong>
 <span>${j.tiempo} pts</span>
 `
 rankingDiv.appendChild(div)

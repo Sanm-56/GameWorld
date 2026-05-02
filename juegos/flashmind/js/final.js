@@ -9,6 +9,15 @@ const fin = localStorage.getItem("fin_juego")
 const puntos = Number(localStorage.getItem("flashmind_puntos") || "0")
 const sinPosicion = fin === "descalificado" || puntos <= 0
 
+function escapeHtml(valor){
+return String(valor ?? "")
+.replaceAll("&", "&amp;")
+.replaceAll("<", "&lt;")
+.replaceAll(">", "&gt;")
+.replaceAll('"', "&quot;")
+.replaceAll("'", "&#039;")
+}
+
 const posicionDiv = document.createElement("h2")
 document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
 
@@ -56,7 +65,7 @@ async function cargar() {
   data.slice(0, 3).forEach((j, i) => {
     const emoji = ["1", "2", "3"][i]
     const div = document.createElement("div")
-    div.innerHTML = `<h3>${emoji}. ${j.usuario}</h3><p>${j.tiempo} pts</p>`
+    div.innerHTML = `<h3>${emoji}. ${escapeHtml(j.usuario)}</h3><p>${j.tiempo} pts</p>`
     podioDiv.appendChild(div)
   })
 
@@ -71,7 +80,7 @@ async function cargar() {
     div.className = `ranking-row${j.usuario === usuario && !sinPosicion ? " actual" : ""}`
     div.innerHTML = `
       <span>#${i + 1}</span>
-      <strong>${j.usuario}</strong>
+      <strong>${escapeHtml(j.usuario)}</strong>
       <span>${j.tiempo} pts</span>
     `
     rankingDiv.appendChild(div)

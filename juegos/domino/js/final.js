@@ -18,6 +18,15 @@ function formatearTiempo(segundos) {
   return `${minutos}:${seg < 10 ? '0' : ''}${seg}`
 }
 
+function escapeHtml(valor) {
+  return String(valor ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
 async function guardarEstadisticasDomino(posicion) {
   if (!usuario || !estadisticasPendientes || typeof posicion !== 'number') return
 
@@ -110,7 +119,7 @@ async function cargarResultados() {
     const etiqueta = ['#1', '#2', '#3'][index]
     const div = document.createElement('div')
     div.innerHTML = `
-      <h3>${etiqueta} ${jugador.usuario}</h3>
+      <h3>${etiqueta} ${escapeHtml(jugador.usuario)}</h3>
       <p>${formatearTiempo(jugador.tiempo)}</p>
     `
     podioDiv.appendChild(div)
@@ -127,7 +136,7 @@ async function cargarResultados() {
     div.className = `ranking-row${jugador.usuario === usuario && !sinPosicion ? ' actual' : ''}`
     div.innerHTML = `
       <span>#${index + 1}</span>
-      <strong>${jugador.usuario}</strong>
+      <strong>${escapeHtml(jugador.usuario)}</strong>
       <span>${formatearTiempo(jugador.tiempo)}</span>
     `
     rankingDiv.appendChild(div)

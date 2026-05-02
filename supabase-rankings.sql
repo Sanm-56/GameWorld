@@ -836,3 +836,331 @@ begin
   end if;
 end;
 $$;
+
+create or replace function public.validar_admin_torneo(p_clave text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  valido boolean := false;
+begin
+  if to_regclass('public.configuracion') is null then
+    return false;
+  end if;
+
+  execute
+    'select coalesce(trim(clave_admin::text) = trim($1), false)
+     from public.configuracion
+     where id = 1'
+  into valido
+  using p_clave;
+
+  return coalesce(valido, false);
+exception
+  when others then
+    return false;
+end;
+$$;
+
+create or replace function public.admin_guardar_historico_ranking(p_juego text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  es_puntaje boolean := p_juego in ('matematicas', 'flashmind', 'numcatch');
+  orden text := case when p_juego in ('matematicas', 'flashmind', 'numcatch') then 'desc' else 'asc' end;
+  desde timestamptz := now() - interval '12 hours';
+begin
+  if p_juego is null or btrim(p_juego) = '' then
+    return;
+  end if;
+
+  if to_regclass('public.estado_torneo') is not null then
+    begin
+      execute 'select coalesce(inicio_torneo, now() - interval ''12 hours'') from public.estado_torneo where id = 1'
+      into desde;
+    exception
+      when others then
+        desde := now() - interval '12 hours';
+    end;
+  end if;
+
+  if to_regclass('public.ranking') is not null and to_regclass('public.partidas') is not null then
+    begin
+      execute format(
+        'insert into public.partidas (usuario, usuario_id, juego, puntos, tiempo, posicion)
+         select usuario, null, juego,
+           case when $2 then coalesce(tiempo, 0) else 0 end,
+           case when $2 then 0 else coalesce(tiempo, 0) end,
+           row_number() over (order by tiempo %s)
+         from public.ranking r
+         where juego = $1
+           and coalesce(invalido, false) = false
+           and not exists (
+             select 1
+             from public.partidas p
+             where p.usuario = r.usuario
+               and p.juego = r.juego
+               and p.fecha >= $3
+               and (($2 and p.puntos = coalesce(r.tiempo, 0)) or (not $2 and p.tiempo = coalesce(r.tiempo, 0)))
+           )',
+        orden
+      )
+      using p_juego, es_puntaje, desde;
+    exception
+      when others then
+        null;
+    end;
+  end if;
+end;
+$$;
+
+create or replace function public.admin_limpiar_ranking_temporal(p_clave text, p_juego text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  tabla_extra text := case p_juego
+    when 'ajedrez' then 'ranking_ajedrez'
+    when 'domino' then 'ranking_domino'
+    when 'damas' then 'ranking_damas'
+    else null
+  end;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  perform public.admin_guardar_historico_ranking(p_juego);
+
+  if to_regclass('public.ranking') is not null then
+    execute 'delete from public.ranking where juego = $1' using p_juego;
+  end if;
+
+  if tabla_extra is not null and to_regclass('public.' || tabla_extra) is not null then
+    execute format('delete from public.%I where usuario is not null', tabla_extra);
+  end if;
+
+  return true;
+end;
+$$;
+
+create or replace function public.admin_eliminar_jugador_ranking(p_clave text, p_usuario text, p_juego text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  tabla_extra text := case p_juego
+    when 'ajedrez' then 'ranking_ajedrez'
+    when 'domino' then 'ranking_domino'
+    when 'damas' then 'ranking_damas'
+    else null
+  end;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  if to_regclass('public.ranking') is not null then
+    execute 'delete from public.ranking where usuario = $1 and juego = $2' using p_usuario, p_juego;
+  end if;
+
+  if tabla_extra is not null and to_regclass('public.' || tabla_extra) is not null then
+    execute format('delete from public.%I where usuario = $1', tabla_extra) using p_usuario;
+  end if;
+
+  return true;
+end;
+$$;
+
+create or replace function public.admin_iniciar_torneo(p_clave text, p_juego text, p_numcatch_condicion text default 'multiplos_3')
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  estado_actual text;
+  tiene_numcatch boolean := false;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  if to_regclass('public.estado_torneo') is null then
+    return false;
+  end if;
+
+  execute 'select estado from public.estado_torneo where id = 1' into estado_actual;
+  if estado_actual = 'iniciado' then
+    return false;
+  end if;
+
+  select exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'estado_torneo'
+      and column_name = 'numcatch_condicion'
+  ) into tiene_numcatch;
+
+  if p_juego = 'numcatch' and tiene_numcatch then
+    execute
+      'update public.estado_torneo
+       set estado = ''iniciado'', juego_actual = $1, inicio_torneo = now(), numcatch_condicion = $2
+       where id = 1'
+    using p_juego, coalesce(p_numcatch_condicion, 'multiplos_3');
+  else
+    execute
+      'update public.estado_torneo
+       set estado = ''iniciado'', juego_actual = $1, inicio_torneo = now()
+       where id = 1'
+    using p_juego;
+  end if;
+
+  return true;
+end;
+$$;
+
+create or replace function public.admin_detener_torneo(p_clave text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  if to_regclass('public.estado_torneo') is not null then
+    execute 'update public.estado_torneo set estado = ''espera'' where id = 1';
+  end if;
+
+  return true;
+end;
+$$;
+
+create or replace function public.admin_borrar_ranking_semana(p_clave text, p_juego text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  if to_regclass('public.partidas') is not null then
+    execute
+      'delete from public.partidas
+       where juego = $1
+         and fecha >= date_trunc(''week'', now())'
+    using p_juego;
+  end if;
+
+  return true;
+end;
+$$;
+
+create or replace function public.admin_borrar_ranking_victorias(p_clave text, p_juego text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  if to_regclass('public.partidas') is not null then
+    execute 'update public.partidas set posicion = 0 where juego = $1 and posicion = 1' using p_juego;
+  end if;
+
+  return true;
+end;
+$$;
+
+create or replace function public.admin_borrar_ranking_global(p_clave text, p_juego text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  perform public.admin_limpiar_ranking_temporal(p_clave, p_juego);
+
+  if to_regclass('public.partidas') is not null then
+    execute 'delete from public.partidas where juego = $1 and usuario is not null' using p_juego;
+  end if;
+
+  return true;
+end;
+$$;
+
+create or replace function public.admin_reset_total(p_clave text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  tabla text;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  foreach tabla in array array[
+    'ranking',
+    'ranking_ajedrez',
+    'ranking_domino',
+    'ranking_damas',
+    'partidas',
+    'estadisticas_logros'
+  ]
+  loop
+    if to_regclass('public.' || tabla) is not null then
+      execute format('delete from public.%I where usuario is not null', tabla);
+    end if;
+  end loop;
+
+  if to_regclass('public.usuarios') is not null then
+    execute 'update public.usuarios set tablero_id = null, cartas_memoria = null where usuario is not null';
+  end if;
+
+  return true;
+end;
+$$;
+
+do $$
+begin
+  if to_regclass('public.configuracion') is not null then
+    execute 'revoke all on table public.configuracion from anon, authenticated';
+  end if;
+end;
+$$;
+
+grant execute on function public.validar_admin_torneo(text) to anon, authenticated;
+grant execute on function public.admin_limpiar_ranking_temporal(text, text) to anon, authenticated;
+grant execute on function public.admin_eliminar_jugador_ranking(text, text, text) to anon, authenticated;
+grant execute on function public.admin_iniciar_torneo(text, text, text) to anon, authenticated;
+grant execute on function public.admin_detener_torneo(text) to anon, authenticated;
+grant execute on function public.admin_borrar_ranking_semana(text, text) to anon, authenticated;
+grant execute on function public.admin_borrar_ranking_victorias(text, text) to anon, authenticated;
+grant execute on function public.admin_borrar_ranking_global(text, text) to anon, authenticated;
+grant execute on function public.admin_reset_total(text) to anon, authenticated;

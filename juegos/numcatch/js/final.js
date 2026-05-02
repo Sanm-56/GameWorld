@@ -10,6 +10,15 @@ const fin = localStorage.getItem("fin_juego")
 const puntos = Number(localStorage.getItem("numcatch_puntos") || "0")
 const sinPosicion = fin === "descalificado" || puntos <= 0
 
+function escapeHtml(valor) {
+  return String(valor ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;")
+}
+
 const posicionDiv = document.createElement("h2")
 posicionDiv.className = "posicion-final"
 document.querySelector(".contenedor").insertBefore(posicionDiv, document.getElementById("panelResumen"))
@@ -64,7 +73,7 @@ async function cargar() {
     div.className = "podio-card"
     div.innerHTML = `
       <span class="puesto">${etiquetas[i]}</span>
-      <h3>${j.usuario}</h3>
+      <h3>${escapeHtml(j.usuario)}</h3>
       <p>${j.tiempo} pts</p>
     `
     podioDiv.appendChild(div)
@@ -81,7 +90,7 @@ async function cargar() {
     div.className = `ranking-row${j.usuario === usuario && !sinPosicion ? " actual" : ""}`
     div.innerHTML = `
       <span>#${i + 1}</span>
-      <strong>${j.usuario}</strong>
+      <strong>${escapeHtml(j.usuario)}</strong>
       <span>${j.tiempo} pts</span>
     `
     rankingDiv.appendChild(div)

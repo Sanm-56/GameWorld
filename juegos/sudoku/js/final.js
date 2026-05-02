@@ -13,6 +13,15 @@ function formatearTiempo(segundos) {
   return minutos + ":" + (seg < 10 ? "0" : "") + seg
 }
 
+function escapeHtml(valor) {
+  return String(valor ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;")
+}
+
 async function cargarResultados() {
   const juegoActual = localStorage.getItem("juego_actual") || "sudoku"
   const { data } = await supabase
@@ -48,7 +57,7 @@ async function cargarResultados() {
     const etiqueta = ["#1", "#2", "#3"][i]
     const div = document.createElement("div")
     div.innerHTML = `
-      <h3>${etiqueta} ${j.usuario}</h3>
+      <h3>${etiqueta} ${escapeHtml(j.usuario)}</h3>
       <p>${formatearTiempo(j.tiempo)}</p>
     `
     podioDiv.appendChild(div)
@@ -60,7 +69,7 @@ async function cargarResultados() {
     div.className = `ranking-row${j.usuario === usuario ? " actual" : ""}`
     div.innerHTML = `
       <span>#${i + 1}</span>
-      <strong>${j.usuario}</strong>
+      <strong>${escapeHtml(j.usuario)}</strong>
       <span>${formatearTiempo(j.tiempo)}</span>
     `
     rankingDiv.appendChild(div)
