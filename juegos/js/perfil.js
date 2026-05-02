@@ -3038,6 +3038,295 @@ function renderLogroSudoku(achievement, stats) {
   return div
 }
 
+function obtenerProgresoMemoria(achievement, stats) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const objetivo = obtenerPrimerNumero(objetivoTexto)
+  const completados = stats.completados || 0
+  const completadosSinErrores = stats.completados_sin_errores || 0
+  const mejorRachaCompletados = stats.mejor_racha_completados || 0
+  const mejorRachaSinErrores = stats.mejor_racha_sin_errores || 0
+  const mejorRachaPares = stats.memoria_mejor_racha_pares || 0
+  const mejorRachaFallos = stats.memoria_mejor_racha_fallos || 0
+  const maxErroresPartida = stats.memoria_max_errores_partida || 0
+  const minErroresPartida = typeof stats.memoria_min_errores_partida === 'number' ? stats.memoria_min_errores_partida : null
+  const mejorTiempo = typeof stats.mejor_tiempo === 'number' ? stats.mejor_tiempo : null
+  const mejorTiempoSinErrores = typeof stats.memoria_mejor_tiempo_sin_errores === 'number' ? stats.memoria_mejor_tiempo_sin_errores : null
+  const paresAntes1Minuto = stats.memoria_pares_antes_1min || 0
+  const mejorPartidas10Min = stats.memoria_mejor_partidas_10min || 0
+  const mejorPartidas15Min = stats.memoria_mejor_partidas_15min || 0
+  const maxIntentosPartida = stats.memoria_max_intentos_partida || 0
+
+  const flags = [
+    ['falloUltimoPar', stats.memoria_fallo_ultimo_par || 0, 'ultimo par'],
+    ['aciertoTras5Fallos', stats.memoria_acierto_tras_5_fallos || 0, '5 intentos fallidos'],
+    ['aciertoTras2Fallos', stats.memoria_acierto_tras_2_fallos || 0, 'fallar el mismo dos veces'],
+    ['parSinVerPrevio', stats.memoria_par_sin_ver_previo || 0, 'sin haber volteado'],
+    ['menos20Movimientos', stats.memoria_menos_20_movimientos || 0, 'menos de 20 movimientos'],
+    ['mejorasTiempo', stats.memoria_mejoras_tiempo || 0, 'mejora tu tiempo'],
+    ['sinRepetirErrorPar', stats.memoria_sin_repetir_error_par || 0, 'sin repetir errores'],
+    ['primerMovimientoPar', stats.memoria_primer_movimiento_par || 0, 'dos primeros movimientos'],
+    ['lineal', stats.memoria_lineal || 0, 'orden lineal'],
+    ['sinPatronRepetido', stats.memoria_sin_patron_repetido || 0, 'patron repetido'],
+    ['anticipacion', stats.memoria_anticipacion || 0, 'ultimos 5 movimientos'],
+    ['sinCartasFalladasRepetidas', stats.memoria_sin_cartas_falladas_repetidas || 0, 'carta fallada'],
+    ['inicio4Pares', stats.memoria_inicio_4_pares || 0, 'al iniciar'],
+    ['final4Pares', stats.memoria_final_4_pares || 0, 'ultimos 4 pares'],
+  ]
+
+  if (objetivoTexto.includes('pares incorrectos seguidos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaFallos, target), label: describirNumero(mejorRachaFallos, target), target }
+  }
+
+  if ((objetivoTexto.includes('pares seguidos') || objetivoTexto.includes('seguidos correctamente')) && !objetivoTexto.includes('incorrectos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaPares, target), label: describirNumero(mejorRachaPares, target), target }
+  }
+
+  if (objetivoTexto.includes('sin equivocarte') || objetivoTexto.includes('sin fallos')) {
+    const target = objetivoTexto.includes('consecutiv') || objetivoTexto.includes('seguid') ? (objetivo || 1) : 1
+    const actual = target > 1 ? mejorRachaSinErrores : completadosSinErrores
+    return { percent: limitarProgreso(actual, target), label: describirNumero(actual, target), target }
+  }
+
+  if (objetivoTexto.includes('partidas seguidas') || objetivoTexto.includes('partidas consecutivas') || objetivoTexto.includes('sin interrupcion')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaCompletados, target), label: describirNumero(mejorRachaCompletados, target), target }
+  }
+
+  if (objetivoTexto.includes('partidas en total')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(completados, target), label: describirNumero(completados, target), target }
+  }
+
+  if (objetivoTexto.includes('partidas en menos de 10 minutos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorPartidas10Min, target), label: describirNumero(mejorPartidas10Min, target), target }
+  }
+
+  if (objetivoTexto.includes('partidas en menos de 15 minutos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorPartidas15Min, target), label: describirNumero(mejorPartidas15Min, target), target }
+  }
+
+  if (objetivoTexto.includes('pares en menos de 1 minuto')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(paresAntes1Minuto, target), label: describirNumero(paresAntes1Minuto, target), target }
+  }
+
+  if (objetivoTexto.includes('menos de') && objetivoTexto.includes('minuto')) {
+    const targetMinutes = objetivo || 1
+    const targetSeconds = targetMinutes * 60
+    const tiempoReferencia = objetivoTexto.includes('sin errores') ? mejorTiempoSinErrores : mejorTiempo
+    const percent = tiempoReferencia === null ? 0 : tiempoReferencia < targetSeconds ? 100 : Math.max(5, Math.min(95, Math.round((targetSeconds / tiempoReferencia) * 100)))
+    return { percent, label: tiempoReferencia === null ? `0 / ${targetMinutes} min` : `${formatearTiempo(tiempoReferencia)} / ${targetMinutes}:00`, target: targetMinutes }
+  }
+
+  if (objetivoTexto.includes('mas de') && objetivoTexto.includes('errores')) {
+    const target = (objetivo || 1) + 1
+    return { percent: limitarProgreso(maxErroresPartida, target), label: describirNumero(maxErroresPartida, target), target }
+  }
+
+  if (objetivoTexto.includes('falla') && objetivoTexto.includes('veces')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(maxErroresPartida, target), label: describirNumero(maxErroresPartida, target), target }
+  }
+
+  if (objetivoTexto.includes('menos de') && objetivoTexto.includes('errores')) {
+    const target = objetivo || 1
+    const ok = minErroresPartida !== null && minErroresPartida < target
+    return { percent: ok ? 100 : 0, label: minErroresPartida === null ? `sin marca / < ${target}` : `${minErroresPartida} / < ${target}`, target }
+  }
+
+  if (objetivoTexto.includes('mas de') && objetivoTexto.includes('intentos')) {
+    const target = (objetivo || 1) + 1
+    return { percent: limitarProgreso(maxIntentosPartida, target), label: describirNumero(maxIntentosPartida, target), target }
+  }
+
+  const flag = flags.find(([, , token]) => objetivoTexto.includes(token))
+  if (flag) {
+    const actual = flag[1]
+    return { percent: limitarProgreso(actual, 1), label: describirNumero(actual, 1), target: 1 }
+  }
+
+  return { percent: achievement.unlocked ? 100 : 0, label: achievement.unlocked ? 'completo' : 'pendiente', target: 1 }
+}
+
+function obtenerRarezaMemoria(progress, achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const target = progress.target || 1
+  if (target >= 100 || objetivoTexto.includes('150') || objetivoTexto.includes('absoluto')) return 'legendary'
+  if (target >= 40 || objetivoTexto.includes('sin errores') || objetivoTexto.includes('quirurgico')) return 'epic'
+  if (target >= 8 || objetivoTexto.includes('menos de') || objetivoTexto.includes('incorrectos')) return 'rare'
+  return 'common'
+}
+
+function obtenerIconoMemoria(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  if (objetivoTexto.includes('incorrectos') || objetivoTexto.includes('fall')) return { label: 'ERROR', className: 'error' }
+  if (objetivoTexto.includes('menos de') || objetivoTexto.includes('rapida')) return { label: 'TIME', className: 'speed' }
+  if (objetivoTexto.includes('sin') || objetivoTexto.includes('perfect')) return { label: 'FOCUS', className: 'perfect' }
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('consecut')) return { label: 'CHAIN', className: 'streak' }
+  return { label: 'PAIR', className: 'pair' }
+}
+
+function renderLogroMemoria(achievement, stats) {
+  const progress = obtenerProgresoMemoria(achievement, stats)
+  const rarity = obtenerRarezaMemoria(progress, achievement)
+  const icon = obtenerIconoMemoria(achievement)
+  const rarityLabel = {
+    common: 'Comun',
+    rare: 'Raro',
+    epic: 'Epico',
+    legendary: 'Legendario',
+  }[rarity]
+  const div = document.createElement('div')
+  div.className = `achievement-card memory-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.innerHTML = `
+    <div class="memory-relic-header">
+      <div class="memory-relic-icon ${escaparHtml(icon.className)}" aria-hidden="true">
+        <span>${escaparHtml(icon.label)}</span>
+      </div>
+      <div class="memory-relic-badges">
+        <span class="memory-relic-rarity">${rarityLabel}</span>
+        <span class="memory-relic-state">${achievement.unlocked ? 'Recordado' : 'Olvidado'}</span>
+      </div>
+    </div>
+    <div class="memory-relic-main">
+      <strong class="memory-relic-title">${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p class="memory-relic-prophecy">${escaparHtml(textoPlano(achievement.description))}</p>
+      <div class="memory-objective">
+        <span>Recuerdo</span>
+        <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      </div>
+      <div class="memory-progress" aria-label="Progreso">
+        <div class="memory-progress-meta">
+          <span>Progreso</span>
+          <span>${progress.percent}% - ${escaparHtml(progress.label)}</span>
+        </div>
+        <div class="memory-progress-track">
+          <div class="memory-progress-fill" style="width:${progress.percent}%"></div>
+        </div>
+      </div>
+    </div>
+  `
+  return div
+}
+
+function obtenerKeyRapidezMatematica(segundosTexto) {
+  return segundosTexto.replace('.', '_').replace(',', '_') + 's'
+}
+
+function obtenerProgresoMatematicas(achievement, stats) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const objetivo = obtenerPrimerNumero(objetivoTexto)
+  const totalCorrectas = stats.matematicas_total_correctas || 0
+  const sesionesSinErrores = stats.matematicas_sesiones_sin_errores || 0
+  const mejorRachaCorrectas = stats.matematicas_mejor_racha_correctas || 0
+  const mejorRacha3s = stats.matematicas_mejor_racha_3s || 0
+  const mejorRacha5s = stats.matematicas_mejor_racha_5s || 0
+  const mejorCorrectas60s = stats.matematicas_mejor_correctas_60s || 0
+
+  if (objetivoTexto.includes('menos de') && objetivoTexto.includes('segundos')) {
+    const match = objetivoTexto.match(/menos de ([\d.,]+) segundos/)
+    const limite = match ? obtenerKeyRapidezMatematica(match[1]) : null
+    const actual = limite ? (stats[`matematicas_ejercicios_menos_${limite}`] || 0) : 0
+    const target = objetivo || 1
+    return { percent: limitarProgreso(actual, target), label: describirNumero(actual, target), target }
+  }
+
+  if (objetivoTexto.includes('menos de 3 segundos cada uno')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRacha3s, target), label: describirNumero(mejorRacha3s, target), target }
+  }
+
+  if (objetivoTexto.includes('menos de 5 segundos cada uno')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRacha5s, target), label: describirNumero(mejorRacha5s, target), target }
+  }
+
+  if (objetivoTexto.includes('menos de 60 segundos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorCorrectas60s, target), label: describirNumero(mejorCorrectas60s, target), target }
+  }
+
+  if (objetivoTexto.includes('sesion sin errores')) {
+    return { percent: limitarProgreso(sesionesSinErrores, 1), label: describirNumero(sesionesSinErrores, 1), target: 1 }
+  }
+
+  if (objetivoTexto.includes('en total')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(totalCorrectas, target), label: describirNumero(totalCorrectas, target), target }
+  }
+
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('consecutiv') || objetivoTexto.includes('operaciones consecutivas')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaCorrectas, target), label: describirNumero(mejorRachaCorrectas, target), target }
+  }
+
+  return { percent: achievement.unlocked ? 100 : 0, label: achievement.unlocked ? 'completo' : 'pendiente', target: 1 }
+}
+
+function obtenerRarezaMatematicas(progress, achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const target = progress.target || 1
+  if (target >= 180 || objetivoTexto.includes('0.8') || objetivoTexto.includes('1 segundo')) return 'legendary'
+  if (target >= 70 || objetivoTexto.includes('1.2') || objetivoTexto.includes('1.5') || objetivoTexto.includes('2 segundos')) return 'epic'
+  if (target >= 10 || objetivoTexto.includes('menos de') || objetivoTexto.includes('sin errores')) return 'rare'
+  return 'common'
+}
+
+function obtenerIconoMatematicas(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  if (objetivoTexto.includes('menos de')) return { label: 'TIME', className: 'speed' }
+  if (objetivoTexto.includes('sin errores') || objetivoTexto.includes('sin fallar')) return { label: 'PROOF', className: 'perfect' }
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('consecut')) return { label: 'CHAIN', className: 'streak' }
+  return { label: 'FORM', className: 'formula' }
+}
+
+function renderLogroMatematicas(achievement, stats) {
+  const progress = obtenerProgresoMatematicas(achievement, stats)
+  const rarity = obtenerRarezaMatematicas(progress, achievement)
+  const icon = obtenerIconoMatematicas(achievement)
+  const rarityLabel = {
+    common: 'Comun',
+    rare: 'Raro',
+    epic: 'Epico',
+    legendary: 'Legendario',
+  }[rarity]
+  const div = document.createElement('div')
+  div.className = `achievement-card math-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.innerHTML = `
+    <div class="math-relic-header">
+      <div class="math-relic-icon ${escaparHtml(icon.className)}" aria-hidden="true">
+        <span>${escaparHtml(icon.label)}</span>
+      </div>
+      <div class="math-relic-badges">
+        <span class="math-relic-rarity">${rarityLabel}</span>
+        <span class="math-relic-state">${achievement.unlocked ? 'Resuelto' : 'Cifrado'}</span>
+      </div>
+    </div>
+    <div class="math-relic-main">
+      <strong class="math-relic-title">${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p class="math-relic-prophecy">${escaparHtml(textoPlano(achievement.description))}</p>
+      <div class="math-objective">
+        <span>Teorema</span>
+        <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      </div>
+      <div class="math-progress" aria-label="Progreso">
+        <div class="math-progress-meta">
+          <span>Progreso</span>
+          <span>${progress.percent}% - ${escaparHtml(progress.label)}</span>
+        </div>
+        <div class="math-progress-track">
+          <div class="math-progress-fill" style="width:${progress.percent}%"></div>
+        </div>
+      </div>
+    </div>
+  `
+  return div
+}
+
 function reproducirSonidoSudoku() {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -3099,10 +3388,22 @@ function renderLogros() {
   logrosTituloJuegoEl.innerText = game.label
   logrosContadorEl.innerText = `${desbloqueados}/${logros.length}`
   logrosListEl.classList.toggle('sudoku-relics', game.key === 'sudoku')
+  logrosListEl.classList.toggle('memory-relics', game.key === 'memoria')
+  logrosListEl.classList.toggle('math-relics', game.key === 'matematicas')
 
   logros.forEach((achievement) => {
     if (game.key === 'sudoku') {
       logrosListEl.appendChild(renderLogroSudoku(achievement, estadisticasLogros.sudoku || {}))
+      return
+    }
+
+    if (game.key === 'memoria') {
+      logrosListEl.appendChild(renderLogroMemoria(achievement, estadisticasLogros.memoria || {}))
+      return
+    }
+
+    if (game.key === 'matematicas') {
+      logrosListEl.appendChild(renderLogroMatematicas(achievement, estadisticasLogros.matematicas || {}))
       return
     }
 

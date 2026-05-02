@@ -892,6 +892,600 @@ body.sudoku-screen-shake{
   50%{ box-shadow:0 24px 62px rgba(0,0,0,0.6), 0 0 42px rgba(250,204,21,0.32), 0 0 24px rgba(56,189,248,0.12); }
 }
 
+.achievement-grid.memory-relics{
+  gap:14px;
+  scrollbar-color:#14b8a6 #050816;
+}
+
+.achievement-card.memory-relic{
+  --memory-main:#64748b;
+  --memory-glow:rgba(100,116,139,0.15);
+  position:relative;
+  display:block;
+  min-height:232px;
+  padding:0;
+  border-radius:14px;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 20% 0, var(--memory-glow), transparent 36%),
+    radial-gradient(circle at 82% 20%, rgba(20,184,166,0.08), transparent 34%),
+    linear-gradient(145deg, rgba(2,6,23,0.98), rgba(12,20,35,0.96) 54%, rgba(3,7,18,0.98));
+  border:1px solid color-mix(in srgb, var(--memory-main) 44%, transparent);
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.46),
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 0 1px rgba(15,23,42,0.9);
+  transition:transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+}
+
+.achievement-card.memory-relic::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  opacity:0.9;
+  background:
+    linear-gradient(rgba(226,232,240,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,232,240,0.032) 1px, transparent 1px),
+    radial-gradient(circle at 28% 32%, transparent 0 26px, rgba(20,184,166,0.05) 27px 28px, transparent 29px),
+    repeating-linear-gradient(60deg, transparent 0 20px, rgba(129,140,248,0.035) 20px 21px);
+  background-size:34px 34px, 34px 34px, 100% 100%, 100% 100%;
+}
+
+.achievement-card.memory-relic::after{
+  content:"RECALL 02 04 08 16";
+  position:absolute;
+  right:-34px;
+  top:18px;
+  z-index:-1;
+  color:color-mix(in srgb, var(--memory-main) 22%, transparent);
+  font-size:2.55rem;
+  font-weight:900;
+  letter-spacing:0;
+  opacity:0.25;
+  transform:rotate(-8deg);
+  pointer-events:none;
+}
+
+.achievement-card.memory-relic:hover{
+  transform:translateY(-4px);
+  border-color:color-mix(in srgb, var(--memory-main) 78%, white 4%);
+  box-shadow:
+    0 24px 58px rgba(0,0,0,0.58),
+    0 0 32px var(--memory-glow),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.achievement-card.memory-relic.locked{
+  opacity:0.72;
+  filter:saturate(0.72);
+}
+
+.memory-relic-header{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 16px 0;
+}
+
+.memory-relic-badges{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:7px;
+}
+
+.memory-relic-icon{
+  position:relative;
+  width:76px;
+  height:76px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  color:#f8fafc;
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--memory-main) 24%, transparent), transparent 66%),
+    linear-gradient(145deg, rgba(15,23,42,0.96), rgba(2,6,23,0.88));
+  border:1px solid color-mix(in srgb, var(--memory-main) 54%, transparent);
+  box-shadow:
+    inset 0 0 24px color-mix(in srgb, var(--memory-main) 16%, transparent),
+    0 0 26px var(--memory-glow);
+}
+
+.memory-relic-icon::before,
+.memory-relic-icon::after{
+  content:"";
+  position:absolute;
+  border:1px solid color-mix(in srgb, var(--memory-main) 58%, transparent);
+  opacity:0.78;
+}
+
+.memory-relic-icon::before{
+  inset:15px 18px 20px 18px;
+  border-radius:7px;
+  transform:rotate(-8deg);
+}
+
+.memory-relic-icon::after{
+  inset:20px 15px 15px 20px;
+  border-radius:7px;
+  transform:rotate(10deg);
+}
+
+.memory-relic-icon span{
+  position:relative;
+  z-index:1;
+  text-shadow:0 0 14px var(--memory-main);
+}
+
+.memory-relic-icon.error::before{
+  transform:rotate(45deg);
+}
+
+.memory-relic-icon.error::after{
+  transform:rotate(-45deg);
+}
+
+.memory-relic-icon.speed::before{
+  border-radius:50%;
+  transform:none;
+}
+
+.memory-relic-icon.speed::after{
+  width:18px;
+  height:1px;
+  inset:37px auto auto 37px;
+  border:0;
+  border-top:2px solid color-mix(in srgb, var(--memory-main) 78%, white 8%);
+  transform:rotate(-35deg);
+}
+
+.memory-relic-icon.perfect::before{
+  inset:18px;
+  border-radius:50%;
+}
+
+.memory-relic-icon.perfect::after{
+  inset:31px;
+  border-radius:50%;
+  background:var(--memory-main);
+  box-shadow:0 0 18px var(--memory-main);
+  transform:none;
+}
+
+.memory-relic-icon.streak::before{
+  border-radius:999px;
+  transform:rotate(28deg);
+}
+
+.memory-relic-icon.streak::after{
+  border-radius:999px;
+  transform:rotate(-28deg);
+}
+
+.memory-relic-main{
+  padding:12px 16px 16px;
+}
+
+.memory-relic-title{
+  display:block;
+  color:#fff;
+  font-size:1.18rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+}
+
+.memory-relic-prophecy{
+  margin:9px 0 13px;
+  color:rgba(226,232,240,0.72);
+  font-size:0.92rem;
+  line-height:1.45;
+  font-style:italic;
+}
+
+.memory-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(15,23,42,0.78), rgba(2,6,23,0.52));
+  border:1px solid color-mix(in srgb, var(--memory-main) 24%, transparent);
+}
+
+.memory-objective span{
+  color:color-mix(in srgb, var(--memory-main) 84%, white 12%);
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.memory-objective small{
+  color:rgba(226,232,240,0.88);
+}
+
+.memory-progress{
+  display:grid;
+  gap:6px;
+  margin-top:12px;
+}
+
+.memory-progress-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color:rgba(226,232,240,0.78);
+  font-size:0.76rem;
+  font-weight:800;
+}
+
+.memory-progress-track{
+  height:10px;
+  padding:1px;
+  border-radius:999px;
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(2,6,23,0.94), rgba(15,23,42,0.88));
+  border:1px solid color-mix(in srgb, var(--memory-main) 24%, transparent);
+}
+
+.memory-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--memory-main) 52%, #14b8a6), var(--memory-main));
+  box-shadow:0 0 18px var(--memory-glow), 0 0 8px var(--memory-main);
+  transition:width 0.8s cubic-bezier(.2,.8,.2,1);
+}
+
+.memory-relic-rarity,
+.memory-relic-state{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:0.7rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.memory-relic-state{
+  background:rgba(15,23,42,0.78);
+  color:#cbd5e1;
+  border:1px solid rgba(148,163,184,0.16);
+}
+
+.memory-relic.unlocked .memory-relic-state{
+  color:#ccfbf1;
+  border-color:color-mix(in srgb, var(--memory-main) 38%, transparent);
+  box-shadow:0 0 16px var(--memory-glow);
+}
+
+.memory-relic.common{
+  --memory-main:#94a3b8;
+  --memory-glow:rgba(148,163,184,0.12);
+}
+
+.memory-relic.rare{
+  --memory-main:#14b8a6;
+  --memory-glow:rgba(20,184,166,0.24);
+}
+
+.memory-relic.epic{
+  --memory-main:#818cf8;
+  --memory-glow:rgba(129,140,248,0.3);
+  animation:memoryEpicPulse 3s ease-in-out infinite;
+}
+
+.memory-relic.epic::before{
+  animation:memoryMist 5s linear infinite;
+}
+
+.memory-relic.legendary{
+  --memory-main:#f59e0b;
+  --memory-glow:rgba(245,158,11,0.32);
+  animation:memoryLegendaryShine 3.2s ease-in-out infinite;
+}
+
+.memory-relic.legendary::after{
+  color:rgba(245,158,11,0.1);
+  opacity:0.8;
+}
+
+.memory-relic.common .memory-relic-rarity,
+.memory-relic.rare .memory-relic-rarity,
+.memory-relic.epic .memory-relic-rarity,
+.memory-relic.legendary .memory-relic-rarity{
+  color:color-mix(in srgb, var(--memory-main) 82%, white 16%);
+  border:1px solid color-mix(in srgb, var(--memory-main) 36%, transparent);
+  background:color-mix(in srgb, var(--memory-main) 14%, transparent);
+}
+
+@keyframes memoryEpicPulse{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.46), 0 0 0 rgba(129,140,248,0); }
+  50%{ box-shadow:0 24px 62px rgba(0,0,0,0.58), 0 0 34px rgba(129,140,248,0.28); }
+}
+
+@keyframes memoryMist{
+  0%{ background-position:0 0, 0 0, 0 0, 0 0; }
+  100%{ background-position:34px 34px, -34px 34px, 70px 0, 90px 0; }
+}
+
+@keyframes memoryLegendaryShine{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.46), 0 0 22px rgba(245,158,11,0.12); }
+  50%{ box-shadow:0 24px 62px rgba(0,0,0,0.6), 0 0 42px rgba(245,158,11,0.32), 0 0 24px rgba(20,184,166,0.12); }
+}
+
+.achievement-grid.math-relics{
+  gap:14px;
+  scrollbar-color:#22d3ee #050816;
+}
+
+.achievement-card.math-relic{
+  --math-main:#64748b;
+  --math-glow:rgba(100,116,139,0.15);
+  position:relative;
+  display:block;
+  min-height:232px;
+  padding:0;
+  border-radius:14px;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 18% 0, var(--math-glow), transparent 36%),
+    radial-gradient(circle at 82% 14%, rgba(34,211,238,0.08), transparent 34%),
+    linear-gradient(145deg, rgba(3,7,18,0.98), rgba(10,18,32,0.96) 54%, rgba(2,6,23,0.98));
+  border:1px solid color-mix(in srgb, var(--math-main) 44%, transparent);
+  box-shadow:0 18px 42px rgba(0,0,0,0.46), inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(15,23,42,0.9);
+  transition:transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+}
+
+.achievement-card.math-relic::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  opacity:0.9;
+  background:
+    linear-gradient(rgba(226,232,240,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,232,240,0.03) 1px, transparent 1px),
+    repeating-linear-gradient(120deg, transparent 0 22px, rgba(34,211,238,0.04) 22px 23px),
+    radial-gradient(circle at 72% 28%, transparent 0 34px, rgba(167,139,250,0.055) 35px 36px, transparent 37px);
+  background-size:32px 32px, 32px 32px, 100% 100%, 100% 100%;
+}
+
+.achievement-card.math-relic::after{
+  content:"x^2 + y^2 = ?  03 07 11";
+  position:absolute;
+  right:-42px;
+  top:20px;
+  z-index:-1;
+  color:color-mix(in srgb, var(--math-main) 22%, transparent);
+  font-size:2.45rem;
+  font-weight:900;
+  letter-spacing:0;
+  opacity:0.27;
+  transform:rotate(-8deg);
+}
+
+.achievement-card.math-relic:hover{
+  transform:translateY(-4px);
+  border-color:color-mix(in srgb, var(--math-main) 78%, white 4%);
+  box-shadow:0 24px 58px rgba(0,0,0,0.58), 0 0 32px var(--math-glow), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.achievement-card.math-relic.locked{
+  opacity:0.72;
+  filter:saturate(0.72);
+}
+
+.math-relic-header{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 16px 0;
+}
+
+.math-relic-badges{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:7px;
+}
+
+.math-relic-icon{
+  position:relative;
+  width:76px;
+  height:76px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  color:#f8fafc;
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  background:radial-gradient(circle, color-mix(in srgb, var(--math-main) 24%, transparent), transparent 66%), linear-gradient(145deg, rgba(15,23,42,0.96), rgba(2,6,23,0.88));
+  border:1px solid color-mix(in srgb, var(--math-main) 54%, transparent);
+  box-shadow:inset 0 0 24px color-mix(in srgb, var(--math-main) 16%, transparent), 0 0 26px var(--math-glow);
+}
+
+.math-relic-icon::before,
+.math-relic-icon::after{
+  content:"";
+  position:absolute;
+  inset:15px;
+  border:1px solid color-mix(in srgb, var(--math-main) 58%, transparent);
+  opacity:0.78;
+}
+
+.math-relic-icon::before{
+  border-radius:50%;
+}
+
+.math-relic-icon::after{
+  transform:rotate(45deg);
+  border-radius:5px;
+}
+
+.math-relic-icon.speed::after{
+  width:20px;
+  height:1px;
+  inset:37px auto auto 37px;
+  border:0;
+  border-top:2px solid color-mix(in srgb, var(--math-main) 78%, white 8%);
+  transform:rotate(-35deg);
+}
+
+.math-relic-icon.streak::before{ transform:rotate(28deg); border-radius:999px; }
+.math-relic-icon.streak::after{ transform:rotate(-28deg); border-radius:999px; }
+.math-relic-icon.perfect::after{ inset:30px; border-radius:50%; background:var(--math-main); box-shadow:0 0 18px var(--math-main); transform:none; }
+
+.math-relic-icon span{
+  position:relative;
+  z-index:1;
+  text-shadow:0 0 14px var(--math-main);
+}
+
+.math-relic-main{
+  padding:12px 16px 16px;
+}
+
+.math-relic-title{
+  display:block;
+  color:#fff;
+  font-size:1.18rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+}
+
+.math-relic-prophecy{
+  margin:9px 0 13px;
+  color:rgba(226,232,240,0.72);
+  font-size:0.92rem;
+  line-height:1.45;
+  font-style:italic;
+}
+
+.math-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(15,23,42,0.78), rgba(2,6,23,0.52));
+  border:1px solid color-mix(in srgb, var(--math-main) 24%, transparent);
+}
+
+.math-objective span{
+  color:color-mix(in srgb, var(--math-main) 84%, white 12%);
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.math-objective small{
+  color:rgba(226,232,240,0.88);
+}
+
+.math-progress{
+  display:grid;
+  gap:6px;
+  margin-top:12px;
+}
+
+.math-progress-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:rgba(226,232,240,0.78);
+  font-size:0.76rem;
+  font-weight:800;
+}
+
+.math-progress-track{
+  height:10px;
+  padding:1px;
+  border-radius:999px;
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(2,6,23,0.94), rgba(15,23,42,0.88));
+  border:1px solid color-mix(in srgb, var(--math-main) 24%, transparent);
+}
+
+.math-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--math-main) 52%, #22d3ee), var(--math-main));
+  box-shadow:0 0 18px var(--math-glow), 0 0 8px var(--math-main);
+  transition:width 0.8s cubic-bezier(.2,.8,.2,1);
+}
+
+.math-relic-rarity,
+.math-relic-state{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:0.7rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.math-relic-state{
+  background:rgba(15,23,42,0.78);
+  color:#cbd5e1;
+  border:1px solid rgba(148,163,184,0.16);
+}
+
+.math-relic.unlocked .math-relic-state{
+  color:#cffafe;
+  border-color:color-mix(in srgb, var(--math-main) 38%, transparent);
+  box-shadow:0 0 16px var(--math-glow);
+}
+
+.math-relic.common{ --math-main:#94a3b8; --math-glow:rgba(148,163,184,0.12); }
+.math-relic.rare{ --math-main:#22d3ee; --math-glow:rgba(34,211,238,0.24); }
+.math-relic.epic{ --math-main:#c084fc; --math-glow:rgba(192,132,252,0.3); animation:mathEpicPulse 3s ease-in-out infinite; }
+.math-relic.legendary{ --math-main:#facc15; --math-glow:rgba(250,204,21,0.32); animation:mathLegendaryShine 3.2s ease-in-out infinite; }
+.math-relic.epic::before{ animation:mathFormulaDrift 5s linear infinite; }
+.math-relic.common .math-relic-rarity,
+.math-relic.rare .math-relic-rarity,
+.math-relic.epic .math-relic-rarity,
+.math-relic.legendary .math-relic-rarity{
+  color:color-mix(in srgb, var(--math-main) 82%, white 16%);
+  border:1px solid color-mix(in srgb, var(--math-main) 36%, transparent);
+  background:color-mix(in srgb, var(--math-main) 14%, transparent);
+}
+
+@keyframes mathEpicPulse{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.46), 0 0 0 rgba(192,132,252,0); }
+  50%{ box-shadow:0 24px 62px rgba(0,0,0,0.58), 0 0 34px rgba(192,132,252,0.28); }
+}
+
+@keyframes mathFormulaDrift{
+  0%{ background-position:0 0, 0 0, 0 0, 0 0; }
+  100%{ background-position:32px 32px, -32px 32px, 80px 0, 0 0; }
+}
+
+@keyframes mathLegendaryShine{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.46), 0 0 22px rgba(250,204,21,0.12); }
+  50%{ box-shadow:0 24px 62px rgba(0,0,0,0.6), 0 0 42px rgba(250,204,21,0.32), 0 0 24px rgba(34,211,238,0.12); }
+}
+
 .history-item{
   padding:16px;
   border-radius:16px;
@@ -1177,6 +1771,72 @@ body.sudoku-screen-shake{
   }
 
   .sudoku-relic-title{
+    font-size:0.98rem;
+  }
+
+  .achievement-card.memory-relic{
+    padding:0;
+    min-height:0;
+  }
+
+  .memory-relic-icon{
+    width:62px;
+    height:62px;
+    font-size:0.62rem;
+  }
+
+  .memory-relic-header{
+    padding:14px 14px 0;
+    gap:10px;
+  }
+
+  .memory-relic-main{
+    padding:11px 14px 14px;
+  }
+
+  .memory-relic-badges{
+    gap:6px;
+  }
+
+  .memory-relic-rarity,
+  .memory-relic-state{
+    font-size:0.64rem;
+  }
+
+  .memory-relic-title{
+    font-size:0.98rem;
+  }
+
+  .achievement-card.math-relic{
+    padding:0;
+    min-height:0;
+  }
+
+  .math-relic-icon{
+    width:62px;
+    height:62px;
+    font-size:0.62rem;
+  }
+
+  .math-relic-header{
+    padding:14px 14px 0;
+    gap:10px;
+  }
+
+  .math-relic-main{
+    padding:11px 14px 14px;
+  }
+
+  .math-relic-badges{
+    gap:6px;
+  }
+
+  .math-relic-rarity,
+  .math-relic-state{
+    font-size:0.64rem;
+  }
+
+  .math-relic-title{
     font-size:0.98rem;
   }
 
