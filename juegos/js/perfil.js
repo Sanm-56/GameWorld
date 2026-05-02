@@ -801,10 +801,131 @@ function crearLogrosDomino(stats) {
 }
 
 function crearLogrosDamas(stats) {
+  const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
   const mejorRachaSegundo = stats.damas_mejor_racha_segundo || 0
   const mejorRachaTercero = stats.damas_mejor_racha_tercero || 0
 
   return [
+    {
+      title: 'El Ascenso de Vol&rsquo;kol',
+      description: 'Las coronas comenzaron a inclinarse ante ti.',
+      howTo: 'Gana 3 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 3,
+    },
+    {
+      title: 'La Sangre de los Cuatro Reinos',
+      description: 'Cada tablero conquistado aliment&oacute; tu leyenda.',
+      howTo: 'Gana 5 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 5,
+    },
+    {
+      title: 'El Trono Carmes&iacute; de Nareth',
+      description: 'Las damas enemigas desaparecieron bajo tu sombra.',
+      howTo: 'Gana 7 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 7,
+    },
+    {
+      title: 'Los Ecos de Nalkgot',
+      description: 'Tu dominio reson&oacute; en cada rinc&oacute;n del tablero.',
+      howTo: 'Gana 10 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 10,
+    },
+    {
+      title: 'La Corona del Vac&iacute;o Blanco',
+      description: 'Nadie logr&oacute; arrebatarte el primer puesto.',
+      howTo: 'Gana 12 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 12,
+    },
+    {
+      title: 'El Juicio de Mor&rsquo;Draven',
+      description: 'Los campeones cayeron uno tras otro.',
+      howTo: 'Gana 15 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 15,
+    },
+    {
+      title: 'La Niebla de Tharvok',
+      description: 'Tu nombre se volvi&oacute; sin&oacute;nimo de derrota ajena.',
+      howTo: 'Gana 18 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 18,
+    },
+    {
+      title: 'El Reino de las Damas Eternas',
+      description: 'Cada torneo fortaleci&oacute; tu imperio silencioso.',
+      howTo: 'Gana 20 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 20,
+    },
+    {
+      title: 'El Eclipse de Vorath',
+      description: 'El tablero perdi&oacute; la esperanza de vencerte.',
+      howTo: 'Gana 25 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 25,
+    },
+    {
+      title: 'La Profec&iacute;a de Kael&rsquo;Mor',
+      description: 'El campe&oacute;n eterno finalmente despert&oacute;.',
+      howTo: 'Gana 30 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 30,
+    },
+    {
+      title: 'Las Cenizas de Drakoryn',
+      description: 'No dejaste m&aacute;s que ruinas tras cada victoria.',
+      howTo: 'Gana 35 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 35,
+    },
+    {
+      title: 'El &Uacute;ltimo Emperador del Tablero',
+      description: 'Las coronas rivales dejaron de tener valor.',
+      howTo: 'Gana 40 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 40,
+    },
+    {
+      title: 'La Maldici&oacute;n de Vhal&rsquo;Kreth',
+      description: 'Cada torneo ganado enterr&oacute; otra leyenda.',
+      howTo: 'Gana 45 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 45,
+    },
+    {
+      title: 'El Ocaso de las Reinas Negras',
+      description: 'El tablero se rindi&oacute; antes de empezar.',
+      howTo: 'Gana 50 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 50,
+    },
+    {
+      title: 'La Tumba de Elyrath',
+      description: 'Los grandes maestros desaparecieron en tu camino.',
+      howTo: 'Gana 60 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 60,
+    },
+    {
+      title: 'El Guardi&aacute;n del Trono Sombr&iacute;o',
+      description: 'Nadie cruz&oacute; el l&iacute;mite de tu dominio.',
+      howTo: 'Gana 70 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 70,
+    },
+    {
+      title: 'La Llama de Korveth',
+      description: 'Tu racha ardi&oacute; m&aacute;s all&aacute; de toda l&oacute;gica.',
+      howTo: 'Gana 80 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 80,
+    },
+    {
+      title: 'Los Mil Tableros Ca&iacute;dos',
+      description: 'Cada victoria a&ntilde;adi&oacute; otro reino a tu imperio.',
+      howTo: 'Gana 90 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 90,
+    },
+    {
+      title: 'El Fin de las Coronas Eternas',
+      description: 'Hasta los invictos se arrodillaron ante ti.',
+      howTo: 'Gana 100 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 100,
+    },
+    {
+      title: 'La Eternidad de Vhaelor',
+      description: 'Tu nombre qued&oacute; grabado en cada tablero conquistado.',
+      howTo: 'Gana 120 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 120,
+    },
     {
       title: 'El Ascenso de Velkar',
       description: 'El tablero inclin&oacute; su voluntad ante tu inicio.',
