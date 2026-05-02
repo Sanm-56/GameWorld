@@ -34,7 +34,9 @@ async function guardarEstadisticasDomino(posicion) {
   }
 
   const esVictoria = posicion === 1
+  const esTop10 = posicion <= 10
   const rachaVictoriasActual = esVictoria ? (actual?.racha_victorias_torneos_actual || 0) + 1 : 0
+  const rachaTop10Actual = esTop10 ? (actual?.racha_top10_torneos_actual || 0) + 1 : 0
   const rachaInvictoActual = esVictoria ? (actual?.domino_racha_invicto_actual || 0) + 1 : 0
   const mejorPosicionAnterior = actual?.mejor_posicion_torneo
   const mejorPosicionTorneo = typeof mejorPosicionAnterior === 'number'
@@ -52,6 +54,8 @@ async function guardarEstadisticasDomino(posicion) {
       victorias_torneos: (actual?.victorias_torneos || 0) + (esVictoria ? 1 : 0),
       racha_victorias_torneos_actual: rachaVictoriasActual,
       mejor_racha_victorias_torneos: Math.max(actual?.mejor_racha_victorias_torneos || 0, rachaVictoriasActual),
+      racha_top10_torneos_actual: rachaTop10Actual,
+      mejor_racha_top10_torneos: Math.max(actual?.mejor_racha_top10_torneos || 0, rachaTop10Actual),
       domino_racha_invicto_actual: rachaInvictoActual,
       domino_mejor_racha_invicto: Math.max(actual?.domino_mejor_racha_invicto || 0, rachaInvictoActual),
       ultima_posicion_torneo: posicion,

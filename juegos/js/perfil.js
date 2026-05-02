@@ -609,6 +609,7 @@ function crearLogrosAjedrez(stats) {
 
 function crearLogrosDomino(stats) {
   const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
+  const mejorRachaTop10 = stats.mejor_racha_top10_torneos || 0
   const mejorRachaInvicto = stats.domino_mejor_racha_invicto || 0
 
   return [
@@ -671,6 +672,126 @@ function crearLogrosDomino(stats) {
       description: 'Tu nombre termin&oacute; con todas las leyendas.',
       howTo: 'Gana 20 torneos consecutivos.',
       unlocked: mejorRachaVictorias >= 20,
+    },
+    {
+      title: 'El Despertar de Nocthar',
+      description: 'La mesa guard&oacute; silencio ante tu primera conquista.',
+      howTo: 'Gana 33 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 33,
+    },
+    {
+      title: 'Las Cenizas de Velkorr',
+      description: 'Cada victoria aliment&oacute; una leyenda prohibida.',
+      howTo: 'Gana 45 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 45,
+    },
+    {
+      title: 'El Trono del Sexto Sello',
+      description: 'Nadie pudo detener el avance de tu imperio.',
+      howTo: 'Gana 87 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 87,
+    },
+    {
+      title: 'La Profec&iacute;a de Umbrek',
+      description: 'Tu dominio fue anunciado mucho antes de la primera ficha.',
+      howTo: 'Gana 100 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 100,
+    },
+    {
+      title: 'El Reino de las Fichas Perdidas',
+      description: 'Los derrotados desaparecieron bajo tu sombra.',
+      howTo: 'Gana 120 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 120,
+    },
+    {
+      title: 'La Corona de Drael&rsquo;Vor',
+      description: 'La mesa ya no distingu&iacute;a entre jugador y monstruo.',
+      howTo: 'Gana 150 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 150,
+    },
+    {
+      title: 'Los Susurros de Karzeth',
+      description: 'Cada torneo ganado despert&oacute; nuevos temores.',
+      howTo: 'Gana 180 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 180,
+    },
+    {
+      title: 'La Noche del Dominio Eterno',
+      description: 'Las fichas cayeron una tras otra ante tu voluntad.',
+      howTo: 'Gana 200 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 200,
+    },
+    {
+      title: 'El Juicio de Mordrake',
+      description: 'Tu racha convirti&oacute; la esperanza en ruinas.',
+      howTo: 'Gana 220 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 220,
+    },
+    {
+      title: 'El Legado del Rey Vac&iacute;o',
+      description: 'No dejaste rivales... solo recuerdos.',
+      howTo: 'Gana 250 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 250,
+    },
+    {
+      title: 'La Mesa de los Mil Ecos',
+      description: 'Cada victoria repet&iacute;a tu nombre como una maldici&oacute;n.',
+      howTo: 'Gana 300 torneos consecutivos.',
+      unlocked: mejorRachaVictorias >= 300,
+    },
+    {
+      title: 'El Eclipse de Var&rsquo;Khal',
+      description: 'Cuando llegaste, la gloria de otros desapareci&oacute;.',
+      howTo: 'Termina top 10 en 35 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 35,
+    },
+    {
+      title: 'La &Uacute;ltima Ficha de Nareth',
+      description: 'El destino del torneo siempre terminaba en tus manos.',
+      howTo: 'Termina top 10 en 40 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 40,
+    },
+    {
+      title: 'Las Ruinas de Thal&rsquo;Kor',
+      description: 'Construiste tu reinado sobre generaciones derrotadas.',
+      howTo: 'Termina top 10 en 45 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 45,
+    },
+    {
+      title: 'El Guardi&aacute;n del Abismo Blanco',
+      description: 'Nadie cruz&oacute; la frontera de tu dominio.',
+      howTo: 'Termina top 10 en 50 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 50,
+    },
+    {
+      title: 'El Ocaso de Vel&rsquo;Thar',
+      description: 'Las mesas quedaron vac&iacute;as despu&eacute;s de tu paso.',
+      howTo: 'Termina top 10 en 60 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 60,
+    },
+    {
+      title: 'La Maldici&oacute;n del Emperador Gris',
+      description: 'Cada torneo ganado apag&oacute; otra esperanza.',
+      howTo: 'Termina top 10 en 70 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 70,
+    },
+    {
+      title: 'El Portal de las Fichas Eternas',
+      description: 'Tu racha trascendi&oacute; toda l&oacute;gica humana.',
+      howTo: 'Termina top 10 en 80 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 80,
+    },
+    {
+      title: 'El Fin de Arkhazar',
+      description: 'Hasta las leyendas abandonaron la mesa.',
+      howTo: 'Termina top 10 en 90 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 90,
+    },
+    {
+      title: 'La Eternidad de Morvhaal',
+      description: 'Tu nombre qued&oacute; grabado m&aacute;s all&aacute; del &uacute;ltimo torneo.',
+      howTo: 'Termina top 10 en 100 torneos consecutivos.',
+      unlocked: mejorRachaTop10 >= 100,
     },
   ]
 }
