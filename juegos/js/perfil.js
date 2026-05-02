@@ -2828,6 +2828,241 @@ function seleccionarJuegoLogros(gameKey) {
   renderLogros()
 }
 
+function escaparHtml(valor) {
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+function textoPlano(valor) {
+  const div = document.createElement('div')
+  div.innerHTML = String(valor ?? '')
+  return div.textContent || div.innerText || ''
+}
+
+function obtenerPrimerNumero(texto) {
+  const coincidencia = String(texto).replace(/,/g, '').match(/\d+/)
+  return coincidencia ? Number(coincidencia[0]) : null
+}
+
+function limitarProgreso(actual, objetivo) {
+  if (!objetivo || objetivo <= 0) return 0
+  return Math.max(0, Math.min(100, Math.round((actual / objetivo) * 100)))
+}
+
+function describirNumero(actual, objetivo, unidad = '') {
+  const sufijo = unidad ? ` ${unidad}` : ''
+  return `${Math.min(actual, objetivo)} / ${objetivo}${sufijo}`
+}
+
+function obtenerProgresoSudoku(achievement, stats) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const objetivo = obtenerPrimerNumero(objetivoTexto)
+  const completados = stats.completados || 0
+  const completadosSinErrores = stats.completados_sin_errores || 0
+  const mejorRachaCompletados = stats.mejor_racha_completados || stats.completados || 0
+  const mejorRachaSinErrores = stats.mejor_racha_sin_errores || 0
+  const tiempoJugadoTotalHoras = Math.floor((stats.tiempo_jugado_total || 0) / 3600)
+  const mejorRachaTiempoHoras = Math.floor((stats.mejor_racha_tiempo_jugado || 0) / 3600)
+  const torneosParticipados = stats.torneos_participados || 0
+  const victoriasTorneos = stats.victorias_torneos || 0
+  const top15Torneos = stats.top15_torneos || 0
+  const mejorRachaTop10 = stats.mejor_racha_top10_torneos || 0
+  const cuartosLugares = stats.cuartos_lugares || 0
+  const posicionesMejoradas = stats.posiciones_mejoradas || 0
+  const maxPosicionesSubidas = stats.max_posiciones_subidas || 0
+  const mejoresHistoricasSuperadas = stats.mejores_historicas_superadas || 0
+  const jugadoresMejorRankeadosSuperados = stats.jugadores_mejor_rankeados_superados || 0
+  const maxJugadoresMejorRankeadosSuperados = stats.max_jugadores_mejor_rankeados_superados || 0
+  const mejorTorneosMismoDia = stats.mejor_torneos_mismo_dia || 0
+  const mejorTiempo = typeof stats.mejor_tiempo === 'number' ? stats.mejor_tiempo : null
+  const victoriasSinErrores = stats.victorias_sin_errores || 0
+  const mejorPosicion = typeof stats.mejor_posicion_torneo === 'number' ? stats.mejor_posicion_torneo : null
+
+  if (objetivoTexto.includes('horas acumuladas')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(tiempoJugadoTotalHoras, target), label: describirNumero(tiempoJugadoTotalHoras, target, 'h'), target }
+  }
+
+  if (objetivoTexto.includes('horas seguidas')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaTiempoHoras, target), label: describirNumero(mejorRachaTiempoHoras, target, 'h'), target }
+  }
+
+  if (objetivoTexto.includes('sin errores') && objetivoTexto.includes('seguid')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaSinErrores, target), label: describirNumero(mejorRachaSinErrores, target), target }
+  }
+
+  if (objetivoTexto.includes('sudokus seguidos') || objetivoTexto.includes('sudokus consecutivos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaCompletados, target), label: describirNumero(mejorRachaCompletados, target), target }
+  }
+
+  if (objetivoTexto.includes('sin cometer errores') || objetivoTexto.includes('sin errores')) {
+    return { percent: limitarProgreso(completadosSinErrores, 1), label: describirNumero(completadosSinErrores, 1), target: 1 }
+  }
+
+  if (objetivoTexto.includes('completa') && objetivoTexto.includes('sudoku')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(completados, target), label: describirNumero(completados, target), target }
+  }
+
+  if (objetivoTexto.includes('menos de') && objetivoTexto.includes('minuto')) {
+    const targetMinutes = objetivo || 1
+    const targetSeconds = targetMinutes * 60
+    const percent = mejorTiempo === null ? 0 : mejorTiempo < targetSeconds ? 100 : Math.max(5, Math.min(95, Math.round((targetSeconds / mejorTiempo) * 100)))
+    return { percent, label: mejorTiempo === null ? `0 / ${targetMinutes} min` : `${formatearTiempo(mejorTiempo)} / ${targetMinutes}:00`, target: targetMinutes }
+  }
+
+  if (objetivoTexto.includes('participa')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(torneosParticipados, target), label: describirNumero(torneosParticipados, target), target }
+  }
+
+  if (objetivoTexto.includes('gana') && objetivoTexto.includes('torneo') && objetivoTexto.includes('sin cometer errores')) {
+    return { percent: limitarProgreso(victoriasSinErrores, 1), label: describirNumero(victoriasSinErrores, 1), target: 1 }
+  }
+
+  if (objetivoTexto.includes('gana') && objetivoTexto.includes('torneo')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(victoriasTorneos, target), label: describirNumero(victoriasTorneos, target), target }
+  }
+
+  if (objetivoTexto.includes('top 10') && objetivoTexto.includes('seguid')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaTop10, target), label: describirNumero(mejorRachaTop10, target), target }
+  }
+
+  if (objetivoTexto.includes('top 15') && objetivoTexto.includes('torneos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(top15Torneos, target), label: describirNumero(top15Torneos, target), target }
+  }
+
+  if (objetivoTexto.includes('top ') || objetivoTexto.includes('primeros') || objetivoTexto.includes('4 lugar')) {
+    const target = objetivoTexto.includes('top 50') ? 50 : objetivoTexto.includes('top 25') ? 25 : objetivoTexto.includes('top 10') ? 10 : objetivoTexto.includes('4 lugar') ? 4 : 3
+    const ok = mejorPosicion !== null && mejorPosicion <= target
+    const label = mejorPosicion === null ? `sin marca / top ${target}` : `#${mejorPosicion} / top ${target}`
+    return { percent: ok ? 100 : 0, label, target }
+  }
+
+  if (objetivoTexto.includes('4 lugar')) return { percent: limitarProgreso(cuartosLugares, 1), label: describirNumero(cuartosLugares, 1), target: 1 }
+  if (objetivoTexto.includes('mejora tu posicion')) return { percent: limitarProgreso(posicionesMejoradas, 1), label: describirNumero(posicionesMejoradas, 1), target: 1 }
+  if (objetivoTexto.includes('20 posiciones')) return { percent: limitarProgreso(maxPosicionesSubidas, 21), label: `${maxPosicionesSubidas} / 21`, target: 21 }
+  if (objetivoTexto.includes('mejor posicion historica')) return { percent: limitarProgreso(mejoresHistoricasSuperadas, 1), label: describirNumero(mejoresHistoricasSuperadas, 1), target: 1 }
+  if (objetivoTexto.includes('mismo dia')) return { percent: limitarProgreso(mejorTorneosMismoDia, objetivo || 1), label: describirNumero(mejorTorneosMismoDia, objetivo || 1), target: objetivo || 1 }
+  if (objetivoTexto.includes('5 jugadores')) return { percent: limitarProgreso(maxJugadoresMejorRankeadosSuperados, 5), label: describirNumero(maxJugadoresMejorRankeadosSuperados, 5), target: 5 }
+  if (objetivoTexto.includes('mejor rankeado')) return { percent: limitarProgreso(jugadoresMejorRankeadosSuperados, 1), label: describirNumero(jugadoresMejorRankeadosSuperados, 1), target: 1 }
+
+  return { percent: achievement.unlocked ? 100 : 0, label: achievement.unlocked ? 'completo' : 'pendiente', target: 1 }
+}
+
+function obtenerRarezaSudoku(progress, achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const target = progress.target || 1
+  if (objetivoTexto.includes('3000') || objetivoTexto.includes('2000') || target >= 300 || objetivoTexto.includes('leyenda')) return 'legendary'
+  if (target >= 80 || objetivoTexto.includes('1000') || objetivoTexto.includes('500') || objetivoTexto.includes('campeon')) return 'epic'
+  if (target >= 10 || objetivoTexto.includes('torneo') || objetivoTexto.includes('tiempo')) return 'rare'
+  return 'common'
+}
+
+function obtenerIconoSudoku(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  if (objetivoTexto.includes('tiempo') || objetivoTexto.includes('horas') || objetivoTexto.includes('minuto')) return '⌁'
+  if (objetivoTexto.includes('torneo') || objetivoTexto.includes('top') || objetivoTexto.includes('gana')) return '◇'
+  if (objetivoTexto.includes('sin errores') || objetivoTexto.includes('sin cometer')) return '∴'
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('consecut')) return '∞'
+  return '3×3'
+}
+
+function renderLogroSudoku(achievement, stats) {
+  const progress = obtenerProgresoSudoku(achievement, stats)
+  const rarity = obtenerRarezaSudoku(progress, achievement)
+  const rarityLabel = {
+    common: 'Comun',
+    rare: 'Raro',
+    epic: 'Epico',
+    legendary: 'Legendario',
+  }[rarity]
+  const div = document.createElement('div')
+  div.className = `achievement-card sudoku-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.innerHTML = `
+    <div class="sudoku-relic-icon" aria-hidden="true">${escaparHtml(obtenerIconoSudoku(achievement))}</div>
+    <div class="sudoku-relic-main">
+      <div class="sudoku-relic-top">
+        <span class="sudoku-relic-rarity">${rarityLabel}</span>
+        <span class="sudoku-relic-state">${achievement.unlocked ? 'Desbloqueado' : 'Sellado'}</span>
+      </div>
+      <strong class="sudoku-relic-title">${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p>${escaparHtml(textoPlano(achievement.description))}</p>
+      <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      <div class="sudoku-progress" aria-label="Progreso">
+        <div class="sudoku-progress-meta">
+          <span>Progreso</span>
+          <span>${escaparHtml(progress.label)}</span>
+        </div>
+        <div class="sudoku-progress-track">
+          <div class="sudoku-progress-fill" style="width:${progress.percent}%"></div>
+        </div>
+      </div>
+    </div>
+  `
+  return div
+}
+
+function reproducirSonidoSudoku() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext
+    if (!AudioContext) return
+    const ctx = new AudioContext()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(96, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(48, ctx.currentTime + 0.42)
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.04)
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.48)
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start()
+    osc.stop(ctx.currentTime + 0.5)
+  } catch (error) {
+    // El navegador puede bloquear audio sin interaccion previa.
+  }
+}
+
+function mostrarPopupSudoku(achievement) {
+  const popup = document.createElement('div')
+  popup.className = 'sudoku-unlock-popup'
+  popup.innerHTML = `
+    <div class="sudoku-unlock-panel">
+      <span>Logro desbloqueado</span>
+      <strong>${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p>"${escaparHtml(textoPlano(achievement.description))}"</p>
+    </div>
+  `
+  document.body.classList.add('sudoku-screen-shake')
+  document.body.appendChild(popup)
+  reproducirSonidoSudoku()
+  setTimeout(() => document.body.classList.remove('sudoku-screen-shake'), 380)
+  setTimeout(() => popup.remove(), 3000)
+}
+
+function notificarNuevosLogrosSudoku(logros) {
+  if (!usuario) return
+  const key = `sudoku_logros_vistos_${usuario}`
+  const desbloqueados = logros.filter((achievement) => achievement.unlocked).map((achievement) => achievement.title)
+  const previo = JSON.parse(localStorage.getItem(key) || 'null')
+  localStorage.setItem(key, JSON.stringify(desbloqueados))
+  if (!Array.isArray(previo)) return
+  const nuevo = logros.find((achievement) => achievement.unlocked && !previo.includes(achievement.title))
+  if (nuevo) mostrarPopupSudoku(nuevo)
+}
+
 function renderLogros() {
   logrosListEl.innerHTML = ''
 
@@ -2838,8 +3073,14 @@ function renderLogros() {
 
   logrosTituloJuegoEl.innerText = game.label
   logrosContadorEl.innerText = `${desbloqueados}/${logros.length}`
+  logrosListEl.classList.toggle('sudoku-relics', game.key === 'sudoku')
 
   logros.forEach((achievement) => {
+    if (game.key === 'sudoku') {
+      logrosListEl.appendChild(renderLogroSudoku(achievement, estadisticasLogros.sudoku || {}))
+      return
+    }
+
     const div = document.createElement('div')
     div.className = `achievement-card${achievement.unlocked ? '' : ' locked'}`
     div.innerHTML = `
@@ -2851,6 +3092,8 @@ function renderLogros() {
     `
     logrosListEl.appendChild(div)
   })
+
+  if (game.key === 'sudoku') notificarNuevosLogrosSudoku(logros)
 }
 
 async function sincronizarXpDeLogros() {
