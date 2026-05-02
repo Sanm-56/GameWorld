@@ -311,6 +311,9 @@ function crearLogrosNumcatch(stats) {
   const minErroresVictoria = typeof stats.numcatch_min_errores_victoria === 'number'
     ? stats.numcatch_min_errores_victoria
     : null
+  const victorias1Error = stats.numcatch_victorias_1_error || 0
+  const victorias2Errores = stats.numcatch_victorias_2_errores || 0
+  const victoriasMenos14Errores = stats.numcatch_victorias_menos_14_errores || 0
 
   return [
     {
@@ -336,6 +339,114 @@ function crearLogrosNumcatch(stats) {
       description: 'La perfecci&oacute;n no es un mito.',
       howTo: 'Gana un torneo con menos de 30 errores.',
       unlocked: minErroresVictoria !== null && minErroresVictoria < 30,
+    },
+    {
+      title: 'El C&oacute;digo de Iryx',
+      description: 'Todo sigue una l&oacute;gica impecable.',
+      howTo: 'Gana un torneo con menos de 25 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 25,
+    },
+    {
+      title: 'Juicio de Thalnor',
+      description: 'Aqu&iacute; se mide la precisi&oacute;n real.',
+      howTo: 'Gana un torneo con menos de 20 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 20,
+    },
+    {
+      title: 'El Pulso de Zarek',
+      description: 'Ni un solo temblor.',
+      howTo: 'Gana un torneo con menos de 18 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 18,
+    },
+    {
+      title: 'Trono de Elyssar',
+      description: 'Solo los m&aacute;s precisos llegan aqu&iacute;.',
+      howTo: 'Gana un torneo con menos de 15 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 15,
+    },
+    {
+      title: 'La Marca de Orven',
+      description: 'Cada movimiento... exacto.',
+      howTo: 'Gana un torneo con menos de 12 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 12,
+    },
+    {
+      title: 'Dominio de Khyron',
+      description: 'El error pierde significado.',
+      howTo: 'Gana un torneo con menos de 10 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 10,
+    },
+    {
+      title: 'La Ruta de Veylor',
+      description: 'Camino limpio hasta la cima.',
+      howTo: 'Gana un torneo con menos de 9 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 9,
+    },
+    {
+      title: 'El Ojo de Myrion',
+      description: 'Nada se escapa.',
+      howTo: 'Gana un torneo con menos de 8 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 8,
+    },
+    {
+      title: 'Silencio de Drathis',
+      description: 'Ni un fallo hace ruido.',
+      howTo: 'Gana un torneo con menos de 7 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 7,
+    },
+    {
+      title: 'El N&uacute;cleo de Xaleth',
+      description: 'Todo permanece estable.',
+      howTo: 'Gana un torneo con menos de 6 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 6,
+    },
+    {
+      title: 'Pureza absoluta',
+      description: 'Esto ya no es humano.',
+      howTo: 'Gana un torneo con menos de 5 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 5,
+    },
+    {
+      title: 'El Velo de Nyrax',
+      description: 'El error no logra cruzar.',
+      howTo: 'Gana un torneo con menos de 4 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 4,
+    },
+    {
+      title: 'La Esencia de Lorthan',
+      description: 'Nada sobra... nada falla.',
+      howTo: 'Gana un torneo con menos de 3 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 3,
+    },
+    {
+      title: 'El Juicio perfecto',
+      description: 'No hubo margen para dudar.',
+      howTo: 'Gana un torneo con menos de 2 errores.',
+      unlocked: minErroresVictoria !== null && minErroresVictoria < 2,
+    },
+    {
+      title: 'Vac&iacute;o de error',
+      description: 'No existi&oacute; el fallo.',
+      howTo: 'Gana un torneo con 0 errores.',
+      unlocked: minErroresVictoria === 0,
+    },
+    {
+      title: 'El Origen de Kaelis',
+      description: 'As&iacute; debi&oacute; ser desde el inicio.',
+      howTo: 'Gana 15 torneos con exactamente 1 error.',
+      unlocked: victorias1Error >= 15,
+    },
+    {
+      title: 'Equilibrio de Varnox',
+      description: 'Ni m&aacute;s... ni menos.',
+      howTo: 'Gana 3 torneos con exactamente 2 errores.',
+      unlocked: victorias2Errores >= 3,
+    },
+    {
+      title: 'La Prueba de Eryndor',
+      description: 'La precisi&oacute;n define al ganador.',
+      howTo: 'Gana 5 torneos con menos de 14 errores.',
+      unlocked: victoriasMenos14Errores >= 5,
     },
   ]
 }

@@ -98,6 +98,9 @@ create table if not exists public.estadisticas_logros (
   numcatch_mejor_racha_aciertos integer not null default 0,
   numcatch_mejor_racha_aciertos_victoria integer not null default 0,
   numcatch_min_errores_victoria integer,
+  numcatch_victorias_1_error integer not null default 0,
+  numcatch_victorias_2_errores integer not null default 0,
+  numcatch_victorias_menos_14_errores integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -376,6 +379,15 @@ add column if not exists numcatch_mejor_racha_aciertos_victoria integer not null
 
 alter table public.estadisticas_logros
 add column if not exists numcatch_min_errores_victoria integer;
+
+alter table public.estadisticas_logros
+add column if not exists numcatch_victorias_1_error integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists numcatch_victorias_2_errores integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists numcatch_victorias_menos_14_errores integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists ultimo_tiempo integer;

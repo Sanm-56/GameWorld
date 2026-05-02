@@ -384,6 +384,9 @@ async function guardarEstadisticasNumcatch(posicion) {
       ? Math.max(actual?.numcatch_mejor_racha_aciertos_victoria || 0, mejorRachaAciertos)
       : (actual?.numcatch_mejor_racha_aciertos_victoria || 0),
     numcatch_min_errores_victoria: numcatchMinErroresVictoria,
+    numcatch_victorias_1_error: (actual?.numcatch_victorias_1_error || 0) + (esVictoria && errores === 1 ? 1 : 0),
+    numcatch_victorias_2_errores: (actual?.numcatch_victorias_2_errores || 0) + (esVictoria && errores === 2 ? 1 : 0),
+    numcatch_victorias_menos_14_errores: (actual?.numcatch_victorias_menos_14_errores || 0) + (esVictoria && errores < 14 ? 1 : 0),
     ultima_posicion_torneo: posicion,
     updated_at: new Date().toISOString(),
   }
