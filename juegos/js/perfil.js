@@ -2848,6 +2848,12 @@ function obtenerPrimerNumero(texto) {
   return coincidencia ? Number(coincidencia[0]) : null
 }
 
+function obtenerNumeroDeTorneos(texto) {
+  const coincidencias = [...String(texto).replace(/,/g, '').matchAll(/(\d+)\s+torneos?/g)]
+  if (!coincidencias.length) return null
+  return Number(coincidencias[coincidencias.length - 1][1])
+}
+
 function limitarProgreso(actual, objetivo) {
   if (!objetivo || objetivo <= 0) return 0
   return Math.max(0, Math.min(100, Math.round((actual / objetivo) * 100)))
@@ -3327,6 +3333,200 @@ function renderLogroMatematicas(achievement, stats) {
   return div
 }
 
+function obtenerProgresoFlashmind(achievement, stats) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const objetivo = obtenerPrimerNumero(objetivoTexto)
+  const mejorRachaCorrectas = stats.flashmind_mejor_racha_correctas || 0
+  const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
+  const mejorRachaTop3 = stats.mejor_racha_top3_torneos || 0
+  const victoriasSinErrores = stats.victorias_sin_errores || 0
+
+  if (objetivoTexto.includes('respuesta') || objetivoTexto.includes('correcta')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaCorrectas, target), label: describirNumero(mejorRachaCorrectas, target), target }
+  }
+
+  if (objetivoTexto.includes('sin cometer') || objetivoTexto.includes('sin error')) {
+    return { percent: limitarProgreso(victoriasSinErrores, 1), label: describirNumero(victoriasSinErrores, 1), target: 1 }
+  }
+
+  if (objetivoTexto.includes('top 3')) {
+    const target = obtenerNumeroDeTorneos(objetivoTexto) || objetivo || 1
+    return { percent: limitarProgreso(mejorRachaTop3, target), label: describirNumero(mejorRachaTop3, target), target }
+  }
+
+  if (objetivoTexto.includes('gana') && objetivoTexto.includes('torneo')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaVictorias, target), label: describirNumero(mejorRachaVictorias, target), target }
+  }
+
+  return { percent: achievement.unlocked ? 100 : 0, label: achievement.unlocked ? 'completo' : 'pendiente', target: 1 }
+}
+
+function obtenerProgresoNumcatch(achievement, stats) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const objetivo = obtenerPrimerNumero(objetivoTexto)
+  const mejorRachaAciertosVictoria = stats.numcatch_mejor_racha_aciertos_victoria || 0
+  const minErroresVictoria = typeof stats.numcatch_min_errores_victoria === 'number'
+    ? stats.numcatch_min_errores_victoria
+    : null
+  const victorias1Error = stats.numcatch_victorias_1_error || 0
+  const victorias2Errores = stats.numcatch_victorias_2_errores || 0
+  const victoriasMenos14Errores = stats.numcatch_victorias_menos_14_errores || 0
+  const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
+  const top3Torneos = stats.top3_torneos || 0
+  const victoriaTrasFueraPodio = stats.numcatch_victoria_tras_fuera_podio || 0
+  const mejorRachaTop3SinBajar = stats.numcatch_mejor_racha_top3_sin_bajar || 0
+  const mejorRachaVictorias400 = stats.numcatch_mejor_racha_victorias_400 || 0
+  const mejorRachaVictorias1200 = stats.numcatch_mejor_racha_victorias_1200 || 0
+
+  if (objetivoTexto.includes('aciertos seguidos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaAciertosVictoria, target), label: describirNumero(mejorRachaAciertosVictoria, target), target }
+  }
+
+  if (objetivoTexto.includes('exactamente 1 error')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(victorias1Error, target), label: describirNumero(victorias1Error, target), target }
+  }
+
+  if (objetivoTexto.includes('exactamente 2 errores')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(victorias2Errores, target), label: describirNumero(victorias2Errores, target), target }
+  }
+
+  if (objetivoTexto.includes('menos de 14 errores') && objetivoTexto.includes('torneos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(victoriasMenos14Errores, target), label: describirNumero(victoriasMenos14Errores, target), target }
+  }
+
+  if (objetivoTexto.includes('menos de') && objetivoTexto.includes('errores')) {
+    const target = objetivo || 1
+    const percent = minErroresVictoria === null
+      ? 0
+      : minErroresVictoria < target
+        ? 100
+        : Math.max(5, Math.min(95, Math.round((target / Math.max(minErroresVictoria, 1)) * 100)))
+    const label = minErroresVictoria === null ? `sin marca / < ${target}` : `${minErroresVictoria} / < ${target}`
+    return { percent, label, target }
+  }
+
+  if (objetivoTexto.includes('0 errores')) {
+    const percent = minErroresVictoria === 0 ? 100 : 0
+    const label = minErroresVictoria === null ? 'sin marca / 0' : `${minErroresVictoria} / 0`
+    return { percent, label, target: 1 }
+  }
+
+  if (objetivoTexto.includes('mas de 400 puntos') || objetivoTexto.includes('más de 400 puntos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaVictorias400, target), label: describirNumero(mejorRachaVictorias400, target), target }
+  }
+
+  if (objetivoTexto.includes('mas de 1200 puntos') || objetivoTexto.includes('más de 1200 puntos')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaVictorias1200, target), label: describirNumero(mejorRachaVictorias1200, target), target }
+  }
+
+  if (objetivoTexto.includes('fuera del podio')) {
+    return { percent: limitarProgreso(victoriaTrasFueraPodio, 1), label: describirNumero(victoriaTrasFueraPodio, 1), target: 1 }
+  }
+
+  if (objetivoTexto.includes('top 3') && objetivoTexto.includes('sin bajar')) {
+    const target = obtenerNumeroDeTorneos(objetivoTexto) || objetivo || 1
+    return { percent: limitarProgreso(mejorRachaTop3SinBajar, target), label: describirNumero(mejorRachaTop3SinBajar, target), target }
+  }
+
+  if (objetivoTexto.includes('top 3')) {
+    const target = obtenerNumeroDeTorneos(objetivoTexto) || objetivo || 1
+    return { percent: limitarProgreso(top3Torneos, target), label: describirNumero(top3Torneos, target), target }
+  }
+
+  if (objetivoTexto.includes('gana') && objetivoTexto.includes('torneo')) {
+    const target = objetivo || 1
+    return { percent: limitarProgreso(mejorRachaVictorias, target), label: describirNumero(mejorRachaVictorias, target), target }
+  }
+
+  return { percent: achievement.unlocked ? 100 : 0, label: achievement.unlocked ? 'completo' : 'pendiente', target: 1 }
+}
+
+function obtenerRarezaArcana(progress, achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const target = progress.target || 1
+  if (target >= 250 || objetivoTexto.includes('400 torneos') || objetivoTexto.includes('100 torneos') || objetivoTexto.includes('0 errores')) return 'legendary'
+  if (target >= 70 || objetivoTexto.includes('55') || objetivoTexto.includes('75') || objetivoTexto.includes('1200') || objetivoTexto.includes('sin cometer')) return 'epic'
+  if (target >= 10 || objetivoTexto.includes('torneo') || objetivoTexto.includes('menos de') || objetivoTexto.includes('top 3')) return 'rare'
+  return 'common'
+}
+
+function obtenerIconoArcano(gameKey, achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  if (objetivoTexto.includes('menos de') || objetivoTexto.includes('0 errores') || objetivoTexto.includes('exactamente')) {
+    return { label: gameKey === 'numcatch' ? 'EYE' : 'FOCUS', className: 'precision' }
+  }
+  if (objetivoTexto.includes('respuesta') || objetivoTexto.includes('acierto')) {
+    return { label: gameKey === 'flashmind' ? 'MIND' : 'LOCK', className: 'speed' }
+  }
+  if (objetivoTexto.includes('top 3') || objetivoTexto.includes('gana') || objetivoTexto.includes('torneo')) {
+    return { label: 'CROWN', className: 'crown' }
+  }
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('consecut')) {
+    return { label: 'CHAIN', className: 'streak' }
+  }
+  if (objetivoTexto.includes('fuera del podio')) {
+    return { label: 'RISE', className: 'rebound' }
+  }
+  return { label: gameKey === 'flashmind' ? 'MIND' : 'NUM', className: 'core' }
+}
+
+function renderLogroArcano(achievement, stats, gameKey) {
+  const progress = gameKey === 'flashmind'
+    ? obtenerProgresoFlashmind(achievement, stats)
+    : obtenerProgresoNumcatch(achievement, stats)
+  const rarity = obtenerRarezaArcana(progress, achievement)
+  const icon = obtenerIconoArcano(gameKey, achievement)
+  const rarityLabel = {
+    common: 'Comun',
+    rare: 'Raro',
+    epic: 'Epico',
+    legendary: 'Legendario',
+  }[rarity]
+  const gameCopy = gameKey === 'flashmind'
+    ? { stateOn: 'Encendido', stateOff: 'Dormido', objective: 'Vision', sigil: '01 13 21 34 MIND' }
+    : { stateOn: 'Capturado', stateOff: 'Sellado', objective: 'Caceria', sigil: '07 42 99 NUM' }
+  const div = document.createElement('div')
+  div.className = `achievement-card arcane-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.setAttribute('data-sigil', gameCopy.sigil)
+  div.innerHTML = `
+    <div class="arcane-relic-header">
+      <div class="arcane-relic-icon ${escaparHtml(icon.className)}" aria-hidden="true">
+        <span>${escaparHtml(icon.label)}</span>
+      </div>
+      <div class="arcane-relic-badges">
+        <span class="arcane-relic-rarity">${rarityLabel}</span>
+        <span class="arcane-relic-state">${achievement.unlocked ? gameCopy.stateOn : gameCopy.stateOff}</span>
+      </div>
+    </div>
+    <div class="arcane-relic-main">
+      <strong class="arcane-relic-title">${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p class="arcane-relic-prophecy">${escaparHtml(textoPlano(achievement.description))}</p>
+      <div class="arcane-objective">
+        <span>${gameCopy.objective}</span>
+        <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      </div>
+      <div class="arcane-progress" aria-label="Progreso">
+        <div class="arcane-progress-meta">
+          <span>Progreso</span>
+          <span>${progress.percent}% - ${escaparHtml(progress.label)}</span>
+        </div>
+        <div class="arcane-progress-track">
+          <div class="arcane-progress-fill" style="width:${progress.percent}%"></div>
+        </div>
+      </div>
+    </div>
+  `
+  return div
+}
+
 function reproducirSonidoSudoku() {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -3390,6 +3590,7 @@ function renderLogros() {
   logrosListEl.classList.toggle('sudoku-relics', game.key === 'sudoku')
   logrosListEl.classList.toggle('memory-relics', game.key === 'memoria')
   logrosListEl.classList.toggle('math-relics', game.key === 'matematicas')
+  logrosListEl.classList.toggle('arcane-relics', game.key === 'flashmind' || game.key === 'numcatch')
 
   logros.forEach((achievement) => {
     if (game.key === 'sudoku') {
@@ -3404,6 +3605,11 @@ function renderLogros() {
 
     if (game.key === 'matematicas') {
       logrosListEl.appendChild(renderLogroMatematicas(achievement, estadisticasLogros.matematicas || {}))
+      return
+    }
+
+    if (game.key === 'flashmind' || game.key === 'numcatch') {
+      logrosListEl.appendChild(renderLogroArcano(achievement, estadisticasLogros[game.key] || {}, game.key))
       return
     }
 

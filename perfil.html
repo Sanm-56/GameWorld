@@ -1486,6 +1486,300 @@ body.sudoku-screen-shake{
   50%{ box-shadow:0 24px 62px rgba(0,0,0,0.6), 0 0 42px rgba(250,204,21,0.32), 0 0 24px rgba(34,211,238,0.12); }
 }
 
+.achievement-grid.arcane-relics{
+  gap:14px;
+  scrollbar-color:#60a5fa #050816;
+}
+
+.achievement-card.arcane-relic{
+  --arcane-main:#94a3b8;
+  --arcane-glow:rgba(148,163,184,0.12);
+  --arcane-accent:#38bdf8;
+  position:relative;
+  display:block;
+  min-height:244px;
+  padding:0;
+  border-radius:14px;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 16% 0, var(--arcane-glow), transparent 36%),
+    radial-gradient(circle at 86% 16%, rgba(96,165,250,0.1), transparent 34%),
+    linear-gradient(145deg, rgba(3,7,18,0.98), rgba(10,16,31,0.97) 52%, rgba(2,6,23,0.99));
+  border:1px solid color-mix(in srgb, var(--arcane-main) 44%, transparent);
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.48),
+    inset 0 1px 0 rgba(255,255,255,0.045),
+    0 0 0 1px rgba(15,23,42,0.9);
+  transition:transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease, filter 0.22s ease;
+}
+
+.achievement-card.arcane-relic::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  opacity:0.9;
+  background:
+    linear-gradient(rgba(226,232,240,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,232,240,0.03) 1px, transparent 1px),
+    repeating-linear-gradient(135deg, transparent 0 20px, color-mix(in srgb, var(--arcane-main) 11%, transparent) 20px 21px),
+    radial-gradient(circle at 72% 30%, transparent 0 36px, color-mix(in srgb, var(--arcane-main) 12%, transparent) 37px 38px, transparent 39px);
+  background-size:31px 31px, 31px 31px, 100% 100%, 100% 100%;
+}
+
+.achievement-card.arcane-relic::after{
+  content:attr(data-sigil);
+  position:absolute;
+  right:-46px;
+  top:22px;
+  z-index:-1;
+  max-width:260px;
+  color:color-mix(in srgb, var(--arcane-main) 24%, transparent);
+  font-size:2.35rem;
+  font-weight:900;
+  letter-spacing:0;
+  line-height:0.92;
+  opacity:0.3;
+  text-align:right;
+  transform:rotate(-8deg);
+  pointer-events:none;
+}
+
+.achievement-card.arcane-relic:hover{
+  transform:translateY(-4px);
+  border-color:color-mix(in srgb, var(--arcane-main) 80%, white 5%);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.6),
+    0 0 34px var(--arcane-glow),
+    inset 0 1px 0 rgba(255,255,255,0.065);
+}
+
+.achievement-card.arcane-relic.locked{
+  opacity:0.72;
+  filter:saturate(0.72);
+}
+
+.arcane-relic-header{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 16px 0;
+}
+
+.arcane-relic-badges{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:7px;
+}
+
+.arcane-relic-icon{
+  position:relative;
+  width:78px;
+  height:78px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  color:#f8fafc;
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--arcane-main) 25%, transparent), transparent 66%),
+    linear-gradient(145deg, rgba(15,23,42,0.96), rgba(2,6,23,0.88));
+  border:1px solid color-mix(in srgb, var(--arcane-main) 55%, transparent);
+  box-shadow:inset 0 0 24px color-mix(in srgb, var(--arcane-main) 16%, transparent), 0 0 28px var(--arcane-glow);
+}
+
+.arcane-relic-icon::before,
+.arcane-relic-icon::after{
+  content:"";
+  position:absolute;
+  inset:16px;
+  border:1px solid color-mix(in srgb, var(--arcane-main) 58%, transparent);
+  opacity:0.78;
+}
+
+.arcane-relic-icon::before{
+  border-radius:50%;
+}
+
+.arcane-relic-icon::after{
+  border-radius:6px;
+  transform:rotate(45deg);
+}
+
+.arcane-relic-icon span{
+  position:relative;
+  z-index:1;
+  text-shadow:0 0 14px var(--arcane-main);
+}
+
+.arcane-relic-icon.speed::after{
+  width:20px;
+  height:1px;
+  inset:38px auto auto 38px;
+  border:0;
+  border-top:2px solid color-mix(in srgb, var(--arcane-main) 78%, white 8%);
+  transform:rotate(-35deg);
+}
+
+.arcane-relic-icon.precision::before{
+  inset:22px 12px;
+}
+
+.arcane-relic-icon.precision::after{
+  inset:31px;
+  border-radius:50%;
+  transform:none;
+  background:var(--arcane-main);
+  box-shadow:0 0 18px var(--arcane-main);
+}
+
+.arcane-relic-icon.streak::before{ border-radius:999px; transform:rotate(28deg); }
+.arcane-relic-icon.streak::after{ border-radius:999px; transform:rotate(-28deg); }
+.arcane-relic-icon.crown::before{ inset:25px 14px 22px; border-radius:4px 4px 10px 10px; }
+.arcane-relic-icon.crown::after{ inset:17px 23px 38px; border-radius:3px; }
+.arcane-relic-icon.rebound::before{ border-radius:8px; transform:rotate(-12deg); }
+.arcane-relic-icon.rebound::after{ border-radius:8px; transform:rotate(12deg); }
+
+.arcane-relic-main{
+  padding:12px 16px 16px;
+}
+
+.arcane-relic-title{
+  display:block;
+  color:#fff;
+  font-size:1.2rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 0 18px color-mix(in srgb, var(--arcane-main) 22%, transparent);
+}
+
+.arcane-relic-prophecy{
+  margin:9px 0 13px;
+  color:rgba(226,232,240,0.72);
+  font-size:0.92rem;
+  line-height:1.45;
+  font-style:italic;
+}
+
+.arcane-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(15,23,42,0.8), rgba(2,6,23,0.54));
+  border:1px solid color-mix(in srgb, var(--arcane-main) 25%, transparent);
+}
+
+.arcane-objective span{
+  color:color-mix(in srgb, var(--arcane-main) 84%, white 12%);
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.arcane-objective small{
+  color:rgba(226,232,240,0.88);
+  line-height:1.35;
+}
+
+.arcane-progress{
+  display:grid;
+  gap:6px;
+  margin-top:12px;
+}
+
+.arcane-progress-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:rgba(226,232,240,0.78);
+  font-size:0.76rem;
+  font-weight:800;
+}
+
+.arcane-progress-track{
+  height:10px;
+  padding:1px;
+  border-radius:999px;
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(2,6,23,0.95), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--arcane-main) 25%, transparent);
+}
+
+.arcane-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--arcane-main) 52%, var(--arcane-accent)), var(--arcane-main));
+  box-shadow:0 0 18px var(--arcane-glow), 0 0 8px var(--arcane-main);
+  transition:width 0.8s cubic-bezier(.2,.8,.2,1);
+}
+
+.arcane-relic-rarity,
+.arcane-relic-state{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:0.7rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.arcane-relic-state{
+  background:rgba(15,23,42,0.8);
+  color:#cbd5e1;
+  border:1px solid rgba(148,163,184,0.16);
+}
+
+.arcane-relic.unlocked .arcane-relic-state{
+  color:#dbeafe;
+  border-color:color-mix(in srgb, var(--arcane-main) 38%, transparent);
+  box-shadow:0 0 16px var(--arcane-glow);
+}
+
+.arcane-relic.common{ --arcane-main:#94a3b8; --arcane-glow:rgba(148,163,184,0.12); --arcane-accent:#475569; }
+.arcane-relic.rare{ --arcane-main:#38bdf8; --arcane-glow:rgba(56,189,248,0.26); --arcane-accent:#2563eb; }
+.arcane-relic.epic{ --arcane-main:#a855f7; --arcane-glow:rgba(168,85,247,0.32); --arcane-accent:#6366f1; animation:arcaneEpicPulse 3s ease-in-out infinite; }
+.arcane-relic.legendary{ --arcane-main:#facc15; --arcane-glow:rgba(250,204,21,0.34); --arcane-accent:#f97316; animation:arcaneLegendaryShine 3.1s ease-in-out infinite; }
+.arcane-relic.epic::before{ animation:arcaneParticles 5s linear infinite; }
+.arcane-relic.legendary::before{ opacity:1; }
+.arcane-relic.legendary::after{ color:rgba(250,204,21,0.1); opacity:0.82; }
+
+.arcane-relic.common .arcane-relic-rarity,
+.arcane-relic.rare .arcane-relic-rarity,
+.arcane-relic.epic .arcane-relic-rarity,
+.arcane-relic.legendary .arcane-relic-rarity{
+  color:color-mix(in srgb, var(--arcane-main) 82%, white 16%);
+  border:1px solid color-mix(in srgb, var(--arcane-main) 36%, transparent);
+  background:color-mix(in srgb, var(--arcane-main) 14%, transparent);
+}
+
+@keyframes arcaneEpicPulse{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.48), 0 0 0 rgba(168,85,247,0); }
+  50%{ box-shadow:0 24px 62px rgba(0,0,0,0.6), 0 0 36px rgba(168,85,247,0.3); }
+}
+
+@keyframes arcaneParticles{
+  0%{ background-position:0 0, 0 0, 0 0, 0 0; }
+  100%{ background-position:31px 31px, -31px 31px, 80px 0, 0 0; }
+}
+
+@keyframes arcaneLegendaryShine{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.48), 0 0 22px rgba(250,204,21,0.14); }
+  50%{ box-shadow:0 25px 66px rgba(0,0,0,0.62), 0 0 46px rgba(250,204,21,0.36), 0 0 28px rgba(56,189,248,0.13); }
+}
+
 .history-item{
   padding:16px;
   border-radius:16px;
@@ -1812,7 +2106,18 @@ body.sudoku-screen-shake{
     min-height:0;
   }
 
+  .achievement-card.arcane-relic{
+    padding:0;
+    min-height:0;
+  }
+
   .math-relic-icon{
+    width:62px;
+    height:62px;
+    font-size:0.62rem;
+  }
+
+  .arcane-relic-icon{
     width:62px;
     height:62px;
     font-size:0.62rem;
@@ -1823,7 +2128,16 @@ body.sudoku-screen-shake{
     gap:10px;
   }
 
+  .arcane-relic-header{
+    padding:14px 14px 0;
+    gap:10px;
+  }
+
   .math-relic-main{
+    padding:11px 14px 14px;
+  }
+
+  .arcane-relic-main{
     padding:11px 14px 14px;
   }
 
@@ -1831,12 +2145,19 @@ body.sudoku-screen-shake{
     gap:6px;
   }
 
+  .arcane-relic-badges{
+    gap:6px;
+  }
+
   .math-relic-rarity,
-  .math-relic-state{
+  .math-relic-state,
+  .arcane-relic-rarity,
+  .arcane-relic-state{
     font-size:0.64rem;
   }
 
-  .math-relic-title{
+  .math-relic-title,
+  .arcane-relic-title{
     font-size:0.98rem;
   }
 
