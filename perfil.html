@@ -1780,6 +1780,331 @@ body.sudoku-screen-shake{
   50%{ box-shadow:0 25px 66px rgba(0,0,0,0.62), 0 0 46px rgba(250,204,21,0.36), 0 0 28px rgba(56,189,248,0.13); }
 }
 
+.achievement-grid.board-relics{
+  gap:14px;
+  scrollbar-color:#facc15 #050816;
+}
+
+.achievement-card.board-relic{
+  --board-main:#94a3b8;
+  --board-glow:rgba(148,163,184,0.12);
+  --board-accent:#475569;
+  position:relative;
+  display:block;
+  min-height:250px;
+  padding:0;
+  border-radius:14px;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 14% 0, var(--board-glow), transparent 35%),
+    radial-gradient(circle at 92% 16%, color-mix(in srgb, var(--board-accent) 22%, transparent), transparent 34%),
+    linear-gradient(145deg, rgba(3,7,18,0.98), rgba(12,15,28,0.97) 52%, rgba(2,6,23,0.99));
+  border:1px solid color-mix(in srgb, var(--board-main) 42%, transparent);
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.045),
+    0 0 0 1px rgba(15,23,42,0.9);
+  transition:transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease, filter 0.22s ease;
+}
+
+.achievement-card.board-relic::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  opacity:0.9;
+  background:
+    linear-gradient(rgba(226,232,240,0.036) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,232,240,0.03) 1px, transparent 1px),
+    repeating-linear-gradient(135deg, transparent 0 19px, color-mix(in srgb, var(--board-main) 11%, transparent) 19px 20px),
+    radial-gradient(circle at 76% 28%, transparent 0 34px, color-mix(in srgb, var(--board-main) 13%, transparent) 35px 36px, transparent 37px);
+  background-size:32px 32px, 32px 32px, 100% 100%, 100% 100%;
+}
+
+.achievement-card.board-relic::after{
+  content:attr(data-sigil);
+  position:absolute;
+  right:-42px;
+  top:22px;
+  z-index:-1;
+  max-width:280px;
+  color:color-mix(in srgb, var(--board-main) 24%, transparent);
+  font-size:2.35rem;
+  font-weight:900;
+  letter-spacing:0;
+  line-height:0.92;
+  opacity:0.32;
+  text-align:right;
+  transform:rotate(-8deg);
+  pointer-events:none;
+}
+
+.achievement-card.board-relic:hover{
+  transform:translateY(-4px);
+  border-color:color-mix(in srgb, var(--board-main) 82%, white 5%);
+  box-shadow:
+    0 24px 62px rgba(0,0,0,0.62),
+    0 0 36px var(--board-glow),
+    inset 0 1px 0 rgba(255,255,255,0.065);
+}
+
+.achievement-card.board-relic.locked{
+  opacity:0.72;
+  filter:saturate(0.72);
+}
+
+.board-relic-header{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 16px 0;
+}
+
+.board-relic-badges{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:7px;
+}
+
+.board-relic-icon{
+  position:relative;
+  width:80px;
+  height:80px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  color:#f8fafc;
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--board-main) 26%, transparent), transparent 66%),
+    linear-gradient(145deg, rgba(15,23,42,0.96), rgba(2,6,23,0.9));
+  border:1px solid color-mix(in srgb, var(--board-main) 56%, transparent);
+  box-shadow:inset 0 0 24px color-mix(in srgb, var(--board-main) 16%, transparent), 0 0 30px var(--board-glow);
+}
+
+.board-relic-icon::before,
+.board-relic-icon::after{
+  content:"";
+  position:absolute;
+  border:1px solid color-mix(in srgb, var(--board-main) 62%, transparent);
+  opacity:0.8;
+}
+
+.board-relic-icon::before{
+  inset:16px;
+  border-radius:7px;
+}
+
+.board-relic-icon::after{
+  inset:26px;
+  border-radius:50%;
+  transform:rotate(45deg);
+}
+
+.board-relic-icon span{
+  position:relative;
+  z-index:1;
+  text-shadow:0 0 15px var(--board-main);
+}
+
+.board-relic-icon.clock::before{ border-radius:50%; }
+.board-relic-icon.clock::after{
+  width:22px;
+  height:1px;
+  inset:39px auto auto 39px;
+  border:0;
+  border-top:2px solid color-mix(in srgb, var(--board-main) 82%, white 8%);
+  transform:rotate(-38deg);
+}
+
+.board-relic-icon.eye::before{ inset:24px 12px; border-radius:50%; }
+.board-relic-icon.eye::after{
+  inset:32px;
+  border-radius:50%;
+  background:var(--board-main);
+  box-shadow:0 0 18px var(--board-main);
+  transform:none;
+}
+
+.board-relic-icon.flame::before,
+.board-relic-icon.flame::after{ border-radius:999px; }
+.board-relic-icon.flame::before{ transform:rotate(28deg); }
+.board-relic-icon.flame::after{ transform:rotate(-28deg); }
+
+.board-relic-icon.crown::before{ inset:26px 14px 22px; border-radius:4px 4px 10px 10px; }
+.board-relic-icon.crown::after{ inset:18px 23px 39px; border-radius:3px; }
+.board-relic-icon.spiral::before{ border-radius:50%; }
+.board-relic-icon.spiral::after{ inset:26px; border-radius:50%; border-right-color:transparent; }
+.board-relic-icon.grid::before{ border-radius:4px; box-shadow:inset 19px 0 0 rgba(255,255,255,0.02), inset -19px 0 0 rgba(255,255,255,0.02); }
+.board-relic-icon.grid::after{ inset:18px; border-radius:4px; transform:none; }
+
+.board-relic-main{
+  padding:12px 16px 16px;
+}
+
+.board-relic-title{
+  display:block;
+  color:#fff;
+  font-size:1.22rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 0 18px color-mix(in srgb, var(--board-main) 24%, transparent);
+}
+
+.board-relic-prophecy{
+  margin:9px 0 13px;
+  color:rgba(226,232,240,0.72);
+  font-size:0.92rem;
+  line-height:1.45;
+  font-style:italic;
+}
+
+.board-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(15,23,42,0.82), rgba(2,6,23,0.56));
+  border:1px solid color-mix(in srgb, var(--board-main) 25%, transparent);
+}
+
+.board-objective span{
+  color:color-mix(in srgb, var(--board-main) 84%, white 12%);
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.board-objective small{
+  color:rgba(226,232,240,0.88);
+  line-height:1.35;
+}
+
+.board-progress{
+  display:grid;
+  gap:6px;
+  margin-top:12px;
+}
+
+.board-progress-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:rgba(226,232,240,0.78);
+  font-size:0.76rem;
+  font-weight:800;
+}
+
+.board-progress-track{
+  height:10px;
+  padding:1px;
+  border-radius:999px;
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(2,6,23,0.96), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--board-main) 25%, transparent);
+}
+
+.board-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--board-main) 52%, var(--board-accent)), var(--board-main));
+  box-shadow:0 0 18px var(--board-glow), 0 0 8px var(--board-main);
+  transition:width 0.8s cubic-bezier(.2,.8,.2,1);
+}
+
+.board-relic-rarity,
+.board-relic-state{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:0.7rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.board-relic-state{
+  background:rgba(15,23,42,0.8);
+  color:#cbd5e1;
+  border:1px solid rgba(148,163,184,0.16);
+}
+
+.board-relic.unlocked .board-relic-state{
+  color:#fde68a;
+  border-color:color-mix(in srgb, var(--board-main) 38%, transparent);
+  box-shadow:0 0 16px var(--board-glow);
+}
+
+.board-relic.common{
+  --board-main:#94a3b8;
+  --board-glow:rgba(148,163,184,0.12);
+  --board-accent:#475569;
+}
+
+.board-relic.rare{
+  --board-main:#38bdf8;
+  --board-glow:rgba(56,189,248,0.27);
+  --board-accent:#2563eb;
+}
+
+.board-relic.epic{
+  --board-main:#a855f7;
+  --board-glow:rgba(168,85,247,0.34);
+  --board-accent:#6366f1;
+  animation:boardEpicPulse 3s ease-in-out infinite;
+}
+
+.board-relic.epic::before{
+  animation:boardParticles 5s linear infinite;
+}
+
+.board-relic.legendary{
+  --board-main:#facc15;
+  --board-glow:rgba(250,204,21,0.36);
+  --board-accent:#f97316;
+  animation:boardLegendaryShine 3.1s ease-in-out infinite;
+}
+
+.board-relic.legendary::after{
+  color:rgba(250,204,21,0.11);
+  opacity:0.86;
+}
+
+.board-relic.common .board-relic-rarity,
+.board-relic.rare .board-relic-rarity,
+.board-relic.epic .board-relic-rarity,
+.board-relic.legendary .board-relic-rarity{
+  color:color-mix(in srgb, var(--board-main) 82%, white 16%);
+  border:1px solid color-mix(in srgb, var(--board-main) 36%, transparent);
+  background:color-mix(in srgb, var(--board-main) 14%, transparent);
+}
+
+@keyframes boardEpicPulse{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.5), 0 0 0 rgba(168,85,247,0); }
+  50%{ box-shadow:0 24px 64px rgba(0,0,0,0.62), 0 0 38px rgba(168,85,247,0.32); }
+}
+
+@keyframes boardParticles{
+  0%{ background-position:0 0, 0 0, 0 0, 0 0; }
+  100%{ background-position:32px 32px, -32px 32px, 82px 0, 0 0; }
+}
+
+@keyframes boardLegendaryShine{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.5), 0 0 24px rgba(250,204,21,0.15); }
+  50%{ box-shadow:0 26px 68px rgba(0,0,0,0.64), 0 0 50px rgba(250,204,21,0.38), 0 0 28px rgba(56,189,248,0.13); }
+}
+
 .history-item{
   padding:16px;
   border-radius:16px;
@@ -2111,6 +2436,11 @@ body.sudoku-screen-shake{
     min-height:0;
   }
 
+  .achievement-card.board-relic{
+    padding:0;
+    min-height:0;
+  }
+
   .math-relic-icon{
     width:62px;
     height:62px;
@@ -2118,6 +2448,12 @@ body.sudoku-screen-shake{
   }
 
   .arcane-relic-icon{
+    width:62px;
+    height:62px;
+    font-size:0.62rem;
+  }
+
+  .board-relic-icon{
     width:62px;
     height:62px;
     font-size:0.62rem;
@@ -2133,11 +2469,20 @@ body.sudoku-screen-shake{
     gap:10px;
   }
 
+  .board-relic-header{
+    padding:14px 14px 0;
+    gap:10px;
+  }
+
   .math-relic-main{
     padding:11px 14px 14px;
   }
 
   .arcane-relic-main{
+    padding:11px 14px 14px;
+  }
+
+  .board-relic-main{
     padding:11px 14px 14px;
   }
 
@@ -2149,15 +2494,22 @@ body.sudoku-screen-shake{
     gap:6px;
   }
 
+  .board-relic-badges{
+    gap:6px;
+  }
+
   .math-relic-rarity,
   .math-relic-state,
   .arcane-relic-rarity,
-  .arcane-relic-state{
+  .arcane-relic-state,
+  .board-relic-rarity,
+  .board-relic-state{
     font-size:0.64rem;
   }
 
   .math-relic-title,
-  .arcane-relic-title{
+  .arcane-relic-title,
+  .board-relic-title{
     font-size:0.98rem;
   }
 

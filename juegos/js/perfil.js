@@ -3527,6 +3527,145 @@ function renderLogroArcano(achievement, stats, gameKey) {
   return div
 }
 
+function obtenerProgresoTablero(achievement, stats, gameKey) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const objetivo = obtenerPrimerNumero(objetivoTexto)
+
+  if (gameKey === 'domino') {
+    const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
+    const mejorRachaTop10 = stats.mejor_racha_top10_torneos || 0
+    const mejorRachaInvicto = stats.domino_mejor_racha_invicto || 0
+
+    if (objetivoTexto.includes('sin perder')) {
+      const target = objetivo || 1
+      return { percent: limitarProgreso(mejorRachaInvicto, target), label: describirNumero(mejorRachaInvicto, target), target }
+    }
+
+    if (objetivoTexto.includes('top 10')) {
+      const target = obtenerNumeroDeTorneos(objetivoTexto) || objetivo || 1
+      return { percent: limitarProgreso(mejorRachaTop10, target), label: describirNumero(mejorRachaTop10, target), target }
+    }
+
+    if (objetivoTexto.includes('gana') && objetivoTexto.includes('torneo')) {
+      const target = objetivo || 1
+      return { percent: limitarProgreso(mejorRachaVictorias, target), label: describirNumero(mejorRachaVictorias, target), target }
+    }
+  }
+
+  if (gameKey === 'ajedrez') {
+    const metricas = [
+      ['sin perder ninguna pieza', stats.ajedrez_victorias_sin_perder_piezas || 0, 1],
+      ['sacrificar tu reina', stats.ajedrez_mate_tras_sacrificar_reina || 0, 1],
+      ['piezas menores y peones', stats.ajedrez_final_menores_peones || 0, 1],
+      ['15 puntos de material abajo', stats.ajedrez_remontada_15_material || 0, 1],
+      ['dos piezas consecutivas', stats.ajedrez_dos_sacrificios_consecutivos || 0, 1],
+      ['mas de 80 movimientos', stats.ajedrez_victorias_80_movimientos || 0, 1],
+      ['rey y un peon', stats.ajedrez_rey_peon_vs_piezas || 0, 1],
+      ['mayor rango', stats.ajedrez_derrota_mayor_rango || 0, 1],
+      ['13 movimientos consecutivos sin cometer errores', stats.ajedrez_racha_13_sin_errores || 0, 1],
+      ['50 partidas clasificatorias', stats.ajedrez_victorias_clasificatorias || 0, 50],
+      ['5 turnos seguidos', stats.ajedrez_jaque_5_turnos || 0, 1],
+      ['ambos alfiles', stats.ajedrez_mate_dos_alfiles || 0, 1],
+      ['menos de 10 segundos', stats.ajedrez_victoria_menos_10s || 0, 1],
+      ['antes del movimiento 15', stats.ajedrez_mate_antes_15 || 0, 1],
+      ['tres errores consecutivos', stats.ajedrez_castiga_3_errores || 0, 1],
+      ['piezas mayores enemigas', stats.ajedrez_captura_mayores_antes_mate || 0, 1],
+      ['sin enrocarte', stats.ajedrez_victoria_sin_enrocar || 0, 1],
+      ['corona tres peones', stats.ajedrez_3_promociones || 0, 1],
+      ['misma apertura', stats.ajedrez_mejor_racha_apertura || 0, objetivo || 10],
+      ['campeon de un torneo invicto', stats.ajedrez_campeon_invicto || 0, 1],
+      ['jaque mate', stats.ajedrez_mejor_racha_mate || 0, objetivo || 1],
+      ['aperturas diferentes', stats.ajedrez_mejor_racha_aperturas_diferentes || 0, objetivo || 1],
+      ['menos de 25 movimientos', stats.ajedrez_mejor_racha_menos_25_movimientos || 0, objetivo || 1],
+      ['sin empates', stats.ajedrez_mejor_racha_sin_tablas || 0, objetivo || 1],
+      ['sacrificio', stats.ajedrez_mejor_racha_sacrificio || 0, objetivo || 1],
+      ['sin perder ninguna torre', stats.ajedrez_mejor_racha_sin_perder_torre || 0, objetivo || 1],
+      ['jaque antes del movimiento 10', stats.ajedrez_mejor_racha_jaque_antes_10 || 0, objetivo || 1],
+      ['remontando desventaja material', stats.ajedrez_mejor_racha_remontada_material || 0, objetivo || 1],
+      ['despues de haber perdido', stats.ajedrez_mejor_racha_victoria_tras_derrota || 0, objetivo || 1],
+    ]
+    const metrica = metricas.find(([patron]) => objetivoTexto.includes(patron))
+    if (metrica) {
+      const [, actual, target] = metrica
+      return { percent: limitarProgreso(actual, target), label: describirNumero(actual, target), target }
+    }
+
+    if (objetivoTexto.includes('gana') && objetivoTexto.includes('torneo')) {
+      const target = objetivo || 1
+      const actual = stats.mejor_racha_victorias_torneos || 0
+      return { percent: limitarProgreso(actual, target), label: describirNumero(actual, target), target }
+    }
+  }
+
+  return { percent: achievement.unlocked ? 100 : 0, label: achievement.unlocked ? 'completo' : 'pendiente', target: 1 }
+}
+
+function obtenerRarezaTablero(progress, achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const target = progress.target || 1
+  if (target >= 100 || objetivoTexto.includes('campeon') || objetivoTexto.includes('invicto') || objetivoTexto.includes('sacrificar tu reina') || objetivoTexto.includes('0 errores')) return 'legendary'
+  if (target >= 35 || objetivoTexto.includes('15 puntos') || objetivoTexto.includes('80 movimientos') || objetivoTexto.includes('13 movimientos') || objetivoTexto.includes('jaque mate')) return 'epic'
+  if (target >= 5 || objetivoTexto.includes('sin perder') || objetivoTexto.includes('top 10') || objetivoTexto.includes('menos de') || objetivoTexto.includes('consecutiv')) return 'rare'
+  return 'common'
+}
+
+function obtenerIconoTablero(gameKey, achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  if (objetivoTexto.includes('menos de') || objetivoTexto.includes('tiempo')) return { label: 'TIME', className: 'clock' }
+  if (objetivoTexto.includes('errores') || objetivoTexto.includes('detecta') || objetivoTexto.includes('sin perder')) return { label: 'EYE', className: 'eye' }
+  if (objetivoTexto.includes('racha') || objetivoTexto.includes('consecutiv') || objetivoTexto.includes('seguid')) return { label: 'FIRE', className: 'flame' }
+  if (objetivoTexto.includes('campeon') || objetivoTexto.includes('gana') || objetivoTexto.includes('trono') || objetivoTexto.includes('top')) return { label: 'CROWN', className: 'crown' }
+  if (objetivoTexto.includes('apertura') || objetivoTexto.includes('mate') || objetivoTexto.includes('sacrificio')) return { label: gameKey === 'ajedrez' ? 'MATE' : 'SEAL', className: 'spiral' }
+  return { label: gameKey === 'ajedrez' ? 'GRID' : 'TILE', className: 'grid' }
+}
+
+function renderLogroTablero(achievement, stats, gameKey) {
+  const progress = obtenerProgresoTablero(achievement, stats, gameKey)
+  const rarity = obtenerRarezaTablero(progress, achievement)
+  const icon = obtenerIconoTablero(gameKey, achievement)
+  const rarityLabel = {
+    common: 'Comun',
+    rare: 'Raro',
+    epic: 'Epico',
+    legendary: 'Legendario',
+  }[rarity]
+  const gameCopy = gameKey === 'ajedrez'
+    ? { stateOn: 'Coronado', stateOff: 'Sellado', objective: 'Desbloqueo', sigil: 'K Q R B N 64' }
+    : { stateOn: 'Dominado', stateOff: 'Sellado', objective: 'Rito de mesa', sigil: '0 6 12 28 TILE' }
+  const div = document.createElement('div')
+  div.className = `achievement-card board-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.setAttribute('data-sigil', gameCopy.sigil)
+  div.innerHTML = `
+    <div class="board-relic-header">
+      <div class="board-relic-icon ${escaparHtml(icon.className)}" aria-hidden="true">
+        <span>${escaparHtml(icon.label)}</span>
+      </div>
+      <div class="board-relic-badges">
+        <span class="board-relic-rarity">${rarityLabel}</span>
+        <span class="board-relic-state">${achievement.unlocked ? gameCopy.stateOn : gameCopy.stateOff}</span>
+      </div>
+    </div>
+    <div class="board-relic-main">
+      <strong class="board-relic-title">${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p class="board-relic-prophecy">${escaparHtml(textoPlano(achievement.description))}</p>
+      <div class="board-objective">
+        <span>${gameCopy.objective}</span>
+        <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      </div>
+      <div class="board-progress" aria-label="Progreso">
+        <div class="board-progress-meta">
+          <span>Progreso</span>
+          <span>${progress.percent}% - ${escaparHtml(progress.label)}</span>
+        </div>
+        <div class="board-progress-track">
+          <div class="board-progress-fill" style="width:${progress.percent}%"></div>
+        </div>
+      </div>
+    </div>
+  `
+  return div
+}
+
 function reproducirSonidoSudoku() {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -3591,6 +3730,7 @@ function renderLogros() {
   logrosListEl.classList.toggle('memory-relics', game.key === 'memoria')
   logrosListEl.classList.toggle('math-relics', game.key === 'matematicas')
   logrosListEl.classList.toggle('arcane-relics', game.key === 'flashmind' || game.key === 'numcatch')
+  logrosListEl.classList.toggle('board-relics', game.key === 'ajedrez' || game.key === 'domino')
 
   logros.forEach((achievement) => {
     if (game.key === 'sudoku') {
@@ -3610,6 +3750,11 @@ function renderLogros() {
 
     if (game.key === 'flashmind' || game.key === 'numcatch') {
       logrosListEl.appendChild(renderLogroArcano(achievement, estadisticasLogros[game.key] || {}, game.key))
+      return
+    }
+
+    if (game.key === 'ajedrez' || game.key === 'domino') {
+      logrosListEl.appendChild(renderLogroTablero(achievement, estadisticasLogros[game.key] || {}, game.key))
       return
     }
 
