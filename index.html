@@ -268,6 +268,10 @@ h1{
   text-align:center;
 }
 
+.mobile-admin-btn{
+  display:none;
+}
+
 .ranking-modal{
   position:fixed;
   inset:0;
@@ -453,7 +457,7 @@ h1{
 
   .acciones{
     display:grid;
-    grid-template-columns:repeat(3, minmax(0, 1fr));
+    grid-template-columns:repeat(4, minmax(0, 1fr));
     gap:8px;
   }
 
@@ -469,7 +473,8 @@ h1{
 
   .profile-btn,
   .music-btn,
-  .rankings-btn{
+  .rankings-btn,
+  .mobile-admin-btn{
     width:100%;
     min-height:46px;
     padding:10px 8px;
@@ -478,6 +483,12 @@ h1{
     text-align:center;
     white-space:nowrap;
     box-shadow:none;
+  }
+
+  .mobile-admin-btn{
+    display:block;
+    opacity:0.72;
+    border-color:rgba(248,113,113,0.34);
   }
 }
 
@@ -532,6 +543,17 @@ h1{
   .boton .detalle{
     font-size:13px;
     line-height:1.35;
+  }
+
+  .profile-btn,
+  .music-btn,
+  .rankings-btn,
+  .mobile-admin-btn{
+    min-height:46px;
+    padding:10px 8px;
+    font-size:13px;
+    border-radius:14px;
+    text-align:center;
   }
 
   .ranking-controls{
@@ -598,7 +620,8 @@ h1{
 
   .profile-btn,
   .music-btn,
-  .rankings-btn{
+  .rankings-btn,
+  .mobile-admin-btn{
     min-height:44px;
     padding:9px 6px;
     font-size:12px;
@@ -618,6 +641,7 @@ h1{
       <button class="boton profile-btn" onclick="irPerfil()">Perfil</button>
       <button class="boton rankings-btn" data-open-rankings>Rankings</button>
       <button class="boton music-btn" onclick="reproducirMusica()">Música</button>
+      <button class="boton mobile-admin-btn" onclick="irAdmin()">Admin</button>
     </div>
     <button class="boton admin-btn" onclick="irAdmin()">Admin</button>
   </aside>
