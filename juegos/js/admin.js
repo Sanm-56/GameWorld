@@ -26,6 +26,68 @@ return String(valor ?? "")
 .replaceAll("\r", "\\r")
 }
 
+function valorCsv(valor){
+if(valor === null || valor === undefined) return ""
+const texto = typeof valor === "object" ? JSON.stringify(valor) : String(valor)
+return `"${texto.replaceAll('"', '""')}"`
+}
+
+function descargarCsv(nombreArchivo, filas){
+if(!filas.length){
+alert("No hay datos para exportar.")
+return
+}
+
+const columnas = [...filas.reduce((set, fila) => {
+Object.keys(fila).forEach((columna) => set.add(columna))
+return set
+}, new Set())]
+
+const contenido = [
+columnas.map(valorCsv).join(","),
+...filas.map((fila) => columnas.map((columna) => valorCsv(fila[columna])).join(",")),
+].join("\n")
+
+const blob = new Blob([`\uFEFF${contenido}`], { type: "text/csv;charset=utf-8" })
+const url = URL.createObjectURL(blob)
+const link = document.createElement("a")
+link.href = url
+link.download = nombreExportacion(nombreArchivo)
+document.body.appendChild(link)
+link.click()
+link.remove()
+URL.revokeObjectURL(url)
+}
+
+async function seleccionarTodo(tabla, configurar = null){
+let desde = 0
+const tamano = 1000
+const filas = []
+
+while(true){
+let query = supabase
+.from(tabla)
+.select("*")
+.range(desde, desde + tamano - 1)
+
+if(configurar) query = configurar(query)
+
+const { data, error } = await query
+if(error) throw error
+
+filas.push(...(data || []))
+if(!data || data.length < tamano) break
+desde += tamano
+}
+
+return filas
+}
+
+function nombreExportacion(base){
+const fecha = new Date().toISOString().slice(0, 19).replaceAll(":", "-")
+return `${base}-${fecha}.csv`
+}
+
 async function validarAdminConRpc(clave){
 const { data, error } = await supabase.rpc("validar_admin_torneo", { p_clave: clave })
 if(error) return null
@@ -451,6 +513,56 @@ if(esPuntaje) return `${valor} pts`
 return formatearTiempo(valor)
 }
 
+async function exportarRankingActual(){
+try{
+const juego = obtenerJuegoSeleccionado()
+const ranking = await obtenerRankingTemporal(juego)
+const filas = ranking.map((fila, index) => ({
+posicion: index + 1,
+juego,
+usuario: fila.usuario,
+resultado: fila.tiempo,
+resultado_formateado: formatearResultado(fila.tiempo, JUEGOS_PUNTAJE.has(juego)),
+sospechoso: !!fila.sospechoso,
+invalido: !!fila.invalido,
+fecha: fila.fecha || "",
+}))
+
+descargarCsv(`ranking-actual-${juego}`, filas)
+}catch(error){
+console.warn("No se pudo exportar ranking actual", error)
+alert("No se pudo exportar el ranking actual.")
+}
+}
+
+async function exportarTablasRanking(){
+try{
+const tablas = ["ranking", "ranking_ajedrez", "ranking_domino", "ranking_damas"]
+const filas = []
+
+for(const tabla of tablas){
+const datos = await seleccionarTodo(tabla)
+datos.forEach((fila) => filas.push({ tabla, ...fila }))
+}
+
+descargarCsv("tablas-ranking", filas)
+}catch(error){
+console.warn("No se pudieron exportar las tablas de ranking", error)
+alert("No se pudieron exportar las tablas de ranking.")
+}
+}
+
+async function exportarHistorialPartidas(){
+try{
+const juego = obtenerJuegoSeleccionado()
+const filas = await seleccionarTodo("partidas", (query) => query.eq("juego", juego).order("fecha", { ascending: false }))
+descargarCsv(`historial-partidas-${juego}`, filas)
+}catch(error){
+console.warn("No se pudo exportar historial de partidas", error)
+alert("No se pudo exportar el historial de partidas.")
+}
+}
+
 // =============================
 // 🔴 TIEMPO REAL
 // =============================
@@ -759,6 +871,10 @@ window.borrarRankingVictorias = borrarRankingVictorias
 window.borrarRankingGlobal = borrarRankingGlobal
 window.reiniciarTemporada = reiniciarTemporada
 window.resetTotal = resetTotal
+window.verEstado = verEstado
+window.exportarRankingActual = exportarRankingActual
+window.exportarTablasRanking = exportarTablasRanking
+window.exportarHistorialPartidas = exportarHistorialPartidas
 
 function syncNumcatchUI(){
   const juego = document.getElementById("juegoSelect")?.value

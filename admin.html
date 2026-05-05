@@ -6,207 +6,404 @@
 <title>Panel Admin - Torneo</title>
 
 <style>
-body{
-font-family: Arial;
-background:#0f172a;
-color:white;
-text-align:center;
-margin:0;
-padding:20px;
-overflow-x:hidden;
+:root{
+  --bg:#020617;
+  --panel:#0f172a;
+  --border:rgba(148,163,184,0.18);
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --blue:#3b82f6;
 }
 
+*{ box-sizing:border-box; }
+
+body{
+  min-height:100vh;
+  margin:0;
+  padding:24px;
+  overflow-x:hidden;
+  font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(59,130,246,0.2), transparent 28%),
+    radial-gradient(circle at 92% 8%, rgba(34,197,94,0.12), transparent 24%),
+    linear-gradient(145deg, #0b1120, var(--bg));
+}
+
+button, select, input{ font:inherit; }
+
 button, select{
-padding:10px;
-margin:5px;
-border:none;
-border-radius:8px;
-cursor:pointer;
+  min-height:42px;
+  padding:11px 14px;
+  border:0;
+  border-radius:10px;
+  cursor:pointer;
 }
 
 button{
-background:#3b82f6;
-color:white;
+  color:white;
+  font-weight:800;
+  background:var(--blue);
+  transition:transform 0.16s ease, background 0.16s ease;
 }
 
 button:hover{
-background:#2563eb;
+  transform:translateY(-1px);
+  background:#2563eb;
 }
 
-.danger{
-background:#dc2626;
+input, select{
+  color:var(--text);
+  background:#020617;
+  border:1px solid var(--border);
 }
 
-.danger:hover{
-background:#b91c1c;
+input{
+  width:min(320px, 100%);
+  padding:13px 14px;
+  border-radius:12px;
+  outline:none;
 }
 
-.reset-actions{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:6px;
-margin-top:10px;
+select{
+  min-width:210px;
 }
 
+.danger{ background:#dc2626; }
+.danger:hover{ background:#b91c1c; }
+
+.success{ background:#16a34a; }
+.success:hover{ background:#15803d; }
+
+.ghost{
+  background:rgba(15,23,42,0.72);
+  border:1px solid var(--border);
+}
+
+.ghost:hover{
+  background:rgba(30,41,59,0.9);
+}
+
+#loginAdmin,
 #panelAdmin{
-display:none;
+  width:min(1180px, 100%);
+  margin:0 auto;
 }
 
-table{
-margin:auto;
-border-collapse:collapse;
-width:90%;
-background:white;
-color:black;
-border-radius:10px;
-overflow:hidden;
+#loginAdmin{
+  min-height:calc(100vh - 48px);
+  display:grid;
+  place-items:center;
 }
 
-th, td{
-padding:10px;
-border-bottom:1px solid #ddd;
+.login-card{
+  width:min(430px, 100%);
+  padding:28px;
+  border-radius:22px;
+  text-align:center;
+  background:rgba(15,23,42,0.9);
+  border:1px solid var(--border);
+  box-shadow:0 30px 80px rgba(0,0,0,0.36);
 }
 
-th{
-background:#111;
-color:white;
+.login-card h2{
+  margin:0 0 16px;
+  font-size:28px;
 }
 
-.sospechoso{background:#fff3cd;}
-.invalido{background:#f8d7da;}
-.normal{background:#d4edda;}
+.login-actions{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+
+#panelAdmin{ display:none; }
+
+.admin-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:18px;
+}
+
+.admin-header h1{
+  margin:0;
+  font-size:clamp(30px, 4vw, 48px);
+  line-height:1;
+}
+
+.admin-header p{
+  margin:8px 0 0;
+  color:var(--muted);
+}
+
+.admin-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  align-items:start;
+}
 
 .section{
-margin:15px 0;
-padding:10px;
-background:#1e293b;
-border-radius:10px;
+  padding:18px;
+  border-radius:18px;
+  background:rgba(15,23,42,0.82);
+  border:1px solid var(--border);
+  box-shadow:0 20px 50px rgba(0,0,0,0.24);
+}
+
+.section.wide{ grid-column:1 / -1; }
+
+.section h3{
+  margin:0 0 14px;
+  font-size:18px;
+}
+
+.status-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:linear-gradient(135deg, rgba(37,99,235,0.16), rgba(15,23,42,0.64));
+}
+
+.status-card h3{ margin:0; }
+
+.control-row,
+.button-grid,
+.reset-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+
+.button-grid{ margin-top:12px; }
+
+.reset-actions{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--border);
+}
+
+#numcatchConfig{ margin-top:12px; }
+
+.export-note{
+  margin:10px 0 0;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.4;
+}
+
+.table-toolbar{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+#contador{
+  margin:0;
+  font-size:20px;
+  color:#bfdbfe;
 }
 
 .admin-table-wrap{
-width:100%;
-overflow-x:auto;
--webkit-overflow-scrolling:touch;
+  width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#020617;
 }
 
-.admin-table-wrap table{
-width:100%;
-min-width:560px;
+table{
+  width:100%;
+  min-width:660px;
+  border-collapse:collapse;
+  color:#e5e7eb;
 }
 
-@media (max-width:600px){
-body{
-padding:12px;
-}
 th, td{
-padding:8px;
-font-size:14px;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(148,163,184,0.12);
+  text-align:left;
 }
+
+th{
+  background:#050b18;
+  color:#cbd5e1;
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+td:last-child,
+th:last-child{
+  text-align:center;
+}
+
+.sospechoso{ background:rgba(245,158,11,0.15); }
+.invalido{ background:rgba(239,68,68,0.16); }
+.normal{ background:rgba(34,197,94,0.12); }
+
+@media (max-width:900px){
+  body{ padding:16px; }
+
+  .admin-header,
+  .table-toolbar{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .admin-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:560px){
+  body{ padding:12px; }
+
+  .login-card,
+  .section{
+    padding:14px;
+    border-radius:16px;
+  }
+
+  .control-row,
+  .button-grid,
+  .reset-actions{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+
+  button, select{
+    width:100%;
+  }
+
+  th, td{
+    padding:10px;
+    font-size:14px;
+  }
 }
 </style>
-
 </head>
 
 <body>
 
-<!-- ================= LOGIN ================= -->
 <div id="loginAdmin">
-<h2>🔒 Acceso Admin</h2>
-<input type="password" id="clave" placeholder="Contraseña">
-<br><br>
-<button onclick="entrarAdmin()">Entrar</button>
-<br><br>
-<button onclick="window.location.href = 'index.html'">🏠 Regresar al Menú</button>
+  <div class="login-card">
+    <h2>Acceso Admin</h2>
+    <input type="password" id="clave" placeholder="Contrasena">
+    <div class="login-actions">
+      <button onclick="entrarAdmin()">Entrar</button>
+      <button class="ghost" onclick="window.location.href = 'index.html'">Regresar al menu</button>
+    </div>
+  </div>
 </div>
 
-<!-- ================= PANEL ================= -->
 <div id="panelAdmin">
+  <header class="admin-header">
+    <div>
+      <h1>Panel Admin</h1>
+      <p>Control del torneo, rankings, exportaciones y mantenimiento.</p>
+    </div>
+    <button class="ghost" onclick="window.location.href = 'index.html'">Regresar al menu</button>
+  </header>
 
-<h1>🎛️ Panel Admin - Torneo</h1>
+  <div class="admin-grid">
+    <div class="section status-card wide">
+      <h3 id="juegoActivo">Juego actual: -</h3>
+      <button class="ghost" onclick="verEstado()">Actualizar estado</button>
+    </div>
 
-<button onclick="window.location.href = 'index.html'">🏠 Regresar al Menú</button>
+    <div class="section">
+      <h3>Control del torneo</h3>
 
-<!-- ESTADO TORNEO -->
-<div class="section">
-<h3 id="juegoActivo">Juego actual: -</h3>
-</div>
+      <div class="control-row">
+        <select id="juegoSelect">
+          <option value="sudoku">Sudoku</option>
+          <option value="memoria">Memoria</option>
+          <option value="matematicas">Matematicas</option>
+          <option value="flashmind">FlashMind</option>
+          <option value="numcatch">NumCatch</option>
+          <option value="ajedrez">Ajedrez</option>
+          <option value="domino">Domino</option>
+          <option value="damas">Damas</option>
+        </select>
+      </div>
 
-<!-- CONTROL TORNEO -->
-<div class="section">
-<h3>🎮 Control del Torneo</h3>
+      <div id="numcatchConfig" style="display:none;">
+        <label style="display:block; margin-bottom:6px; color:#cbd5e1; font-weight:bold;">
+          Condicion NumCatch
+        </label>
+        <select id="numcatchCondicion">
+          <option value="multiplos_2">Multiplos de 2</option>
+          <option value="multiplos_3" selected>Multiplos de 3</option>
+          <option value="multiplos_5">Multiplos de 5</option>
+          <option value="pares">Pares</option>
+          <option value="impares">Impares</option>
+        </select>
+      </div>
 
-<select id="juegoSelect">
-<option value="sudoku">Sudoku</option>
-<option value="memoria">Memoria</option>
-<option value="matematicas">Matematicas</option>
-<option value="flashmind">FlashMind</option>
-<option value="numcatch">NumCatch</option>
-<option value="ajedrez">Ajedrez</option>
-<option value="domino">Dominó</option>
-<option value="damas">Damas</option>
-</select>
+      <div class="button-grid">
+        <button class="success" onclick="iniciarTorneo()">Iniciar torneo</button>
+        <button class="danger" onclick="detenerTorneo()">Detener torneo</button>
+      </div>
 
-<div id="numcatchConfig" style="display:none; margin-top:10px;">
-  <label style="display:block; margin-bottom:6px; color:#cbd5e1; font-weight:bold;">
-    Condición NumCatch
-  </label>
-  <select id="numcatchCondicion">
-    <option value="multiplos_2">Múltiplos de 2</option>
-    <option value="multiplos_3" selected>Múltiplos de 3</option>
-    <option value="multiplos_5">Múltiplos de 5</option>
-    <option value="pares">Pares</option>
-    <option value="impares">Impares</option>
-  </select>
-</div>
+      <div class="reset-actions">
+        <button onclick="borrarRankingSemana()">Borrar ranking semana</button>
+        <button onclick="borrarRankingVictorias()">Borrar ranking victorias</button>
+        <button onclick="borrarRankingGlobal()">Borrar ranking global</button>
+        <button onclick="reiniciarTemporada()">Reiniciar temporada</button>
+        <button class="danger" onclick="resetTotal()">Resetear torneo completo</button>
+      </div>
+    </div>
 
-<br>
+    <div class="section">
+      <h3>Ranking</h3>
+      <div class="button-grid">
+        <button onclick="cargarRanking()">Actualizar</button>
+        <button onclick="verSospechosos()">Sospechosos</button>
+        <button onclick="verInvalidos()">Invalidos</button>
+        <button onclick="limpiarRanking()">Limpiar ranking</button>
+      </div>
+    </div>
 
-<button onclick="iniciarTorneo()">🚀 Iniciar Torneo</button>
-<button onclick="detenerTorneo()">🛑 Detener Torneo</button>
+    <div class="section wide">
+      <h3>Exportar datos</h3>
+      <div class="button-grid">
+        <button onclick="exportarRankingActual()">Exportar ranking actual CSV</button>
+        <button onclick="exportarTablasRanking()">Exportar tablas ranking CSV</button>
+        <button onclick="exportarHistorialPartidas()">Exportar historial partidas CSV</button>
+      </div>
+      <p class="export-note">El ranking actual usa el juego seleccionado. Las tablas de ranking incluyen ranking, ranking_ajedrez, ranking_domino y ranking_damas.</p>
+    </div>
 
-<div class="reset-actions">
-<button onclick="borrarRankingSemana()">Borrar ranking semana</button>
-<button onclick="borrarRankingVictorias()">Borrar ranking victorias</button>
-<button onclick="borrarRankingGlobal()">Borrar ranking global</button>
-<button onclick="reiniciarTemporada()">Reiniciar temporada</button>
-<button class="danger" onclick="resetTotal()">Resetear torneo completo</button>
-</div>
-</div>
+    <div class="section wide">
+      <div class="table-toolbar">
+        <h3>Tabla de jugadores</h3>
+        <h2 id="contador">Jugadores: 0</h2>
+      </div>
 
-<!-- CONTROL RANKING -->
-<div class="section">
-<h3>📊 Ranking</h3>
-
-<h2 id="contador">👥 Jugadores: 0</h2>
-
-<button onclick="cargarRanking()">🔄 Actualizar</button>
-<button onclick="verSospechosos()">⚠️ Sospechosos</button>
-<button onclick="verInvalidos()">❌ Inválidos</button>
-<button onclick="limpiarRanking()">🧹 Limpiar Ranking</button>
-</div>
-
-<!-- TABLA -->
-<div class="section">
-<h3>📋 Tabla de jugadores</h3>
-
-<div class="admin-table-wrap">
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>Jugador</th>
-<th>Tiempo</th>
-<th>Estado</th>
-<th>Acción</th>
-</tr>
-</thead>
-
-<tbody id="tablaAdmin"></tbody>
-</table>
-</div>
-</div>
-
+      <div class="admin-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Jugador</th>
+              <th>Resultado</th>
+              <th>Estado</th>
+              <th>Accion</th>
+            </tr>
+          </thead>
+          <tbody id="tablaAdmin"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script type="module" src="juegos/js/admin.js"></script>
