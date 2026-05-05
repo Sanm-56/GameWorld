@@ -6,9 +6,21 @@ const LEVELS = Array.from({ length: 12 }, (_, index) => ({
   title: `Nivel ${index + 1}`,
 }))
 
+const MINI_TOURNAMENT_GAMES = [
+  { key: "ajedrez", label: "Ajedrez" },
+  { key: "damas", label: "Damas" },
+  { key: "domino", label: "Domino" },
+  { key: "flashmind", label: "FlashMind" },
+  { key: "matematicas", label: "Matematicas" },
+  { key: "memoria", label: "Memoria" },
+  { key: "numcatch", label: "NumCatch" },
+  { key: "sudoku", label: "Sudoku" },
+]
+
 const state = {
   user: null,
   selectedLevel: 1,
+  selectedGame: MINI_TOURNAMENT_GAMES[0].key,
   activeRoom: null,
   playersChannel: null,
 }
@@ -41,11 +53,17 @@ const els = {
   winsRanking: document.getElementById("winsRanking"),
   rankingStatus: document.getElementById("rankingStatus"),
   refreshRankingsBtn: document.getElementById("refreshRankingsBtn"),
+  gamePicker: null,
+  generateCodeBtn: null,
+  activeRoomsList: null,
+  roomGame: null,
+  openGameBtn: null,
 }
 
 init()
 
 async function init() {
+  enhanceMiniTournamentUi()
   bindEvents()
   const savedUser = localStorage.getItem("usuario")
 
@@ -67,10 +85,12 @@ function bindEvents() {
   els.resetProgressBtn.addEventListener("click", resetProgress)
   els.createRoomForm.addEventListener("submit", createRoom)
   els.joinRoomForm.addEventListener("submit", joinRoom)
-  els.startRoomBtn.addEventListener("click", () => updateRoomState("en_juego"))
+  els.startRoomBtn.addEventListener("click", startRoom)
   els.finishRoomBtn.addEventListener("click", finishRoom)
   els.scoreRoomBtn.addEventListener("click", addRoomPoints)
   els.refreshRankingsBtn.addEventListener("click", loadRankings)
+  els.generateCodeBtn?.addEventListener("click", generateRoomCode)
+  els.openGameBtn?.addEventListener("click", redirectToActiveGame)
 }
 
 function showAuth() {
@@ -84,7 +104,127 @@ function showApp() {
   els.appView.hidden = false
   els.userPill.textContent = state.user.usuario
   renderLevels()
+  loadActiveRooms()
   loadRankings()
+}
+
+function enhanceMiniTournamentUi() {
+  injectMiniTournamentStyles()
+  injectGamePicker()
+  injectActiveRoomsList()
+  injectRoomGameInfo()
+}
+
+// Mini torneos vive dentro de Solitario, asi que la UI se agrega desde JS
+// para no modificar el HTML base ni tocar las vistas de los juegos existentes.
+function injectMiniTournamentStyles() {
+  if (document.querySelector("[data-mini-tournament-style]")) return
+
+  const style = document.createElement("style")
+  style.dataset.miniTournamentStyle = "true"
+  style.textContent = `
+    .game-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .game-option{border:1px solid rgba(148,163,184,.16);background:rgba(15,23,42,.72);padding:10px;border-radius:14px}
+    .game-option.active{border-color:rgba(250,204,21,.5);background:rgba(250,204,21,.16)}
+    .code-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+    .active-rooms{margin-bottom:16px}
+    .active-room-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:12px;background:rgba(15,23,42,.64)}
+    .room-game-pill{display:inline-flex;margin-top:6px;border:1px solid rgba(56,189,248,.32);border-radius:999px;padding:5px 9px;color:#bfdbfe;font-size:13px;font-weight:800}
+    @media (max-width: 840px){.game-picker,.active-room-row,.code-row{grid-template-columns:1fr}}
+  `
+  document.head.appendChild(style)
+}
+
+function injectGamePicker() {
+  if (!els.createRoomForm || document.getElementById("miniTournamentGamePicker")) return
+
+  const title = document.createElement("label")
+  title.textContent = "Juego del torneo"
+
+  const picker = document.createElement("div")
+  picker.id = "miniTournamentGamePicker"
+  picker.className = "game-picker"
+  picker.innerHTML = MINI_TOURNAMENT_GAMES.map((game) => `
+    <button class="game-option ${game.key === state.selectedGame ? "active" : ""}" type="button" data-game="${game.key}">
+      ${game.label}
+    </button>
+  `).join("")
+
+  title.appendChild(picker)
+  els.createRoomForm.insertBefore(title, els.createRoomForm.querySelector("button[type='submit']"))
+  els.gamePicker = picker
+
+  picker.querySelectorAll("[data-game]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.selectedGame = button.dataset.game
+      picker.querySelectorAll("[data-game]").forEach((item) => {
+        item.classList.toggle("active", item === button)
+      })
+    })
+  })
+
+  const codeInput = document.getElementById("roomCode")
+  if (codeInput && !document.getElementById("generateRoomCodeBtn")) {
+    const row = document.createElement("div")
+    row.className = "code-row"
+    codeInput.parentNode.insertBefore(row, codeInput)
+    row.appendChild(codeInput)
+
+    const generateBtn = document.createElement("button")
+    generateBtn.id = "generateRoomCodeBtn"
+    generateBtn.type = "button"
+    generateBtn.className = "ghost-button"
+    generateBtn.textContent = "Generar"
+    row.appendChild(generateBtn)
+    els.generateCodeBtn = generateBtn
+  }
+}
+
+// Lista publica de salas no finalizadas. Reutiliza la tabla salas y no lee nada
+// del sistema admin principal.
+function injectActiveRoomsList() {
+  const roomsView = document.getElementById("roomsView")
+  const roomGrid = roomsView?.querySelector(".room-grid")
+  if (!roomsView || !roomGrid || document.getElementById("activeRoomsList")) return
+
+  const wrapper = document.createElement("article")
+  wrapper.className = "panel active-rooms"
+  wrapper.innerHTML = `
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Disponibles</p>
+        <h3>Torneos activos</h3>
+      </div>
+      <button class="ghost-button" type="button" id="refreshRoomsBtn">Actualizar</button>
+    </div>
+    <div id="activeRoomsList" class="players-list"></div>
+  `
+
+  roomsView.insertBefore(wrapper, roomGrid.nextSibling)
+  els.activeRoomsList = document.getElementById("activeRoomsList")
+  document.getElementById("refreshRoomsBtn")?.addEventListener("click", loadActiveRooms)
+}
+
+function injectRoomGameInfo() {
+  const roomTitle = els.activeRoomCode?.closest("p")
+  const roomActions = document.querySelector(".room-actions")
+  if (roomTitle && !document.getElementById("roomGame")) {
+    const gameLine = document.createElement("p")
+    gameLine.className = "muted"
+    gameLine.innerHTML = 'Juego: <strong id="roomGame"></strong>'
+    roomTitle.insertAdjacentElement("afterend", gameLine)
+    els.roomGame = document.getElementById("roomGame")
+  }
+
+  if (roomActions && !document.getElementById("openGameBtn")) {
+    const openGameBtn = document.createElement("button")
+    openGameBtn.id = "openGameBtn"
+    openGameBtn.type = "button"
+    openGameBtn.className = "ghost-button"
+    openGameBtn.textContent = "Ir al juego"
+    roomActions.insertBefore(openGameBtn, els.finishRoomBtn)
+    els.openGameBtn = openGameBtn
+  }
 }
 
 async function loadUser(usuario) {
@@ -141,6 +281,7 @@ function changeView(view) {
     panel.classList.toggle("active", panel.id === `${view}View`)
   })
   if (view === "rankings") loadRankings()
+  if (view === "rooms") loadActiveRooms()
 }
 
 function progressKey() {
@@ -218,31 +359,38 @@ function resetProgress() {
 async function createRoom(event) {
   event.preventDefault()
   const nombre = document.getElementById("roomName").value.trim()
-  const codigo = document.getElementById("roomCode").value.trim().toUpperCase()
+  const codigo = normalizeCode(document.getElementById("roomCode").value)
+  const juego = state.selectedGame
 
   if (!nombre || !codigo) {
     setText(els.roomStatus, "Completa nombre y codigo.")
     return
   }
 
+  if (!isValidGame(juego)) {
+    setText(els.roomStatus, "Selecciona un juego valido.")
+    return
+  }
+
   setText(els.roomStatus, "Creando sala...")
   const { data, error } = await supabase
     .from("salas")
-    .insert([{ nombre, codigo, creador_id: state.user.id, estado: "esperando", max_jugadores: 40 }])
+    .insert([{ nombre, codigo, creador_id: state.user.id, estado: "esperando", max_jugadores: 40, juego }])
     .select()
     .single()
 
   if (error) {
-    setText(els.roomStatus, "No se pudo crear la sala. Revisa que el SQL de Solitario este aplicado.")
+    setText(els.roomStatus, "No se pudo crear la sala. Ejecuta la migracion de mini torneos para agregar el campo juego.")
     return
   }
 
   await joinRoomByRecord(data)
+  await loadActiveRooms()
 }
 
 async function joinRoom(event) {
   event.preventDefault()
-  const codigo = document.getElementById("joinCode").value.trim().toUpperCase()
+  const codigo = normalizeCode(document.getElementById("joinCode").value)
   if (!codigo) return
 
   setText(els.roomStatus, "Buscando sala...")
@@ -257,14 +405,32 @@ async function joinRoom(event) {
     return
   }
 
+  if (data.estado === "finalizado") {
+    setText(els.roomStatus, "Ese torneo ya finalizo.")
+    return
+  }
+
   await joinRoomByRecord(data)
 }
 
 async function joinRoomByRecord(room) {
-  const count = await countPlayers(room.id)
-  if (count >= Number(room.max_jugadores || 40)) {
-    setText(els.roomStatus, "La sala ya tiene el maximo de 40 jugadores.")
+  if (!state.user) {
+    setText(els.roomStatus, "Primero inicia sesion con tu apodo y codigo.")
     return
+  }
+
+  if (!isValidGame(room.juego)) {
+    setText(els.roomStatus, "La sala no tiene un juego valido configurado.")
+    return
+  }
+
+  const alreadyInRoom = await isCurrentUserInRoom(room.id)
+  if (!alreadyInRoom) {
+    const count = await countPlayers(room.id)
+    if (count >= Number(room.max_jugadores || 40)) {
+      setText(els.roomStatus, "La sala ya tiene el maximo de 40 jugadores.")
+      return
+    }
   }
 
   const { error } = await supabase
@@ -286,6 +452,8 @@ async function joinRoomByRecord(room) {
   subscribeRoom(room.id)
   await loadPlayers()
   setText(els.roomStatus, "Dentro de la sala.")
+
+  if (room.estado === "en_juego") redirectToActiveGame()
 }
 
 async function countPlayers(roomId) {
@@ -296,15 +464,28 @@ async function countPlayers(roomId) {
   return count || 0
 }
 
+async function isCurrentUserInRoom(roomId) {
+  const { data } = await supabase
+    .from("sala_jugadores")
+    .select("id")
+    .eq("sala_id", roomId)
+    .eq("usuario_id", state.user.id)
+    .maybeSingle()
+
+  return Boolean(data)
+}
+
 function renderRoom(room) {
   els.roomDetail.hidden = false
   els.activeRoomName.textContent = room.nombre
   els.activeRoomCode.textContent = room.codigo
+  if (els.roomGame) els.roomGame.textContent = gameLabel(room.juego)
   els.roomState.textContent = stateLabel(room.estado)
   const isCreator = room.creador_id === state.user.id
   els.startRoomBtn.disabled = !isCreator || room.estado !== "esperando"
   els.finishRoomBtn.disabled = !isCreator || room.estado === "finalizado"
   els.scoreRoomBtn.disabled = room.estado === "finalizado"
+  if (els.openGameBtn) els.openGameBtn.disabled = room.estado === "finalizado"
 }
 
 function subscribeRoom(roomId) {
@@ -320,8 +501,10 @@ async function refreshRoom() {
   if (!state.activeRoom) return
   const { data } = await supabase.from("salas").select("*").eq("id", state.activeRoom.id).maybeSingle()
   if (data) {
+    const wasWaiting = state.activeRoom.estado !== "en_juego"
     state.activeRoom = data
     renderRoom(data)
+    if (wasWaiting && data.estado === "en_juego") redirectToActiveGame()
   }
 }
 
@@ -355,7 +538,15 @@ async function updateRoomState(estado) {
 
 async function addRoomPoints() {
   if (!state.activeRoom) return
-  const gained = Math.floor(40 + Math.random() * 120)
+  const entered = prompt("Puntos obtenidos en el juego")
+  if (entered === null) return
+
+  const gained = Number.parseInt(entered, 10)
+  if (!Number.isFinite(gained) || gained < 0) {
+    setText(els.roomStatus, "Ingresa un puntaje valido.")
+    return
+  }
+
   const { data } = await supabase
     .from("sala_jugadores")
     .select("puntos")
@@ -370,7 +561,14 @@ async function addRoomPoints() {
     .eq("usuario_id", state.user.id)
 
   setText(els.roomStatus, `Sumaste ${gained} puntos.`)
+  await registerResult({
+    points: gained,
+    victory: false,
+    origin: "sala",
+    roomId: state.activeRoom.id,
+  })
   await loadPlayers()
+  await loadRankings()
 }
 
 async function finishRoom() {
@@ -388,7 +586,7 @@ async function finishRoom() {
     await supabase.from("solitario_resultados").insert(data.map((player) => ({
       usuario_id: player.usuario_id,
       usuario: player.usuario || player.usuario_id,
-      puntos: Number(player.puntos || 0),
+      puntos: 0,
       victoria: player.usuario_id === winnerId,
       sala_id: state.activeRoom.id,
       origen: "sala",
@@ -396,6 +594,97 @@ async function finishRoom() {
   }
 
   loadRankings()
+  loadActiveRooms()
+}
+
+// Iniciar no copia juegos: marca la sala como en juego y redirige a la carpeta
+// existente /juegos/{juego}/index.html.
+async function startRoom() {
+  if (!state.activeRoom) return
+  if (!isValidGame(state.activeRoom.juego)) {
+    setText(els.roomStatus, "Este torneo no tiene un juego valido.")
+    return
+  }
+
+  await updateRoomState("en_juego")
+  await refreshRoom()
+  redirectToActiveGame()
+}
+
+// Carga salas activas y permite unirse desde tarjetas, respetando el limite de
+// jugadores antes de hacer upsert en sala_jugadores.
+async function loadActiveRooms() {
+  if (!els.activeRoomsList) return
+
+  const { data, error } = await supabase
+    .from("salas")
+    .select("id,nombre,codigo,creador_id,estado,max_jugadores,juego,created_at")
+    .neq("estado", "finalizado")
+    .order("created_at", { ascending: false })
+    .limit(12)
+
+  if (error) {
+    els.activeRoomsList.innerHTML = '<div class="status">No se pudieron cargar torneos activos.</div>'
+    return
+  }
+
+  if (!data?.length) {
+    els.activeRoomsList.innerHTML = '<div class="status">Todavia no hay mini torneos activos.</div>'
+    return
+  }
+
+  const counts = await Promise.all(data.map(async (room) => ({
+    id: room.id,
+    count: await countPlayers(room.id),
+  })))
+  const countByRoom = new Map(counts.map((item) => [item.id, item.count]))
+
+  els.activeRoomsList.innerHTML = data.map((room) => {
+    const players = countByRoom.get(room.id) || 0
+    return `
+      <div class="active-room-row">
+        <div>
+          <strong>${escapeHtml(room.nombre)}</strong>
+          <span class="room-game-pill">${escapeHtml(gameLabel(room.juego))}</span>
+          <p class="muted">Codigo ${escapeHtml(room.codigo)} - ${stateLabel(room.estado)} - ${players}/${room.max_jugadores || 40}</p>
+        </div>
+        <button class="ghost-button" type="button" data-copy-code="${escapeHtml(room.codigo)}">Copiar codigo</button>
+        <button type="button" data-join-room="${room.id}">Unirse</button>
+      </div>
+    `
+  }).join("")
+
+  els.activeRoomsList.querySelectorAll("[data-join-room]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const room = data.find((item) => String(item.id) === button.dataset.joinRoom)
+      if (room) await joinRoomByRecord(room)
+    })
+  })
+
+  els.activeRoomsList.querySelectorAll("[data-copy-code]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await navigator.clipboard?.writeText(button.dataset.copyCode)
+      setText(els.roomStatus, "Codigo copiado.")
+    })
+  })
+}
+
+function generateRoomCode() {
+  const input = document.getElementById("roomCode")
+  if (!input) return
+  input.value = `GW${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+}
+
+// Se guardan datos minimos de contexto para que el usuario sepa de que sala
+// viene al volver; los juegos existentes se abren tal cual, sin duplicarlos.
+function redirectToActiveGame() {
+  if (!state.activeRoom || !isValidGame(state.activeRoom.juego)) return
+
+  localStorage.setItem("solitario_sala_id", String(state.activeRoom.id))
+  localStorage.setItem("solitario_sala_codigo", state.activeRoom.codigo)
+  localStorage.setItem("solitario_juego", state.activeRoom.juego)
+  localStorage.setItem("solitario_origen", "sala")
+  window.location.href = `../juegos/${state.activeRoom.juego}/index.html`
 }
 
 async function registerResult({ points, victory, origin, roomId }) {
@@ -472,6 +761,18 @@ function stateLabel(estado) {
     en_juego: "En juego",
     finalizado: "Finalizado",
   }[estado] || "Esperando"
+}
+
+function isValidGame(game) {
+  return MINI_TOURNAMENT_GAMES.some((item) => item.key === game)
+}
+
+function gameLabel(game) {
+  return MINI_TOURNAMENT_GAMES.find((item) => item.key === game)?.label || "Sin juego"
+}
+
+function normalizeCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/\s+/g, "")
 }
 
 function setText(element, value) {
