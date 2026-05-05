@@ -3557,19 +3557,20 @@ function obtenerProgresoTablero(achievement, stats, gameKey) {
     const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
     const mejorRachaSegundo = stats.damas_mejor_racha_segundo || 0
     const mejorRachaTercero = stats.damas_mejor_racha_tercero || 0
+    const torneosObjetivo = obtenerNumeroDeTorneos(objetivoTexto) || objetivo || 1
 
     if (objetivoTexto.includes('2er puesto')) {
-      const target = objetivo || 1
+      const target = torneosObjetivo
       return { percent: limitarProgreso(mejorRachaSegundo, target), label: describirNumero(mejorRachaSegundo, target), target }
     }
 
     if (objetivoTexto.includes('3er puesto')) {
-      const target = objetivo || 1
+      const target = torneosObjetivo
       return { percent: limitarProgreso(mejorRachaTercero, target), label: describirNumero(mejorRachaTercero, target), target }
     }
 
     if (objetivoTexto.includes('gana') && objetivoTexto.includes('torneo')) {
-      const target = objetivo || 1
+      const target = torneosObjetivo
       return { percent: limitarProgreso(mejorRachaVictorias, target), label: describirNumero(mejorRachaVictorias, target), target }
     }
   }
