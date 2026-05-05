@@ -206,12 +206,38 @@ mostrar(data)
 // =============================
 async function verSospechosos(){
 
-let { data } = await supabase
+const juego = document.getElementById("juegoSelect")?.value
+let query = supabase
 .from("ranking")
 .select("*")
 .eq("sospechoso", true)
 
-mostrar(data || [])
+if(juego){
+query = query.eq("juego", juego)
+}
+
+const { data } = await query
+let filas = data || []
+
+const tablaExtra = TABLAS_RANKING_POR_JUEGO[juego]
+if(tablaExtra){
+const extra = await supabase
+.from(tablaExtra)
+.select("*")
+.eq("sospechoso", true)
+
+if(extra.data){
+const existentes = new Set(filas.map((item) => item.usuario))
+extra.data.forEach((item) => {
+if(!existentes.has(item.usuario)){
+filas.push(item)
+existentes.add(item.usuario)
+}
+})
+}
+}
+
+mostrar(filas)
 }
 
 // =============================
@@ -219,12 +245,38 @@ mostrar(data || [])
 // =============================
 async function verInvalidos(){
 
-let { data } = await supabase
+const juego = document.getElementById("juegoSelect")?.value
+let query = supabase
 .from("ranking")
 .select("*")
 .eq("invalido", true)
 
-mostrar(data || [])
+if(juego){
+query = query.eq("juego", juego)
+}
+
+const { data } = await query
+let filas = data || []
+
+const tablaExtra = TABLAS_RANKING_POR_JUEGO[juego]
+if(tablaExtra){
+const extra = await supabase
+.from(tablaExtra)
+.select("*")
+.eq("invalido", true)
+
+if(extra.data){
+const existentes = new Set(filas.map((item) => item.usuario))
+extra.data.forEach((item) => {
+if(!existentes.has(item.usuario)){
+filas.push(item)
+existentes.add(item.usuario)
+}
+})
+}
+}
+
+mostrar(filas)
 }
 
 // =============================
