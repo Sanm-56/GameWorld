@@ -3553,6 +3553,27 @@ function obtenerProgresoTablero(achievement, stats, gameKey) {
     }
   }
 
+  if (gameKey === 'damas') {
+    const mejorRachaVictorias = stats.mejor_racha_victorias_torneos || 0
+    const mejorRachaSegundo = stats.damas_mejor_racha_segundo || 0
+    const mejorRachaTercero = stats.damas_mejor_racha_tercero || 0
+
+    if (objetivoTexto.includes('2er puesto')) {
+      const target = objetivo || 1
+      return { percent: limitarProgreso(mejorRachaSegundo, target), label: describirNumero(mejorRachaSegundo, target), target }
+    }
+
+    if (objetivoTexto.includes('3er puesto')) {
+      const target = objetivo || 1
+      return { percent: limitarProgreso(mejorRachaTercero, target), label: describirNumero(mejorRachaTercero, target), target }
+    }
+
+    if (objetivoTexto.includes('gana') && objetivoTexto.includes('torneo')) {
+      const target = objetivo || 1
+      return { percent: limitarProgreso(mejorRachaVictorias, target), label: describirNumero(mejorRachaVictorias, target), target }
+    }
+  }
+
   if (gameKey === 'ajedrez') {
     const metricas = [
       ['sin perder ninguna pieza', stats.ajedrez_victorias_sin_perder_piezas || 0, 1],
@@ -3617,6 +3638,7 @@ function obtenerIconoTablero(gameKey, achievement) {
   if (objetivoTexto.includes('racha') || objetivoTexto.includes('consecutiv') || objetivoTexto.includes('seguid')) return { label: 'FIRE', className: 'flame' }
   if (objetivoTexto.includes('campeon') || objetivoTexto.includes('gana') || objetivoTexto.includes('trono') || objetivoTexto.includes('top')) return { label: 'CROWN', className: 'crown' }
   if (objetivoTexto.includes('apertura') || objetivoTexto.includes('mate') || objetivoTexto.includes('sacrificio')) return { label: gameKey === 'ajedrez' ? 'MATE' : 'SEAL', className: 'spiral' }
+  if (gameKey === 'damas') return { label: 'DAMA', className: 'grid' }
   return { label: gameKey === 'ajedrez' ? 'GRID' : 'TILE', className: 'grid' }
 }
 
@@ -3632,7 +3654,9 @@ function renderLogroTablero(achievement, stats, gameKey) {
   }[rarity]
   const gameCopy = gameKey === 'ajedrez'
     ? { stateOn: 'Coronado', stateOff: 'Sellado', objective: 'Desbloqueo', sigil: 'K Q R B N 64' }
-    : { stateOn: 'Dominado', stateOff: 'Sellado', objective: 'Rito de mesa', sigil: '0 6 12 28 TILE' }
+    : gameKey === 'damas'
+      ? { stateOn: 'Coronado', stateOff: 'Sellado', objective: 'Racha real', sigil: '8 12 32 DAMA' }
+      : { stateOn: 'Dominado', stateOff: 'Sellado', objective: 'Rito de mesa', sigil: '0 6 12 28 TILE' }
   const div = document.createElement('div')
   div.className = `achievement-card board-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
   div.setAttribute('data-sigil', gameCopy.sigil)
@@ -3731,7 +3755,7 @@ function renderLogros() {
   logrosListEl.classList.toggle('memory-relics', game.key === 'memoria')
   logrosListEl.classList.toggle('math-relics', game.key === 'matematicas')
   logrosListEl.classList.toggle('arcane-relics', game.key === 'flashmind' || game.key === 'numcatch')
-  logrosListEl.classList.toggle('board-relics', game.key === 'ajedrez' || game.key === 'domino')
+  logrosListEl.classList.toggle('board-relics', game.key === 'ajedrez' || game.key === 'domino' || game.key === 'damas')
 
   logros.forEach((achievement) => {
     if (game.key === 'sudoku') {
@@ -3754,7 +3778,7 @@ function renderLogros() {
       return
     }
 
-    if (game.key === 'ajedrez' || game.key === 'domino') {
+    if (game.key === 'ajedrez' || game.key === 'domino' || game.key === 'damas') {
       logrosListEl.appendChild(renderLogroTablero(achievement, estadisticasLogros[game.key] || {}, game.key))
       return
     }
