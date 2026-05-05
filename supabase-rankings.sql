@@ -1436,13 +1436,14 @@ declare
   tabla text;
   columnas_usuarios_select text;
   columnas_usuarios_update text;
-  tablas_publicas text[] := array[
+  tablas_lectura_publica text[] := array[
     'ranking',
     'ranking_ajedrez',
     'ranking_domino',
     'ranking_damas',
     'partidas',
     'estadisticas_logros',
+    'estado_torneo',
     'temporadas',
     'temporadas_nivel',
     'progreso_nivel',
@@ -1451,11 +1452,27 @@ declare
     'historial_temporadas_nivel',
     'recompensas_desbloqueadas',
     'usuarios',
-    'estado_torneo',
     'tableros'
   ];
+  tablas_escritura_frontend text[] := array[
+    'ranking',
+    'ranking_ajedrez',
+    'ranking_domino',
+    'ranking_damas',
+    'partidas',
+    'estadisticas_logros',
+    'progreso_nivel',
+    'historial_xp',
+    'recompensas_desbloqueadas'
+  ];
+  tablas_solo_sistema text[] := array[
+    'temporadas',
+    'temporadas_nivel',
+    'recompensas_nivel',
+    'historial_temporadas_nivel'
+  ];
 begin
-  foreach tabla in array tablas_publicas
+  foreach tabla in array tablas_lectura_publica
   loop
     if to_regclass('public.' || tabla) is not null then
       execute format('alter table public.%I enable row level security', tabla);
@@ -1468,30 +1485,49 @@ begin
       );
 
       execute format('drop policy if exists %I on public.%I', tabla || '_anon_insert', tabla);
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_update', tabla);
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_delete', tabla);
+
+      execute format('grant select on table public.%I to anon, authenticated', tabla);
+    end if;
+  end loop;
+
+  foreach tabla in array tablas_escritura_frontend
+  loop
+    if to_regclass('public.' || tabla) is not null then
       execute format(
         'create policy %I on public.%I for insert to anon, authenticated with check (true)',
         tabla || '_anon_insert',
         tabla
       );
 
-      execute format('drop policy if exists %I on public.%I', tabla || '_anon_update', tabla);
       execute format(
         'create policy %I on public.%I for update to anon, authenticated using (true) with check (true)',
         tabla || '_anon_update',
         tabla
       );
+
+      execute format('grant insert, update on table public.%I to anon, authenticated', tabla);
     end if;
   end loop;
 
   foreach tabla in array array['ranking', 'ranking_ajedrez', 'ranking_domino', 'ranking_damas']
   loop
     if to_regclass('public.' || tabla) is not null then
-      execute format('drop policy if exists %I on public.%I', tabla || '_anon_delete', tabla);
       execute format(
         'create policy %I on public.%I for delete to anon, authenticated using (true)',
         tabla || '_anon_delete',
         tabla
       );
+
+      execute format('grant delete on table public.%I to anon, authenticated', tabla);
+    end if;
+  end loop;
+
+  foreach tabla in array tablas_solo_sistema
+  loop
+    if to_regclass('public.' || tabla) is not null then
+      execute format('revoke insert, update, delete on table public.%I from anon, authenticated', tabla);
     end if;
   end loop;
 
@@ -1500,11 +1536,18 @@ begin
     if to_regclass('public.' || tabla) is not null then
       execute format('alter table public.%I enable row level security', tabla);
       execute format('revoke all on table public.%I from anon, authenticated', tabla);
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_select', tabla);
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_insert', tabla);
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_update', tabla);
+      execute format('drop policy if exists %I on public.%I', tabla || '_anon_delete', tabla);
     end if;
   end loop;
 
   if to_regclass('public.usuarios') is not null then
     execute 'revoke all on table public.usuarios from anon, authenticated';
+
+    execute 'drop policy if exists usuarios_anon_update on public.usuarios';
+    execute 'create policy usuarios_anon_update on public.usuarios for update to anon, authenticated using (true) with check (true)';
 
     select string_agg(quote_ident(column_name), ', ')
     into columnas_usuarios_select
