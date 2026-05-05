@@ -230,6 +230,7 @@ h1{
 .profile-btn,
 .music-btn,
 .rankings-btn,
+.rules-btn,
 .admin-btn{
   min-height:auto;
   padding:14px 16px;
@@ -245,6 +246,7 @@ h1{
 .profile-btn:hover,
 .music-btn:hover,
 .rankings-btn:hover,
+.rules-btn:hover,
 .admin-btn:hover{
   background:rgba(30,41,59,0.86);
   transform:translateY(-2px);
@@ -260,6 +262,10 @@ h1{
 
 .music-btn{
   border-color:rgba(45,212,191,0.34);
+}
+
+.rules-btn{
+  border-color:rgba(168,85,247,0.34);
 }
 
 .admin-btn{
@@ -286,6 +292,29 @@ h1{
   transition:opacity 0.22s ease;
 }
 
+.rules-launch{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:22px;
+}
+
+.rules-launch .boton{
+  min-height:auto;
+  padding:12px 18px;
+  border-radius:16px;
+  background:rgba(15,23,42,0.72);
+  border:1px solid rgba(168,85,247,0.34);
+  box-shadow:0 10px 28px rgba(0,0,0,0.18);
+  font-size:15px;
+  text-align:center;
+}
+
+.rules-launch .whatsapp-link{
+  border-color:rgba(34,197,94,0.38);
+}
+
 .ranking-modal.abierto{
   display:flex;
   opacity:1;
@@ -305,6 +334,10 @@ h1{
 
 .ranking-modal.abierto .ranking-panel{
   transform:translateY(0) scale(1);
+}
+
+.rules-panel{
+  width:min(760px, 100%);
 }
 
 .ranking-head{
@@ -409,6 +442,74 @@ h1{
   background:rgba(15,23,42,0.62);
 }
 
+.rules-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:12px;
+}
+
+.rule-card{
+  padding:14px;
+  border:1px solid rgba(148,163,184,0.14);
+  border-radius:16px;
+  background:rgba(15,23,42,0.62);
+}
+
+.rule-card strong{
+  display:block;
+  margin-bottom:6px;
+  color:#e0f2fe;
+}
+
+.rule-card p,
+.rule-card ul{
+  margin:0;
+  color:var(--muted);
+  line-height:1.45;
+  font-size:14px;
+}
+
+.rule-card ul{
+  padding-left:18px;
+}
+
+.prize-list{
+  display:grid;
+  gap:8px;
+}
+
+.prize-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:12px;
+  background:rgba(250,204,21,0.1);
+  border:1px solid rgba(250,204,21,0.18);
+}
+
+.rules-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.rules-actions button{
+  border:1px solid rgba(148,163,184,0.16);
+  border-radius:14px;
+  padding:11px 14px;
+  color:white;
+  background:rgba(15,23,42,0.72);
+  cursor:pointer;
+  font:inherit;
+}
+
+.rules-actions .whatsapp-action{
+  border-color:rgba(34,197,94,0.42);
+  background:rgba(22,163,74,0.18);
+}
+
 .ranking-pos{
   font-weight:bold;
   color:#fde68a;
@@ -457,7 +558,7 @@ h1{
 
   .acciones{
     display:grid;
-    grid-template-columns:repeat(4, minmax(0, 1fr));
+    grid-template-columns:repeat(5, minmax(0, 1fr));
     gap:8px;
   }
 
@@ -474,6 +575,7 @@ h1{
   .profile-btn,
   .music-btn,
   .rankings-btn,
+  .rules-btn,
   .mobile-admin-btn{
     width:100%;
     min-height:46px;
@@ -548,6 +650,7 @@ h1{
   .profile-btn,
   .music-btn,
   .rankings-btn,
+  .rules-btn,
   .mobile-admin-btn{
     min-height:46px;
     padding:10px 8px;
@@ -561,6 +664,10 @@ h1{
   }
 
   .ranking-tabs{
+    grid-template-columns:1fr;
+  }
+
+  .rules-grid{
     grid-template-columns:1fr;
   }
 
@@ -616,11 +723,13 @@ h1{
 
   .acciones{
     gap:6px;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
   }
 
   .profile-btn,
   .music-btn,
   .rankings-btn,
+  .rules-btn,
   .mobile-admin-btn{
     min-height:44px;
     padding:9px 6px;
@@ -640,6 +749,7 @@ h1{
     <div class="acciones">
       <button class="boton profile-btn" onclick="irPerfil()">Perfil</button>
       <button class="boton rankings-btn" data-open-rankings>Rankings</button>
+      <button class="boton rules-btn" data-open-rules>Reglas</button>
       <button class="boton music-btn" onclick="reproducirMusica()">Música</button>
       <button class="boton mobile-admin-btn" onclick="irAdmin()">Admin</button>
     </div>
@@ -651,6 +761,10 @@ h1{
       <div class="etiqueta">GameWorld</div>
       <h1>Torneo de Juegos</h1>
       <p class="subtitulo">Elige tu siguiente reto, entra al lobby y compite por los mejores puestos del torneo.</p>
+      <div class="rules-launch">
+        <button class="boton" type="button" data-open-rules>Reglas del torneo</button>
+        <button class="boton whatsapp-link" type="button" onclick="abrirWhatsapp()">WhatsApp</button>
+      </div>
     </section>
 
     <section class="menu" aria-label="Juegos disponibles">
@@ -723,6 +837,66 @@ h1{
   </section>
 </div>
 
+<div class="ranking-modal" id="rulesModal" aria-hidden="true">
+  <section class="ranking-panel rules-panel" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="ranking-head">
+      <div>
+        <h2 id="rulesTitle">Reglas del torneo</h2>
+        <p>Estas reglas aplican para todos los juegos y ayudan a que el torneo sea claro y justo.</p>
+      </div>
+      <button class="ranking-close" type="button" data-close-rules aria-label="Cerrar reglas">&times;</button>
+    </div>
+    <div class="ranking-body">
+      <div class="rules-grid">
+        <article class="rule-card">
+          <strong>Objetivo</strong>
+          <p>Gana el mayor puntaje o consigue el menor tiempo, segun el juego seleccionado.</p>
+        </article>
+        <article class="rule-card">
+          <strong>Duracion</strong>
+          <p>Cada torneo dura aproximadamente entre 10 y 15 minutos.</p>
+        </article>
+        <article class="rule-card">
+          <strong>Intentos</strong>
+          <p>Puede ser 1 intento o hasta 3 intentos. Cuando haya varios intentos, se toma el mejor resultado valido.</p>
+        </article>
+        <article class="rule-card">
+          <strong>Empate</strong>
+          <p>Si dos jugadores logran el mismo resultado, gana quien lo consiguio primero.</p>
+        </article>
+        <article class="rule-card">
+          <strong>Premios</strong>
+          <div class="prize-list">
+            <div class="prize-row"><span>1er lugar</span><strong>20%</strong></div>
+            <div class="prize-row"><span>2do lugar</span><strong>10%</strong></div>
+            <div class="prize-row"><span>3er lugar</span><strong>5%</strong></div>
+          </div>
+        </article>
+        <article class="rule-card">
+          <strong>Prohibido</strong>
+          <ul>
+            <li>Usar multicuentas.</li>
+            <li>Hacer trampas o usar ayudas externas no permitidas.</li>
+            <li>Manipular el sistema, el ranking o los resultados.</li>
+          </ul>
+        </article>
+        <article class="rule-card">
+          <strong>Nota</strong>
+          <p>Participar en el torneo significa aceptar estas reglas, terminos y condiciones.</p>
+        </article>
+        <article class="rule-card">
+          <strong>WhatsApp</strong>
+          <p>El grupo es solo para apoyo, avisos y comunicacion. No reemplaza estas reglas.</p>
+        </article>
+      </div>
+      <div class="rules-actions">
+        <button class="whatsapp-action" type="button" onclick="abrirWhatsapp()">WhatsApp</button>
+        <button type="button" data-close-rules>Entendido</button>
+      </div>
+    </div>
+  </section>
+</div>
+
 <audio loop>
   <source src="music/musicainicio.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
@@ -769,7 +943,41 @@ function irAdmin(){
   window.location.href = 'admin.html'
 }
 
+const WHATSAPP_URL = 'https://chat.whatsapp.com/FcDz95lx5al9xH6lRSZ8Y0'
+
+function abrirWhatsapp(){
+  window.open(WHATSAPP_URL, '_blank', 'noopener,noreferrer')
+}
+
+function abrirReglas(){
+  const modal = document.getElementById('rulesModal')
+  if (!modal) return
+  modal.classList.add('abierto')
+  modal.setAttribute('aria-hidden', 'false')
+}
+
+function cerrarReglas(){
+  const modal = document.getElementById('rulesModal')
+  if (!modal) return
+  modal.classList.remove('abierto')
+  modal.setAttribute('aria-hidden', 'true')
+}
+
+document.querySelectorAll('[data-open-rules]').forEach((button) => {
+  button.addEventListener('click', abrirReglas)
+})
+
+document.querySelectorAll('[data-close-rules]').forEach((button) => {
+  button.addEventListener('click', cerrarReglas)
+})
+
+document.getElementById('rulesModal')?.addEventListener('click', function(e){
+  if(e.target === this) cerrarReglas()
+})
+
 document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') cerrarReglas()
+
   if(e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'n'){
     window.location.href = 'admin.html'
   }
