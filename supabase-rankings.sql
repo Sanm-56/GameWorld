@@ -837,9 +837,9 @@ select
   temporada_id,
   xp,
   nivel,
-  public.titulo_por_nivel(nivel) as titulo,
   rank() over (partition by temporada_id order by nivel desc, xp desc, updated_at asc) as posicion,
-  updated_at
+  updated_at,
+  public.titulo_por_nivel(nivel) as titulo
 from public.progreso_nivel;
 
 delete from public.recompensas_desbloqueadas
