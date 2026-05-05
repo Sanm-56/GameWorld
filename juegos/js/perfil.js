@@ -4,6 +4,7 @@ import {
   obtenerProgresoNivel,
   obtenerRankingNivel,
   obtenerRecompensaNivel,
+  obtenerTituloNivel,
   registrarXpPorLogros,
 } from './progreso-nivel.js'
 
@@ -3798,6 +3799,7 @@ async function renderProgresoNivel() {
   }
 
   const progreso = await obtenerProgresoNivel(usuario)
+  const tituloNivel = obtenerTituloNivel(progreso.nivel)
   const siguienteNivel = Math.min(NIVEL_MAXIMO, progreso.nivel + 1)
   const recompensa = progreso.nivel >= NIVEL_MAXIMO
     ? null
@@ -3807,7 +3809,7 @@ async function renderProgresoNivel() {
   xpActualEl.innerText = `${progreso.xp} XP acumulado`
   porcentajeNivelEl.innerText = `${progreso.porcentaje}%`
   barraNivelEl.style.width = `${progreso.porcentaje}%`
-  pillNivelEl.innerText = `Nivel: ${progreso.nivel}`
+  pillNivelEl.innerText = `Nivel: ${progreso.nivel} - ${tituloNivel}`
 
   if (progreso.nivel >= NIVEL_MAXIMO) {
     xpNivelDetalleEl.innerText = 'Nivel maximo alcanzado'
@@ -3834,6 +3836,7 @@ async function renderRankingNivel() {
 
   rankingNivelListEl.innerHTML = ''
   ranking.forEach((item, index) => {
+    const tituloNivel = obtenerTituloNivel(item.nivel)
     const div = document.createElement('div')
     div.className = `level-row${item.usuario_id === usuario ? ' current' : ''}`
     div.innerHTML = `
@@ -3841,7 +3844,7 @@ async function renderRankingNivel() {
       <div class="level-rank-user">
         <strong>${escaparHtml(item.usuario_id)}</strong>
         <br>
-        <small>${item.xp} XP</small>
+        <small>${escaparHtml(tituloNivel)} - ${item.xp} XP</small>
       </div>
       <div class="level-rank-score">Nivel ${item.nivel}</div>
     `

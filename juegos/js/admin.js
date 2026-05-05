@@ -651,6 +651,22 @@ cargarRanking()
 cargarVistaAdmin()
 }
 
+async function reiniciarTemporada(){
+const confirmacion = prompt("Esto creara una nueva temporada y bajara 3 niveles a todos los usuarios. Escribe TEMPORADA para confirmar.")
+if(confirmacion !== "TEMPORADA") return
+
+const rpc = await ejecutarRpcAdmin("admin_reiniciar_temporada")
+if(rpc.ok && rpc.data){
+alert("Temporada reiniciada: " + rpc.data)
+cargarRanking()
+cargarVistaAdmin()
+return
+}
+
+console.warn("No se pudo reiniciar la temporada", rpc.error)
+alert("No se pudo reiniciar la temporada")
+}
+
 async function borrarRankingTemporal(juego){
 const ranking = await supabase
 .from("ranking")
@@ -741,6 +757,7 @@ window.cargarRanking = cargarRanking
 window.borrarRankingSemana = borrarRankingSemana
 window.borrarRankingVictorias = borrarRankingVictorias
 window.borrarRankingGlobal = borrarRankingGlobal
+window.reiniciarTemporada = reiniciarTemporada
 window.resetTotal = resetTotal
 
 function syncNumcatchUI(){

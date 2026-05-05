@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js'
 
-export const NIVEL_MAXIMO = 100
+export const NIVEL_MAXIMO = 365
 
 const XP_ACCIONES = {
   partida_completada: 25,
@@ -9,9 +9,16 @@ const XP_ACCIONES = {
 }
 
 const RECOMPENSAS_BASE = [
-  'Novato', 'Aspirante', 'Competidor', 'Calculador', 'Estratega',
-  'Especialista', 'Veterano', 'Maestro', 'Campeon', 'Leyenda',
+  'Novato', 'Amateur', 'Aspirante', 'Profesional', 'Competidor',
+  'Experto', 'Elite', 'Maestro', 'Gran Maestro', 'Leyenda',
+  'Mitico', 'Supremo', 'Titan', 'Inmortal', 'Leyenda Maxima',
 ]
+
+export function obtenerTituloNivel(nivelActual = 1) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  const indice = Math.min(RECOMPENSAS_BASE.length - 1, Math.ceil(nivel / 25) - 1)
+  return RECOMPENSAS_BASE[indice]
+}
 
 export function xpNecesarioParaNivel(nivel) {
   if (nivel >= NIVEL_MAXIMO) return 0
@@ -65,12 +72,6 @@ export function calcularXpRanking(posicion) {
 }
 
 export function crearRecompensaFallback(nivel) {
-  const titulo = RECOMPENSAS_BASE[Math.min(RECOMPENSAS_BASE.length - 1, Math.floor((nivel - 1) / 10))]
-
-  if (nivel % 10 === 0) {
-    return { nivel, tipo: 'titulo', valor: `${titulo} ${nivel}` }
-  }
-
   if (nivel % 5 === 0) {
     return { nivel, tipo: 'medalla', valor: `Medalla nivel ${nivel}` }
   }
