@@ -1,5 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
+import { debeSalirDelTorneo, obtenerInicioTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
 
 // =============================
 // BLOQUEO MULTI-PESTANA
@@ -80,6 +81,7 @@ window.addEventListener('pagehide', liberarBloqueoPestana)
 // CONTROL GLOBAL
 // =============================
 const usuario = localStorage.getItem('usuario') || 'anonimo'
+const JUEGO_ACTUAL = 'domino'
 const statusEl = document.getElementById('status')
 const resultEl = document.getElementById('result')
 const handEl = document.getElementById('hand')
@@ -161,18 +163,14 @@ async function iniciarCronometro() {
 
   if (intervalo) clearInterval(intervalo)
 
-  const { data: torneo } = await supabase
-    .from('estado_torneo')
-    .select('inicio_torneo')
-    .eq('id', 1)
-    .single()
+  const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
 
-  if (!torneo?.inicio_torneo) {
+  if (!inicioTorneo) {
     return
   }
 
   const { data: horaServer } = await supabase.rpc('ahora_servidor')
-  const inicio = Date.parse(torneo.inicio_torneo)
+  const inicio = Date.parse(inicioTorneo)
   const ahora = Date.parse(horaServer)
 
   let restante = Math.floor((inicio + DURACION * 1000 - ahora) / 1000)
@@ -485,13 +483,9 @@ function passTurn() {
 }
 
 async function obtenerTiempo() {
-  const { data: torneo, error: torneoError } = await supabase
-    .from('estado_torneo')
-    .select('inicio_torneo')
-    .eq('id', 1)
-    .single()
+  const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
 
-  if (torneoError || !torneo?.inicio_torneo) {
+  if (!inicioTorneo) {
     return 9999
   }
 
@@ -500,7 +494,7 @@ async function obtenerTiempo() {
     return 9999
   }
 
-  const inicio = Date.parse(torneo.inicio_torneo)
+  const inicio = Date.parse(inicioTorneo)
   const ahora = Date.parse(horaServer)
   return Math.max(0, Math.floor((ahora - inicio) / 1000))
 }
@@ -556,6 +550,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
       modo: 'time',
       invalido: invalidoFinal,
     })
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalidoFinal ? 0 : Math.max(0, DURACION - payload.tiempo))
     localStorage.setItem('dominoEstadisticasPendientes', 'true')
     return
   }
@@ -574,6 +569,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
       modo: 'time',
       invalido: invalidoFinal,
     })
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalidoFinal ? 0 : Math.max(0, DURACION - payload.tiempo))
     localStorage.setItem('dominoEstadisticasPendientes', 'true')
   }
 }
@@ -609,17 +605,11 @@ async function finishGame(message, shouldSaveResult = true) {
 }
 
 async function revisarEstadoTorneo() {
-  const { data } = await supabase
-    .from('estado_torneo')
-    .select('estado')
-    .eq('id', 1)
-    .single()
-
-  if (data?.estado === 'espera' && !juegoTerminado) {
+  if (await debeSalirDelTorneo(supabase, JUEGO_ACTUAL) && !juegoTerminado) {
     liberarBloqueoPestana()
     await guardarResultado(9999, true, true, 'Torneo detenido por admin')
     alert('Torneo detenido por el admin')
-    window.location.href = 'lobby.html'
+    window.location.href = salidaTorneoUrl()
   }
 }
 

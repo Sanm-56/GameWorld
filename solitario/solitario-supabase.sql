@@ -5,9 +5,24 @@ create table if not exists public.salas (
   creador_id text not null,
   estado text not null default 'esperando',
   max_jugadores integer not null default 40,
+  juego text,
+  inicio_torneo timestamptz,
+  fecha_fin timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint salas_estado_check check (estado in ('esperando', 'en_juego', 'finalizado')),
+  constraint salas_juego_check check (
+    juego is null or juego in (
+      'ajedrez',
+      'damas',
+      'domino',
+      'flashmind',
+      'matematicas',
+      'memoria',
+      'numcatch',
+      'sudoku'
+    )
+  ),
   constraint salas_max_jugadores_check check (max_jugadores between 1 and 40)
 );
 

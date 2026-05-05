@@ -23,6 +23,7 @@ const state = {
   selectedGame: MINI_TOURNAMENT_GAMES[0].key,
   activeRoom: null,
   playersChannel: null,
+  playersPoll: null,
 }
 
 const els = {
@@ -129,6 +130,8 @@ function injectMiniTournamentStyles() {
     .code-row{display:grid;grid-template-columns:1fr auto;gap:8px}
     .active-rooms{margin-bottom:16px}
     .active-room-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:12px;background:rgba(15,23,42,.64)}
+    .mini-player-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .mini-player-pill{border:1px solid rgba(148,163,184,.18);border-radius:999px;padding:4px 8px;color:#dbeafe;font-size:12px;background:rgba(15,23,42,.72)}
     .room-game-pill{display:inline-flex;margin-top:6px;border:1px solid rgba(56,189,248,.32);border-radius:999px;padding:5px 9px;color:#bfdbfe;font-size:13px;font-weight:800}
     @media (max-width: 840px){.game-picker,.active-room-row,.code-row{grid-template-columns:1fr}}
   `
@@ -451,6 +454,7 @@ async function joinRoomByRecord(room) {
   renderRoom(room)
   subscribeRoom(room.id)
   await loadPlayers()
+  startPlayersPolling()
   setText(els.roomStatus, "Dentro de la sala.")
 
   if (room.estado === "en_juego") redirectToActiveGame()
@@ -485,7 +489,7 @@ function renderRoom(room) {
   els.startRoomBtn.disabled = !isCreator || room.estado !== "esperando"
   els.finishRoomBtn.disabled = !isCreator || room.estado === "finalizado"
   els.scoreRoomBtn.disabled = room.estado === "finalizado"
-  if (els.openGameBtn) els.openGameBtn.disabled = room.estado === "finalizado"
+  if (els.openGameBtn) els.openGameBtn.disabled = room.estado !== "en_juego"
 }
 
 function subscribeRoom(roomId) {
@@ -517,23 +521,30 @@ async function loadPlayers() {
     .order("puntos", { ascending: false })
 
   if (error) {
-    setText(els.playersList, '<div class="status">No se pudo cargar jugadores.</div>')
+    els.playersList.innerHTML = '<div class="status">No se pudo cargar jugadores.</div>'
     return
   }
 
   els.playersList.innerHTML = (data || []).map((player, index) => `
     <div class="player-row ${player.usuario_id === state.user.id ? "current" : ""}">
       <span class="rank-pos">#${index + 1}</span>
-      <strong>${escapeHtml(player.usuario || player.usuario_id)}</strong>
+      <strong>${escapeHtml(player.usuario || player.usuario_id || "Jugador")}</strong>
       <span>${Number(player.puntos || 0)} pts</span>
     </div>
   `).join("")
 }
 
 async function updateRoomState(estado) {
-  if (!state.activeRoom) return
-  const { error } = await supabase.from("salas").update({ estado }).eq("id", state.activeRoom.id)
-  if (error) setText(els.roomStatus, "No se pudo actualizar la sala.")
+  if (!state.activeRoom) return false
+  const payload = { estado }
+  if (estado === "en_juego") payload.inicio_torneo = new Date().toISOString()
+  if (estado === "finalizado") payload.fecha_fin = new Date().toISOString()
+  const { error } = await supabase.from("salas").update(payload).eq("id", state.activeRoom.id)
+  if (error) {
+    setText(els.roomStatus, "No se pudo actualizar la sala. Revisa que solitario-mini-torneos.sql este aplicado.")
+    return false
+  }
+  return true
 }
 
 async function addRoomPoints() {
@@ -580,7 +591,8 @@ async function finishRoom() {
     .order("puntos", { ascending: false })
 
   const winnerId = data?.[0]?.usuario_id
-  await updateRoomState("finalizado")
+  const updated = await updateRoomState("finalizado")
+  if (!updated) return
 
   if (data?.length) {
     await supabase.from("solitario_resultados").insert(data.map((player) => ({
@@ -606,7 +618,8 @@ async function startRoom() {
     return
   }
 
-  await updateRoomState("en_juego")
+  const updated = await updateRoomState("en_juego")
+  if (!updated) return
   await refreshRoom()
   redirectToActiveGame()
 }
@@ -639,14 +652,20 @@ async function loadActiveRooms() {
   })))
   const countByRoom = new Map(counts.map((item) => [item.id, item.count]))
 
+  const playersByRoom = await loadPlayersPreview(data.map((room) => room.id))
+
   els.activeRoomsList.innerHTML = data.map((room) => {
     const players = countByRoom.get(room.id) || 0
+    const preview = playersByRoom.get(room.id) || []
     return `
       <div class="active-room-row">
         <div>
           <strong>${escapeHtml(room.nombre)}</strong>
           <span class="room-game-pill">${escapeHtml(gameLabel(room.juego))}</span>
           <p class="muted">Codigo ${escapeHtml(room.codigo)} - ${stateLabel(room.estado)} - ${players}/${room.max_jugadores || 40}</p>
+          <div class="mini-player-list">
+            ${preview.map((player) => `<span class="mini-player-pill">${escapeHtml(player)}</span>`).join("")}
+          </div>
         </div>
         <button class="ghost-button" type="button" data-copy-code="${escapeHtml(room.codigo)}">Copiar codigo</button>
         <button type="button" data-join-room="${room.id}">Unirse</button>
@@ -669,6 +688,33 @@ async function loadActiveRooms() {
   })
 }
 
+async function loadPlayersPreview(roomIds) {
+  if (!roomIds.length) return new Map()
+
+  const { data } = await supabase
+    .from("sala_jugadores")
+    .select("sala_id,usuario_id,usuario")
+    .in("sala_id", roomIds)
+    .order("created_at", { ascending: true })
+
+  const grouped = new Map()
+  ;(data || []).forEach((player) => {
+    const players = grouped.get(player.sala_id) || []
+    if (players.length < 6) players.push(player.usuario || player.usuario_id || "Jugador")
+    grouped.set(player.sala_id, players)
+  })
+
+  return grouped
+}
+
+function startPlayersPolling() {
+  if (state.playersPoll) clearInterval(state.playersPoll)
+  state.playersPoll = setInterval(() => {
+    loadPlayers()
+    refreshRoom()
+  }, 3000)
+}
+
 function generateRoomCode() {
   const input = document.getElementById("roomCode")
   if (!input) return
@@ -684,7 +730,7 @@ function redirectToActiveGame() {
   localStorage.setItem("solitario_sala_codigo", state.activeRoom.codigo)
   localStorage.setItem("solitario_juego", state.activeRoom.juego)
   localStorage.setItem("solitario_origen", "sala")
-  window.location.href = `../juegos/${state.activeRoom.juego}/index.html`
+  window.location.href = `../juegos/${state.activeRoom.juego}/${state.activeRoom.juego}.html`
 }
 
 async function registerResult({ points, victory, origin, roomId }) {

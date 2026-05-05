@@ -1,7 +1,9 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
+import { debeSalirDelTorneo, obtenerInicioTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 const pestana = "memoria_activo"
+const JUEGO_ACTUAL = "memoria"
 
 if(localStorage.getItem(pestana)){
 alert("Ya tienes el juego abierto en otra pestana")
@@ -292,15 +294,11 @@ async function iniciarCronometro(){
 
 const reloj = document.getElementById("reloj")
 
-let { data: torneo } = await supabase
-.from("estado_torneo")
-.select("inicio_torneo")
-.eq("id", 1)
-.single()
+const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
 
 let { data: horaServer } = await supabase.rpc("ahora_servidor")
 
-const inicio = Date.parse(torneo.inicio_torneo)
+const inicio = Date.parse(inicioTorneo)
 const ahora = Date.parse(horaServer)
 
 let restante = Math.floor((inicio + DURACION * 1000 - ahora) / 1000)
@@ -370,6 +368,8 @@ valor: tiempo,
 modo: "time",
 invalido
 })
+
+await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : Math.max(0, DURACION - tiempo))
 
 return true
 }
@@ -478,15 +478,11 @@ if(resultadoEnviado || descalificado) return
 
 clearInterval(intervalo)
 
-let { data: torneo } = await supabase
-.from("estado_torneo")
-.select("inicio_torneo")
-.eq("id", 1)
-.single()
+const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
 
 let { data: horaServer } = await supabase.rpc("ahora_servidor")
 
-const inicio = Date.parse(torneo.inicio_torneo)
+const inicio = Date.parse(inicioTorneo)
 const ahora = Date.parse(horaServer)
 
 let tiempo = Math.floor((ahora - inicio) / 1000)
@@ -507,13 +503,7 @@ window.finalizar = finalizar
 
 async function revisarEstadoTorneo(){
 
-let { data } = await supabase
-.from("estado_torneo")
-.select("estado")
-.eq("id", 1)
-.single()
-
-if(data?.estado == "espera"){
+if(await debeSalirDelTorneo(supabase, JUEGO_ACTUAL)){
 
 if(!juegoTerminado){
 const guardado = await guardarResultado(9999, true, true, "Torneo detenido")
@@ -523,7 +513,7 @@ await guardarEstadisticasMemoria({ tiempo: DURACION, completado: false })
 }
 
 alert("Torneo detenido por el admin")
-window.location.href = "lobby.html"
+window.location.href = salidaTorneoUrl()
 }
 }
 

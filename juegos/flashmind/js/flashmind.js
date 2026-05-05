@@ -1,7 +1,9 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
+import { debeSalirDelTorneo, obtenerInicioTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 const DURACION = 600
+const JUEGO_ACTUAL = "flashmind"
 const MAX_ADVERTENCIAS = 3
 const BASE_VENTANA_MS = 1300
 const MAX_REACTION_CAP_MS = 550
@@ -213,15 +215,11 @@ document.addEventListener("keydown", (e) => {
 async function iniciarCronometro() {
   const reloj = document.getElementById("reloj")
 
-  let { data: torneo } = await supabase
-    .from("estado_torneo")
-    .select("inicio_torneo")
-    .eq("id", 1)
-    .single()
+  const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
 
   let { data: horaServer } = await supabase.rpc("ahora_servidor")
 
-  const inicio = Date.parse(torneo.inicio_torneo)
+  const inicio = Date.parse(inicioTorneo)
   const ahora = Date.parse(horaServer)
 
   let restante = Math.floor((inicio + DURACION * 1000 - ahora) / 1000)
@@ -276,6 +274,7 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
 
   if (!result.error) {
     await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos)
     return true
   }
 
@@ -295,6 +294,7 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
 
   if (!result.error && result.data && result.data.length > 0) {
     await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos)
     return true
   }
 
@@ -310,6 +310,7 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
   }
 
   await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
+  await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos)
   return true
 }
 
@@ -421,14 +422,8 @@ async function enviarResultado(fin) {
 }
 
 async function revisarEstadoTorneo() {
-  let { data } = await supabase
-    .from("estado_torneo")
-    .select("estado")
-    .eq("id", 1)
-    .single()
-
-  if (data?.estado === "espera") {
-    window.location.href = "lobby.html"
+  if (await debeSalirDelTorneo(supabase, JUEGO_ACTUAL)) {
+    window.location.href = salidaTorneoUrl()
   }
 }
 

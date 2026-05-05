@@ -1,5 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
+import { debeSalirDelTorneo, obtenerInicioTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
 
 // =============================
 // 🔒 BLOQUEO MULTI-PESTAÑA
@@ -63,7 +64,7 @@ function liberarBloqueoPestana() {
 function iniciarBloqueoPestana() {
   if (!reclamarBloqueoPestana()) {
     alert('Ya tienes el ajedrez abierto en otra pestaña')
-    window.location.href = 'lobby.html'
+    window.location.href = salidaTorneoUrl()
     return false
   }
 
@@ -91,6 +92,7 @@ window.addEventListener('storage', (event) => {
 // 👤 USUARIO
 // =============================
 let usuario = localStorage.getItem('usuario') || 'anónimo'
+const JUEGO_ACTUAL = 'ajedrez'
 
 // =============================
 // 🔒 CONTROL GLOBAL
@@ -261,14 +263,9 @@ async function iniciarCronometro() {
 
   if (intervalo) clearInterval(intervalo)
 
-  // Traer inicio torneo
-  let { data: torneo } = await supabase
-    .from('estado_torneo')
-    .select('inicio_torneo')
-    .eq('id', 1)
-    .single()
+  const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
 
-  if (!torneo || !torneo.inicio_torneo) {
+  if (!inicioTorneo) {
     console.log('No hay torneo activo')
     return
   }
@@ -276,7 +273,7 @@ async function iniciarCronometro() {
   // Traer hora del servidor
   let { data: horaServer } = await supabase.rpc('ahora_servidor')
 
-  const inicio = Date.parse(torneo.inicio_torneo)
+  const inicio = Date.parse(inicioTorneo)
   const ahora = Date.parse(horaServer)
 
   let restante = Math.floor((inicio + DURACION * 1000 - ahora) / 1000)
@@ -838,14 +835,10 @@ function updateHistory() {
 }
 
 async function obtenerTiempo() {
-  const { data: torneo, error: torneoError } = await supabase
-    .from('estado_torneo')
-    .select('inicio_torneo')
-    .eq('id', 1)
-    .single()
+  const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
 
-  if (torneoError || !torneo?.inicio_torneo) {
-    console.error('Error obteniendo inicio_torneo', torneoError)
+  if (!inicioTorneo) {
+    console.error('Error obteniendo inicio_torneo')
     return 9999
   }
 
@@ -855,7 +848,7 @@ async function obtenerTiempo() {
     return 9999
   }
 
-  const inicio = Date.parse(torneo.inicio_torneo)
+  const inicio = Date.parse(inicioTorneo)
   const ahora = Date.parse(horaServer)
   return Math.max(0, Math.floor((ahora - inicio) / 1000))
 }
@@ -1129,6 +1122,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
         modo: 'time',
         invalido: invalido_final,
       })
+      await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido_final ? 0 : Math.max(0, DURACION - payload.tiempo))
       if (!invalido_final) {
         const posicion = await obtenerPosicionAjedrez()
         await guardarEstadisticasAjedrez(tiempo, posicion)
@@ -1144,6 +1138,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     modo: 'time',
     invalido: invalido_final,
   })
+  await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido_final ? 0 : Math.max(0, DURACION - payload.tiempo))
   if (!invalido_final) {
     const posicion = await obtenerPosicionAjedrez()
     await guardarEstadisticasAjedrez(tiempo, posicion)
@@ -1244,13 +1239,7 @@ function resetGame() {
 }
 
 async function revisarEstadoTorneo() {
-  const { data } = await supabase
-    .from('estado_torneo')
-    .select('estado')
-    .eq('id', 1)
-    .single()
-
-  if (data?.estado === 'espera' && !juegoTerminado) {
+  if (await debeSalirDelTorneo(supabase, JUEGO_ACTUAL) && !juegoTerminado) {
     liberarBloqueoPestana()
     await guardarResultado(9999, true, true, 'Torneo detenido por admin')
     alert('⛔ Torneo detenido por el admin')

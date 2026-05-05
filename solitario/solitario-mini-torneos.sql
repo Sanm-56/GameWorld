@@ -2,6 +2,12 @@ alter table public.salas
 add column if not exists juego text;
 
 alter table public.salas
+add column if not exists inicio_torneo timestamptz;
+
+alter table public.salas
+add column if not exists fecha_fin timestamptz;
+
+alter table public.salas
 drop constraint if exists salas_juego_check;
 
 alter table public.salas

@@ -1,8 +1,10 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
+import { debeSalirDelTorneo, obtenerInicioTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 // 🔒 BLOQUEO MULTI-PESTAÑA
 const pestaña = "mate_activo"
+const JUEGO_ACTUAL = "matematicas"
 
 if(localStorage.getItem(pestaña)){
 alert("Ya tienes el juego abierto en otra pestaña")
@@ -386,15 +388,11 @@ async function iniciarCronometro(){
 
 const reloj = document.getElementById("reloj")
 
-let { data: torneo } = await supabase
-.from("estado_torneo")
-.select("inicio_torneo")
-.eq("id",1)
-.single()
+const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
 
 let { data: horaServer } = await supabase.rpc("ahora_servidor")
 
-const inicio = Date.parse(torneo.inicio_torneo)
+const inicio = Date.parse(inicioTorneo)
 const ahora = Date.parse(horaServer)
 
 let restante = Math.floor((inicio + DURACION*1000 - ahora)/1000)
@@ -434,6 +432,8 @@ valor: correctas * 10,
 modo: "points"
 })
 
+await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, correctas * 10)
+
 await guardarEstadisticasMatematicas()
 
 }
@@ -458,14 +458,8 @@ intervalo = setInterval(actualizar,1000)
 // 🔄 CONTROL TORNEO
 async function revisarEstado(){
 
-let { data } = await supabase
-.from("estado_torneo")
-.select("estado")
-.eq("id",1)
-.single()
-
-if(data.estado === "espera"){
-window.location.href="lobby.html"
+if(await debeSalirDelTorneo(supabase, JUEGO_ACTUAL)){
+window.location.href=salidaTorneoUrl()
 }
 
 }
