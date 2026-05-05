@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solitario | GameWorld</title>
+  <link rel="stylesheet" href="solitario.css">
+</head>
+<body>
+  <div class="solitario-shell">
+    <header class="solitario-topbar">
+      <a class="back-link" href="../index.html">Volver</a>
+      <div>
+        <p class="eyebrow">GameWorld</p>
+        <h1>Solitario</h1>
+      </div>
+      <div class="user-pill" id="userPill">Sin usuario</div>
+    </header>
+
+    <main>
+      <section class="auth-card" id="authView" hidden>
+        <div>
+          <p class="eyebrow">Acceso</p>
+          <h2>Entra con tu apodo y codigo</h2>
+          <p class="muted">Se valida con el sistema de usuarios existente. No se crea una autenticacion nueva.</p>
+        </div>
+        <form id="loginForm" class="auth-form">
+          <label>
+            Apodo
+            <input id="loginUsuario" autocomplete="username" placeholder="Tu apodo">
+          </label>
+          <label>
+            Codigo unico
+            <input id="loginCodigo" autocomplete="one-time-code" placeholder="Codigo">
+          </label>
+          <button type="submit">Entrar</button>
+        </form>
+        <p class="status" id="authStatus"></p>
+      </section>
+
+      <section class="game-app" id="appView" hidden>
+        <nav class="tabs" aria-label="Vistas de Solitario">
+          <button class="tab active" type="button" data-view="levels">Mapa</button>
+          <button class="tab" type="button" data-view="rooms">Mini torneos</button>
+          <button class="tab" type="button" data-view="rankings">Rankings</button>
+        </nav>
+
+        <section class="view active" id="levelsView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Modo individual</p>
+              <h2>Mapa de niveles</h2>
+            </div>
+            <button class="ghost-button" type="button" id="resetProgressBtn">Reiniciar progreso</button>
+          </div>
+          <div class="level-map" id="levelMap"></div>
+          <article class="play-panel" id="playPanel">
+            <div>
+              <p class="eyebrow">Reto actual</p>
+              <h3 id="levelTitle">Nivel 1</h3>
+              <p id="levelDescription" class="muted">Completa el reto para desbloquear el siguiente nivel.</p>
+            </div>
+            <div class="score-box">
+              <span>Puntos</span>
+              <strong id="lastScore">0</strong>
+            </div>
+            <button type="button" id="playLevelBtn">Jugar nivel</button>
+          </article>
+        </section>
+
+        <section class="view" id="roomsView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Salas privadas</p>
+              <h2>Mini torneos</h2>
+            </div>
+            <span class="status" id="roomStatus">Listo.</span>
+          </div>
+
+          <div class="room-grid">
+            <form class="panel" id="createRoomForm">
+              <h3>Crear sala</h3>
+              <label>
+                Nombre de sala
+                <input id="roomName" maxlength="60" placeholder="Final de viernes">
+              </label>
+              <label>
+                Codigo de acceso
+                <input id="roomCode" maxlength="18" placeholder="ABC123">
+              </label>
+              <button type="submit">Crear sala</button>
+            </form>
+
+            <form class="panel" id="joinRoomForm">
+              <h3>Unirse a sala</h3>
+              <label>
+                Codigo de acceso
+                <input id="joinCode" maxlength="18" placeholder="Codigo">
+              </label>
+              <button type="submit">Unirse</button>
+            </form>
+          </div>
+
+          <article class="room-detail" id="roomDetail" hidden>
+            <div class="room-title-row">
+              <div>
+                <p class="eyebrow" id="roomState">Esperando</p>
+                <h3 id="activeRoomName">Sala</h3>
+                <p class="muted">Codigo: <strong id="activeRoomCode"></strong></p>
+              </div>
+              <div class="room-actions">
+                <button type="button" id="startRoomBtn">Iniciar</button>
+                <button type="button" id="finishRoomBtn">Finalizar</button>
+                <button class="ghost-button" type="button" id="scoreRoomBtn">Sumar puntos</button>
+              </div>
+            </div>
+            <div class="players-list" id="playersList"></div>
+          </article>
+        </section>
+
+        <section class="view" id="rankingsView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Solitario</p>
+              <h2>Rankings independientes</h2>
+            </div>
+            <button class="ghost-button" type="button" id="refreshRankingsBtn">Actualizar</button>
+          </div>
+          <div class="ranking-columns">
+            <article class="panel">
+              <h3>Global</h3>
+              <div id="globalRanking" class="ranking-list"></div>
+            </article>
+            <article class="panel">
+              <h3>Semanal</h3>
+              <div id="weeklyRanking" class="ranking-list"></div>
+            </article>
+            <article class="panel">
+              <h3>Victorias</h3>
+              <div id="winsRanking" class="ranking-list"></div>
+            </article>
+          </div>
+          <p class="status" id="rankingStatus">Listo.</p>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="solitario.js"></script>
+</body>
+</html>
