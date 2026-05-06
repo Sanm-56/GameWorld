@@ -1,10 +1,14 @@
 import { supabase } from "../juegos/js/supabase.js"
-
-const LEVELS = Array.from({ length: 12 }, (_, index) => ({
-  id: index + 1,
-  target: 80 + index * 25,
-  title: `Nivel ${index + 1}`,
-}))
+import {
+  LEVELS,
+  getGameLabel,
+  getLevelProgress,
+  isLevelUnlocked,
+  missionLabel,
+  resetLevelProgress,
+  startLevel,
+  syncLevelProgress,
+} from "../juegos/js/solitario-niveles.js"
 
 const MINI_TOURNAMENT_GAMES = [
   { key: "ajedrez", label: "Ajedrez" },
@@ -15,6 +19,17 @@ const MINI_TOURNAMENT_GAMES = [
   { key: "memoria", label: "Memoria" },
   { key: "numcatch", label: "NumCatch" },
   { key: "sudoku", label: "Sudoku" },
+]
+
+const RANKING_GAME_OPTIONS = [
+  { key: "todos", label: "Todos los juegos", detail: "Vista completa", icon: "ALL" },
+  { key: "nivel", label: "Mapa de niveles", detail: "Modo individual", icon: "LV" },
+  ...MINI_TOURNAMENT_GAMES.map((game) => ({
+    key: game.key,
+    label: game.label,
+    detail: "Mini torneo",
+    icon: game.label.slice(0, 2).toUpperCase(),
+  })),
 ]
 
 const state = {
@@ -57,6 +72,8 @@ const els = {
   refreshRankingsBtn: document.getElementById("refreshRankingsBtn"),
   gamePicker: null,
   rankingGamePicker: null,
+  rankingGameTrigger: null,
+  rankingGameMenu: null,
   generateCodeBtn: null,
   activeRoomsList: null,
   roomGame: null,
@@ -106,6 +123,7 @@ async function showApp() {
   els.authView.hidden = true
   els.appView.hidden = false
   els.userPill.textContent = state.user.usuario
+  await syncLevelProgress(supabase, state.user.usuario)
   renderLevels()
   await loadActiveRooms()
   await restoreActiveRoom()
@@ -239,22 +257,88 @@ function injectRankingGamePicker() {
   if (!rankingsView || document.getElementById("rankingGamePicker")) return
 
   const pickerWrap = document.createElement("div")
-  pickerWrap.style.marginBottom = "20px"
+  pickerWrap.id = "rankingGamePicker"
+  pickerWrap.className = "ranking-game-filter"
   pickerWrap.innerHTML = `
-    <label for="rankingGamePicker">Filtrar por juego</label>
-    <select id="rankingGamePicker" class="boton" style="width:100%; margin-top:8px; background:rgba(15,23,42,.8); color:white; border:1px solid rgba(148,163,184,.2)">
-      <option value="todos">Todos los juegos</option>
-      <option value="nivel">Mapa de Niveles</option>
-      ${MINI_TOURNAMENT_GAMES.map(game => `<option value="${game.key}">${game.label}</option>`).join("")}
-    </select>
+    <button class="ranking-game-trigger" type="button" aria-expanded="false" aria-controls="rankingGameMenu">
+      <span class="ranking-game-trigger-main">
+        <span class="ranking-game-icon" data-ranking-current-icon>ALL</span>
+        <span>
+          <span class="ranking-game-title" data-ranking-current-title>Todos los juegos</span>
+          <span class="ranking-game-subtitle" data-ranking-current-detail>Vista completa</span>
+        </span>
+      </span>
+      <span class="ranking-game-caret" aria-hidden="true">v</span>
+    </button>
+    <div class="ranking-game-menu" id="rankingGameMenu" role="listbox" aria-label="Filtrar ranking por juego">
+      ${RANKING_GAME_OPTIONS.map((option) => `
+        <button class="ranking-game-option ${option.key === state.rankingGame ? "active" : ""}" type="button" role="option" aria-selected="${option.key === state.rankingGame}" data-ranking-game="${option.key}">
+          <span class="ranking-game-icon">${option.icon}</span>
+          <span>
+            <strong>${option.label}</strong>
+            <span>${option.detail}</span>
+          </span>
+        </button>
+      `).join("")}
+    </div>
   `
 
   const columns = rankingsView.querySelector(".ranking-columns")
   rankingsView.insertBefore(pickerWrap, columns || rankingsView.firstChild)
-  els.rankingGamePicker = document.getElementById("rankingGamePicker")
-  els.rankingGamePicker.addEventListener("change", (e) => {
-    state.rankingGame = e.target.value
-    loadRankings()
+  els.rankingGamePicker = pickerWrap
+  els.rankingGameTrigger = pickerWrap.querySelector(".ranking-game-trigger")
+  els.rankingGameMenu = pickerWrap.querySelector(".ranking-game-menu")
+
+  els.rankingGameTrigger.addEventListener("click", () => {
+    setRankingMenuOpen(!els.rankingGamePicker.classList.contains("open"))
+  })
+
+  els.rankingGameMenu.querySelectorAll("[data-ranking-game]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.rankingGame = button.dataset.rankingGame
+      updateRankingGamePicker()
+      setRankingMenuOpen(false)
+      loadRankings()
+    })
+  })
+
+  document.addEventListener("click", (event) => {
+    if (!els.rankingGamePicker?.contains(event.target)) {
+      setRankingMenuOpen(false)
+    }
+  })
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setRankingMenuOpen(false)
+    }
+  })
+
+  updateRankingGamePicker()
+}
+
+function setRankingMenuOpen(open) {
+  if (!els.rankingGamePicker || !els.rankingGameTrigger) return
+  els.rankingGamePicker.classList.toggle("open", open)
+  els.rankingGameTrigger.setAttribute("aria-expanded", String(open))
+}
+
+function updateRankingGamePicker() {
+  if (!els.rankingGamePicker) return
+
+  const selected = RANKING_GAME_OPTIONS.find((option) => option.key === state.rankingGame) || RANKING_GAME_OPTIONS[0]
+  const icon = els.rankingGamePicker.querySelector("[data-ranking-current-icon]")
+  const title = els.rankingGamePicker.querySelector("[data-ranking-current-title]")
+  const detail = els.rankingGamePicker.querySelector("[data-ranking-current-detail]")
+
+  if (icon) icon.textContent = selected.icon
+  if (title) title.textContent = selected.label
+  if (detail) detail.textContent = selected.detail
+
+  els.rankingGamePicker.querySelectorAll("[data-ranking-game]").forEach((button) => {
+    const active = button.dataset.rankingGame === state.rankingGame
+    button.classList.toggle("active", active)
+    button.setAttribute("aria-selected", String(active))
   })
 }
 
@@ -320,7 +404,7 @@ function progressKey() {
 }
 
 function getProgress() {
-  return JSON.parse(localStorage.getItem(progressKey()) || '{"unlocked":1,"done":[],"best":0}')
+  return getLevelProgress(state.user.usuario)
 }
 
 function saveProgress(progress) {
@@ -331,13 +415,14 @@ function renderLevels() {
   const progress = getProgress()
   els.levelMap.innerHTML = LEVELS.map((level) => {
     const done = progress.done.includes(level.id)
-    const unlocked = level.id <= progress.unlocked
+    const unlocked = isLevelUnlocked(level, progress)
     const className = done ? "done" : unlocked ? "unlocked" : "locked"
     return `
       <button class="level-node ${className}" type="button" data-level="${level.id}" ${unlocked ? "" : "disabled"}>
         <span class="level-number">${level.id}</span>
         <strong>${level.title}</strong>
-        <span>${done ? "Completado" : unlocked ? "Disponible" : "Bloqueado"}</span>
+        <span>${getGameLabel(level.game)}</span>
+        <span class="level-state">${done ? "Completado" : unlocked ? "Disponible" : "Bloqueado"}</span>
       </button>
     `
   }).join("")
@@ -352,40 +437,56 @@ function renderLevels() {
 function selectLevel(levelId) {
   state.selectedLevel = levelId
   const level = LEVELS.find((item) => item.id === levelId) || LEVELS[0]
+  const progress = getProgress()
+  const best = progress.bestByLevel?.[String(level.id)] || 0
+  state.selectedGame = level.game
+  updateMiniTournamentGamePicker()
   els.levelTitle.textContent = level.title
-  els.levelDescription.textContent = `Supera ${level.target} puntos para desbloquear el siguiente nivel.`
+  els.levelDescription.textContent = missionLabel(level)
+  els.lastScore.textContent = String(best)
+  els.playLevelBtn.textContent = `Jugar ${getGameLabel(level.game)}`
 }
 
 async function playSelectedLevel() {
   const level = LEVELS.find((item) => item.id === state.selectedLevel) || LEVELS[0]
-  const score = Math.floor(level.target * 0.7 + Math.random() * level.target * 0.65)
   const progress = getProgress()
 
-  els.lastScore.textContent = String(score)
-
-  if (score >= level.target) {
-    progress.unlocked = Math.max(progress.unlocked, Math.min(level.id + 1, LEVELS.length))
-    progress.done = [...new Set([...progress.done, level.id])]
-    progress.best = Math.max(progress.best || 0, score)
-    saveProgress(progress)
-    renderLevels()
+  if (!isLevelUnlocked(level, progress)) {
+    els.levelDescription.textContent = "Este nivel sigue bloqueado."
+    return
   }
 
-  await registerResult({
-    points: score,
-    victory: score >= level.target,
-    origin: "nivel",
-    roomId: null,
-    game: "nivel",
-  })
-  loadRankings()
+  startLevel(level, state.user.usuario)
+  window.location.href = `../juegos/${level.game}/${level.game}.html`
 }
 
-function resetProgress() {
-  saveProgress({ unlocked: 1, done: [], best: 0 })
+async function resetProgress() {
+  resetLevelProgress(state.user.usuario)
+  const { error } = await supabase
+    .from("progreso_niveles")
+    .update({
+      completado: false,
+      puntaje: 0,
+      tiempo: null,
+      resultado: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("usuario_id", state.user.usuario)
+
+  if (error) {
+    console.warn("No se pudo reiniciar progreso remoto", error)
+  }
+
   state.selectedLevel = 1
   els.lastScore.textContent = "0"
   renderLevels()
+}
+
+function updateMiniTournamentGamePicker() {
+  if (!els.gamePicker) return
+  els.gamePicker.querySelectorAll("[data-game]").forEach((item) => {
+    item.classList.toggle("active", item.dataset.game === state.selectedGame)
+  })
 }
 
 async function createRoom(event) {
@@ -814,9 +915,11 @@ async function loadRankings() {
   
   let query = supabase
     .from("solitario_resultados")
-    .select("usuario_id,usuario,puntos,victoria,created_at,juego")
+    .select("usuario_id,usuario,puntos,victoria,created_at,juego,origen")
 
-  if (state.rankingGame !== "todos") {
+  if (state.rankingGame === "nivel") {
+    query = query.eq("origen", "nivel")
+  } else if (state.rankingGame !== "todos") {
     query = query.eq("juego", state.rankingGame)
   }
   const { data, error } = await query

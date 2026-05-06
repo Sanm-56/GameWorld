@@ -4,6 +4,13 @@ export function esMiniTorneo(juego) {
     && localStorage.getItem("solitario_juego") === juego
 }
 
+function esNivelSolitario(juego) {
+  const context = leerContextoNivel()
+  return localStorage.getItem("solitario_origen") === "nivel"
+    && context
+    && context.game === juego
+}
+
 export async function obtenerInicioTorneo(supabase, juego) {
   if (esMiniTorneo(juego)) {
     const salaId = localStorage.getItem("solitario_sala_id")
@@ -15,6 +22,10 @@ export async function obtenerInicioTorneo(supabase, juego) {
 
     if (data?.estado !== "en_juego" || data?.juego !== juego) return null
     return data.inicio_torneo || data.created_at || new Date().toISOString()
+  }
+
+  if (esNivelSolitario(juego)) {
+    return leerContextoNivel()?.startedAt || new Date().toISOString()
   }
 
   const { data } = await supabase
@@ -38,6 +49,8 @@ export async function debeSalirDelTorneo(supabase, juego) {
     return !data || data.juego !== juego || data.estado === "finalizado"
   }
 
+  if (esNivelSolitario(juego)) return false
+
   const { data } = await supabase
     .from("estado_torneo")
     .select("estado")
@@ -48,6 +61,10 @@ export async function debeSalirDelTorneo(supabase, juego) {
 }
 
 export function salidaTorneoUrl() {
+  if (esNivelSolitario(localStorage.getItem("solitario_juego"))) {
+    return "../../solitario/solitario.html"
+  }
+
   return esMiniTorneo(localStorage.getItem("solitario_juego"))
     ? "../../solitario/solitario.html"
     : "lobby.html"
@@ -55,6 +72,14 @@ export function salidaTorneoUrl() {
 
 export async function volverDesdeFinal(supabase, limpiar = () => {}) {
   const juego = localStorage.getItem("juego_actual") || localStorage.getItem("solitario_juego")
+
+  if (esNivelSolitario(juego)) {
+    limpiar()
+    limpiarContextoNivel()
+    localStorage.removeItem("juego_actual")
+    window.location.href = "../../solitario/solitario.html"
+    return
+  }
 
   if (esMiniTorneo(juego)) {
     limpiar()
@@ -104,4 +129,20 @@ export async function registrarPuntosMiniTorneo(supabase, juego, puntos) {
       sala_id: salaId,
       origen: "sala",
     }])
+}
+
+function leerContextoNivel() {
+  try {
+    return JSON.parse(localStorage.getItem("solitario_nivel_context") || "null")
+  } catch {
+    return null
+  }
+}
+
+function limpiarContextoNivel() {
+  localStorage.removeItem("solitario_nivel_context")
+  if (localStorage.getItem("solitario_origen") === "nivel") {
+    localStorage.removeItem("solitario_origen")
+    localStorage.removeItem("solitario_juego")
+  }
 }
