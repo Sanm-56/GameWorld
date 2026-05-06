@@ -249,7 +249,7 @@ function injectRankingGamePicker() {
     </select>
   `
 
-  const columns = rankingsView.querySelector(".columns")
+  const columns = rankingsView.querySelector(".ranking-columns")
   rankingsView.insertBefore(pickerWrap, columns || rankingsView.firstChild)
   els.rankingGamePicker = document.getElementById("rankingGamePicker")
   els.rankingGamePicker.addEventListener("change", (e) => {
@@ -792,7 +792,21 @@ function clearMiniTournamentContext() {
   localStorage.removeItem("solitario_origen")
 }
 
-async function registerResult({ points, victory, origin, roomId }) {
+async function registerResult({ points, victory, origin, roomId, game = "nivel" }) {
+  const { error } = await supabase.from("solitario_resultados").insert([{
+    usuario_id: state.user.id,
+    usuario: state.user.usuario,
+    puntos: points,
+    victoria: victory,
+    sala_id: roomId,
+    origen: origin,
+    juego: game,
+  }])
+
+  if (error) {
+    console.error("Error registrando resultado de solitario", error)
+  }
+}
 
 async function loadRankings() {
   if (!state.user) return

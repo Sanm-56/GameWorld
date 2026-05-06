@@ -45,6 +45,7 @@ create table if not exists public.solitario_resultados (
   victoria boolean not null default false,
   sala_id bigint references public.salas(id) on delete set null,
   origen text not null default 'nivel',
+  juego text not null default 'nivel',
   created_at timestamptz not null default now(),
   constraint solitario_origen_check check (origen in ('nivel', 'sala'))
 );
@@ -77,6 +78,9 @@ add column if not exists sala_id bigint;
 
 alter table public.solitario_resultados
 add column if not exists origen text not null default 'nivel';
+
+alter table public.solitario_resultados
+add column if not exists juego text not null default 'nivel';
 
 alter table public.solitario_resultados
 add column if not exists created_at timestamptz not null default now();
