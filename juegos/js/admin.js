@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js"
+import { cleanText, errorMessage, escapeHtml, safeAlert, setCleanText } from "./mensajes.js"
 
 const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch"])
 const NUMCATCH_DEFAULT_COND = "multiplos_3"
@@ -9,17 +10,8 @@ const TABLAS_RANKING_POR_JUEGO = {
 }
 let claveAdminSesion = ""
 
-function escapeHtml(valor){
-return String(valor ?? "")
-.replaceAll("&", "&amp;")
-.replaceAll("<", "&lt;")
-.replaceAll(">", "&gt;")
-.replaceAll('"', "&quot;")
-.replaceAll("'", "&#039;")
-}
-
 function escapeJsString(valor){
-return String(valor ?? "")
+return cleanText(valor)
 .replaceAll("\\", "\\\\")
 .replaceAll("'", "\\'")
 .replaceAll("\n", "\\n")
@@ -34,7 +26,7 @@ return `"${texto.replaceAll('"', '""')}"`
 
 function descargarCsv(nombreArchivo, filas){
 if(!filas.length){
-alert("No hay datos para exportar.")
+safeAlert("No hay datos para exportar.")
 return
 }
 
@@ -130,7 +122,7 @@ let { data, error } = await supabase
 .single()
 
 if(error || !data){
-alert("Error al verificar contraseña")
+safeAlert(errorMessage(error, "Error al verificar contrasena"))
 return
 }
 
@@ -145,7 +137,7 @@ cargarVistaAdmin()
 verEstado()
 
 }else{
-alert("❌ Contraseña incorrecta, vuelve a intentarlo")
+safeAlert("Contrasena incorrecta, vuelve a intentarlo")
 }
 
 }
@@ -286,11 +278,11 @@ async function limpiarRanking(){
 
 const juego = document.getElementById("juegoSelect")?.value
 
-if(!confirm("¿Seguro que quieres borrar solo el ranking temporal de " + juego + "?")) return
+if(!confirm(cleanText("Seguro que quieres borrar solo el ranking temporal de " + juego + "?"))) return
 
 const rpc = await ejecutarRpcAdmin("admin_limpiar_ranking_temporal", { p_juego: juego })
 if(rpc.ok){
-alert("ðŸ§¹ Ranking temporal eliminado. Semanal, victorias y global se conservan.")
+safeAlert("Ranking temporal eliminado. Semanal, victorias y global se conservan.")
 cargarRanking()
 cargarVistaAdmin()
 return
@@ -311,7 +303,7 @@ await supabase
 .neq("usuario","")
 }
 
-alert("🧹 Ranking temporal eliminado. Semanal, victorias y global se conservan.")
+safeAlert("Ranking temporal eliminado. Semanal, victorias y global se conservan.")
 
 cargarRanking()
 cargarVistaAdmin()
@@ -456,7 +448,7 @@ if(!tabla) return
 tabla.innerHTML = ""
 
 if(contador){
-contador.innerText = "👥 Jugadores: " + data.length
+setCleanText(contador, "Jugadores: " + data.length)
 }
 
 data.forEach((j, i) => {
@@ -478,10 +470,10 @@ fila.innerHTML = `
 <td>${escapeHtml(j.usuario)}</td>
 <td>${formatearResultado(j.tiempo, esPuntaje)}</td>
 <td>
-${j.invalido ? "❌ Inválido" : j.sospechoso ? "⚠️ Sospechoso" : "✅ Normal"}
+${j.invalido ? "Invalido" : j.sospechoso ? "Sospechoso" : "Normal"}
 </td>
 <td>
-<button onclick="eliminar('${escapeJsString(j.usuario)}')">❌</button>
+<button onclick="eliminar('${escapeJsString(j.usuario)}')">Eliminar</button>
 </td>
 `
 
@@ -517,7 +509,7 @@ let top3 = data.slice(0,3)
 
 top3.forEach((j,i)=>{
 
-let emoji = ["🥇","🥈","🥉"][i]
+let emoji = ["1.","2.","3."][i]
 
 let div = document.createElement("div")
 const esPuntaje = juego && JUEGOS_PUNTAJE.has(juego)
@@ -541,7 +533,7 @@ const esPuntaje = juego && JUEGOS_PUNTAJE.has(juego)
 
 div.innerHTML = `
 #${i+1} - ${escapeHtml(j.usuario)} (${formatearResultado(j.tiempo, esPuntaje)})
-${j.sospechoso ? "⚠️" : ""}
+${j.sospechoso ? "Sospechoso" : ""}
 `
 
 rankingDiv.appendChild(div)
@@ -583,7 +575,7 @@ fecha: fila.fecha || "",
 descargarCsv(`ranking-actual-${juego}`, filas)
 }catch(error){
 console.warn("No se pudo exportar ranking actual", error)
-alert("No se pudo exportar el ranking actual.")
+safeAlert("No se pudo exportar el ranking actual.")
 }
 }
 
@@ -600,7 +592,7 @@ datos.forEach((fila) => filas.push({ tabla, ...fila }))
 descargarCsv("tablas-ranking", filas)
 }catch(error){
 console.warn("No se pudieron exportar las tablas de ranking", error)
-alert("No se pudieron exportar las tablas de ranking.")
+safeAlert("No se pudieron exportar las tablas de ranking.")
 }
 }
 
@@ -611,7 +603,7 @@ const filas = await seleccionarTodo("partidas", (query) => query.eq("juego", jue
 descargarCsv(`historial-partidas-${juego}`, filas)
 }catch(error){
 console.warn("No se pudo exportar historial de partidas", error)
-alert("No se pudo exportar el historial de partidas.")
+safeAlert("No se pudo exportar el historial de partidas.")
 }
 }
 
@@ -642,7 +634,7 @@ p_juego: juegoAdmin,
 p_numcatch_condicion: numcatchCondicionAdmin,
 })
 if(rpcAdmin.ok){
-alert("Torneo iniciado: " + juegoAdmin)
+safeAlert("Torneo iniciado: " + juegoAdmin)
 return
 }
 
@@ -653,7 +645,7 @@ let { data } = await supabase
 .single()
 
 if(data?.estado === "iniciado"){
-alert("⚠️ Ya hay un torneo activo")
+safeAlert("Ya hay un torneo activo")
 return
 }
 
@@ -666,7 +658,7 @@ p_juego: juego,
 p_numcatch_condicion: numcatchCondicion,
 })
 if(rpc.ok){
-alert("ðŸ”¥ Torneo iniciado: " + juego)
+safeAlert("Torneo iniciado: " + juego)
 return
 }
 
@@ -685,7 +677,7 @@ await supabase
 .update(payload)
 .eq("id",1)
 
-alert("🔥 Torneo iniciado: " + juego)
+safeAlert("Torneo iniciado: " + juego)
 }
 
 // =============================
@@ -695,7 +687,7 @@ async function detenerTorneo(){
 
 const rpc = await ejecutarRpcAdmin("admin_detener_torneo")
 if(rpc.ok){
-alert("ðŸ›‘ Torneo detenido")
+safeAlert("Torneo detenido")
 return
 }
 
@@ -704,7 +696,7 @@ await supabase
 .update({ estado: "espera" })
 .eq("id",1)
 
-alert("🛑 Torneo detenido")
+safeAlert("Torneo detenido")
 }
 
 // =============================
@@ -730,7 +722,7 @@ if(!confirm("Esto borrara el ranking semanal de " + juego + ". El global y las v
 
 const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_semana", { p_juego: juego })
 if(rpc.ok){
-alert("Ranking semanal eliminado para " + juego)
+safeAlert("Ranking semanal eliminado para " + juego)
 cargarRanking()
 cargarVistaAdmin()
 return
@@ -744,11 +736,11 @@ const { error } = await supabase
 
 if(error){
 console.warn("No se pudo borrar el ranking semanal", error)
-alert("No se pudo borrar el ranking semanal")
+safeAlert(errorMessage(error, "No se pudo borrar el ranking semanal"))
 return
 }
 
-alert("Ranking semanal eliminado para " + juego)
+safeAlert("Ranking semanal eliminado para " + juego)
 cargarRanking()
 cargarVistaAdmin()
 }
@@ -760,7 +752,7 @@ if(!confirm("Esto borrara las victorias acumuladas de " + juego + " sin borrar l
 
 const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_victorias", { p_juego: juego })
 if(rpc.ok){
-alert("Ranking de victorias eliminado para " + juego)
+safeAlert("Ranking de victorias eliminado para " + juego)
 cargarRanking()
 cargarVistaAdmin()
 return
@@ -774,11 +766,11 @@ const { error } = await supabase
 
 if(error){
 console.warn("No se pudo borrar el ranking de victorias", error)
-alert("No se pudo borrar el ranking de victorias")
+safeAlert(errorMessage(error, "No se pudo borrar el ranking de victorias"))
 return
 }
 
-alert("Ranking de victorias eliminado para " + juego)
+safeAlert("Ranking de victorias eliminado para " + juego)
 cargarRanking()
 cargarVistaAdmin()
 }
@@ -790,7 +782,7 @@ if(!confirm("Esto borrara el ranking global y el historial de " + juego + ". El 
 
 const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_global", { p_juego: juego })
 if(rpc.ok){
-alert("Ranking global eliminado para " + juego)
+safeAlert("Ranking global eliminado para " + juego)
 cargarRanking()
 cargarVistaAdmin()
 return
@@ -806,11 +798,11 @@ const { error } = await supabase
 
 if(error){
 console.warn("No se pudo borrar el ranking global", error)
-alert("No se pudo borrar el ranking global")
+safeAlert(errorMessage(error, "No se pudo borrar el ranking global"))
 return
 }
 
-alert("Ranking global eliminado para " + juego)
+safeAlert("Ranking global eliminado para " + juego)
 cargarRanking()
 cargarVistaAdmin()
 }
@@ -821,14 +813,14 @@ if(confirmacion !== "TEMPORADA") return
 
 const rpc = await ejecutarRpcAdmin("admin_reiniciar_temporada")
 if(rpc.ok && rpc.data){
-alert("Temporada reiniciada: " + rpc.data)
+safeAlert("Temporada reiniciada: " + cleanText(rpc.data, "OK"))
 cargarRanking()
 cargarVistaAdmin()
 return
 }
 
 console.warn("No se pudo reiniciar la temporada", rpc.error)
-alert("No se pudo reiniciar la temporada")
+safeAlert(errorMessage(rpc.error, "No se pudo reiniciar la temporada"))
 }
 
 async function borrarRankingTemporal(juego){
@@ -861,7 +853,7 @@ if(confirmacion !== "RESET") return
 
 const rpc = await ejecutarRpcAdmin("admin_reset_total")
 if(rpc.ok){
-alert("Torneo reiniciado completo. Los tableros de Sudoku se reasignaran cuando entren los usuarios.")
+safeAlert("Torneo reiniciado completo. Los tableros de Sudoku se reasignaran cuando entren los usuarios.")
 cargarRanking()
 cargarVistaAdmin()
 return
@@ -881,7 +873,7 @@ tablero_id: null,
 cartas_memoria: null
 }).neq("usuario","")
 
-alert("Torneo reiniciado completo. Los tableros de Sudoku se reasignaran cuando entren los usuarios.")
+safeAlert("Torneo reiniciado completo. Los tableros de Sudoku se reasignaran cuando entren los usuarios.")
 
 cargarRanking()
 cargarVistaAdmin()
@@ -901,7 +893,7 @@ let { data } = await supabase
 if(data){
 let el = document.getElementById("juegoActivo")
 if(el){
-el.innerText = "🎮 Juego: " + data.juego_actual + " | Estado: " + data.estado
+setCleanText(el, "Juego: " + cleanText(data.juego_actual, "-") + " | Estado: " + cleanText(data.estado, "-"))
 }
 }
 }

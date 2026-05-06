@@ -1,11 +1,12 @@
 import { supabase } from "./supabase.js"
+import { cleanText } from "./mensajes.js"
 
 async function cargarRanking(){
 
 let { data , error } = await supabase
 .from("ranking")
 .select("*")
-.eq("invalido", false) // ❌ fuera tramposos duros
+.eq("invalido", false) // fuera tramposos duros
 .order("tiempo",{ascending:true})
 
 if(error){
@@ -25,7 +26,7 @@ let posicion=document.createElement("td")
 posicion.textContent=index+1
 
 let usuario=document.createElement("td")
-usuario.textContent = jugador.usuario + (jugador.sospechoso ? " ⚠️" : "")
+usuario.textContent = cleanText(jugador.usuario, "Jugador") + (jugador.sospechoso ? " Aviso" : "")
 
 let tiempo=document.createElement("td")
 tiempo.textContent=formatearTiempo(jugador.tiempo)

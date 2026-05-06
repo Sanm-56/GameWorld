@@ -1,5 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { volverDesdeFinal } from '../../js/mini-torneo.js'
+import { cleanText, escapeHtml, setCleanText } from '../../js/mensajes.js'
 
 const resultadoFinal = document.getElementById('resultadoFinal')
 const podioDiv = document.getElementById('podio')
@@ -8,23 +9,14 @@ const usuario = localStorage.getItem('usuario')
 const fin = localStorage.getItem('fin_juego')
 const resultado = localStorage.getItem('ajedrezResultado') || 'Partida finalizada.'
 
-resultadoFinal.innerText = fin === 'descalificado'
+setCleanText(resultadoFinal, fin === 'descalificado'
   ? 'Descalificado por actividad sospechosa'
-  : resultado
+  : cleanText(resultado, 'Partida finalizada.'))
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
   const seg = segundos % 60
   return `${minutos}:${seg < 10 ? '0' : ''}${seg}`
-}
-
-function escapeHtml(valor) {
-  return String(valor ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
 }
 
 async function cargarResultados() {

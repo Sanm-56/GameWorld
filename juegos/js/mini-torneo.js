@@ -1,3 +1,7 @@
+import { installSafeAlert } from "./mensajes.js"
+
+installSafeAlert()
+
 export function esMiniTorneo(juego) {
   return localStorage.getItem("solitario_origen") === "sala"
     && localStorage.getItem("solitario_sala_id")

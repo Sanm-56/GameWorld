@@ -1,5 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { volverDesdeFinal } from "../../js/mini-torneo.js"
+import { escapeHtml } from "../../js/mensajes.js"
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
@@ -12,15 +13,6 @@ function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
   const seg = segundos % 60
   return minutos + ":" + (seg < 10 ? "0" : "") + seg
-}
-
-function escapeHtml(valor) {
-  return String(valor ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;")
 }
 
 async function cargarResultados() {

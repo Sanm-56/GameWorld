@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js"
+import { safeAlert } from "./mensajes.js"
 
 async function entrar(){
 
@@ -6,7 +7,7 @@ let usuario = document.getElementById("usuario").value.trim()
 let codigo = document.getElementById("codigo").value.trim()
 
 if(!usuario || !codigo){
-alert("Completa los campos")
+safeAlert("Completa los campos")
 return
 }
 
@@ -23,7 +24,7 @@ window.location.href="lobby.html"
 return
 }
 
-alert(loginRpc.mensaje || "No se pudo entrar")
+safeAlert(loginRpc.mensaje || "No se pudo entrar")
 return
 }
 
@@ -40,7 +41,7 @@ if(user){
 // VERIFICAR QUE EL CODIGO COINCIDA
 if(user.codigo !== codigo){
 
-alert("Ese apodo ya está en uso con otro código")
+safeAlert("Ese apodo ya esta en uso con otro codigo")
 return
 
 }
@@ -61,7 +62,7 @@ let { data:codigoValido } = await supabase
 .maybeSingle()
 
 if(!codigoValido){
-alert("Código inválido o ya usado")
+safeAlert("Codigo invalido o ya usado")
 return
 }
 

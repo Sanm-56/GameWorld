@@ -1,4 +1,5 @@
 import { supabase } from "../juegos/js/supabase.js"
+import { errorMessage, escapeHtml, setCleanText } from "../juegos/js/mensajes.js"
 import {
   LEVELS,
   getGameLabel,
@@ -380,7 +381,7 @@ async function login(event) {
   })
 
   if (error || !data?.ok) {
-    setText(els.authStatus, data?.mensaje || "No se pudo validar el usuario.")
+    setText(els.authStatus, data?.mensaje || errorMessage(error, "No se pudo validar el usuario."))
     return
   }
 
@@ -632,10 +633,10 @@ async function isCurrentUserInRoom(roomId) {
 
 function renderRoom(room) {
   els.roomDetail.hidden = false
-  els.activeRoomName.textContent = room.nombre
-  els.activeRoomCode.textContent = room.codigo
-  if (els.roomGame) els.roomGame.textContent = gameLabel(room.juego)
-  els.roomState.textContent = stateLabel(room.estado)
+  setCleanText(els.activeRoomName, room.nombre, "Sala")
+  setCleanText(els.activeRoomCode, room.codigo, "")
+  if (els.roomGame) setCleanText(els.roomGame, gameLabel(room.juego))
+  setCleanText(els.roomState, stateLabel(room.estado))
   const isCreator = room.creador_id === state.user.id
   els.startRoomBtn.disabled = !isCreator || room.estado !== "esperando"
   els.finishRoomBtn.disabled = !isCreator || room.estado === "finalizado"
@@ -937,7 +938,7 @@ async function loadRankings() {
 
   if (error) {
     console.error("Error cargando rankings de solitario", error)
-    setText(els.rankingStatus, `No se pudieron cargar rankings: ${error.message || "revisa la consola de Supabase."}`)
+    setText(els.rankingStatus, `No se pudieron cargar rankings: ${errorMessage(error, "revisa la consola de Supabase.")}`)
     return
   }
 
@@ -1007,14 +1008,5 @@ function normalizeCode(value) {
 }
 
 function setText(element, value) {
-  element.textContent = value
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;")
+  setCleanText(element, value)
 }

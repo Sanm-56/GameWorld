@@ -1,5 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { volverDesdeFinal } from "../../js/mini-torneo.js"
+import { escapeHtml } from "../../js/mensajes.js"
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
@@ -10,15 +11,6 @@ const usuario = localStorage.getItem("usuario")
 const fin = localStorage.getItem("fin_juego")
 const puntos = Number(localStorage.getItem("numcatch_puntos") || "0")
 const sinPosicion = fin === "descalificado" || puntos <= 0
-
-function escapeHtml(valor) {
-  return String(valor ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;")
-}
 
 const posicionDiv = document.createElement("h2")
 posicionDiv.className = "posicion-final"

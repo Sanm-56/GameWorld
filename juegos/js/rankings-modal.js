@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js"
+import { escapeHtml } from "./mensajes.js"
 
 const GAMES = [
   { key: "sudoku", label: "Sudoku", mode: "time" },
@@ -219,15 +220,6 @@ function inicioDeSemana() {
   inicio.setDate(hoy.getDate() - dia + 1)
   inicio.setHours(0, 0, 0, 0)
   return inicio
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;")
 }
 
 initRankingModal()
