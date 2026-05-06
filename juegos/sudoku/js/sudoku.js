@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 const pestana = "sudoku_activo"
 const JUEGO_ACTUAL = "sudoku"
@@ -368,6 +368,11 @@ async function actualizar(){
 restante--
 
 if(restante <= 0){
+if(bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, "cronometro sudoku")){
+restante = DURACION
+pintarReloj()
+return
+}
 
 clearInterval(intervalo)
 reloj.innerText = "0:00"

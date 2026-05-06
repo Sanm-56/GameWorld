@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 const pestana = "memoria_activo"
 const JUEGO_ACTUAL = "memoria"
@@ -311,6 +311,11 @@ async function actualizar(){
 restante--
 
 if(restante <= 0){
+if(bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, "cronometro memoria")){
+restante = DURACION
+pintarReloj()
+return
+}
 
 clearInterval(intervalo)
 reloj.innerText = "0:00"

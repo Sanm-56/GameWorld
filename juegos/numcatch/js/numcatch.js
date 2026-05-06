@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 const DURACION = 600
 const JUEGO_ACTUAL = "numcatch"
@@ -254,6 +254,12 @@ async function iniciarCronometro() {
     restante--
 
     if (restante <= 0) {
+      if (bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, "cronometro numcatch")) {
+        restante = DURACION
+        pintarReloj()
+        return
+      }
+
       clearInterval(intervalo)
       reloj.innerText = "0:00"
       juegoTerminado = true

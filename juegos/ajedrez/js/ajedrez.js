@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
 
 // =============================
 // 🔒 BLOQUEO MULTI-PESTAÑA
@@ -280,6 +280,12 @@ async function iniciarCronometro() {
     restante--
 
     if (restante <= 0) {
+      if (bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, 'cronometro ajedrez')) {
+        restante = DURACION
+        pintarReloj()
+        return
+      }
+
       clearInterval(intervalo)
       reloj.innerText = '0:00'
 

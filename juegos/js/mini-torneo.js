@@ -85,6 +85,29 @@ export async function debeSalirDelTorneo(supabase, juego) {
   return data?.estado === "espera"
 }
 
+export function bloquearFinalizacionInicialSolitario(juego, motivo = "finalizacion inicial") {
+  const lanzamiento = leerContextoLanzamiento()
+  const lanzamientoMs = Date.parse(lanzamiento?.launchedAt)
+  const reciente = lanzamiento
+    && lanzamiento.game === juego
+    && ["nivel", "sala"].includes(lanzamiento.origin)
+    && Number.isFinite(lanzamientoMs)
+    && Date.now() - lanzamientoMs < 5000
+
+  if (!reciente) return false
+
+  const detalle = {
+    juego,
+    motivo,
+    origin: lanzamiento.origin,
+    launchedAt: lanzamiento.launchedAt,
+    blockedAt: new Date().toISOString(),
+  }
+  localStorage.setItem("solitario_last_blocked_finish", JSON.stringify(detalle))
+  console.warn("[Solitario] Finalizacion automatica bloqueada al iniciar juego.", detalle)
+  return true
+}
+
 export function salidaTorneoUrl() {
   if (esNivelSolitario(localStorage.getItem("solitario_juego"))) {
     return "../../solitario/solitario.html"

@@ -459,7 +459,7 @@ async function playSelectedLevel() {
 
   startLevel(level, state.user.usuario)
   markSolitarioGameLaunch(level.game, "nivel")
-  window.location.href = `../juegos/${level.game}/${level.game}.html`
+  goToGame(level.game, "nivel")
 }
 
 async function resetProgress() {
@@ -887,7 +887,19 @@ function redirectToActiveGame() {
   localStorage.setItem("solitario_juego", state.activeRoom.juego)
   localStorage.setItem("solitario_origen", "sala")
   markSolitarioGameLaunch(state.activeRoom.juego, "sala")
-  window.location.href = `../juegos/${state.activeRoom.juego}/${state.activeRoom.juego}.html`
+  goToGame(state.activeRoom.juego, "sala")
+}
+
+function goToGame(game, origin) {
+  const url = `../juegos/${game}/${game}.html`
+  localStorage.setItem("solitario_last_launch", JSON.stringify({
+    game,
+    origin,
+    url,
+    at: new Date().toISOString(),
+  }))
+  console.info("[Solitario] Abriendo juego", { game, origin, url })
+  window.location.href = url
 }
 
 function markSolitarioGameLaunch(game, origin) {

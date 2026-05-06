@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 // 🔒 BLOQUEO MULTI-PESTAÑA
 const pestaña = "mate_activo"
@@ -405,6 +405,11 @@ async function actualizar(){
 restante--
 
 if(restante <= 0){
+if(bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, "cronometro matematicas")){
+restante = DURACION
+pintarReloj()
+return
+}
 
 clearInterval(intervalo)
 
