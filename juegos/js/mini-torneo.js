@@ -4,6 +4,8 @@ export function esMiniTorneo(juego) {
     && localStorage.getItem("solitario_juego") === juego
 }
 
+const DURACION_JUEGO_MS = 10 * 60 * 1000
+
 function esNivelSolitario(juego) {
   const context = leerContextoNivel()
   return localStorage.getItem("solitario_origen") === "nivel"
@@ -21,11 +23,11 @@ export async function obtenerInicioTorneo(supabase, juego) {
       .maybeSingle()
 
     if (data?.estado !== "en_juego" || data?.juego !== juego) return null
-    return data.inicio_torneo || data.created_at || new Date().toISOString()
+    return inicioSeguroParaSolitario(juego, "sala", data.inicio_torneo || data.created_at)
   }
 
   if (esNivelSolitario(juego)) {
-    return leerContextoNivel()?.startedAt || new Date().toISOString()
+    return inicioSeguroParaSolitario(juego, "nivel", leerContextoNivel()?.startedAt)
   }
 
   const { data } = await supabase
@@ -139,8 +141,41 @@ function leerContextoNivel() {
   }
 }
 
+function leerContextoLanzamiento() {
+  try {
+    return JSON.parse(localStorage.getItem("solitario_game_launch") || "null")
+  } catch {
+    return null
+  }
+}
+
+function inicioSeguroParaSolitario(juego, origen, inicioPreferido) {
+  const ahora = Date.now()
+  const lanzamiento = leerContextoLanzamiento()
+  const inicioMs = Date.parse(inicioPreferido)
+  const lanzamientoMs = Date.parse(lanzamiento?.launchedAt)
+  const lanzamientoValido = lanzamiento
+    && lanzamiento.game === juego
+    && lanzamiento.origin === origen
+    && Number.isFinite(lanzamientoMs)
+    && lanzamientoMs <= ahora
+    && ahora - lanzamientoMs < DURACION_JUEGO_MS
+
+  if (!Number.isFinite(inicioMs) || inicioMs > ahora || ahora - inicioMs >= DURACION_JUEGO_MS) {
+    const fallback = lanzamientoValido ? lanzamiento.launchedAt : new Date().toISOString()
+    console.warn(`[Solitario] Inicio invalido o vencido para ${juego}/${origen}; usando inicio local.`, {
+      inicioPreferido,
+      fallback,
+    })
+    return fallback
+  }
+
+  return inicioPreferido
+}
+
 function limpiarContextoNivel() {
   localStorage.removeItem("solitario_nivel_context")
+  localStorage.removeItem("solitario_game_launch")
   if (localStorage.getItem("solitario_origen") === "nivel") {
     localStorage.removeItem("solitario_origen")
     localStorage.removeItem("solitario_juego")

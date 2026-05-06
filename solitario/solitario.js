@@ -457,6 +457,7 @@ async function playSelectedLevel() {
   }
 
   startLevel(level, state.user.usuario)
+  markSolitarioGameLaunch(level.game, "nivel")
   window.location.href = `../juegos/${level.game}/${level.game}.html`
 }
 
@@ -883,7 +884,16 @@ function redirectToActiveGame() {
   localStorage.setItem("solitario_sala_codigo", state.activeRoom.codigo)
   localStorage.setItem("solitario_juego", state.activeRoom.juego)
   localStorage.setItem("solitario_origen", "sala")
+  markSolitarioGameLaunch(state.activeRoom.juego, "sala")
   window.location.href = `../juegos/${state.activeRoom.juego}/${state.activeRoom.juego}.html`
+}
+
+function markSolitarioGameLaunch(game, origin) {
+  localStorage.setItem("solitario_game_launch", JSON.stringify({
+    game,
+    origin,
+    launchedAt: new Date().toISOString(),
+  }))
 }
 
 function clearMiniTournamentContext() {
@@ -891,6 +901,7 @@ function clearMiniTournamentContext() {
   localStorage.removeItem("solitario_sala_codigo")
   localStorage.removeItem("solitario_juego")
   localStorage.removeItem("solitario_origen")
+  localStorage.removeItem("solitario_game_launch")
 }
 
 async function registerResult({ points, victory, origin, roomId, game = "nivel" }) {
