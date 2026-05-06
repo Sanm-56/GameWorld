@@ -100,12 +100,13 @@ function showAuth() {
   els.userPill.textContent = "Sin usuario"
 }
 
-function showApp() {
+async function showApp() {
   els.authView.hidden = true
   els.appView.hidden = false
   els.userPill.textContent = state.user.usuario
   renderLevels()
-  loadActiveRooms()
+  await loadActiveRooms()
+  await restoreActiveRoom()
   loadRankings()
 }
 
@@ -248,7 +249,7 @@ async function loadUser(usuario) {
     id: data.usuario || cleanUser,
     usuario: data.usuario || cleanUser,
   }
-  showApp()
+  await showApp()
 }
 
 async function login(event) {
@@ -416,7 +417,7 @@ async function joinRoom(event) {
   await joinRoomByRecord(data)
 }
 
-async function joinRoomByRecord(room) {
+async function joinRoomByRecord(room, { redirectOnActive = true } = {}) {
   if (!state.user) {
     setText(els.roomStatus, "Primero inicia sesion con tu apodo y codigo.")
     return
@@ -457,7 +458,27 @@ async function joinRoomByRecord(room) {
   startPlayersPolling()
   setText(els.roomStatus, "Dentro de la sala.")
 
-  if (room.estado === "en_juego") redirectToActiveGame()
+  if (redirectOnActive && room.estado === "en_juego") redirectToActiveGame()
+}
+
+async function restoreActiveRoom() {
+  const roomId = localStorage.getItem("solitario_sala_id")
+  const roomGame = localStorage.getItem("solitario_juego")
+
+  if (!roomId || !roomGame || state.activeRoom) return
+
+  const { data, error } = await supabase
+    .from("salas")
+    .select("*")
+    .eq("id", roomId)
+    .maybeSingle()
+
+  if (error || !data || data.estado === "finalizado" || data.juego !== roomGame) {
+    clearMiniTournamentContext()
+    return
+  }
+
+  await joinRoomByRecord(data, { redirectOnActive: false })
 }
 
 async function countPlayers(roomId) {
@@ -733,6 +754,13 @@ function redirectToActiveGame() {
   window.location.href = `../juegos/${state.activeRoom.juego}/${state.activeRoom.juego}.html`
 }
 
+function clearMiniTournamentContext() {
+  localStorage.removeItem("solitario_sala_id")
+  localStorage.removeItem("solitario_sala_codigo")
+  localStorage.removeItem("solitario_juego")
+  localStorage.removeItem("solitario_origen")
+}
+
 async function registerResult({ points, victory, origin, roomId }) {
   await supabase.from("solitario_resultados").insert([{
     usuario_id: state.user.id,
@@ -752,7 +780,8 @@ async function loadRankings() {
     .select("usuario_id,usuario,puntos,victoria,created_at")
 
   if (error) {
-    setText(els.rankingStatus, "No se pudieron cargar rankings. Ejecuta solitario-supabase.sql en Supabase.")
+    console.error("Error cargando rankings de solitario", error)
+    setText(els.rankingStatus, `No se pudieron cargar rankings: ${error.message || "revisa la consola de Supabase."}`)
     return
   }
 

@@ -49,6 +49,62 @@ create table if not exists public.solitario_resultados (
   constraint solitario_origen_check check (origen in ('nivel', 'sala'))
 );
 
+-- Reparacion para instalaciones donde las tablas ya existian antes de esta version.
+-- CREATE TABLE IF NOT EXISTS no agrega columnas nuevas a tablas existentes.
+alter table public.salas
+add column if not exists juego text;
+
+alter table public.salas
+add column if not exists inicio_torneo timestamptz;
+
+alter table public.salas
+add column if not exists fecha_fin timestamptz;
+
+alter table public.solitario_resultados
+add column if not exists usuario_id text;
+
+alter table public.solitario_resultados
+add column if not exists usuario text;
+
+alter table public.solitario_resultados
+add column if not exists puntos integer not null default 0;
+
+alter table public.solitario_resultados
+add column if not exists victoria boolean not null default false;
+
+alter table public.solitario_resultados
+add column if not exists sala_id bigint;
+
+alter table public.solitario_resultados
+add column if not exists origen text not null default 'nivel';
+
+alter table public.solitario_resultados
+add column if not exists created_at timestamptz not null default now();
+
+alter table public.salas
+drop constraint if exists salas_juego_check;
+
+alter table public.salas
+add constraint salas_juego_check
+check (
+  juego is null or juego in (
+    'ajedrez',
+    'damas',
+    'domino',
+    'flashmind',
+    'matematicas',
+    'memoria',
+    'numcatch',
+    'sudoku'
+  )
+);
+
+alter table public.solitario_resultados
+drop constraint if exists solitario_origen_check;
+
+alter table public.solitario_resultados
+add constraint solitario_origen_check check (origen in ('nivel', 'sala'));
+
 create index if not exists salas_codigo_idx on public.salas (codigo);
 create index if not exists sala_jugadores_sala_id_idx on public.sala_jugadores (sala_id);
 create index if not exists solitario_resultados_usuario_idx on public.solitario_resultados (usuario_id);

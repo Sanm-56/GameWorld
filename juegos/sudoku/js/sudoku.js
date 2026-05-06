@@ -7,7 +7,7 @@ const JUEGO_ACTUAL = "sudoku"
 
 if(localStorage.getItem(pestana)){
 alert("Ya tienes el sudoku abierto en otra pestana")
-window.location.href = "lobby.html"
+window.location.href = salidaTorneoUrl()
 }
 
 localStorage.setItem(pestana, "abierto")

@@ -8,7 +8,7 @@ const JUEGO_ACTUAL = "matematicas"
 
 if(localStorage.getItem(pestaña)){
 alert("Ya tienes el juego abierto en otra pestaña")
-window.location.href="lobby.html"
+window.location.href=salidaTorneoUrl()
 }
 
 localStorage.setItem(pestaña,"abierto")

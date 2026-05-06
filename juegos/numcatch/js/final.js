@@ -1,4 +1,5 @@
 import { supabase } from "../../js/supabase.js"
+import { volverDesdeFinal } from "../../js/mini-torneo.js"
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
@@ -101,19 +102,7 @@ setMensaje()
 cargar()
 
 window.volverLobby = async function () {
-  const { data } = await supabase
-    .from("estado_torneo")
-    .select("estado")
-    .eq("id", 1)
-    .single()
-
-  if (data?.estado !== "espera") {
-    alert("Torneo aun activo")
-    return
-  }
-
-  localStorage.removeItem("juego_actual")
-  window.location.href = "lobby.html"
+  await volverDesdeFinal(supabase)
 }
 
 localStorage.removeItem("fin_juego")

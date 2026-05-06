@@ -342,6 +342,15 @@ h1{
 
 <script>
 function volverLobby(){
+  if (
+    localStorage.getItem("solitario_origen") === "sala" &&
+    localStorage.getItem("solitario_sala_id") &&
+    localStorage.getItem("solitario_juego") === "matematicas"
+  ) {
+    window.location.href = "../../solitario/solitario.html"
+    return
+  }
+
   window.location.href = "lobby.html"
 }
 

@@ -84,7 +84,7 @@ window.addEventListener('storage', (event) => {
   const bloqueoActual = leerBloqueoPestana()
   if (bloqueoEstaVigente(bloqueoActual)) {
     alert('Ya tienes el ajedrez abierto en otra pestaña')
-    window.location.href = 'lobby.html'
+    window.location.href = salidaTorneoUrl()
   }
 })
 
@@ -1243,7 +1243,7 @@ async function revisarEstadoTorneo() {
     liberarBloqueoPestana()
     await guardarResultado(9999, true, true, 'Torneo detenido por admin')
     alert('⛔ Torneo detenido por el admin')
-    window.location.href = 'lobby.html'
+    window.location.href = salidaTorneoUrl()
   }
 }
 

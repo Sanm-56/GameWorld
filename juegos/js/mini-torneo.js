@@ -53,6 +53,32 @@ export function salidaTorneoUrl() {
     : "lobby.html"
 }
 
+export async function volverDesdeFinal(supabase, limpiar = () => {}) {
+  const juego = localStorage.getItem("juego_actual") || localStorage.getItem("solitario_juego")
+
+  if (esMiniTorneo(juego)) {
+    limpiar()
+    localStorage.removeItem("juego_actual")
+    window.location.href = "../../solitario/solitario.html"
+    return
+  }
+
+  const { data } = await supabase
+    .from("estado_torneo")
+    .select("estado")
+    .eq("id", 1)
+    .single()
+
+  if (data?.estado !== "espera") {
+    alert("Torneo aun activo")
+    return
+  }
+
+  limpiar()
+  localStorage.removeItem("juego_actual")
+  window.location.href = "lobby.html"
+}
+
 export async function registrarPuntosMiniTorneo(supabase, juego, puntos) {
   if (!esMiniTorneo(juego)) return
 

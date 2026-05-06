@@ -63,7 +63,7 @@ function liberarBloqueoPestana() {
 function iniciarBloqueoPestana() {
   if (!reclamarBloqueoPestana()) {
     alert('Ya tienes damas abierto en otra pestaña')
-    window.location.href = 'lobby.html'
+    window.location.href = salidaTorneoUrl()
     return false
   }
 
@@ -138,7 +138,7 @@ window.addEventListener('storage', (event) => {
   const bloqueoActual = leerBloqueoPestana()
   if (bloqueoEstaVigente(bloqueoActual)) {
     alert('Ya tienes damas abierto en otra pestaña')
-    window.location.href = 'lobby.html'
+    window.location.href = salidaTorneoUrl()
   }
 })
 

@@ -7,7 +7,7 @@ const JUEGO_ACTUAL = "memoria"
 
 if(localStorage.getItem(pestana)){
 alert("Ya tienes el juego abierto en otra pestana")
-window.location.href = "lobby.html"
+window.location.href = salidaTorneoUrl()
 }
 
 localStorage.setItem(pestana, "abierto")
