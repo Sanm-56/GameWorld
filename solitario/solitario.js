@@ -22,6 +22,7 @@ const state = {
   selectedLevel: 1,
   selectedGame: MINI_TOURNAMENT_GAMES[0].key,
   activeRoom: null,
+  rankingGame: "todos",
   playersChannel: null,
   playersPoll: null,
 }
@@ -55,6 +56,7 @@ const els = {
   rankingStatus: document.getElementById("rankingStatus"),
   refreshRankingsBtn: document.getElementById("refreshRankingsBtn"),
   gamePicker: null,
+  rankingGamePicker: null,
   generateCodeBtn: null,
   activeRoomsList: null,
   roomGame: null,
@@ -115,6 +117,7 @@ function enhanceMiniTournamentUi() {
   injectGamePicker()
   injectActiveRoomsList()
   injectRoomGameInfo()
+  injectRankingGamePicker()
 }
 
 // Mini torneos vive dentro de Solitario, asi que la UI se agrega desde JS
@@ -229,6 +232,30 @@ function injectRoomGameInfo() {
     roomActions.insertBefore(openGameBtn, els.finishRoomBtn)
     els.openGameBtn = openGameBtn
   }
+}
+
+function injectRankingGamePicker() {
+  const rankingsView = document.getElementById("rankingsView")
+  if (!rankingsView || document.getElementById("rankingGamePicker")) return
+
+  const pickerWrap = document.createElement("div")
+  pickerWrap.style.marginBottom = "20px"
+  pickerWrap.innerHTML = `
+    <label for="rankingGamePicker">Filtrar por juego</label>
+    <select id="rankingGamePicker" class="boton" style="width:100%; margin-top:8px; background:rgba(15,23,42,.8); color:white; border:1px solid rgba(148,163,184,.2)">
+      <option value="todos">Todos los juegos</option>
+      <option value="nivel">Mapa de Niveles</option>
+      ${MINI_TOURNAMENT_GAMES.map(game => `<option value="${game.key}">${game.label}</option>`).join("")}
+    </select>
+  `
+
+  const columns = rankingsView.querySelector(".columns")
+  rankingsView.insertBefore(pickerWrap, columns || rankingsView.firstChild)
+  els.rankingGamePicker = document.getElementById("rankingGamePicker")
+  els.rankingGamePicker.addEventListener("change", (e) => {
+    state.rankingGame = e.target.value
+    loadRankings()
+  })
 }
 
 async function loadUser(usuario) {
@@ -349,6 +376,7 @@ async function playSelectedLevel() {
     victory: score >= level.target,
     origin: "nivel",
     roomId: null,
+    game: "nivel",
   })
   loadRankings()
 }
@@ -598,6 +626,7 @@ async function addRoomPoints() {
     victory: false,
     origin: "sala",
     roomId: state.activeRoom.id,
+    game: state.activeRoom.juego,
   })
   await loadPlayers()
   await loadRankings()
@@ -619,10 +648,11 @@ async function finishRoom() {
     await supabase.from("solitario_resultados").insert(data.map((player) => ({
       usuario_id: player.usuario_id,
       usuario: player.usuario || player.usuario_id,
-      puntos: 0,
+      puntos: player.puntos,
       victoria: player.usuario_id === winnerId,
       sala_id: state.activeRoom.id,
       origen: "sala",
+      juego: state.activeRoom.juego,
     })))
   }
 
@@ -688,8 +718,9 @@ async function loadActiveRooms() {
             ${preview.map((player) => `<span class="mini-player-pill">${escapeHtml(player)}</span>`).join("")}
           </div>
         </div>
-        <button class="ghost-button" type="button" data-copy-code="${escapeHtml(room.codigo)}">Copiar codigo</button>
-        <button type="button" data-join-room="${room.id}">Unirse</button>
+        <!-- Código y botón de unirse eliminados para torneos privados -->
+        <!-- <button class="ghost-button" type="button" data-copy-code="${escapeHtml(room.codigo)}">Copiar codigo</button> -->
+        <!-- <button type="button" data-join-room="${room.id}">Unirse</button> -->
       </div>
     `
   }).join("")
@@ -697,14 +728,14 @@ async function loadActiveRooms() {
   els.activeRoomsList.querySelectorAll("[data-join-room]").forEach((button) => {
     button.addEventListener("click", async () => {
       const room = data.find((item) => String(item.id) === button.dataset.joinRoom)
-      if (room) await joinRoomByRecord(room)
+      // if (room) await joinRoomByRecord(room) // Funcionalidad de unirse eliminada de la lista pública
     })
   })
 
   els.activeRoomsList.querySelectorAll("[data-copy-code]").forEach((button) => {
     button.addEventListener("click", async () => {
-      await navigator.clipboard?.writeText(button.dataset.copyCode)
-      setText(els.roomStatus, "Codigo copiado.")
+      // await navigator.clipboard?.writeText(button.dataset.copyCode) // Funcionalidad de copiar código eliminada
+      // setText(els.roomStatus, "Codigo copiado.")
     })
   })
 }
@@ -762,22 +793,19 @@ function clearMiniTournamentContext() {
 }
 
 async function registerResult({ points, victory, origin, roomId }) {
-  await supabase.from("solitario_resultados").insert([{
-    usuario_id: state.user.id,
-    usuario: state.user.usuario,
-    puntos: points,
-    victoria: victory,
-    sala_id: roomId,
-    origen: origin,
-  }])
-}
 
 async function loadRankings() {
   if (!state.user) return
   setText(els.rankingStatus, "Cargando rankings...")
-  const { data, error } = await supabase
+  
+  let query = supabase
     .from("solitario_resultados")
-    .select("usuario_id,usuario,puntos,victoria,created_at")
+    .select("usuario_id,usuario,puntos,victoria,created_at,juego")
+
+  if (state.rankingGame !== "todos") {
+    query = query.eq("juego", state.rankingGame)
+  }
+  const { data, error } = await query
 
   if (error) {
     console.error("Error cargando rankings de solitario", error)
