@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { debeSalirDelTorneo, obtenerInicioTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 const DURACION = 600
 const JUEGO_ACTUAL = "flashmind"
@@ -215,15 +215,18 @@ document.addEventListener("keydown", (e) => {
 async function iniciarCronometro() {
   const reloj = document.getElementById("reloj")
 
-  const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
+  let restante = await obtenerTiempoRestanteTorneo(supabase, JUEGO_ACTUAL, DURACION)
+  if (restante === null) {
+    console.warn("No hay inicio valido para flashmind")
+    return
+  }
+  let intervalo = null
 
-  let { data: horaServer } = await supabase.rpc("ahora_servidor")
-
-  const inicio = Date.parse(inicioTorneo)
-  const ahora = Date.parse(horaServer)
-
-  let restante = Math.floor((inicio + DURACION * 1000 - ahora) / 1000)
-  if (isNaN(restante) || restante > DURACION) restante = DURACION
+  function pintarReloj() {
+    const min = Math.floor(restante / 60)
+    const seg = restante % 60
+    reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
+  }
 
   async function tick() {
     restante--
@@ -237,13 +240,11 @@ async function iniciarCronometro() {
       return
     }
 
-    const min = Math.floor(restante / 60)
-    const seg = restante % 60
-    reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
+    pintarReloj()
   }
 
-  await tick()
-  const intervalo = setInterval(tick, 1000)
+  pintarReloj()
+  intervalo = setInterval(tick, 1000)
 }
 
 async function eliminarResultadoFlashmind() {

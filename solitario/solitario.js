@@ -881,6 +881,7 @@ function generateRoomCode() {
 function redirectToActiveGame() {
   if (!state.activeRoom || !isValidGame(state.activeRoom.juego)) return
 
+  clearGameLaunchState(state.activeRoom.juego)
   localStorage.setItem("solitario_sala_id", String(state.activeRoom.id))
   localStorage.setItem("solitario_sala_codigo", state.activeRoom.codigo)
   localStorage.setItem("solitario_juego", state.activeRoom.juego)
@@ -890,11 +891,39 @@ function redirectToActiveGame() {
 }
 
 function markSolitarioGameLaunch(game, origin) {
+  clearGameLaunchState(game)
   localStorage.setItem("solitario_game_launch", JSON.stringify({
     game,
     origin,
     launchedAt: new Date().toISOString(),
   }))
+}
+
+function clearGameLaunchState(game) {
+  const lockKeys = {
+    ajedrez: ["ajedrez_activo"],
+    damas: ["damas_activo"],
+    domino: ["domino_activo"],
+    matematicas: ["mate_activo"],
+    memoria: ["memoria_activo"],
+    sudoku: ["sudoku_activo"],
+  }
+
+  const resultKeys = [
+    "fin_juego",
+    "ajedrezResultado",
+    "damasResultado",
+    "damasSinPosicion",
+    "damasEstadisticasPendientes",
+    "dominoResultado",
+    "dominoSinPosicion",
+    "dominoEstadisticasPendientes",
+    "flashmind_puntos",
+    "numcatch_puntos",
+  ]
+
+  ;(lockKeys[game] || []).forEach((key) => localStorage.removeItem(key))
+  resultKeys.forEach((key) => localStorage.removeItem(key))
 }
 
 function clearMiniTournamentContext() {

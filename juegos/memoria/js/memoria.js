@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { debeSalirDelTorneo, obtenerInicioTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 const pestana = "memoria_activo"
 const JUEGO_ACTUAL = "memoria"
@@ -294,14 +294,17 @@ async function iniciarCronometro(){
 
 const reloj = document.getElementById("reloj")
 
-const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
+let restante = await obtenerTiempoRestanteTorneo(supabase, JUEGO_ACTUAL, DURACION)
+if(restante === null){
+console.warn("No hay inicio valido para memoria")
+return
+}
 
-let { data: horaServer } = await supabase.rpc("ahora_servidor")
-
-const inicio = Date.parse(inicioTorneo)
-const ahora = Date.parse(horaServer)
-
-let restante = Math.floor((inicio + DURACION * 1000 - ahora) / 1000)
+function pintarReloj(){
+let min = Math.floor(restante / 60)
+let seg = restante % 60
+reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
+}
 
 async function actualizar(){
 
@@ -327,13 +330,10 @@ window.location.href = "final.html"
 return
 }
 
-let min = Math.floor(restante / 60)
-let seg = restante % 60
-
-reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
+pintarReloj()
 }
 
-await actualizar()
+pintarReloj()
 intervalo = setInterval(actualizar, 1000)
 
 }

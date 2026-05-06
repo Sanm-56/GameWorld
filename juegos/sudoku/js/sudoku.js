@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { debeSalirDelTorneo, obtenerInicioTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
 
 const pestana = "sudoku_activo"
 const JUEGO_ACTUAL = "sudoku"
@@ -350,29 +350,17 @@ const reloj = document.getElementById("reloj")
 
 if(intervalo) clearInterval(intervalo)
 
-const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
+let restante = await obtenerTiempoRestanteTorneo(supabase, JUEGO_ACTUAL, DURACION)
 
-if(!inicioTorneo){
+if(restante === null){
 console.log("No hay torneo activo")
 return
 }
 
-let { data: horaServer } = await supabase
-.rpc("ahora_servidor")
-
-const inicio = Date.parse(inicioTorneo)
-const ahora = Date.parse(horaServer)
-
-let restante = Math.floor((inicio + DURACION * 1000 - ahora) / 1000)
-if(isNaN(restante) || restante > DURACION){
-restante = DURACION
-}
-
-if(restante <= 0){
-reloj.innerText = "0:00"
-localStorage.setItem("juego_actual", "sudoku")
-window.location.href = "final.html"
-return
+function pintarReloj(){
+let min = Math.floor(restante / 60)
+let seg = restante % 60
+reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
 }
 
 async function actualizar(){
@@ -408,13 +396,10 @@ window.location.href = "final.html"
 return
 }
 
-let min = Math.floor(restante / 60)
-let seg = restante % 60
-
-reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
+pintarReloj()
 }
 
-await actualizar()
+pintarReloj()
 intervalo = setInterval(actualizar, 1000)
 }
 
