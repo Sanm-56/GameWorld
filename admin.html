@@ -196,6 +196,34 @@ select{
   line-height:1.4;
 }
 
+.season-bonus-card{
+  display:grid;
+  gap:12px;
+}
+
+.bonus-current{
+  display:grid;
+  gap:6px;
+  padding:14px;
+  border:1px solid rgba(250,204,21,0.2);
+  border-radius:14px;
+  background:rgba(250,204,21,0.08);
+}
+
+.bonus-current strong{
+  font-size:28px;
+  color:#fde68a;
+}
+
+.bonus-state{
+  color:var(--muted);
+  font-weight:800;
+}
+
+.bonus-state.highlight{
+  color:#fb923c;
+}
+
 .table-toolbar{
   display:flex;
   justify-content:space-between;
@@ -370,6 +398,21 @@ th:last-child{
         <button onclick="verInvalidos()">Invalidos</button>
         <button onclick="limpiarRanking()">Limpiar ranking</button>
       </div>
+    </div>
+
+    <div class="section wide season-bonus-card">
+      <h3>Bonus de experiencia por temporada</h3>
+      <div class="bonus-current">
+        <span id="bonusJuegoActual">Juego: Sudoku</span>
+        <span>Bonus actual:</span>
+        <strong id="bonusActual">x1.0</strong>
+        <span id="bonusEstado" class="bonus-state">Bonus normal de temporada</span>
+      </div>
+      <div class="control-row">
+        <select id="bonusTemporadaSelect" aria-label="Cambiar bonus de experiencia"></select>
+        <button class="success" onclick="guardarBonusTemporadaAdmin()">Guardar bonus</button>
+      </div>
+      <p class="export-note">El bonus se aplica a torneo principal, minitorneos y niveles solitario antes del booster del usuario.</p>
     </div>
 
     <div class="section wide">

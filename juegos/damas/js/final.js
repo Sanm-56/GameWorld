@@ -1,6 +1,7 @@
 import { supabase } from '../../js/supabase.js'
 import { volverDesdeFinal } from '../../js/mini-torneo.js'
 import { cleanText, escapeHtml, setCleanText } from '../../js/mensajes.js'
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from '../../js/personalizacion-visual.js'
 
 const resultadoFinal = document.getElementById('resultadoFinal')
 const podioDiv = document.getElementById('podio')
@@ -9,6 +10,7 @@ const usuario = localStorage.getItem('usuario')
 const resultado = localStorage.getItem('damasResultado') || 'Partida finalizada.'
 const sinPosicion = localStorage.getItem('damasSinPosicion') === 'true'
 const estadisticasPendientes = localStorage.getItem('damasEstadisticasPendientes') === 'true'
+instalarEstilosPersonalizacion()
 
 setCleanText(resultadoFinal, resultado.toLowerCase().includes('descalificado')
   ? 'Descalificado por actividad sospechosa'
@@ -151,6 +153,7 @@ async function cargarResultados() {
       <span>${formatearTiempo(jugador.tiempo)}</span>
     `
     rankingDiv.appendChild(div)
+    aplicarPersonalizacionUsuario(div, jugador.usuario)
   })
 }
 

@@ -1,6 +1,7 @@
 import { supabase } from "./supabase.js"
 import { registrarXpPorPartida } from "./progreso-nivel.js"
 import { reportLevelResult } from "./solitario-niveles.js"
+import { obtenerOrigenExperiencia } from "./mini-torneo.js"
 
 const FALLBACK_TABLES = {
   ajedrez: "ranking_ajedrez",
@@ -25,7 +26,8 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     posicion,
   }
 
-  await reportLevelResult(supabase, { usuario, juego, valor: numero, modo, posicion, invalido })
+  const resultadoNivel = await reportLevelResult(supabase, { usuario, juego, valor: numero, modo, posicion, invalido })
+  const origenExperiencia = resultadoNivel ? "solitario" : obtenerOrigenExperiencia(juego)
 
   const { error } = await supabase.from("partidas").insert(payload)
 
@@ -38,6 +40,7 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     usuario,
     juego,
     posicion,
+    origen: origenExperiencia,
   })
 }
 

@@ -17,6 +17,12 @@ function esNivelSolitario(juego) {
     && context.game === juego
 }
 
+export function obtenerOrigenExperiencia(juego) {
+  if (esNivelSolitario(juego)) return "solitario"
+  if (esMiniTorneo(juego)) return "minitorneo"
+  return "torneo"
+}
+
 export async function obtenerInicioTorneo(supabase, juego) {
   if (esMiniTorneo(juego)) {
     const salaId = localStorage.getItem("solitario_sala_id")

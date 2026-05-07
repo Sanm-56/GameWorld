@@ -1,12 +1,14 @@
 import { supabase } from "../../js/supabase.js"
 import { volverDesdeFinal } from "../../js/mini-torneo.js"
 import { escapeHtml } from "../../js/mensajes.js"
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
 const resultadoFinal = document.getElementById("resultadoFinal")
 const resumenFinal = document.getElementById("resumenFinal")
 const usuario = localStorage.getItem("usuario")
+instalarEstilosPersonalizacion()
 
 const fin = localStorage.getItem("fin_juego")
 const puntos = Number(localStorage.getItem("numcatch_puntos") || "0")
@@ -87,6 +89,7 @@ async function cargar() {
       <span>${j.tiempo} pts</span>
     `
     rankingDiv.appendChild(div)
+    aplicarPersonalizacionUsuario(div, j.usuario)
   })
 }
 

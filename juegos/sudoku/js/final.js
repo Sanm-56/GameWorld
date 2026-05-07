@@ -1,11 +1,13 @@
 import { supabase } from "../../js/supabase.js"
 import { volverDesdeFinal } from "../../js/mini-torneo.js"
 import { escapeHtml } from "../../js/mensajes.js"
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
 const usuario = localStorage.getItem("usuario")
 const posicionDiv = document.createElement("h2")
+instalarEstilosPersonalizacion()
 
 document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
 
@@ -66,6 +68,7 @@ async function cargarResultados() {
       <span>${formatearTiempo(j.tiempo)}</span>
     `
     rankingDiv.appendChild(div)
+    aplicarPersonalizacionUsuario(div, j.usuario)
   })
 }
 

@@ -7,8 +7,10 @@ import {
   obtenerTituloNivel,
   registrarXpPorLogros,
 } from './progreso-nivel.js'
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js'
 
 const usuario = localStorage.getItem('usuario')
+instalarEstilosPersonalizacion()
 
 const GAMES = [
   { key: 'sudoku', label: 'Sudoku', icon: 'S' },
@@ -138,6 +140,7 @@ async function cargarPerfil() {
 
   nombreUsuarioEl.innerText = usuario
   pillUsuarioEl.innerText = `Usuario: ${usuario}`
+  aplicarPersonalizacionUsuario(document.querySelector('.hero.profile-card'), usuario)
 
   const { data: userData } = await supabase
     .from('usuarios')
@@ -3874,6 +3877,7 @@ async function renderRankingNivel() {
       <div class="level-rank-score">Nivel ${item.nivel}</div>
     `
     rankingNivelListEl.appendChild(div)
+    aplicarPersonalizacionUsuario(div, item.usuario_id)
   })
 }
 

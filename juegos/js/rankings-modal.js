@@ -1,5 +1,6 @@
 import { supabase } from "./supabase.js"
 import { escapeHtml } from "./mensajes.js"
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "./personalizacion-visual.js"
 
 const GAMES = [
   { key: "sudoku", label: "Sudoku", mode: "time" },
@@ -24,6 +25,7 @@ let activeType = "semanal"
 
 function initRankingModal() {
   if (!modal || !gameSelect || !statusEl || !listEl) return
+  instalarEstilosPersonalizacion()
 
   gameSelect.innerHTML = GAMES
     .map((game) => `<option value="${game.key}">${game.label}</option>`)
@@ -79,6 +81,9 @@ async function cargarRanking() {
 
   statusEl.textContent = `Mostrando ${ranking.length} resultado${ranking.length === 1 ? "" : "s"}.`
   listEl.innerHTML = ranking.map(renderFila).join("")
+  listEl.querySelectorAll("[data-ranking-user]").forEach((row) => {
+    aplicarPersonalizacionUsuario(row, row.dataset.rankingUser)
+  })
 }
 
 async function obtenerDatos(game) {
@@ -191,7 +196,7 @@ function desempate(a, b, game) {
 
 function renderFila(row, index) {
   return `
-    <div class="ranking-row">
+    <div class="ranking-row" data-ranking-user="${escapeHtml(row.usuario)}">
       <span class="ranking-pos">#${index + 1}</span>
       <span class="ranking-user">${escapeHtml(row.usuario)}</span>
       <span class="ranking-score">${formatearValor(row)}</span>

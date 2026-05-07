@@ -231,6 +231,7 @@ h1{
 .music-btn,
 .rankings-btn,
 .rules-btn,
+.store-btn,
 .admin-btn{
   min-height:auto;
   padding:14px 16px;
@@ -247,6 +248,7 @@ h1{
 .music-btn:hover,
 .rankings-btn:hover,
 .rules-btn:hover,
+.store-btn:hover,
 .admin-btn:hover{
   background:rgba(30,41,59,0.86);
   transform:translateY(-2px);
@@ -266,6 +268,10 @@ h1{
 
 .rules-btn{
   border-color:rgba(168,85,247,0.34);
+}
+
+.store-btn{
+  border-color:rgba(251,146,60,0.38);
 }
 
 .admin-btn{
@@ -313,6 +319,84 @@ h1{
 
 .rules-launch .whatsapp-link{
   border-color:rgba(34,197,94,0.38);
+}
+
+.season-event{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  width:min(560px, 100%);
+  margin:22px auto 0;
+  padding:12px 16px;
+  border:1px solid rgba(251,146,60,0.32);
+  border-radius:18px;
+  color:#ffedd5;
+  background:linear-gradient(135deg, rgba(234,88,12,0.22), rgba(15,23,42,0.7));
+  box-shadow:0 16px 36px rgba(0,0,0,0.2);
+}
+
+.season-event strong{
+  color:#fed7aa;
+}
+
+.store-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.store-column,
+.store-list{
+  display:grid;
+  gap:10px;
+}
+
+.store-column{
+  align-content:start;
+}
+
+.store-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+  color:var(--muted);
+}
+
+.store-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px;
+  border:1px solid rgba(148,163,184,0.14);
+  border-radius:14px;
+  background:rgba(15,23,42,0.62);
+}
+
+.store-item div{
+  min-width:0;
+}
+
+.store-item strong,
+.store-item span{
+  display:block;
+}
+
+.store-item span{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.store-item button{
+  border:1px solid rgba(251,146,60,0.38);
+  border-radius:12px;
+  padding:10px 12px;
+  color:white;
+  background:rgba(234,88,12,0.28);
+  cursor:pointer;
 }
 
 .ranking-modal.abierto{
@@ -558,7 +642,7 @@ h1{
 
   .acciones{
     display:grid;
-    grid-template-columns:repeat(5, minmax(0, 1fr));
+    grid-template-columns:repeat(6, minmax(0, 1fr));
     gap:8px;
   }
 
@@ -576,6 +660,7 @@ h1{
   .music-btn,
   .rankings-btn,
   .rules-btn,
+  .store-btn,
   .mobile-admin-btn{
     width:100%;
     min-height:46px;
@@ -651,6 +736,7 @@ h1{
   .music-btn,
   .rankings-btn,
   .rules-btn,
+  .store-btn,
   .mobile-admin-btn{
     min-height:46px;
     padding:10px 8px;
@@ -668,6 +754,10 @@ h1{
   }
 
   .rules-grid{
+    grid-template-columns:1fr;
+  }
+
+  .store-grid{
     grid-template-columns:1fr;
   }
 
@@ -730,6 +820,7 @@ h1{
   .music-btn,
   .rankings-btn,
   .rules-btn,
+  .store-btn,
   .mobile-admin-btn{
     min-height:44px;
     padding:9px 6px;
@@ -749,6 +840,7 @@ h1{
     <div class="acciones">
       <button class="boton profile-btn" onclick="irPerfil()">Perfil</button>
       <button class="boton rankings-btn" data-open-rankings>Rankings</button>
+      <button class="boton store-btn" data-open-store>Tienda</button>
       <button class="boton rules-btn" data-open-rules>Reglas</button>
       <button class="boton music-btn" onclick="reproducirMusica()">Música</button>
       <button class="boton mobile-admin-btn" onclick="irAdmin()">Admin</button>
@@ -765,6 +857,7 @@ h1{
         <button class="boton" type="button" data-open-rules>Reglas del torneo</button>
         <button class="boton whatsapp-link" type="button" onclick="abrirWhatsapp()">WhatsApp</button>
       </div>
+      <div class="season-event" id="seasonEvent" aria-live="polite"></div>
     </section>
 
     <section class="menu" aria-label="Juegos disponibles">
@@ -810,6 +903,35 @@ h1{
       </button>
     </section>
   </main>
+</div>
+
+<div class="ranking-modal" id="storeModal" aria-hidden="true">
+  <section class="ranking-panel rules-panel" role="dialog" aria-modal="true" aria-labelledby="storeTitle">
+    <div class="ranking-head">
+      <div>
+        <h2 id="storeTitle">Tienda</h2>
+        <p>Boosters de experiencia y personalizacion para perfil, ranking y resultados.</p>
+      </div>
+      <button class="ranking-close" type="button" data-close-store aria-label="Cerrar tienda">&times;</button>
+    </div>
+    <div class="ranking-body">
+      <div class="store-meta">
+        <strong id="storeCoins">0 monedas</strong>
+        <span id="storeActiveBooster">Sin booster activo</span>
+      </div>
+      <p class="ranking-status" id="storeStatus">Listo.</p>
+      <div class="store-grid">
+        <section class="store-column">
+          <h3>Boosters XP</h3>
+          <div class="store-list" id="storeBoosters"></div>
+        </section>
+        <section class="store-column">
+          <h3>Fondos, IDs y marcos</h3>
+          <div class="store-list" id="storeCosmetics"></div>
+        </section>
+      </div>
+    </div>
+  </section>
 </div>
 
 <div class="ranking-modal" id="rankingModal" aria-hidden="true">
@@ -993,6 +1115,8 @@ function reproducirMusica(){
 }
 </script>
 <script type="module" src="juegos/js/rankings-modal.js"></script>
+<script type="module" src="juegos/js/evento-temporada-ui.js"></script>
+<script type="module" src="juegos/js/tienda-ui.js"></script>
 <script src="solitario/solitario-button.js"></script>
 </body>
 </html>

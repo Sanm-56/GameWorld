@@ -1,4 +1,6 @@
 import { supabase } from './supabase.js'
+import { obtenerBonusTemporada } from './experiencia-temporada.js'
+import { obtenerBonusUsuario } from './tienda.js'
 
 export const NIVEL_MAXIMO = 365
 
@@ -69,6 +71,10 @@ export function calcularXpRanking(posicion) {
   if (pos <= 10) return 75
   if (pos <= 25) return 45
   return 25
+}
+
+export function multiplicadorOrigenExperiencia(origen = 'torneo') {
+  return origen === 'minitorneo' || origen === 'solitario' ? 0.5 : 1
 }
 
 export function crearRecompensaFallback(nivel) {
@@ -150,10 +156,16 @@ export async function obtenerRecompensasHastaNivel(nivel) {
   return data || []
 }
 
-export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, accionKey = null }) {
+export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, accionKey = null, juego = null, origen = 'torneo' }) {
   if (!usuario) return null
 
-  const xp = Math.max(0, Number(xpGanado) || 0)
+  const xpBase = Math.max(0, Number(xpGanado) || 0)
+  if (!xpBase) return null
+
+  const multiplicadorOrigen = multiplicadorOrigenExperiencia(origen)
+  const bonusTemporada = juego ? await obtenerBonusTemporada(juego) : 1
+  const bonusUsuario = await obtenerBonusUsuario(usuario)
+  const xp = Math.max(1, Math.round(xpBase * multiplicadorOrigen * bonusTemporada * bonusUsuario))
   if (!xp) return null
 
   const key = accionKey || `${accion}:${Date.now()}:${Math.random().toString(16).slice(2)}`
@@ -192,7 +204,15 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
       accion,
       accion_key: key,
       xp_ganado: xp,
-      detalle,
+      detalle: {
+        ...detalle,
+        xpBase,
+        juego,
+        origen,
+        multiplicadorOrigen,
+        bonusTemporada,
+        bonusUsuario,
+      },
     })
 
   if (historialError) {
@@ -205,13 +225,17 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
 
   return {
     xpGanado: xp,
+    xpBase,
+    bonusTemporada,
+    bonusUsuario,
+    multiplicadorOrigen,
     nivelAnterior: progresoAnterior.nivel,
     nivelActual: calculado.nivel,
     subioNivel: calculado.nivel > progresoAnterior.nivel,
   }
 }
 
-export async function registrarXpPorPartida({ usuario, juego, posicion, partidaId = null }) {
+export async function registrarXpPorPartida({ usuario, juego, posicion, partidaId = null, origen = 'torneo' }) {
   if (!usuario || !juego) return []
 
   const baseKey = partidaId || `${juego}:${Date.now()}:${Math.random().toString(16).slice(2)}`
@@ -220,14 +244,18 @@ export async function registrarXpPorPartida({ usuario, juego, posicion, partidaI
       usuario,
       accion: 'partida_completada',
       xpGanado: XP_ACCIONES.partida_completada,
-      detalle: { juego, posicion },
+      juego,
+      origen,
+      detalle: { juego, posicion, origen },
       accionKey: `partida:${baseKey}`,
     },
     {
       usuario,
       accion: 'torneo_participacion',
       xpGanado: XP_ACCIONES.torneo_participacion,
-      detalle: { juego, posicion },
+      juego,
+      origen,
+      detalle: { juego, posicion, origen },
       accionKey: `torneo:${baseKey}`,
     },
   ]
@@ -238,7 +266,9 @@ export async function registrarXpPorPartida({ usuario, juego, posicion, partidaI
       usuario,
       accion: 'ranking_posicion',
       xpGanado: xpRanking,
-      detalle: { juego, posicion },
+      juego,
+      origen,
+      detalle: { juego, posicion, origen },
       accionKey: `ranking:${baseKey}`,
     })
   }

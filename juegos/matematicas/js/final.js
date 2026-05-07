@@ -1,6 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { volverDesdeFinal } from "../../js/mini-torneo.js"
 import { escapeHtml } from "../../js/mensajes.js"
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
@@ -12,6 +13,7 @@ const mensajeDiv = document.createElement("h2")
 document.querySelector(".contenedor").insertBefore(mensajeDiv, podioDiv)
 
 const posicionDiv = document.createElement("h3")
+instalarEstilosPersonalizacion()
 document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
 
 if(fin === "tiempo"){
@@ -73,6 +75,7 @@ div.innerHTML = `
 <span>${j.tiempo} pts</span>
 `
 rankingDiv.appendChild(div)
+aplicarPersonalizacionUsuario(div, j.usuario)
 
 })
 
