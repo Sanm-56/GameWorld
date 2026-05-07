@@ -1,6 +1,7 @@
 import {
   BOOSTERS_XP,
   COSMETICOS,
+  ORDEN_RAREZAS_TIENDA,
   PAQUETES_MONEDAS,
   comprarBooster,
   comprarCosmetico,
@@ -17,7 +18,6 @@ const modal = document.getElementById("storeModal")
 const boosterList = document.getElementById("storeBoosters")
 const coinList = document.getElementById("storeCoinsPackages")
 const cosmeticsList = document.getElementById("storeCosmetics")
-const cosmeticsFilter = document.getElementById("storeCosmeticsFilter")
 const statusEl = document.getElementById("storeStatus")
 const coinsEl = document.getElementById("storeCoins")
 const activeEl = document.getElementById("storeActiveBooster")
@@ -41,7 +41,6 @@ function initStore() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal.classList.contains("abierto")) cerrarTienda()
   })
-  cosmeticsFilter?.addEventListener("change", renderCosmeticos)
 }
 
 async function abrirTienda() {
@@ -70,10 +69,13 @@ async function renderTienda() {
   await actualizarBoosterActivo()
 
   boosterList.innerHTML = BOOSTERS_XP.map((booster) => `
-    <article class="store-item">
-      <div>
+    <article class="store-item booster-card booster-x${booster.multiplicador}">
+      <div class="booster-sigil">x${booster.multiplicador}</div>
+      <div class="store-copy">
+        <span class="store-kicker">Potenciador temporal</span>
         <strong>${escapeHtml(booster.nombre)}</strong>
-        <span>${duracionLabel(booster.duracionMs)} - ${booster.precio} monedas</span>
+        <small>${duracionLabel(booster.duracionMs)} de progreso acelerado</small>
+        <span class="store-price">${booster.precio.toLocaleString("es-CO")} monedas</span>
       </div>
       <div class="store-actions-inline">
         <button type="button" data-buy-booster="${booster.id}">Monedas</button>
@@ -83,10 +85,12 @@ async function renderTienda() {
   `).join("")
 
   coinList.innerHTML = PAQUETES_MONEDAS.map((paquete) => `
-    <article class="store-item">
-      <div>
+    <article class="store-item coin-card${paquete.cantidad >= 10000 ? " popular" : ""}">
+      <div class="coin-orb">${paquete.cantidad >= 25000 ? "MAX" : paquete.cantidad >= 10000 ? "TOP" : "$"}</div>
+      <div class="store-copy">
+        <span class="store-kicker">${paquete.cantidad >= 10000 ? "Pack destacado" : "Pack de monedas"}</span>
         <strong>${paquete.cantidad.toLocaleString("es-CO")} monedas</strong>
-        <span>Compra futura con dinero real</span>
+        <small>Preparado para compra futura con dinero real</small>
       </div>
       <button type="button" data-real-buy="coins:${paquete.id}">${paquete.precioReal}</button>
     </article>
@@ -103,23 +107,55 @@ async function renderTienda() {
 }
 
 function renderCosmeticos() {
-  const filtro = cosmeticsFilter?.value || "todos"
-  const visibles = COSMETICOS.filter((item) => filtro === "todos" || item.tipo === filtro)
+  cosmeticsList.innerHTML = ORDEN_RAREZAS_TIENDA
+    .map((rareza) => {
+      const items = COSMETICOS.filter((item) => item.rareza === rareza)
+      if (!items.length) return ""
 
-  cosmeticsList.innerHTML = visibles.map((item) => `
-    <article class="store-item store-cosmetic rarity-${rarezaClase(item.rareza)}">
-      <div>
-        <strong>${escapeHtml(item.nombre)}</strong>
-        <span>${escapeHtml(item.categoria)} - ${escapeHtml(rarezaEtiqueta(item.rareza))} - ${item.precio} monedas</span>
-        <small>${escapeHtml(item.diseno.tema)} / ${escapeHtml(item.diseno.patron)} / brillo ${item.diseno.brillo}</small>
-      </div>
-      <button type="button" data-buy-cosmetic="${item.id}">Comprar</button>
-    </article>
-  `).join("")
+      return `
+        <section class="rarity-section rarity-${rarezaClase(rareza)}">
+          <header class="rarity-head">
+            <span>${escapeHtml(rarezaEtiqueta(rareza))}</span>
+            <small>${items.length} piezas</small>
+          </header>
+          <div class="cosmetic-grid">
+            ${items.map(renderCosmetico).join("")}
+          </div>
+        </section>
+      `
+    })
+    .join("")
 
   cosmeticsList.querySelectorAll("[data-buy-cosmetic]").forEach((button) => {
     button.addEventListener("click", () => comprarConMonedas("cosmetico", button.dataset.buyCosmetic))
   })
+}
+
+function renderCosmetico(item) {
+  return `
+    <article class="store-item store-cosmetic rarity-${rarezaClase(item.rareza)}">
+      <div class="cosmetic-preview">
+        <span>${escapeHtml(siglaCategoria(item.tipo))}</span>
+      </div>
+      <div class="store-copy">
+        <span class="store-kicker">${escapeHtml(item.categoria)}</span>
+        <strong>${escapeHtml(item.nombre)}</strong>
+        <p>${escapeHtml(item.descripcion)}</p>
+        <small>${escapeHtml(item.diseno.patron)} / brillo ${item.diseno.brillo}</small>
+        <span class="store-price">${item.precio.toLocaleString("es-CO")} monedas</span>
+      </div>
+      <div class="cosmetic-footer">
+        <span class="rarity-tag">${escapeHtml(rarezaEtiqueta(item.rareza))}</span>
+        <button type="button" data-buy-cosmetic="${item.id}">Comprar</button>
+      </div>
+    </article>
+  `
+}
+
+function siglaCategoria(tipo) {
+  if (tipo === "fondo") return "BG"
+  if (tipo === "marco") return "MR"
+  return "ID"
 }
 
 async function comprarConMonedas(tipo, id) {

@@ -27,10 +27,56 @@ const TEMAS_VISUALES = [
   "Vortex", "Arcade", "Prisma", "Zenit", "Eclipse", "Omega", "Vector", "Plasma", "Onix", "Radiant",
 ]
 
+const RAREZAS_PREMIUM = [
+  { nombre: "Normal", precio: 500, clase: "normal" },
+  { nombre: "Raro", precio: 1600, clase: "raro" },
+  { nombre: "Epico", etiqueta: "Epico", precio: 3200, clase: "epico" },
+  { nombre: "Legendario", precio: 6200, clase: "legendario" },
+  { nombre: "Mitico", etiqueta: "Mitico", precio: 11000, clase: "mitico" },
+  { nombre: "Prohibido", precio: 18000, clase: "prohibido" },
+]
+
+export const ORDEN_RAREZAS_TIENDA = RAREZAS_PREMIUM.map((rareza) => rareza.nombre)
+
+const NUCLEOS_NOMBRE = [
+  "Fragmento de Nyx", "Corona del Vacio", "Ecos de Helion", "Ojo Carmesi", "Trono Astral",
+  "Abismo de Ether", "Sello de Valkor", "Horizonte Umbrio", "Ultima Constelacion", "Cenizas del Eclipse",
+  "Oraculo de Nadir", "Lanza de Kael", "Nexo de Umbra", "Vigilia de Aster", "Llave de Noctis",
+  "Catedral de Origen", "Pacto de Lyria", "Pulso de Kron", "Altar de Veyra", "Bastion de Obsidiana",
+  "Eco del Primer Rey", "Manto de Seraph", "Umbral de Tharion", "Cicatriz de Orion", "Juramento de Erebos",
+  "Nodo de Astra", "Llama de Icaron", "Torre de Kair", "Sombra de Velkan", "Jardin de Ruina",
+  "Marca de Solenne", "Latido del Nexus", "Velo de Arkan", "Rastro de Polaris", "Corte de Tenebris",
+  "Anillo de Sable", "Camino de Eon", "Cisma de Hel", "Noche de Calyx", "Voz de Ender",
+]
+
+const FORMAS_NOMBRE = [
+  "El {base}", "{base} Perdido", "{base} Inmortal", "{base} del Exilio", "{base} Prime",
+  "La Vigilia del {base}", "Custodio del {base}", "Ascenso del {base}", "Ruina del {base}", "Legado del {base}",
+  "El {base} Silente", "{base} de la Arena Final", "Codigo {base}", "Dominio del {base}", "El Ultimo {base}",
+]
+
+const DESCRIPCIONES_LORE = [
+  "Solo aparece ante quienes sobreviven.",
+  "El vacio tambien observa.",
+  "Nacido despues del ultimo eclipse.",
+  "Nadie volvio igual tras verlo.",
+  "Reservado para nombres que pesan en el ranking.",
+  "Un juramento grabado antes de la victoria.",
+  "Brilla cuando la partida se vuelve imposible.",
+  "No concede poder; exige presencia.",
+  "Forjado para quienes no retroceden.",
+  "Su rastro queda incluso cuando termina el torneo.",
+  "Los rivales lo reconocen antes del primer movimiento.",
+  "Una senal breve de dominio absoluto.",
+  "Donde cae su sombra, empieza la final.",
+  "Hecho para sobrevivir al marcador.",
+  "La arena recuerda a quien lo porta.",
+]
+
 export const COSMETICOS = [
-  ...generarCosmeticos("fondo", "Fondo", 100),
-  ...generarCosmeticos("id", "ID", 100),
-  ...generarCosmeticos("marco", "Marco", 100),
+  ...generarCosmeticos("fondo", 100),
+  ...generarCosmeticos("id", 100),
+  ...generarCosmeticos("marco", 100),
 ]
 
 const BOOSTER_LOCAL_KEY = "tienda_boosters_usuario"
@@ -213,28 +259,32 @@ export function tiempoRestante(fechaFin) {
 }
 
 export function rarezaEtiqueta(rareza) {
-  return RAREZAS.find((item) => item.nombre === rareza)?.etiqueta || rareza || "Normal"
+  return RAREZAS_PREMIUM.find((item) => item.nombre === rareza)?.etiqueta || rareza || "Normal"
 }
 
 export function rarezaClase(rareza) {
-  return RAREZAS.find((item) => item.nombre === rareza)?.clase || "normal"
+  return RAREZAS_PREMIUM.find((item) => item.nombre === rareza)?.clase || "normal"
 }
 
-function generarCosmeticos(tipo, prefijo, cantidad) {
+function generarCosmeticos(tipo, cantidad) {
+  const offsetTipo = { fondo: 0, id: 137, marco: 281 }[tipo] || 0
   return Array.from({ length: cantidad }, (_, index) => {
     const numero = index + 1
-    const tema = TEMAS_VISUALES[index % TEMAS_VISUALES.length]
-    const rareza = RAREZAS[Math.min(RAREZAS.length - 1, Math.floor(index / Math.ceil(cantidad / RAREZAS.length)))]
+    const rareza = RAREZAS_PREMIUM[Math.min(RAREZAS_PREMIUM.length - 1, Math.floor(index / Math.ceil(cantidad / RAREZAS_PREMIUM.length)))]
     const intensidad = (index % 10) + 1
+    const base = NUCLEOS_NOMBRE[(index + offsetTipo) % NUCLEOS_NOMBRE.length]
+    const forma = FORMAS_NOMBRE[(index * 7 + offsetTipo) % FORMAS_NOMBRE.length]
+    const nombre = forma.replace("{base}", base)
     return {
       id: `${tipo}_${String(numero).padStart(3, "0")}`,
       tipo,
       categoria: tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos",
-      nombre: `${prefijo} ${tema} ${numero}`,
+      nombre,
+      descripcion: DESCRIPCIONES_LORE[(index * 5 + tipo.length) % DESCRIPCIONES_LORE.length],
       rareza: rareza.nombre,
       precio: rareza.precio + intensidad * 75,
       diseno: {
-        tema,
+        tema: TEMAS_VISUALES[index % TEMAS_VISUALES.length],
         brillo: intensidad,
         patron: ["lineas", "pulso", "anillo", "fragmentos", "halo"][index % 5],
       },
@@ -243,7 +293,7 @@ function generarCosmeticos(tipo, prefijo, cantidad) {
 }
 
 function rarezaCompatibleSupabase(rareza) {
-  if (rareza === "Poco comun") return "Normal"
+  if (rareza === "Prohibido") return "Mitico"
   return rareza
 }
 
