@@ -663,6 +663,8 @@ create table if not exists public.progreso_nivel (
 alter table public.progreso_nivel
 drop constraint if exists progreso_nivel_nivel_check;
 
+drop trigger if exists progreso_nivel_calcular_nivel on public.progreso_nivel;
+
 alter table public.progreso_nivel
 alter column xp type bigint
 using xp::bigint;
@@ -941,7 +943,6 @@ begin
 end;
 $$;
 
-drop trigger if exists progreso_nivel_calcular_nivel on public.progreso_nivel;
 create trigger progreso_nivel_calcular_nivel
 before insert or update of xp on public.progreso_nivel
 for each row
