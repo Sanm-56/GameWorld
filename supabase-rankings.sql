@@ -745,7 +745,7 @@ immutable
 as $$
   select case
     when nivel_actual >= 3000 then 0
-    else 100 + floor(power(greatest(nivel_actual - 1, 0), 1.45) * 35)::integer + ((nivel_actual - 1) * 15)
+    else (100 + floor(power(greatest(nivel_actual - 1, 0), 1.45) * 35)::integer + ((nivel_actual - 1) * 15)) * 3
   end;
 $$;
 
@@ -929,6 +929,8 @@ language plpgsql
 as $$
 begin
   new.xp := greatest(coalesce(new.xp, 0), 0);
+  new.nivel := least(greatest(coalesce(new.nivel, 1), 1), 3000);
+
   if tg_op = 'INSERT' then
     select id
     into new.temporada_id
@@ -939,7 +941,12 @@ begin
 
     new.temporada_id := coalesce(new.temporada_id, 'temporada-actual');
   end if;
-  new.nivel := public.calcular_nivel_por_xp(new.xp);
+
+  if new.nivel < 3000 and new.xp >= public.xp_requerido_nivel(new.nivel) then
+    new.nivel := new.nivel + 1;
+    new.xp := 0;
+  end if;
+
   new.updated_at := now();
   return new;
 end;
@@ -949,6 +956,28 @@ create trigger progreso_nivel_calcular_nivel
 before insert or update of xp on public.progreso_nivel
 for each row
 execute function public.actualizar_nivel_desde_xp();
+
+create table if not exists public.sistema_migraciones (
+  id text primary key,
+  applied_at timestamptz not null default now()
+);
+
+do $$
+begin
+  if not exists (
+    select 1
+    from public.sistema_migraciones
+    where id = 'xp_por_nivel_actual_v1'
+  ) then
+    update public.progreso_nivel
+    set xp = 0,
+        updated_at = now();
+
+    insert into public.sistema_migraciones (id)
+    values ('xp_por_nivel_actual_v1');
+  end if;
+end;
+$$;
 
 create index if not exists progreso_nivel_ranking_idx
 on public.progreso_nivel (nivel desc, xp desc);

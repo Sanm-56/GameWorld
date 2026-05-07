@@ -3887,7 +3887,7 @@ async function sincronizarXpDeLogros() {
 async function renderProgresoNivel() {
   if (!usuario) {
     nivelActualEl.innerText = '1'
-    xpActualEl.innerText = '0 XP acumulado'
+    xpActualEl.innerText = '0 XP del nivel'
     porcentajeNivelEl.innerText = '0%'
     barraNivelEl.style.width = '0%'
     xpNivelDetalleEl.innerText = '0 / 100 XP'
@@ -3908,7 +3908,7 @@ async function renderProgresoNivel() {
     : await obtenerRecompensaNivel(siguienteNivel)
 
   nivelActualEl.innerText = String(progreso.nivel)
-  xpActualEl.innerText = `${progreso.xp} XP acumulado`
+  xpActualEl.innerText = `${progreso.xp} XP del nivel`
   porcentajeNivelEl.innerText = `${progreso.porcentaje}%`
   barraNivelEl.style.width = `${progreso.porcentaje}%`
   pillNivelEl.innerText = `Nivel: ${progreso.nivel} - ${tituloNivel}`
@@ -3948,7 +3948,7 @@ async function renderRankingNivel() {
       <div class="level-rank-user">
         <strong>${escaparHtml(item.usuario_id)}</strong>
         <br>
-        <small>${escaparHtml(tituloNivel)} - ${item.xp} XP</small>
+        <small>${escaparHtml(tituloNivel)} - ${item.xp} XP del nivel</small>
       </div>
       <div class="level-rank-score">Nivel ${item.nivel}</div>
     `

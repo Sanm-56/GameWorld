@@ -140,7 +140,7 @@ export function obtenerTituloNivel(nivelActual = 1) {
 
 export function xpNecesarioParaNivel(nivel) {
   if (nivel >= NIVEL_MAXIMO) return 0
-  return 100 + Math.floor(Math.pow(nivel - 1, 1.45) * 35) + (nivel - 1) * 15
+  return (100 + Math.floor(Math.pow(nivel - 1, 1.45) * 35) + (nivel - 1) * 15) * 3
 }
 
 export function xpAcumuladoParaNivel(nivel) {
@@ -165,6 +165,25 @@ export function calcularNivelPorXp(xpTotal = 0) {
 
   const xpSiguiente = xpNecesarioParaNivel(nivel)
   const xpEnNivel = nivel >= NIVEL_MAXIMO ? 0 : xp - inicioNivel
+  const porcentaje = nivel >= NIVEL_MAXIMO
+    ? 100
+    : Math.min(100, Math.round((xpEnNivel / xpSiguiente) * 100))
+
+  return {
+    nivel,
+    xp,
+    xpEnNivel,
+    xpSiguiente,
+    xpParaSiguiente: nivel >= NIVEL_MAXIMO ? 0 : Math.max(0, xpSiguiente - xpEnNivel),
+    porcentaje,
+  }
+}
+
+export function calcularProgresoNivelActual(nivelActual = 1, xpNivelActual = 0) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  const xp = Math.max(0, Number(xpNivelActual) || 0)
+  const xpSiguiente = xpNecesarioParaNivel(nivel)
+  const xpEnNivel = nivel >= NIVEL_MAXIMO ? 0 : Math.min(xp, xpSiguiente)
   const porcentaje = nivel >= NIVEL_MAXIMO
     ? 100
     : Math.min(100, Math.round((xpEnNivel / xpSiguiente) * 100))
@@ -219,7 +238,7 @@ export async function obtenerProgresoNivel(usuario) {
   }
 
   const base = data || { usuario_id: usuario, xp: 0, nivel: 1 }
-  return { ...base, ...calcularNivelPorXp(base.xp) }
+  return { ...base, ...calcularProgresoNivelActual(base.nivel, base.xp) }
 }
 
 export async function obtenerRankingNivel(limite = 10) {
@@ -298,8 +317,12 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
   if (existente) return null
 
   const progresoAnterior = await obtenerProgresoNivel(usuario)
-  const nuevoXp = progresoAnterior.xp + xp
-  const calculado = calcularNivelPorXp(nuevoXp)
+  const xpConGanancia = progresoAnterior.xp + xp
+  const requisitoNivel = xpNecesarioParaNivel(progresoAnterior.nivel)
+  const subioNivel = progresoAnterior.nivel < NIVEL_MAXIMO && xpConGanancia >= requisitoNivel
+  const nuevoNivel = subioNivel ? Math.min(NIVEL_MAXIMO, progresoAnterior.nivel + 1) : progresoAnterior.nivel
+  const nuevoXp = subioNivel ? 0 : xpConGanancia
+  const calculado = calcularProgresoNivelActual(nuevoNivel, nuevoXp)
 
   const { error: progresoError } = await supabase
     .from('progreso_nivel')
@@ -337,7 +360,7 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
     console.warn('No se pudo registrar historial de XP', historialError)
   }
 
-  if (calculado.nivel > progresoAnterior.nivel) {
+  if (subioNivel) {
     await desbloquearRecompensas(usuario, progresoAnterior.nivel + 1, calculado.nivel)
   }
 
@@ -349,7 +372,7 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
     multiplicadorOrigen,
     nivelAnterior: progresoAnterior.nivel,
     nivelActual: calculado.nivel,
-    subioNivel: calculado.nivel > progresoAnterior.nivel,
+    subioNivel,
   }
 }
 
