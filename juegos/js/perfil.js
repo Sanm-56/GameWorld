@@ -81,7 +81,7 @@ function obtenerRangoVisual(nivelActual) {
   return { desde, hasta, titulo }
 }
 
-function obtenerSiguientesRangos(nivelActual, cantidad = 4) {
+function obtenerSiguientesRangos(nivelActual, cantidad = Infinity) {
   const rangos = []
   let cursor = Math.max(1, Math.trunc(Number(nivelActual) || 1))
 
@@ -98,7 +98,7 @@ function renderRutaRangos(progreso) {
   if (!rangoRutaListEl) return
 
   const nivel = progreso?.nivel || 1
-  const rangos = obtenerSiguientesRangos(nivel, 4)
+  const rangos = obtenerSiguientesRangos(nivel)
   const siguiente = rangos[1]
 
   rangoRutaListEl.innerHTML = rangos.map((rango, index) => {
