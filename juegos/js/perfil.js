@@ -28,6 +28,8 @@ let resultadosPerfil = []
 let estadisticasLogros = {}
 
 const nombreUsuarioEl = document.getElementById('nombreUsuario')
+const perfilAvatarEl = document.getElementById('perfilAvatar')
+const perfilTituloRangoEl = document.getElementById('perfilTituloRango')
 const perfilResumenEl = document.getElementById('perfilResumen')
 const perfilEstadoEl = document.getElementById('perfilEstado')
 const pillUsuarioEl = document.getElementById('pillUsuario')
@@ -52,12 +54,79 @@ const xpNivelDetalleEl = document.getElementById('xpNivelDetalle')
 const xpRestanteEl = document.getElementById('xpRestante')
 const recompensaSiguienteEl = document.getElementById('recompensaSiguiente')
 const rankingNivelListEl = document.getElementById('rankingNivelList')
+const rangoRutaListEl = document.getElementById('rangoRutaList')
+const rangoProgresoTextoEl = document.getElementById('rangoProgresoTexto')
 
 function formatearTiempo(segundos) {
   if (typeof segundos !== 'number' || Number.isNaN(segundos)) return '-'
   const minutos = Math.floor(segundos / 60)
   const seg = segundos % 60
   return `${minutos}:${seg < 10 ? '0' : ''}${seg}`
+}
+
+function inicialesUsuario(valor) {
+  const limpio = String(valor || 'J').trim()
+  return limpio.slice(0, 2).toUpperCase()
+}
+
+function obtenerRangoVisual(nivelActual) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  const titulo = obtenerTituloNivel(nivel)
+  let desde = nivel
+  let hasta = nivel
+
+  while (desde > 1 && obtenerTituloNivel(desde - 1) === titulo) desde -= 1
+  while (hasta < NIVEL_MAXIMO && obtenerTituloNivel(hasta + 1) === titulo) hasta += 1
+
+  return { desde, hasta, titulo }
+}
+
+function obtenerSiguientesRangos(nivelActual, cantidad = 4) {
+  const rangos = []
+  let cursor = Math.max(1, Math.trunc(Number(nivelActual) || 1))
+
+  while (cursor <= NIVEL_MAXIMO && rangos.length < cantidad) {
+    const rango = obtenerRangoVisual(cursor)
+    rangos.push(rango)
+    cursor = rango.hasta + 1
+  }
+
+  return rangos
+}
+
+function renderRutaRangos(progreso) {
+  if (!rangoRutaListEl) return
+
+  const nivel = progreso?.nivel || 1
+  const rangos = obtenerSiguientesRangos(nivel, 4)
+  const siguiente = rangos[1]
+
+  rangoRutaListEl.innerHTML = rangos.map((rango, index) => {
+    const esActual = nivel >= rango.desde && nivel <= rango.hasta
+    const estado = esActual ? 'Actual' : 'Bloqueado'
+    const clase = esActual ? 'current' : 'locked'
+    const rangoTexto = rango.desde === rango.hasta
+      ? `Nivel ${rango.desde}`
+      : `Nivel ${rango.desde}-${rango.hasta}`
+
+    return `
+      <div class="rank-node ${clase}">
+        <span class="rank-node-level">${rangoTexto}</span>
+        <span class="rank-node-name">${escaparHtml(rango.titulo)}</span>
+        <span class="rank-node-state">${index === 0 ? estado : 'Proximo rango'}</span>
+      </div>
+    `
+  }).join('')
+
+  if (!rangoProgresoTextoEl) return
+
+  if (!siguiente || nivel >= NIVEL_MAXIMO) {
+    rangoProgresoTextoEl.innerText = 'Rango maximo alcanzado'
+    return
+  }
+
+  const restantes = Math.max(0, siguiente.desde - nivel)
+  rangoProgresoTextoEl.innerText = `${restantes} niveles restantes para ${siguiente.titulo}`
 }
 
 function getEstado(result) {
@@ -126,6 +195,8 @@ async function obtenerEstadisticasLogros() {
 async function cargarPerfil() {
   if (!usuario) {
     nombreUsuarioEl.innerText = 'Sin sesion'
+    if (perfilAvatarEl) perfilAvatarEl.innerText = '??'
+    if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = 'Sin rango'
     perfilResumenEl.innerText = 'Todavia no hay un usuario activo en este navegador.'
     perfilEstadoEl.innerText = 'Primero entra a cualquier juego con tu apodo y codigo para construir tu perfil.'
     medallasListEl.innerHTML = '<div class="empty">Aun no hay medallas para mostrar.</div>'
@@ -139,7 +210,8 @@ async function cargarPerfil() {
   }
 
   nombreUsuarioEl.innerText = usuario
-  pillUsuarioEl.innerText = `Usuario: ${usuario}`
+  if (perfilAvatarEl) perfilAvatarEl.innerText = inicialesUsuario(usuario)
+  pillUsuarioEl.innerText = `ID: ${usuario}`
   aplicarPersonalizacionUsuario(document.querySelector('.hero.profile-card'), usuario)
 
   const { data: userData } = await supabase
@@ -3821,7 +3893,9 @@ async function renderProgresoNivel() {
     xpNivelDetalleEl.innerText = '0 / 100 XP'
     xpRestanteEl.innerText = 'Faltan 100 XP'
     pillNivelEl.innerText = 'Nivel: 1'
+    if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = 'Sin rango'
     recompensaSiguienteEl.innerText = 'Inicia sesion para ver recompensas.'
+    renderRutaRangos({ nivel: 1 })
     rankingNivelListEl.innerHTML = '<div class="empty">No hay ranking de nivel disponible.</div>'
     return
   }
@@ -3838,6 +3912,8 @@ async function renderProgresoNivel() {
   porcentajeNivelEl.innerText = `${progreso.porcentaje}%`
   barraNivelEl.style.width = `${progreso.porcentaje}%`
   pillNivelEl.innerText = `Nivel: ${progreso.nivel} - ${tituloNivel}`
+  if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = tituloNivel
+  renderRutaRangos(progreso)
 
   if (progreso.nivel >= NIVEL_MAXIMO) {
     xpNivelDetalleEl.innerText = 'Nivel maximo alcanzado'

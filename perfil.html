@@ -60,6 +60,18 @@ body::before{
   opacity:0.8;
 }
 
+@keyframes profileGlowSweep{
+  0%{ transform:translateX(-120%) skewX(-16deg); opacity:0; }
+  18%{ opacity:0.72; }
+  50%{ opacity:0.28; }
+  100%{ transform:translateX(130%) skewX(-16deg); opacity:0; }
+}
+
+@keyframes rankPulse{
+  0%,100%{ box-shadow:0 0 18px rgba(56,189,248,0.12), inset 0 1px 0 rgba(255,255,255,0.06); }
+  50%{ box-shadow:0 0 34px rgba(56,189,248,0.24), inset 0 1px 0 rgba(255,255,255,0.1); }
+}
+
 .page{
   width:100%;
   max-width:1100px;
@@ -112,19 +124,26 @@ body::before{
 
 .hero{
   background:
-    linear-gradient(135deg, rgba(56,189,248,0.18), transparent 34%),
+    radial-gradient(circle at 14% 18%, rgba(56,189,248,0.25), transparent 28%),
+    radial-gradient(circle at 86% 18%, rgba(167,139,250,0.18), transparent 24%),
+    linear-gradient(135deg, rgba(56,189,248,0.15), transparent 34%),
     linear-gradient(155deg, rgba(34,197,94,0.08), transparent 48%),
-    linear-gradient(145deg, rgba(30,41,59,0.94), rgba(8,13,26,0.98));
-  border:1px solid rgba(125,211,252,0.22);
-  border-radius:24px;
-  padding:28px;
+    linear-gradient(145deg, rgba(15,23,42,0.82), rgba(2,6,23,0.97));
+  border:1px solid rgba(125,211,252,0.28);
+  border-radius:28px;
+  padding:26px;
   display:grid;
-  grid-template-columns:1.2fr 1fr;
+  grid-template-columns:minmax(0, 1.1fr) minmax(330px, 0.9fr);
   gap:20px;
   margin-bottom:24px;
   min-width:0;
   position:relative;
   overflow:hidden;
+  backdrop-filter:blur(14px);
+  box-shadow:
+    0 28px 80px rgba(0,0,0,0.38),
+    0 0 42px rgba(56,189,248,0.09),
+    inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .hero::before{
@@ -132,10 +151,17 @@ body::before{
   position:absolute;
   inset:0;
   background:
-    radial-gradient(circle at 86% 24%, rgba(34,197,94,0.12), transparent 18%),
-    linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-  transform:skewX(-16deg) translateX(-34%);
-  opacity:0.7;
+    linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation:profileGlowSweep 8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:12px;
+  border-radius:22px;
+  border:1px solid rgba(125,211,252,0.08);
   pointer-events:none;
 }
 
@@ -146,11 +172,11 @@ body::before{
 }
 
 .hero h1{
-  margin:0 0 8px;
-  font-size:clamp(1.8rem, 5vw, 2.7rem);
-  line-height:1.08;
+  margin:0;
+  font-size:clamp(2rem, 5vw, 3.25rem);
+  line-height:0.98;
   letter-spacing:0;
-  text-shadow:0 0 26px rgba(56,189,248,0.2);
+  text-shadow:0 0 28px rgba(56,189,248,0.28), 0 16px 30px rgba(0,0,0,0.32);
 }
 
 .hero p{
@@ -160,21 +186,84 @@ body::before{
 }
 
 .hero-badges{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:10px;
+  margin-top:22px;
 }
 
 .pill{
   max-width:100%;
-  padding:10px 14px;
-  border-radius:999px;
-  background:rgba(2,6,23,0.64);
-  border:1px solid rgba(148,163,184,0.2);
+  min-height:48px;
+  padding:11px 13px;
+  border-radius:14px;
+  background:
+    linear-gradient(135deg, rgba(15,23,42,0.78), rgba(2,6,23,0.62));
+  border:1px solid rgba(148,163,184,0.18);
   color:#e2e8f0;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow:0 14px 26px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.05);
   overflow-wrap:anywhere;
+  transition:transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pill:hover{
+  transform:translateY(-2px);
+  border-color:rgba(56,189,248,0.34);
+  box-shadow:0 18px 34px rgba(0,0,0,0.25), 0 0 20px rgba(56,189,248,0.08);
+}
+
+.profile-identity{
+  display:grid;
+  grid-template-columns:auto minmax(0, 1fr);
+  gap:18px;
+  align-items:center;
+}
+
+.profile-avatar{
+  width:86px;
+  height:86px;
+  border-radius:24px;
+  display:grid;
+  place-items:center;
+  color:#e0f2fe;
+  font-size:2rem;
+  font-weight:900;
+  background:
+    linear-gradient(135deg, rgba(56,189,248,0.24), rgba(167,139,250,0.18)),
+    rgba(2,6,23,0.76);
+  border:1px solid rgba(125,211,252,0.34);
+  box-shadow:0 18px 46px rgba(0,0,0,0.28), 0 0 32px rgba(56,189,248,0.16);
+}
+
+.profile-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  max-width:100%;
+  min-height:26px;
+  margin-bottom:10px;
+  padding:5px 9px;
+  border-radius:999px;
+  color:#7dd3fc;
+  background:rgba(56,189,248,0.1);
+  border:1px solid rgba(125,211,252,0.2);
+  font-size:0.72rem;
+  font-weight:900;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+}
+
+.profile-rank-title{
+  margin:10px 0 0;
+  color:#e0f2fe;
+  font-size:1.05rem;
+  font-weight:900;
+  text-shadow:0 0 18px rgba(56,189,248,0.2);
+}
+
+.profile-summary{
+  margin-top:14px;
+  max-width:620px;
 }
 
 .stats{
@@ -230,6 +319,11 @@ body::before{
   display:flex;
   flex-direction:column;
   justify-content:space-between;
+  gap:14px;
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 86% 0%, rgba(56,189,248,0.14), transparent 30%),
+    linear-gradient(145deg, rgba(15,23,42,0.86), rgba(2,6,23,0.96));
   transition:transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -248,6 +342,8 @@ body::before{
 
 .stat-card:hover{
   transform:translateY(-3px);
+  border-color:rgba(125,211,252,0.28);
+  box-shadow:0 24px 52px rgba(0,0,0,0.36), 0 0 24px rgba(56,189,248,0.08);
 }
 
 .stat-value{
@@ -260,6 +356,19 @@ body::before{
 .stat-label{
   color:var(--muted);
   line-height:1.35;
+}
+
+.stat-icon{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  color:#e0f2fe;
+  font-weight:900;
+  border:1px solid rgba(125,211,252,0.22);
+  background:linear-gradient(135deg, rgba(56,189,248,0.16), rgba(167,139,250,0.1));
+  box-shadow:0 0 22px rgba(56,189,248,0.1);
 }
 
 .layout{
@@ -2252,13 +2361,14 @@ body.sudoku-screen-shake{
 
 .season-pass{
   display:grid;
-  gap:14px;
-  border-radius:20px;
+  gap:16px;
+  border-radius:22px;
   background:
-    radial-gradient(circle at 90% 10%, rgba(56,189,248,0.18), transparent 28%),
-    linear-gradient(145deg, rgba(2,6,23,0.9), rgba(15,23,42,0.96)) !important;
-  border:1px solid rgba(56,189,248,0.2);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 18px 38px rgba(0,0,0,0.28);
+    radial-gradient(circle at 90% 10%, rgba(56,189,248,0.2), transparent 28%),
+    radial-gradient(circle at 12% 20%, rgba(34,197,94,0.12), transparent 28%),
+    linear-gradient(145deg, rgba(2,6,23,0.82), rgba(15,23,42,0.94)) !important;
+  border:1px solid rgba(56,189,248,0.24);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06), 0 20px 46px rgba(0,0,0,0.32);
 }
 
 .level-head{
@@ -2269,11 +2379,11 @@ body.sudoku-screen-shake{
 }
 
 .level-number{
-  font-size:2.65rem;
+  font-size:3rem;
   font-weight:bold;
   line-height:1;
   color:#f8fafc;
-  text-shadow:0 0 24px rgba(34,197,94,0.28);
+  text-shadow:0 0 28px rgba(56,189,248,0.32);
 }
 
 .level-meta{
@@ -2283,20 +2393,21 @@ body.sudoku-screen-shake{
 
 .progress-shell{
   width:100%;
-  height:18px;
+  height:20px;
   border-radius:999px;
-  background:rgba(2,6,23,0.92);
-  border:1px solid rgba(148,163,184,0.22);
+  padding:3px;
+  background:linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.86));
+  border:1px solid rgba(125,211,252,0.22);
   overflow:hidden;
-  box-shadow:inset 0 2px 8px rgba(0,0,0,0.4), 0 0 18px rgba(56,189,248,0.1);
+  box-shadow:inset 0 2px 8px rgba(0,0,0,0.48), 0 0 22px rgba(56,189,248,0.12);
 }
 
 .progress-fill{
   width:0%;
   height:100%;
   border-radius:inherit;
-  background:linear-gradient(90deg, #22c55e, #38bdf8, #f59e0b);
-  box-shadow:0 0 18px rgba(56,189,248,0.34), inset 0 1px 0 rgba(255,255,255,0.3);
+  background:linear-gradient(90deg, #22c55e, #38bdf8 54%, #a78bfa);
+  box-shadow:0 0 22px rgba(56,189,248,0.4), inset 0 1px 0 rgba(255,255,255,0.36);
   transition:width 0.45s ease;
 }
 
@@ -2311,9 +2422,79 @@ body.sudoku-screen-shake{
 .reward-preview{
   padding:14px;
   border-radius:14px;
-  background:linear-gradient(135deg, rgba(56,189,248,0.12), rgba(34,197,94,0.08));
+  background:
+    linear-gradient(135deg, rgba(56,189,248,0.12), rgba(34,197,94,0.08));
   border:1px solid rgba(56,189,248,0.2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.rank-path{
+  display:grid;
+  gap:10px;
+}
+
+.rank-path-title{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  color:#cbd5e1;
+  font-size:0.82rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+.rank-path-list{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:8px;
+}
+
+.rank-node{
+  min-width:0;
+  min-height:94px;
+  padding:11px;
+  border-radius:15px;
+  border:1px solid rgba(148,163,184,0.14);
+  background:linear-gradient(145deg, rgba(15,23,42,0.8), rgba(2,6,23,0.8));
+  color:#cbd5e1;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.rank-node.current{
+  border-color:rgba(56,189,248,0.48);
+  background:linear-gradient(145deg, rgba(14,116,144,0.24), rgba(2,6,23,0.82));
+  animation:rankPulse 3.2s ease-in-out infinite;
+}
+
+.rank-node.locked{
+  opacity:0.78;
+}
+
+.rank-node-level{
+  display:block;
+  margin-bottom:7px;
+  color:#7dd3fc;
+  font-size:0.72rem;
+  font-weight:900;
+}
+
+.rank-node-name{
+  display:block;
+  color:#f8fafc;
+  font-size:0.88rem;
+  line-height:1.22;
+  font-weight:900;
+  overflow-wrap:anywhere;
+}
+
+.rank-node-state{
+  display:block;
+  margin-top:8px;
+  color:#94a3b8;
+  font-size:0.72rem;
+  font-weight:800;
 }
 
 .reward-preview small,
@@ -2382,6 +2563,10 @@ body.sudoku-screen-shake{
   .profile-card{
     border-radius:18px;
   }
+
+  .rank-path-list{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width:560px){
@@ -2410,6 +2595,18 @@ body.sudoku-screen-shake{
     margin-bottom:14px;
   }
 
+  .profile-identity{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+
+  .profile-avatar{
+    width:64px;
+    height:64px;
+    border-radius:18px;
+    font-size:1.45rem;
+  }
+
   .hero h1{
     font-size:1.65rem;
     overflow-wrap:anywhere;
@@ -2435,6 +2632,16 @@ body.sudoku-screen-shake{
     padding:9px 11px;
     border-radius:12px;
     overflow-wrap:anywhere;
+  }
+
+  .profile-eyebrow{
+    width:100%;
+    justify-content:center;
+    text-align:center;
+  }
+
+  .profile-rank-title{
+    font-size:0.98rem;
   }
 
   .stats{
@@ -2693,6 +2900,18 @@ body.sudoku-screen-shake{
     gap:6px;
   }
 
+  .rank-path-title{
+    display:grid;
+  }
+
+  .rank-path-list{
+    grid-template-columns:1fr;
+  }
+
+  .rank-node{
+    min-height:auto;
+  }
+
   .level-row{
     grid-template-columns:34px minmax(0, 1fr);
   }
@@ -2727,11 +2946,18 @@ body.sudoku-screen-shake{
   </div>
 
   <section class="hero card profile-card">
-    <div>
-      <h1 id="nombreUsuario">Jugador</h1>
-      <p id="perfilResumen">Cargando perfil...</p>
+    <div class="profile-hero-main">
+      <div class="profile-identity">
+        <div class="profile-avatar" id="perfilAvatar">J</div>
+        <div>
+          <span class="profile-eyebrow">Perfil competitivo</span>
+          <h1 id="nombreUsuario">Jugador</h1>
+          <div class="profile-rank-title" id="perfilTituloRango">Novato</div>
+        </div>
+      </div>
+      <p id="perfilResumen" class="profile-summary">Cargando perfil...</p>
       <div class="hero-badges">
-        <div class="pill" id="pillUsuario">Usuario: -</div>
+        <div class="pill" id="pillUsuario">ID: -</div>
         <div class="pill" id="pillPartidas">Partidas: 0</div>
         <div class="pill" id="pillMedallas">Medallas: 0</div>
         <div class="pill" id="pillNivel">Nivel: 1</div>
@@ -2754,6 +2980,13 @@ body.sudoku-screen-shake{
         <span id="xpNivelDetalle">0 / 100 XP</span>
         <span id="xpRestante">Faltan 100 XP</span>
       </div>
+      <div class="rank-path">
+        <div class="rank-path-title">
+          <span>Ruta de rangos</span>
+          <span id="rangoProgresoTexto">24 niveles restantes para Amateur</span>
+        </div>
+        <div class="rank-path-list" id="rangoRutaList"></div>
+      </div>
       <div class="reward-preview">
         <small>Proxima recompensa</small>
         <div id="recompensaSiguiente">Cargando recompensa...</div>
@@ -2763,20 +2996,32 @@ body.sudoku-screen-shake{
 
   <section class="stats">
     <article class="card profile-card stat-card">
-      <div class="stat-value" id="statJuegos">0</div>
-      <div class="stat-label">Juegos registrados</div>
+      <div class="stat-icon">JG</div>
+      <div>
+        <div class="stat-value" id="statJuegos">0</div>
+        <div class="stat-label">Juegos registrados</div>
+      </div>
     </article>
     <article class="card profile-card stat-card">
-      <div class="stat-value" id="statOros">0</div>
-      <div class="stat-label">Medallas de oro</div>
+      <div class="stat-icon">OR</div>
+      <div>
+        <div class="stat-value" id="statOros">0</div>
+        <div class="stat-label">Medallas de oro</div>
+      </div>
     </article>
     <article class="card profile-card stat-card">
-      <div class="stat-value" id="statPodios">0</div>
-      <div class="stat-label">Podios</div>
+      <div class="stat-icon">PD</div>
+      <div>
+        <div class="stat-value" id="statPodios">0</div>
+        <div class="stat-label">Podios</div>
+      </div>
     </article>
     <article class="card profile-card stat-card">
-      <div class="stat-value" id="statMejor">-</div>
-      <div class="stat-label">Mejor posicion</div>
+      <div class="stat-icon">RK</div>
+      <div>
+        <div class="stat-value" id="statMejor">-</div>
+        <div class="stat-label">Mejor posicion</div>
+      </div>
     </article>
   </section>
 
