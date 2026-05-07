@@ -1,7 +1,6 @@
 import {
   BOOSTERS_XP,
   COSMETICOS,
-  ORDEN_RAREZAS_TIENDA,
   PAQUETES_MONEDAS,
   comprarBooster,
   comprarCosmetico,
@@ -19,6 +18,7 @@ const boosterList = document.getElementById("storeBoosters")
 const coinList = document.getElementById("storeCoinsPackages")
 const cosmeticsList = document.getElementById("storeCosmetics")
 const cosmeticTabs = [...document.querySelectorAll("[data-cosmetic-tab]")]
+const rarityTabs = [...document.querySelectorAll("[data-rarity-tab]")]
 const statusEl = document.getElementById("storeStatus")
 const coinsEl = document.getElementById("storeCoins")
 const activeEl = document.getElementById("storeActiveBooster")
@@ -27,6 +27,7 @@ const closeButtons = document.querySelectorAll("[data-close-store]")
 
 let timer = null
 let cosmeticTabActiva = "fondo"
+let rarezaTabActiva = "Normal"
 
 function usuarioActual() {
   return localStorage.getItem("usuario") || localStorage.getItem("ultimo_usuario") || ""
@@ -47,6 +48,13 @@ function initStore() {
     button.addEventListener("click", () => {
       cosmeticTabActiva = button.dataset.cosmeticTab || "fondo"
       cosmeticTabs.forEach((tab) => tab.classList.toggle("active", tab === button))
+      renderCosmeticos()
+    })
+  })
+  rarityTabs.forEach((button) => {
+    button.addEventListener("click", () => {
+      rarezaTabActiva = button.dataset.rarityTab || "Normal"
+      rarityTabs.forEach((tab) => tab.classList.toggle("active", tab === button))
       renderCosmeticos()
     })
   })
@@ -146,7 +154,7 @@ function renderCategoriaCosmeticos(categoria) {
         <strong>${itemsCategoria.length} piezas</strong>
       </header>
       <div class="cosmetic-rarity-stack">
-        ${ORDEN_RAREZAS_TIENDA.map((rareza) => renderRarezaCosmeticos(itemsCategoria, rareza)).join("")}
+        ${renderRarezaCosmeticos(itemsCategoria, rarezaTabActiva)}
       </div>
     </section>
   `

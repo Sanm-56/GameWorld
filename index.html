@@ -572,9 +572,9 @@ h1{
     linear-gradient(180deg, rgba(15,23,42,0.48), rgba(2,6,23,0.28));
 }
 
-.cosmetic-tabs{
+.cosmetic-tabs,
+.rarity-tabs{
   display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:8px;
   padding:6px;
   border:1px solid rgba(148,163,184,0.14);
@@ -582,7 +582,16 @@ h1{
   background:rgba(2,6,23,0.42);
 }
 
-.cosmetic-tabs button{
+.cosmetic-tabs{
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+}
+
+.rarity-tabs{
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+}
+
+.cosmetic-tabs button,
+.rarity-tabs button{
   min-height:40px;
   border:1px solid transparent;
   border-radius:12px;
@@ -596,13 +605,16 @@ h1{
 }
 
 .cosmetic-tabs button:hover,
-.cosmetic-tabs button.active{
+.cosmetic-tabs button.active,
+.rarity-tabs button:hover,
+.rarity-tabs button.active{
   color:white;
   border-color:rgba(125,211,252,0.26);
   background:linear-gradient(135deg, rgba(14,165,233,0.18), rgba(124,58,237,0.14));
 }
 
-.cosmetic-tabs button:hover{
+.cosmetic-tabs button:hover,
+.rarity-tabs button:hover{
   transform:translateY(-1px);
 }
 
@@ -1125,6 +1137,10 @@ h1{
     grid-template-columns:1fr;
   }
 
+  .rarity-tabs{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
   .ranking-head,
   .ranking-body{
     padding-left:16px;
@@ -1299,6 +1315,14 @@ h1{
             <button class="active" type="button" data-cosmetic-tab="fondo">Fondos</button>
             <button type="button" data-cosmetic-tab="id">IDs</button>
             <button type="button" data-cosmetic-tab="marco">Marcos</button>
+          </div>
+          <div class="rarity-tabs" role="tablist" aria-label="Rarezas de personalizacion">
+            <button class="active" type="button" data-rarity-tab="Normal">Normal</button>
+            <button type="button" data-rarity-tab="Raro">Raro</button>
+            <button type="button" data-rarity-tab="Epico">Epico</button>
+            <button type="button" data-rarity-tab="Legendario">Legendario</button>
+            <button type="button" data-rarity-tab="Mitico">Mitico</button>
+            <button type="button" data-rarity-tab="Prohibido">Prohibido</button>
           </div>
           <div class="store-list" id="storeCosmetics"></div>
         </section>
