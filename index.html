@@ -561,6 +561,59 @@ h1{
   background:rgba(2,6,23,0.32);
 }
 
+.cosmetic-category{
+  display:grid;
+  gap:14px;
+  padding:16px;
+  border:1px solid rgba(125,211,252,0.14);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(56,189,248,0.08), transparent 34%),
+    linear-gradient(180deg, rgba(15,23,42,0.48), rgba(2,6,23,0.28));
+}
+
+.cosmetic-category-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid rgba(148,163,184,0.12);
+}
+
+.cosmetic-category-head span,
+.cosmetic-category-head strong{
+  display:block;
+  color:#f8fafc;
+  font-weight:1000;
+}
+
+.cosmetic-category-head span{
+  font-size:18px;
+}
+
+.cosmetic-category-head small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  line-height:1.35;
+}
+
+.cosmetic-category-head strong{
+  flex:0 0 auto;
+  padding:7px 10px;
+  border:1px solid rgba(125,211,252,0.16);
+  border-radius:999px;
+  color:#bfdbfe;
+  background:rgba(15,23,42,0.64);
+  font-size:12px;
+}
+
+.cosmetic-rarity-stack{
+  display:grid;
+  gap:12px;
+}
+
 .rarity-head{
   display:flex;
   align-items:center;

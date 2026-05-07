@@ -107,28 +107,54 @@ async function renderTienda() {
 }
 
 function renderCosmeticos() {
-  cosmeticsList.innerHTML = ORDEN_RAREZAS_TIENDA
-    .map((rareza) => {
-      const items = COSMETICOS.filter((item) => item.rareza === rareza)
-      if (!items.length) return ""
-
-      return `
-        <section class="rarity-section rarity-${rarezaClase(rareza)}">
-          <header class="rarity-head">
-            <span>${escapeHtml(rarezaEtiqueta(rareza))}</span>
-            <small>${items.length} piezas</small>
-          </header>
-          <div class="cosmetic-grid">
-            ${items.map(renderCosmetico).join("")}
-          </div>
-        </section>
-      `
-    })
+  cosmeticsList.innerHTML = [
+    { tipo: "fondo", titulo: "Fondos", detalle: "Banners y atmosferas de perfil." },
+    { tipo: "id", titulo: "IDs", detalle: "Identidades visuales para destacar tu nombre." },
+    { tipo: "marco", titulo: "Marcos", detalle: "Bordes competitivos para tarjetas y ranking." },
+  ]
+    .map(renderCategoriaCosmeticos)
     .join("")
 
   cosmeticsList.querySelectorAll("[data-buy-cosmetic]").forEach((button) => {
     button.addEventListener("click", () => comprarConMonedas("cosmetico", button.dataset.buyCosmetic))
   })
+}
+
+function renderCategoriaCosmeticos(categoria) {
+  const itemsCategoria = COSMETICOS.filter((item) => item.tipo === categoria.tipo)
+  if (!itemsCategoria.length) return ""
+
+  return `
+    <section class="cosmetic-category">
+      <header class="cosmetic-category-head">
+        <div>
+          <span>${escapeHtml(categoria.titulo)}</span>
+          <small>${escapeHtml(categoria.detalle)}</small>
+        </div>
+        <strong>${itemsCategoria.length} piezas</strong>
+      </header>
+      <div class="cosmetic-rarity-stack">
+        ${ORDEN_RAREZAS_TIENDA.map((rareza) => renderRarezaCosmeticos(itemsCategoria, rareza)).join("")}
+      </div>
+    </section>
+  `
+}
+
+function renderRarezaCosmeticos(itemsCategoria, rareza) {
+  const items = itemsCategoria.filter((item) => item.rareza === rareza)
+  if (!items.length) return ""
+
+  return `
+    <section class="rarity-section rarity-${rarezaClase(rareza)}">
+      <header class="rarity-head">
+        <span>${escapeHtml(rarezaEtiqueta(rareza))}</span>
+        <small>${items.length} piezas</small>
+      </header>
+      <div class="cosmetic-grid">
+        ${items.map(renderCosmetico).join("")}
+      </div>
+    </section>
+  `
 }
 
 function renderCosmetico(item) {
