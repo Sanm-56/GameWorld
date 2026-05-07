@@ -56,6 +56,27 @@ const recompensaSiguienteEl = document.getElementById('recompensaSiguiente')
 const rankingNivelListEl = document.getElementById('rankingNivelList')
 const rangoRutaListEl = document.getElementById('rangoRutaList')
 const rangoProgresoTextoEl = document.getElementById('rangoProgresoTexto')
+const perfilHeroEl = document.querySelector('.hero.profile-card')
+
+const RANGOS_VISUALES = {
+  novato: { tier: 'novato', emblem: 'NV' },
+  amateur: { tier: 'amateur', emblem: 'AM' },
+  aspirante: { tier: 'aspirante', emblem: 'AS' },
+  profesional: { tier: 'profesional', emblem: 'PR' },
+  competidor: { tier: 'competidor', emblem: 'CP' },
+  experto: { tier: 'experto', emblem: 'EX' },
+  elite: { tier: 'elite', emblem: 'EL' },
+  maestro: { tier: 'maestro', emblem: 'MA' },
+  'gran maestro': { tier: 'gran-maestro', emblem: 'GM' },
+  leyenda: { tier: 'leyenda', emblem: 'LY' },
+  mitico: { tier: 'mitico', emblem: 'MT' },
+  supremo: { tier: 'supremo', emblem: 'SP' },
+  titan: { tier: 'titan', emblem: 'TN' },
+  inmortal: { tier: 'inmortal', emblem: 'IM' },
+  'leyenda maxima': { tier: 'leyenda-maxima', emblem: 'LM' },
+}
+
+let rutaDragInstalado = false
 
 function formatearTiempo(segundos) {
   if (typeof segundos !== 'number' || Number.isNaN(segundos)) return '-'
@@ -67,6 +88,51 @@ function formatearTiempo(segundos) {
 function inicialesUsuario(valor) {
   const limpio = String(valor || 'J').trim()
   return limpio.slice(0, 2).toUpperCase()
+}
+
+function normalizarTextoVisual(valor) {
+  return String(valor || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
+function obtenerVisualRango(titulo) {
+  const clave = normalizarTextoVisual(titulo)
+  const visual = RANGOS_VISUALES[clave]
+
+  if (visual) return visual
+
+  const partes = clave.split(/\s+/).filter(Boolean)
+  const iniciales = partes.length
+    ? partes.slice(0, 2).map((parte) => parte[0]).join('').toUpperCase()
+    : 'RX'
+
+  return {
+    tier: 'ascendido',
+    emblem: iniciales,
+  }
+}
+
+function aplicarVisualRangoActual(titulo) {
+  const visual = obtenerVisualRango(titulo)
+
+  document.body.dataset.rankTier = visual.tier
+  if (perfilHeroEl) perfilHeroEl.dataset.rankTier = visual.tier
+  if (perfilAvatarEl) perfilAvatarEl.dataset.rankEmblem = visual.emblem
+  if (perfilTituloRangoEl) perfilTituloRangoEl.dataset.rankEmblem = visual.emblem
+}
+
+function renderPill(el, label, value) {
+  if (!el) return
+
+  el.innerHTML = `
+    <span>
+      <span class="pill-label">${escaparHtml(label)}</span>
+      <span class="pill-value">${escaparHtml(value)}</span>
+    </span>
+  `
 }
 
 function obtenerRangoVisual(nivelActual) {
@@ -105,18 +171,31 @@ function renderRutaRangos(progreso) {
     const esActual = nivel >= rango.desde && nivel <= rango.hasta
     const estado = esActual ? 'Actual' : 'Bloqueado'
     const clase = esActual ? 'current' : 'locked'
+    const visual = obtenerVisualRango(rango.titulo)
     const rangoTexto = rango.desde === rango.hasta
       ? `Nivel ${rango.desde}`
       : `Nivel ${rango.desde}-${rango.hasta}`
 
     return `
-      <div class="rank-node ${clase}">
-        <span class="rank-node-level">${rangoTexto}</span>
+      <div class="rank-node ${clase}" data-rank-tier="${visual.tier}">
+        <div class="rank-node-head">
+          <span class="rank-node-emblem">${escaparHtml(visual.emblem)}</span>
+          <span class="rank-node-level">${rangoTexto}</span>
+        </div>
         <span class="rank-node-name">${escaparHtml(rango.titulo)}</span>
         <span class="rank-node-state">${index === 0 ? estado : 'Proximo rango'}</span>
       </div>
     `
   }).join('')
+
+  instalarDragRutaRangos()
+
+  const nodoActual = rangoRutaListEl.querySelector('.rank-node.current')
+  if (nodoActual) {
+    requestAnimationFrame(() => {
+      nodoActual.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    })
+  }
 
   if (!rangoProgresoTextoEl) return
 
@@ -127,6 +206,73 @@ function renderRutaRangos(progreso) {
 
   const restantes = Math.max(0, siguiente.desde - nivel)
   rangoProgresoTextoEl.innerText = `${restantes} niveles restantes para ${siguiente.titulo}`
+}
+
+function instalarDragRutaRangos() {
+  if (!rangoRutaListEl || rutaDragInstalado) return
+
+  rutaDragInstalado = true
+  let activo = false
+  let inicioX = 0
+  let scrollInicial = 0
+  let ultimoX = 0
+  let ultimaMarca = 0
+  let velocidad = 0
+  let raf = null
+
+  const detenerInercia = () => {
+    if (raf) cancelAnimationFrame(raf)
+    raf = null
+  }
+
+  const animarInercia = () => {
+    if (Math.abs(velocidad) < 0.08) {
+      raf = null
+      return
+    }
+
+    rangoRutaListEl.scrollLeft -= velocidad * 16
+    velocidad *= 0.92
+    raf = requestAnimationFrame(animarInercia)
+  }
+
+  rangoRutaListEl.addEventListener('pointerdown', (event) => {
+    if (event.button !== undefined && event.button !== 0) return
+    activo = true
+    inicioX = event.clientX
+    scrollInicial = rangoRutaListEl.scrollLeft
+    ultimoX = event.clientX
+    ultimaMarca = performance.now()
+    velocidad = 0
+    detenerInercia()
+    rangoRutaListEl.classList.add('dragging')
+    rangoRutaListEl.setPointerCapture?.(event.pointerId)
+  })
+
+  rangoRutaListEl.addEventListener('pointermove', (event) => {
+    if (!activo) return
+
+    const ahora = performance.now()
+    const dx = event.clientX - inicioX
+    const dt = Math.max(16, ahora - ultimaMarca)
+    velocidad = (event.clientX - ultimoX) / dt
+    rangoRutaListEl.scrollLeft = scrollInicial - dx
+    ultimoX = event.clientX
+    ultimaMarca = ahora
+    event.preventDefault()
+  })
+
+  const finalizarDrag = (event) => {
+    if (!activo) return
+    activo = false
+    rangoRutaListEl.classList.remove('dragging')
+    rangoRutaListEl.releasePointerCapture?.(event.pointerId)
+    animarInercia()
+  }
+
+  rangoRutaListEl.addEventListener('pointerup', finalizarDrag)
+  rangoRutaListEl.addEventListener('pointercancel', finalizarDrag)
+  rangoRutaListEl.addEventListener('pointerleave', finalizarDrag)
 }
 
 function getEstado(result) {
@@ -197,6 +343,11 @@ async function cargarPerfil() {
     nombreUsuarioEl.innerText = 'Sin sesion'
     if (perfilAvatarEl) perfilAvatarEl.innerText = '??'
     if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = 'Sin rango'
+    aplicarVisualRangoActual('Novato')
+    renderPill(pillUsuarioEl, 'ID', '-')
+    renderPill(pillPartidasEl, 'Partidas', '0')
+    renderPill(pillMedallasEl, 'Medallas', '0')
+    renderPill(pillNivelEl, 'Nivel', '1')
     perfilResumenEl.innerText = 'Todavia no hay un usuario activo en este navegador.'
     perfilEstadoEl.innerText = 'Primero entra a cualquier juego con tu apodo y codigo para construir tu perfil.'
     medallasListEl.innerHTML = '<div class="empty">Aun no hay medallas para mostrar.</div>'
@@ -211,7 +362,7 @@ async function cargarPerfil() {
 
   nombreUsuarioEl.innerText = usuario
   if (perfilAvatarEl) perfilAvatarEl.innerText = inicialesUsuario(usuario)
-  pillUsuarioEl.innerText = `ID: ${usuario}`
+  renderPill(pillUsuarioEl, 'ID', usuario)
   aplicarPersonalizacionUsuario(document.querySelector('.hero.profile-card'), usuario)
 
   const { data: userData } = await supabase
@@ -253,8 +404,8 @@ async function cargarPerfil() {
   statOrosEl.innerText = String(oros.length)
   statPodiosEl.innerText = String(podios)
   statMejorEl.innerText = mejorPosicion ? `#${mejorPosicion}` : '-'
-  pillPartidasEl.innerText = `Partidas: ${resultados.length}`
-  pillMedallasEl.innerText = `Medallas: ${podios}`
+  renderPill(pillPartidasEl, 'Partidas', String(resultados.length))
+  renderPill(pillMedallasEl, 'Medallas', String(podios))
 
   perfilResumenEl.innerText = resultados.length
     ? `Tienes progreso registrado en ${resultados.length} juegos del torneo.`
@@ -3892,8 +4043,9 @@ async function renderProgresoNivel() {
     barraNivelEl.style.width = '0%'
     xpNivelDetalleEl.innerText = '0 / 100 XP'
     xpRestanteEl.innerText = 'Faltan 100 XP'
-    pillNivelEl.innerText = 'Nivel: 1'
+    renderPill(pillNivelEl, 'Nivel', '1')
     if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = 'Sin rango'
+    aplicarVisualRangoActual('Novato')
     recompensaSiguienteEl.innerText = 'Inicia sesion para ver recompensas.'
     renderRutaRangos({ nivel: 1 })
     rankingNivelListEl.innerHTML = '<div class="empty">No hay ranking de nivel disponible.</div>'
@@ -3911,8 +4063,9 @@ async function renderProgresoNivel() {
   xpActualEl.innerText = `${progreso.xp} XP del nivel`
   porcentajeNivelEl.innerText = `${progreso.porcentaje}%`
   barraNivelEl.style.width = `${progreso.porcentaje}%`
-  pillNivelEl.innerText = `Nivel: ${progreso.nivel} - ${tituloNivel}`
+  renderPill(pillNivelEl, 'Nivel / rango', `${progreso.nivel} - ${tituloNivel}`)
   if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = tituloNivel
+  aplicarVisualRangoActual(tituloNivel)
   renderRutaRangos(progreso)
 
   if (progreso.nivel >= NIVEL_MAXIMO) {
