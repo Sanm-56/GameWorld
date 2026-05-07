@@ -1,9 +1,23 @@
-import { BOOSTERS_XP, COSMETICOS, comprarBooster, comprarCosmetico, descontarMonedasDemo, obtenerBoosterActivo, obtenerMonedasDemo, tiempoRestante } from "./tienda.js"
+import {
+  BOOSTERS_XP,
+  COSMETICOS,
+  PAQUETES_MONEDAS,
+  comprarBooster,
+  comprarCosmetico,
+  descontarMonedas,
+  obtenerBoosterActivo,
+  obtenerMonedas,
+  rarezaClase,
+  rarezaEtiqueta,
+  tiempoRestante,
+} from "./tienda.js"
 import { escapeHtml, safeAlert } from "./mensajes.js"
 
 const modal = document.getElementById("storeModal")
 const boosterList = document.getElementById("storeBoosters")
+const coinList = document.getElementById("storeCoinsPackages")
 const cosmeticsList = document.getElementById("storeCosmetics")
+const cosmeticsFilter = document.getElementById("storeCosmeticsFilter")
 const statusEl = document.getElementById("storeStatus")
 const coinsEl = document.getElementById("storeCoins")
 const activeEl = document.getElementById("storeActiveBooster")
@@ -27,6 +41,7 @@ function initStore() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal.classList.contains("abierto")) cerrarTienda()
   })
+  cosmeticsFilter?.addEventListener("change", renderCosmeticos)
 }
 
 async function abrirTienda() {
@@ -51,7 +66,7 @@ async function renderTienda() {
     statusEl.textContent = "Los boosters se activan automaticamente al comprar."
   }
 
-  coinsEl.textContent = `${obtenerMonedasDemo(usuario)} monedas`
+  coinsEl.textContent = `${obtenerMonedas(usuario)} monedas`
   await actualizarBoosterActivo()
 
   boosterList.innerHTML = BOOSTERS_XP.map((booster) => `
@@ -60,29 +75,54 @@ async function renderTienda() {
         <strong>${escapeHtml(booster.nombre)}</strong>
         <span>${duracionLabel(booster.duracionMs)} - ${booster.precio} monedas</span>
       </div>
-      <button type="button" data-buy-booster="${booster.id}">Comprar</button>
+      <div class="store-actions-inline">
+        <button type="button" data-buy-booster="${booster.id}">Monedas</button>
+        <button type="button" data-real-buy="booster:${booster.id}">${booster.precioReal}</button>
+      </div>
     </article>
   `).join("")
 
-  cosmeticsList.innerHTML = COSMETICOS.map((item) => `
-    <article class="store-item rarity-${item.rareza.toLowerCase()}">
+  coinList.innerHTML = PAQUETES_MONEDAS.map((paquete) => `
+    <article class="store-item">
+      <div>
+        <strong>${paquete.cantidad.toLocaleString("es-CO")} monedas</strong>
+        <span>Compra futura con dinero real</span>
+      </div>
+      <button type="button" data-real-buy="coins:${paquete.id}">${paquete.precioReal}</button>
+    </article>
+  `).join("")
+
+  renderCosmeticos()
+
+  boosterList.querySelectorAll("[data-buy-booster]").forEach((button) => {
+    button.addEventListener("click", () => comprarConMonedas("booster", button.dataset.buyBooster))
+  })
+  modal.querySelectorAll("[data-real-buy]").forEach((button) => {
+    button.addEventListener("click", compraRealPendiente)
+  })
+}
+
+function renderCosmeticos() {
+  const filtro = cosmeticsFilter?.value || "todos"
+  const visibles = COSMETICOS.filter((item) => filtro === "todos" || item.tipo === filtro)
+
+  cosmeticsList.innerHTML = visibles.map((item) => `
+    <article class="store-item store-cosmetic rarity-${rarezaClase(item.rareza)}">
       <div>
         <strong>${escapeHtml(item.nombre)}</strong>
-        <span>${escapeHtml(item.tipo)} - ${escapeHtml(item.rareza)} - ${item.precio} monedas</span>
+        <span>${escapeHtml(item.categoria)} - ${escapeHtml(rarezaEtiqueta(item.rareza))} - ${item.precio} monedas</span>
+        <small>${escapeHtml(item.diseno.tema)} / ${escapeHtml(item.diseno.patron)} / brillo ${item.diseno.brillo}</small>
       </div>
       <button type="button" data-buy-cosmetic="${item.id}">Comprar</button>
     </article>
   `).join("")
 
-  boosterList.querySelectorAll("[data-buy-booster]").forEach((button) => {
-    button.addEventListener("click", () => comprar("booster", button.dataset.buyBooster))
-  })
   cosmeticsList.querySelectorAll("[data-buy-cosmetic]").forEach((button) => {
-    button.addEventListener("click", () => comprar("cosmetico", button.dataset.buyCosmetic))
+    button.addEventListener("click", () => comprarConMonedas("cosmetico", button.dataset.buyCosmetic))
   })
 }
 
-async function comprar(tipo, id) {
+async function comprarConMonedas(tipo, id) {
   const usuario = usuarioActual()
   if (!usuario) {
     safeAlert("Primero entra a un juego con tu apodo.")
@@ -93,7 +133,7 @@ async function comprar(tipo, id) {
     ? BOOSTERS_XP.find((booster) => booster.id === id)
     : COSMETICOS.find((cosmetico) => cosmetico.id === id)
 
-  if (!item || !descontarMonedasDemo(usuario, item.precio)) {
+  if (!item || !descontarMonedas(usuario, item.precio, { tipo, id })) {
     safeAlert("No tienes monedas suficientes.")
     return
   }
@@ -103,12 +143,16 @@ async function comprar(tipo, id) {
     : await comprarCosmetico(usuario, id)
 
   if (!resultado.ok) {
-    statusEl.textContent = "Compra guardada localmente. Aplica la tabla SQL para sincronizarla globalmente."
+    statusEl.textContent = "Compra guardada para este usuario. La sincronizacion remota no esta disponible."
   } else {
     statusEl.textContent = "Compra activada."
   }
 
   await renderTienda()
+}
+
+function compraRealPendiente() {
+  statusEl.textContent = "Compra con dinero real preparada visualmente. La pasarela de pago todavia no esta conectada."
 }
 
 async function actualizarBoosterActivo() {

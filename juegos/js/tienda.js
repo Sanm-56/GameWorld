@@ -1,22 +1,43 @@
 import { supabase } from "./supabase.js"
 
 export const BOOSTERS_XP = [
-  { id: "xp2_24h", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 24 * 60 * 60 * 1000, precio: 1200 },
-  { id: "xp2_3d", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 3 * 24 * 60 * 60 * 1000, precio: 2800 },
-  { id: "xp4_30d", nombre: "Booster XP x4", multiplicador: 4, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 15000 },
+  { id: "xp2_24h", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 24 * 60 * 60 * 1000, precio: 1200, precioReal: "$1.99" },
+  { id: "xp2_3d", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 3 * 24 * 60 * 60 * 1000, precio: 2800, precioReal: "$3.99" },
+  { id: "xp4_30d", nombre: "Booster XP x4", multiplicador: 4, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 15000, precioReal: "$14.99" },
+]
+
+export const PAQUETES_MONEDAS = [
+  { id: "coins_1000", cantidad: 1000, precioReal: "$0.99" },
+  { id: "coins_5000", cantidad: 5000, precioReal: "$3.99" },
+  { id: "coins_10000", cantidad: 10000, precioReal: "$6.99" },
+  { id: "coins_25000", cantidad: 25000, precioReal: "$14.99" },
+]
+
+const RAREZAS = [
+  { nombre: "Normal", precio: 500, clase: "normal" },
+  { nombre: "Poco comun", etiqueta: "Poco común", precio: 950, clase: "poco-comun" },
+  { nombre: "Raro", precio: 1600, clase: "raro" },
+  { nombre: "Epico", etiqueta: "Épico", precio: 3200, clase: "epico" },
+  { nombre: "Legendario", precio: 6200, clase: "legendario" },
+  { nombre: "Mitico", etiqueta: "Mítico", precio: 11000, clase: "mitico" },
+]
+
+const TEMAS_VISUALES = [
+  "Neon", "Aurora", "Solar", "Lunar", "Quantum", "Cyber", "Titan", "Nova", "Obsidiana", "Cristal",
+  "Vortex", "Arcade", "Prisma", "Zenit", "Eclipse", "Omega", "Vector", "Plasma", "Onix", "Radiant",
 ]
 
 export const COSMETICOS = [
-  { id: "fondo_neon", tipo: "fondo", nombre: "Fondo Neon", rareza: "Raro", precio: 1600 },
-  { id: "tarjeta_celeste", tipo: "tarjeta", nombre: "Tarjeta Celeste", rareza: "Normal", precio: 700 },
-  { id: "id_relampago", tipo: "id", nombre: "ID Relampago", rareza: "Epico", precio: 3200 },
-  { id: "marco_corona", tipo: "marco", nombre: "Marco Corona", rareza: "Legendario", precio: 6200 },
-  { id: "efecto_mistico", tipo: "efecto", nombre: "Efecto Mistico", rareza: "Mitico", precio: 11000 },
+  ...generarCosmeticos("fondo", "Fondo", 100),
+  ...generarCosmeticos("id", "ID", 100),
+  ...generarCosmeticos("marco", "Marco", 100),
 ]
 
 const BOOSTER_LOCAL_KEY = "tienda_boosters_usuario"
 const COSMETICOS_LOCAL_KEY = "tienda_cosmeticos_usuario"
-const MONEDAS_LOCAL_KEY = "tienda_monedas_usuario"
+const MONEDAS_LOCAL_KEY = "monedas_usuario_saldos"
+const MONEDAS_HISTORIAL_KEY = "monedas_usuario_historial"
+const MONEDAS_POR_ACTIVIDAD = 100
 
 export async function obtenerBonusUsuario(usuario) {
   const activo = await obtenerBoosterActivo(usuario)
@@ -87,13 +108,26 @@ export async function comprarCosmetico(usuario, cosmeticoId) {
     rareza: cosmetico.rareza,
     equipado: true,
     created_at: new Date().toISOString(),
+    nombre: cosmetico.nombre,
+    categoria: cosmetico.categoria,
+    diseno: cosmetico.diseno,
+    rareza_visual: cosmetico.rareza,
   }
 
   guardarCosmeticoLocal(usuario, payload)
 
+  const remoto = {
+    usuario_id: payload.usuario_id,
+    cosmetico_id: payload.cosmetico_id,
+    tipo: payload.tipo,
+    rareza: rarezaCompatibleSupabase(payload.rareza),
+    equipado: payload.equipado,
+    created_at: payload.created_at,
+  }
+
   const { error } = await supabase
     .from("usuario_cosmeticos")
-    .upsert(payload, { onConflict: "usuario_id,cosmetico_id" })
+    .upsert(remoto, { onConflict: "usuario_id,cosmetico_id" })
 
   if (error) {
     console.warn("No se pudo guardar cosmetico en Supabase", error)
@@ -121,27 +155,51 @@ export async function obtenerCosmeticoEquipado(usuario) {
     return local
   }
 
-  return data || local
+  return local || data
 }
 
-export function obtenerMonedasDemo(usuario) {
+export function obtenerMonedas(usuario) {
   if (!usuario) return 0
   const monedas = Number(leerObjeto(MONEDAS_LOCAL_KEY)[usuario])
   if (Number.isFinite(monedas) && monedas >= 0) return monedas
-  const iniciales = leerObjeto(MONEDAS_LOCAL_KEY)
-  iniciales[usuario] = 25000
-  localStorage.setItem(MONEDAS_LOCAL_KEY, JSON.stringify(iniciales))
-  return iniciales[usuario]
+  guardarMonedas(usuario, 0)
+  return 0
 }
 
-export function descontarMonedasDemo(usuario, costo) {
-  const monedas = obtenerMonedasDemo(usuario)
+export function sumarMonedas(usuario, cantidad, detalle = {}) {
+  if (!usuario) return 0
+  const monto = Math.max(0, Math.trunc(Number(cantidad) || 0))
+  if (!monto) return obtenerMonedas(usuario)
+  const nuevoSaldo = obtenerMonedas(usuario) + monto
+  guardarMonedas(usuario, nuevoSaldo)
+  guardarMovimientoMonedas(usuario, "ganancia", monto, detalle)
+  return nuevoSaldo
+}
+
+export function descontarMonedas(usuario, costo, detalle = {}) {
+  const monedas = obtenerMonedas(usuario)
   if (monedas < costo) return false
-  const actuales = leerObjeto(MONEDAS_LOCAL_KEY)
-  actuales[usuario] = monedas - costo
-  localStorage.setItem(MONEDAS_LOCAL_KEY, JSON.stringify(actuales))
+  guardarMonedas(usuario, monedas - costo)
+  guardarMovimientoMonedas(usuario, "compra", -Math.max(0, Number(costo) || 0), detalle)
   return true
 }
+
+export function registrarMonedasPorActividad(usuario, { juego, origen = "torneo", accionKey = null } = {}) {
+  if (!usuario) return 0
+  const key = accionKey || `${origen}:${juego || "actividad"}:${Date.now()}`
+  const historial = leerObjeto(MONEDAS_HISTORIAL_KEY)
+  const movimientos = Array.isArray(historial[usuario]) ? historial[usuario] : []
+  if (movimientos.some((movimiento) => movimiento.key === key)) return obtenerMonedas(usuario)
+  return sumarMonedas(usuario, MONEDAS_POR_ACTIVIDAD, {
+    key,
+    juego,
+    origen,
+    motivo: "actividad_completada",
+  })
+}
+
+export const obtenerMonedasDemo = obtenerMonedas
+export const descontarMonedasDemo = descontarMonedas
 
 export function tiempoRestante(fechaFin) {
   const restante = Date.parse(fechaFin) - Date.now()
@@ -152,6 +210,62 @@ export function tiempoRestante(fechaFin) {
   if (dias > 0) return `${dias}d ${horas}h`
   if (horas > 0) return `${horas}h ${minutos}m`
   return `${Math.max(1, minutos)}m`
+}
+
+export function rarezaEtiqueta(rareza) {
+  return RAREZAS.find((item) => item.nombre === rareza)?.etiqueta || rareza || "Normal"
+}
+
+export function rarezaClase(rareza) {
+  return RAREZAS.find((item) => item.nombre === rareza)?.clase || "normal"
+}
+
+function generarCosmeticos(tipo, prefijo, cantidad) {
+  return Array.from({ length: cantidad }, (_, index) => {
+    const numero = index + 1
+    const tema = TEMAS_VISUALES[index % TEMAS_VISUALES.length]
+    const rareza = RAREZAS[Math.min(RAREZAS.length - 1, Math.floor(index / Math.ceil(cantidad / RAREZAS.length)))]
+    const intensidad = (index % 10) + 1
+    return {
+      id: `${tipo}_${String(numero).padStart(3, "0")}`,
+      tipo,
+      categoria: tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos",
+      nombre: `${prefijo} ${tema} ${numero}`,
+      rareza: rareza.nombre,
+      precio: rareza.precio + intensidad * 75,
+      diseno: {
+        tema,
+        brillo: intensidad,
+        patron: ["lineas", "pulso", "anillo", "fragmentos", "halo"][index % 5],
+      },
+    }
+  })
+}
+
+function rarezaCompatibleSupabase(rareza) {
+  if (rareza === "Poco comun") return "Normal"
+  return rareza
+}
+
+function guardarMonedas(usuario, cantidad) {
+  const actuales = leerObjeto(MONEDAS_LOCAL_KEY)
+  actuales[usuario] = Math.max(0, Math.trunc(Number(cantidad) || 0))
+  localStorage.setItem(MONEDAS_LOCAL_KEY, JSON.stringify(actuales))
+}
+
+function guardarMovimientoMonedas(usuario, tipo, cantidad, detalle) {
+  const historial = leerObjeto(MONEDAS_HISTORIAL_KEY)
+  const movimientos = Array.isArray(historial[usuario]) ? historial[usuario] : []
+  movimientos.unshift({
+    key: detalle?.key || `${tipo}:${Date.now()}:${Math.random().toString(16).slice(2)}`,
+    tipo,
+    cantidad,
+    saldo: obtenerMonedas(usuario),
+    detalle,
+    fecha: new Date().toISOString(),
+  })
+  historial[usuario] = movimientos.slice(0, 80)
+  localStorage.setItem(MONEDAS_HISTORIAL_KEY, JSON.stringify(historial))
 }
 
 function leerBoosterLocal(usuario) {

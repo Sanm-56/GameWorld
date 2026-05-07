@@ -2,6 +2,7 @@ import { supabase } from "./supabase.js"
 import { registrarXpPorPartida } from "./progreso-nivel.js"
 import { reportLevelResult } from "./solitario-niveles.js"
 import { obtenerOrigenExperiencia } from "./mini-torneo.js"
+import { registrarMonedasPorActividad } from "./tienda.js"
 
 const FALLBACK_TABLES = {
   ajedrez: "ranking_ajedrez",
@@ -41,6 +42,12 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     juego,
     posicion,
     origen: origenExperiencia,
+  })
+
+  registrarMonedasPorActividad(usuario, {
+    juego,
+    origen: origenExperiencia,
+    accionKey: `partida:${usuario}:${juego}:${origenExperiencia}:${Date.now()}`,
   })
 }
 

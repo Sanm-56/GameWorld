@@ -6,7 +6,7 @@ export async function aplicarPersonalizacionUsuario(elemento, usuario) {
   const cosmetico = await obtenerCosmeticoEquipado(usuario)
   if (!cosmetico) return
 
-  elemento.classList.add("cosmetic-card", `rarity-${String(cosmetico.rareza || "normal").toLowerCase()}`)
+  elemento.classList.add("cosmetic-card", `rarity-${claseRareza(cosmetico.rareza_visual || cosmetico.rareza)}`)
   elemento.dataset.cosmeticId = cosmetico.cosmetico_id || ""
 }
 
@@ -26,10 +26,19 @@ export function instalarEstilosPersonalizacion() {
       box-shadow:inset 0 0 28px rgba(255,255,255,0.08);
     }
     .rarity-normal{ background-image:linear-gradient(135deg, rgba(148,163,184,0.16), transparent); }
+    .rarity-poco-comun{ background-image:linear-gradient(135deg, rgba(34,197,94,0.2), transparent); }
     .rarity-raro{ background-image:linear-gradient(135deg, rgba(56,189,248,0.22), transparent); }
     .rarity-epico{ background-image:linear-gradient(135deg, rgba(168,85,247,0.26), transparent); }
     .rarity-legendario{ background-image:linear-gradient(135deg, rgba(250,204,21,0.28), transparent); }
     .rarity-mitico{ background-image:linear-gradient(135deg, rgba(244,63,94,0.24), rgba(20,184,166,0.16)); }
   `
   document.head.appendChild(style)
+}
+
+function claseRareza(rareza) {
+  return String(rareza || "normal")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")
 }
