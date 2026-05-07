@@ -665,6 +665,8 @@ drop constraint if exists progreso_nivel_nivel_check;
 
 drop trigger if exists progreso_nivel_calcular_nivel on public.progreso_nivel;
 
+drop view if exists public.ranking_nivel;
+
 alter table public.progreso_nivel
 alter column xp type bigint
 using xp::bigint;
