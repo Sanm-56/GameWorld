@@ -99,6 +99,30 @@ body::before{
   100%{ background-position:200% 50%; }
 }
 
+@keyframes rankEnergyDrift{
+  0%,100%{ background-position:0 0, 0 0, 0 0; opacity:0.62; }
+  50%{ background-position:18px -12px, -14px 20px, 0 0; opacity:0.94; }
+}
+
+@keyframes rankHaloTurn{
+  0%{ transform:rotate(0deg) scale(1); opacity:0.44; }
+  50%{ transform:rotate(180deg) scale(1.035); opacity:0.8; }
+  100%{ transform:rotate(360deg) scale(1); opacity:0.44; }
+}
+
+@keyframes rankGlitchStep{
+  0%,100%{ transform:translate3d(0,0,0); opacity:0.44; }
+  18%{ transform:translate3d(4px,-1px,0); opacity:0.76; }
+  21%{ transform:translate3d(-3px,1px,0); opacity:0.36; }
+  46%{ transform:translate3d(2px,0,0); opacity:0.66; }
+  49%{ transform:translate3d(0,0,0); opacity:0.42; }
+}
+
+@keyframes rankCoreBreathe{
+  0%,100%{ transform:scale(0.96); opacity:0.52; filter:blur(0); }
+  50%{ transform:scale(1.05); opacity:0.86; filter:blur(0.4px); }
+}
+
 body{
   --rank-primary:#38bdf8;
   --rank-secondary:#22c55e;
@@ -3017,6 +3041,368 @@ body.sudoku-screen-shake{
 .rank-node[data-rank-tier="inmortal"]{ --node-primary:#f5f5f4; --node-secondary:#d946ef; --node-accent:#22d3ee; --node-rgb:245,245,244; }
 .rank-node[data-rank-tier="leyenda-maxima"]{ --node-primary:#fef08a; --node-secondary:#f472b6; --node-accent:#67e8f9; --node-rgb:254,240,138; }
 .rank-node[data-rank-tier="ascendido"]{ --node-primary:#67e8f9; --node-secondary:#f0abfc; --node-accent:#fef08a; --node-rgb:103,232,249; }
+
+.rank-node{
+  --node-depth-a:rgba(var(--node-rgb),0.16);
+  --node-depth-b:color-mix(in srgb, var(--node-secondary) 18%, transparent);
+  --node-depth-c:color-mix(in srgb, var(--node-accent) 15%, transparent);
+  --node-surface:rgba(8,13,28,0.86);
+  --node-ink:rgba(2,6,23,0.92);
+  --node-material:
+    linear-gradient(180deg, rgba(255,255,255,0.065), transparent 44%),
+    radial-gradient(circle at 82% 12%, rgba(var(--node-rgb),0.16), transparent 30%);
+  --node-phenomenon:
+    radial-gradient(circle at 82% 16%, rgba(var(--node-rgb),0.16), transparent 32%),
+    linear-gradient(145deg, transparent, color-mix(in srgb, var(--node-secondary) 10%, transparent));
+  --node-geometry:
+    linear-gradient(180deg, rgba(255,255,255,0.05), transparent 46%),
+    radial-gradient(circle at 20% 78%, rgba(var(--node-rgb),0.12), transparent 26%);
+  border-color:rgba(var(--node-rgb),0.25);
+  background:
+    var(--node-material),
+    var(--node-phenomenon),
+    linear-gradient(145deg, var(--node-surface), var(--node-ink));
+  box-shadow:
+    0 16px 36px rgba(0,0,0,0.28),
+    0 0 calc(12px + var(--node-glow-boost, 0px)) rgba(var(--node-rgb),0.09),
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    inset 0 -18px 34px rgba(0,0,0,0.18);
+}
+
+.rank-node::before{
+  inset:0;
+  transform:none;
+  background:var(--node-geometry);
+  background-size:var(--node-geometry-size, auto);
+  opacity:0.56;
+  mix-blend-mode:screen;
+  animation:rankEnergyDrift 7.5s ease-in-out infinite;
+}
+
+.rank-node::after{
+  inset:auto 14px 12px;
+  height:2px;
+  background:var(--node-signature, linear-gradient(90deg, var(--node-primary), transparent));
+  opacity:0.62;
+  box-shadow:0 0 16px rgba(var(--node-rgb),0.2);
+}
+
+.rank-node:hover::before,
+.rank-node.current::before{
+  animation:rankEnergyDrift 4.8s ease-in-out infinite;
+}
+
+.rank-node[data-rank-material="space-glass"]{
+  --node-material:
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018) 36%, transparent 62%),
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,0.08), transparent 26%);
+  --node-surface:rgba(9,20,42,0.82);
+  --node-ink:rgba(2,6,23,0.94);
+}
+
+.rank-node[data-rank-material="titanium"],
+.rank-node[data-rank-material="holographic-titanium"]{
+  --node-material:
+    linear-gradient(90deg, rgba(255,255,255,0.085) 0 1px, transparent 1px 21px),
+    linear-gradient(150deg, rgba(203,213,225,0.08), transparent 24% 66%, rgba(var(--node-rgb),0.1));
+  --node-surface:rgba(16,24,42,0.9);
+  --node-ink:rgba(5,10,24,0.95);
+}
+
+.rank-node[data-rank-material="holographic-titanium"]{
+  --node-material:
+    linear-gradient(92deg, color-mix(in srgb, var(--node-primary) 12%, transparent), transparent 22% 68%, color-mix(in srgb, var(--node-accent) 13%, transparent)),
+    linear-gradient(90deg, rgba(255,255,255,0.075) 0 1px, transparent 1px 18px),
+    linear-gradient(150deg, rgba(203,213,225,0.08), transparent 28% 72%, rgba(var(--node-rgb),0.12));
+}
+
+.rank-node[data-rank-material="quantum-crystal"],
+.rank-node[data-rank-material="radiant-glass"]{
+  --node-material:
+    linear-gradient(135deg, rgba(255,255,255,0.11), transparent 19% 55%, rgba(255,255,255,0.045)),
+    linear-gradient(45deg, transparent 0 35%, color-mix(in srgb, var(--node-accent) 13%, transparent) 36% 37%, transparent 38%);
+  --node-surface:rgba(8,18,34,0.82);
+  --node-ink:rgba(2,6,23,0.92);
+}
+
+.rank-node[data-rank-material="dark-matter"],
+.rank-node[data-rank-material="obsidian"]{
+  --node-material:
+    radial-gradient(circle at 50% 50%, rgba(0,0,0,0.58) 0 20%, rgba(var(--node-rgb),0.11) 21%, transparent 35%),
+    linear-gradient(155deg, rgba(255,255,255,0.035), transparent 34% 74%, rgba(255,255,255,0.025));
+  --node-surface:rgba(4,5,16,0.94);
+  --node-ink:rgba(0,0,7,0.98);
+}
+
+.rank-node[data-rank-material="plasma"],
+.rank-node[data-rank-material="solar-glass"]{
+  --node-material:
+    radial-gradient(circle at 74% 24%, color-mix(in srgb, var(--node-accent) 28%, transparent), transparent 24%),
+    radial-gradient(circle at 18% 82%, color-mix(in srgb, var(--node-secondary) 22%, transparent), transparent 31%),
+    linear-gradient(160deg, rgba(255,255,255,0.05), transparent 52%);
+  --node-surface:rgba(30,10,18,0.86);
+  --node-ink:rgba(5,6,18,0.95);
+}
+
+.rank-node[data-rank-material="liquid-metal"],
+.rank-node[data-rank-material="luminous-matter"],
+.rank-node[data-rank-material="prismatic-gold"]{
+  --node-material:
+    linear-gradient(112deg, transparent 0 18%, rgba(255,255,255,0.12) 20%, transparent 28% 46%, rgba(255,255,255,0.065) 51%, transparent 61%),
+    radial-gradient(circle at 78% 18%, rgba(var(--node-rgb),0.2), transparent 28%);
+  --node-surface:rgba(20,20,28,0.86);
+  --node-ink:rgba(3,5,14,0.96);
+}
+
+.rank-node[data-rank-material="nebula-glass"]{
+  --node-material:
+    radial-gradient(ellipse at 22% 20%, color-mix(in srgb, var(--node-secondary) 22%, transparent), transparent 32%),
+    radial-gradient(ellipse at 78% 72%, color-mix(in srgb, var(--node-accent) 18%, transparent), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.07), transparent 42%);
+  --node-surface:rgba(13,12,34,0.86);
+  --node-ink:rgba(2,4,18,0.95);
+}
+
+.rank-node[data-rank-motif="stars"]{
+  --node-phenomenon:
+    radial-gradient(circle at 18% 20%, rgba(255,255,255,0.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 68% 16%, rgba(224,242,254,0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 84% 70%, rgba(var(--node-rgb),0.6) 0 1px, transparent 2px);
+  --node-geometry:
+    radial-gradient(circle at 12% 28%, rgba(255,255,255,0.42) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 54%, rgba(var(--node-rgb),0.45) 0 1px, transparent 2px);
+  --node-geometry-size:92px 92px, 128px 128px;
+  --node-signature:linear-gradient(90deg, rgba(255,255,255,0.7), var(--node-primary), transparent);
+}
+
+.rank-node[data-rank-motif="grid"]{
+  --node-phenomenon:
+    linear-gradient(90deg, rgba(var(--node-rgb),0.12) 0 1px, transparent 1px 22px),
+    linear-gradient(0deg, rgba(var(--node-rgb),0.08) 0 1px, transparent 1px 18px);
+  --node-geometry:
+    linear-gradient(90deg, transparent 0 18%, rgba(255,255,255,0.12) 18.4% 18.8%, transparent 19.2%),
+    linear-gradient(90deg, transparent 0 72%, color-mix(in srgb, var(--node-accent) 22%, transparent) 72.4% 73%, transparent 73.5%);
+  --node-signature:linear-gradient(90deg, var(--node-secondary), var(--node-primary), transparent 58%);
+}
+
+.rank-node[data-rank-motif="glitch"]{
+  --node-phenomenon:
+    linear-gradient(180deg, transparent 0 18%, color-mix(in srgb, var(--node-primary) 18%, transparent) 18.4% 19.6%, transparent 20% 54%, color-mix(in srgb, var(--node-accent) 14%, transparent) 55% 56%, transparent 57%),
+    linear-gradient(90deg, transparent 0 48%, rgba(255,255,255,0.08) 49%, transparent 51%);
+  --node-geometry:
+    linear-gradient(90deg, color-mix(in srgb, var(--node-secondary) 18%, transparent), transparent 28% 78%, color-mix(in srgb, var(--node-accent) 12%, transparent));
+  --node-signature:linear-gradient(90deg, var(--node-primary), transparent 22%, var(--node-accent), transparent 72%);
+}
+
+.rank-node[data-rank-motif="glitch"]::before{
+  animation:rankGlitchStep 4.6s steps(1, end) infinite;
+}
+
+.rank-node[data-rank-motif="orbit"]{
+  --node-phenomenon:
+    radial-gradient(ellipse at 58% 46%, transparent 0 28%, rgba(var(--node-rgb),0.28) 29% 30%, transparent 31% 100%),
+    radial-gradient(ellipse at 58% 46%, transparent 0 42%, color-mix(in srgb, var(--node-accent) 18%, transparent) 43% 44%, transparent 45% 100%);
+  --node-geometry:
+    radial-gradient(circle at 58% 46%, rgba(255,255,255,0.56) 0 1px, transparent 2px),
+    conic-gradient(from 20deg at 58% 46%, transparent, rgba(var(--node-rgb),0.22), transparent 28%);
+  --node-signature:linear-gradient(90deg, transparent, var(--node-primary), transparent);
+}
+
+.rank-node[data-rank-motif="orbit"]::before{
+  animation:rankHaloTurn 9s linear infinite;
+}
+
+.rank-node[data-rank-motif="void"],
+.rank-node[data-rank-motif="gravity"]{
+  --node-phenomenon:
+    radial-gradient(circle at 52% 48%, rgba(0,0,5,0.94) 0 17%, rgba(var(--node-rgb),0.25) 18% 20%, transparent 34%),
+    conic-gradient(from 210deg at 52% 48%, transparent, color-mix(in srgb, var(--node-primary) 22%, transparent), transparent 42%);
+  --node-geometry:
+    radial-gradient(circle at 52% 48%, transparent 0 34%, rgba(255,255,255,0.11) 35% 36%, transparent 37%),
+    radial-gradient(circle at 52% 48%, transparent 0 48%, rgba(var(--node-rgb),0.11) 49% 50%, transparent 51%);
+  --node-signature:linear-gradient(90deg, transparent, var(--node-primary), var(--node-secondary), transparent);
+}
+
+.rank-node[data-rank-motif="gravity"]::before,
+.rank-node[data-rank-motif="singularity"]::before{
+  animation:rankCoreBreathe 4.2s ease-in-out infinite;
+}
+
+.rank-node[data-rank-motif="flare"],
+.rank-node[data-rank-motif="eclipse"]{
+  --node-phenomenon:
+    radial-gradient(circle at 68% 38%, rgba(2,6,23,0.95) 0 15%, rgba(255,255,255,0.24) 16% 17%, color-mix(in srgb, var(--node-accent) 25%, transparent) 21%, transparent 36%),
+    conic-gradient(from 128deg at 68% 38%, transparent, color-mix(in srgb, var(--node-secondary) 22%, transparent), transparent 42%, color-mix(in srgb, var(--node-accent) 18%, transparent), transparent 80%);
+  --node-geometry:
+    radial-gradient(circle at 68% 38%, transparent 0 36%, rgba(var(--node-rgb),0.16) 37% 38%, transparent 39%),
+    linear-gradient(180deg, rgba(255,255,255,0.08), transparent 42%);
+  --node-signature:linear-gradient(90deg, transparent, var(--node-accent), var(--node-primary), transparent);
+}
+
+.rank-node[data-rank-motif="rift"],
+.rank-node[data-rank-motif="fracture"]{
+  --node-phenomenon:
+    linear-gradient(128deg, transparent 0 22%, rgba(var(--node-rgb),0.25) 22.5% 23.2%, transparent 24%),
+    linear-gradient(68deg, transparent 0 62%, color-mix(in srgb, var(--node-accent) 23%, transparent) 62.4% 63%, transparent 64%),
+    radial-gradient(circle at 82% 18%, rgba(var(--node-rgb),0.17), transparent 30%);
+  --node-geometry:
+    linear-gradient(48deg, transparent 0 34%, rgba(255,255,255,0.1) 34.4% 35%, transparent 35.6%),
+    linear-gradient(141deg, transparent 0 70%, rgba(var(--node-rgb),0.14) 70.4% 71%, transparent 71.6%);
+  --node-signature:linear-gradient(90deg, var(--node-primary), transparent 18%, var(--node-accent), transparent 56%);
+}
+
+.rank-node[data-rank-motif="constellation"]{
+  --node-phenomenon:
+    radial-gradient(circle at 20% 26%, rgba(255,255,255,0.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 36%, rgba(var(--node-rgb),0.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 74% 64%, color-mix(in srgb, var(--node-accent) 70%, white) 0 1px, transparent 2px);
+  --node-geometry:
+    linear-gradient(25deg, transparent 0 23%, rgba(255,255,255,0.12) 23.2% 23.7%, transparent 24%),
+    linear-gradient(152deg, transparent 0 54%, rgba(var(--node-rgb),0.14) 54.2% 54.7%, transparent 55%);
+  --node-geometry-size:auto;
+  --node-signature:linear-gradient(90deg, rgba(255,255,255,0.62), var(--node-primary), var(--node-accent), transparent);
+}
+
+.rank-node[data-rank-motif="refraction"]{
+  --node-phenomenon:
+    linear-gradient(122deg, transparent 0 21%, color-mix(in srgb, var(--node-primary) 22%, transparent) 22% 33%, transparent 34% 56%, color-mix(in srgb, var(--node-accent) 17%, transparent) 58% 66%, transparent 67%),
+    linear-gradient(32deg, transparent 0 46%, rgba(255,255,255,0.11) 47% 49%, transparent 50%);
+  --node-geometry:
+    conic-gradient(from 18deg at 32% 44%, transparent, rgba(var(--node-rgb),0.2), transparent 22%),
+    conic-gradient(from 190deg at 72% 48%, transparent, color-mix(in srgb, var(--node-accent) 21%, transparent), transparent 25%);
+  --node-signature:linear-gradient(90deg, var(--node-primary), var(--node-accent), var(--node-secondary), transparent);
+}
+
+.rank-node[data-rank-motif="halo"],
+.rank-node[data-rank-motif="singularity"],
+.rank-node[data-rank-motif="ascension"],
+.rank-node[data-rank-motif="infinity"]{
+  --node-phenomenon:
+    radial-gradient(circle at 50% 48%, rgba(255,255,255,0.44) 0 2px, rgba(var(--node-rgb),0.28) 3px 15%, transparent 24%),
+    radial-gradient(circle at 50% 48%, transparent 0 36%, rgba(255,255,255,0.18) 37% 38%, transparent 39%);
+  --node-geometry:
+    conic-gradient(from 0deg at 50% 48%, transparent, color-mix(in srgb, var(--node-primary) 18%, transparent), transparent 28%, color-mix(in srgb, var(--node-accent) 14%, transparent), transparent 62%);
+  --node-signature:linear-gradient(90deg, transparent, rgba(255,255,255,0.8), var(--node-primary), transparent);
+}
+
+.rank-node[data-rank-motif="halo"]::before,
+.rank-node[data-rank-motif="ascension"]::before,
+.rank-node[data-rank-motif="infinity"]::before{
+  animation:rankHaloTurn 10s linear infinite;
+}
+
+.rank-node[data-rank-motif="sigil"]{
+  --node-phenomenon:
+    radial-gradient(circle at 50% 46%, transparent 0 22%, rgba(var(--node-rgb),0.21) 23% 24%, transparent 26%),
+    linear-gradient(90deg, transparent 0 49%, rgba(254,243,199,0.12) 50%, transparent 51%);
+  --node-geometry:
+    linear-gradient(0deg, transparent 0 49%, rgba(var(--node-rgb),0.12) 50%, transparent 51%),
+    linear-gradient(60deg, transparent 0 49%, color-mix(in srgb, var(--node-accent) 12%, transparent) 50%, transparent 51%),
+    linear-gradient(120deg, transparent 0 49%, rgba(255,255,255,0.08) 50%, transparent 51%);
+  --node-signature:linear-gradient(90deg, transparent, var(--node-primary), var(--node-accent), transparent);
+}
+
+.rank-node[data-rank-motif="crown"],
+.rank-node[data-rank-motif="blade"]{
+  --node-phenomenon:
+    linear-gradient(135deg, transparent 0 15%, rgba(255,255,255,0.12) 16% 17%, transparent 18% 39%, color-mix(in srgb, var(--node-accent) 17%, transparent) 40% 41%, transparent 42%),
+    radial-gradient(circle at 76% 20%, rgba(var(--node-rgb),0.24), transparent 26%);
+  --node-geometry:
+    linear-gradient(58deg, transparent 0 44%, rgba(255,255,255,0.1) 44.5% 45%, transparent 45.5%),
+    linear-gradient(118deg, transparent 0 60%, rgba(var(--node-rgb),0.14) 60.5% 61%, transparent 61.5%);
+  --node-signature:linear-gradient(90deg, var(--node-primary), var(--node-accent), transparent);
+}
+
+.rank-node[data-rank-geometry="vertical"]{
+  --node-geometry:
+    linear-gradient(90deg, transparent 0 17%, rgba(255,255,255,0.13) 17.4% 17.8%, transparent 18.2% 63%, rgba(var(--node-rgb),0.16) 63.4% 64%, transparent 64.4%),
+    linear-gradient(180deg, rgba(255,255,255,0.06), transparent 56%);
+}
+
+.rank-node[data-rank-geometry="triangles"]{
+  --node-geometry:
+    conic-gradient(from 30deg at 24% 28%, transparent, rgba(var(--node-rgb),0.18), transparent 18%),
+    conic-gradient(from 210deg at 78% 64%, transparent, color-mix(in srgb, var(--node-accent) 16%, transparent), transparent 20%);
+}
+
+.rank-node[data-rank-geometry="orbital"],
+.rank-node[data-rank-geometry="halo"],
+.rank-node[data-rank-geometry="crownless-halo"]{
+  --node-geometry:
+    radial-gradient(ellipse at 58% 44%, transparent 0 34%, rgba(255,255,255,0.15) 35% 36%, transparent 37%),
+    conic-gradient(from 16deg at 58% 44%, transparent, rgba(var(--node-rgb),0.2), transparent 30%);
+}
+
+.rank-node[data-rank-geometry="cracks"],
+.rank-node[data-rank-geometry="fragmented"]{
+  --node-geometry:
+    linear-gradient(58deg, transparent 0 31%, rgba(255,255,255,0.12) 31.4% 32%, transparent 32.6%),
+    linear-gradient(129deg, transparent 0 66%, rgba(var(--node-rgb),0.18) 66.4% 67%, transparent 67.6%),
+    linear-gradient(18deg, transparent 0 48%, color-mix(in srgb, var(--node-accent) 12%, transparent) 48.4% 49%, transparent 49.6%);
+}
+
+.rank-node[data-rank-geometry="constellation"]{
+  --node-geometry:
+    radial-gradient(circle at 18% 30%, rgba(255,255,255,0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 54% 42%, rgba(var(--node-rgb),0.56) 0 1px, transparent 2px),
+    linear-gradient(24deg, transparent 0 35%, rgba(255,255,255,0.12) 35.2% 35.6%, transparent 36%);
+}
+
+.rank-node[data-rank-geometry="prism"]{
+  --node-geometry:
+    linear-gradient(118deg, transparent 0 20%, rgba(255,255,255,0.12) 21% 22%, transparent 23% 54%, color-mix(in srgb, var(--node-primary) 18%, transparent) 55% 61%, transparent 62%),
+    linear-gradient(35deg, transparent 0 62%, color-mix(in srgb, var(--node-accent) 16%, transparent) 63% 66%, transparent 67%);
+}
+
+.rank-node[data-rank-geometry="gravity"],
+.rank-node[data-rank-geometry="compressed"],
+.rank-node[data-rank-geometry="core"]{
+  --node-geometry:
+    radial-gradient(circle at 50% 48%, transparent 0 28%, rgba(var(--node-rgb),0.2) 29% 30%, transparent 31%),
+    radial-gradient(circle at 50% 48%, transparent 0 44%, rgba(255,255,255,0.1) 45% 46%, transparent 47%);
+}
+
+.rank-node[data-rank-geometry="offset"]{
+  --node-geometry:
+    linear-gradient(180deg, transparent 0 24%, rgba(var(--node-rgb),0.13) 24.4% 25.4%, transparent 26% 68%, color-mix(in srgb, var(--node-accent) 12%, transparent) 68.4% 69.2%, transparent 70%),
+    linear-gradient(90deg, color-mix(in srgb, var(--node-secondary) 16%, transparent), transparent 34% 82%, rgba(255,255,255,0.08));
+}
+
+.rank-node[data-rank-density="minimal"]::before{ opacity:0.34; }
+.rank-node[data-rank-density="clean"]::before{ opacity:0.46; }
+.rank-node[data-rank-density="dense"]::before{ opacity:0.68; }
+.rank-node[data-rank-density="intense"]::before{ opacity:0.78; }
+
+.rank-node[data-rank-density="minimal"]{ border-color:rgba(var(--node-rgb),0.2); }
+.rank-node[data-rank-density="clean"]{ border-color:rgba(var(--node-rgb),0.24); }
+.rank-node[data-rank-density="dense"]{ border-color:rgba(var(--node-rgb),0.34); }
+.rank-node[data-rank-density="intense"]{ border-color:rgba(var(--node-rgb),0.42); }
+
+.rank-node[data-rank-density="minimal"]{
+  box-shadow:0 14px 30px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.075);
+}
+
+.rank-node[data-rank-density="intense"]{
+  box-shadow:
+    0 20px 48px rgba(0,0,0,0.38),
+    0 0 calc(22px + var(--node-glow-boost, 0px)) rgba(var(--node-rgb),0.18),
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 -24px 44px rgba(0,0,0,0.28);
+}
+
+.rank-node[data-rank-tier^="advanced-"]{
+  background:
+    var(--node-material),
+    var(--node-phenomenon),
+    linear-gradient(145deg, var(--node-surface), var(--node-ink));
+}
+
+.rank-node.current{
+  background:
+    var(--node-material),
+    var(--node-phenomenon),
+    linear-gradient(145deg, color-mix(in srgb, var(--node-surface) 82%, rgba(var(--node-rgb),0.18)), var(--node-ink));
+}
 
 .reward-preview small,
 .level-ranking small{

@@ -59,21 +59,22 @@ const rangoProgresoTextoEl = document.getElementById('rangoProgresoTexto')
 const perfilHeroEl = document.querySelector('.hero.profile-card')
 
 const RANGOS_VISUALES = {
-  novato: { tier: 'novato', emblem: 'NV' },
-  amateur: { tier: 'amateur', emblem: 'AM' },
-  aspirante: { tier: 'aspirante', emblem: 'AS' },
-  profesional: { tier: 'profesional', emblem: 'PR' },
-  competidor: { tier: 'competidor', emblem: 'CP' },
-  experto: { tier: 'experto', emblem: 'EX' },
-  elite: { tier: 'elite', emblem: 'EL' },
-  maestro: { tier: 'maestro', emblem: 'MA' },
-  'gran maestro': { tier: 'gran-maestro', emblem: 'GM' },
-  leyenda: { tier: 'leyenda', emblem: 'LY' },
-  mitico: { tier: 'mitico', emblem: 'MT' },
-  supremo: { tier: 'supremo', emblem: 'SP' },
-  titan: { tier: 'titan', emblem: 'TN' },
-  inmortal: { tier: 'inmortal', emblem: 'IM' },
-  'leyenda maxima': { tier: 'leyenda-maxima', emblem: 'LM' },
+  novato: { tier: 'novato', emblem: 'NV', motif: 'stars', era: 'astral', material: 'space-glass', density: 'minimal', geometry: 'particles' },
+  amateur: { tier: 'amateur', emblem: 'AM', motif: 'grid', era: 'quantum', material: 'titanium', density: 'clean', geometry: 'vertical' },
+  aspirante: { tier: 'aspirante', emblem: 'AS', motif: 'fracture', era: 'fractal', material: 'quantum-crystal', density: 'medium', geometry: 'triangles' },
+  profesional: { tier: 'profesional', emblem: 'PR', motif: 'glitch', era: 'quantum', material: 'holographic-titanium', density: 'medium', geometry: 'offset' },
+  competidor: { tier: 'competidor', emblem: 'CP', motif: 'flare', era: 'eclipse', material: 'plasma', density: 'dense', geometry: 'radial' },
+  experto: { tier: 'experto', emblem: 'EX', motif: 'void', era: 'void', material: 'dark-matter', density: 'medium', geometry: 'gravity' },
+  elite: { tier: 'elite', emblem: 'EL', motif: 'orbit', era: 'astral', material: 'space-glass', density: 'clean', geometry: 'orbital' },
+  maestro: { tier: 'maestro', emblem: 'MA', motif: 'eclipse', era: 'eclipse', material: 'solar-glass', density: 'medium', geometry: 'halo' },
+  'gran maestro': { tier: 'gran-maestro', emblem: 'GM', motif: 'rift', era: 'eclipse', material: 'liquid-metal', density: 'intense', geometry: 'cracks' },
+  leyenda: { tier: 'leyenda', emblem: 'LY', motif: 'constellation', era: 'astral', material: 'nebula-glass', density: 'dense', geometry: 'constellation' },
+  mitico: { tier: 'mitico', emblem: 'MT', motif: 'refraction', era: 'quantum', material: 'quantum-crystal', density: 'dense', geometry: 'prism' },
+  supremo: { tier: 'supremo', emblem: 'SP', motif: 'halo', era: 'singularity', material: 'radiant-glass', density: 'minimal', geometry: 'centered' },
+  titan: { tier: 'titan', emblem: 'TN', motif: 'gravity', era: 'void', material: 'obsidian', density: 'intense', geometry: 'compressed' },
+  inmortal: { tier: 'inmortal', emblem: 'IM', motif: 'singularity', era: 'singularity', material: 'luminous-matter', density: 'clean', geometry: 'core' },
+  'leyenda maxima': { tier: 'leyenda-maxima', emblem: 'LM', motif: 'ascension', era: 'singularity', material: 'prismatic-gold', density: 'intense', geometry: 'crownless-halo' },
+  'el ultimo ascendido': { tier: 'ascendido', emblem: 'AX', motif: 'ascension', era: 'singularity', material: 'luminous-matter', density: 'intense', geometry: 'core' },
 }
 
 const TEMAS_RANGO_AVANZADO = [
@@ -86,6 +87,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#c084fc',
     rgb: '139,92,246',
     title: '#f3e8ff',
+    era: 'void',
+    material: 'obsidian',
+    density: 'intense',
+    geometry: 'gravity',
     glyphs: ['VX', 'UM', 'SV', 'VP'],
   },
   {
@@ -97,6 +102,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#93c5fd',
     rgb: '224,242,254',
     title: '#ffffff',
+    era: 'astral',
+    material: 'space-glass',
+    density: 'clean',
+    geometry: 'constellation',
     glyphs: ['AR', 'ST', 'CE', 'AU'],
   },
   {
@@ -108,6 +117,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#fbbf24',
     rgb: '251,113,133',
     title: '#ffe4e6',
+    era: 'eclipse',
+    material: 'plasma',
+    density: 'dense',
+    geometry: 'radial',
     glyphs: ['CR', 'JG', 'FL', 'CN'],
   },
   {
@@ -119,6 +132,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#f59e0b',
     rgb: '248,250,252',
     title: '#ffffff',
+    era: 'eclipse',
+    material: 'solar-glass',
+    density: 'medium',
+    geometry: 'halo',
     glyphs: ['EC', 'SL', 'OR', 'NO'],
   },
   {
@@ -130,6 +147,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#f0abfc',
     rgb: '103,232,249',
     title: '#ecfeff',
+    era: 'singularity',
+    material: 'quantum-crystal',
+    density: 'clean',
+    geometry: 'core',
     glyphs: ['IN', 'ET', 'AE', 'OM'],
   },
   {
@@ -141,6 +162,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#64748b',
     rgb: '34,211,238',
     title: '#cffafe',
+    era: 'fractal',
+    material: 'dark-matter',
+    density: 'dense',
+    geometry: 'cracks',
     glyphs: ['AB', 'RN', 'CX', 'FD'],
   },
   {
@@ -152,6 +177,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#f472b6',
     rgb: '254,240,138',
     title: '#fff7ed',
+    era: 'fractal',
+    material: 'prismatic-gold',
+    density: 'intense',
+    geometry: 'triangles',
     glyphs: ['KR', 'TR', 'RG', 'MN'],
   },
   {
@@ -163,6 +192,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#fef3c7',
     rgb: '52,211,153',
     title: '#d1fae5',
+    era: 'quantum',
+    material: 'holographic-titanium',
+    density: 'medium',
+    geometry: 'sigil',
     glyphs: ['SG', 'HR', 'PT', 'VG'],
   },
   {
@@ -174,6 +207,10 @@ const TEMAS_RANGO_AVANZADO = [
     accent: '#fde047',
     rgb: '249,115,22',
     title: '#ffedd5',
+    era: 'eclipse',
+    material: 'liquid-metal',
+    density: 'dense',
+    geometry: 'fragmented',
     glyphs: ['WR', 'DV', 'TX', 'CQ'],
   },
 ]
@@ -237,6 +274,10 @@ function obtenerVisualRango(titulo) {
     accent: tema.accent,
     rgb: tema.rgb,
     title: tema.title,
+    era: tema.era,
+    material: tema.material,
+    density: tema.density,
+    geometry: tema.geometry,
   }
 }
 
@@ -246,9 +287,13 @@ function aplicarVisualRangoActual(titulo) {
 
   document.body.dataset.rankTier = visual.tier
   document.body.dataset.rankMotif = visual.motif || 'core'
+  document.body.dataset.rankEra = visual.era || 'core'
+  document.body.dataset.rankMaterial = visual.material || 'dark-glass'
   document.body.dataset.rankPower = visual.power || '1'
   if (perfilHeroEl) perfilHeroEl.dataset.rankTier = visual.tier
   if (perfilHeroEl) perfilHeroEl.dataset.rankMotif = visual.motif || 'core'
+  if (perfilHeroEl) perfilHeroEl.dataset.rankEra = visual.era || 'core'
+  if (perfilHeroEl) perfilHeroEl.dataset.rankMaterial = visual.material || 'dark-glass'
   if (perfilAvatarEl) perfilAvatarEl.dataset.rankEmblem = visual.emblem
   if (perfilTituloRangoEl) perfilTituloRangoEl.dataset.rankEmblem = visual.emblem
 
@@ -324,7 +369,7 @@ function renderRutaRangos(progreso) {
       : `Nivel ${rango.desde}-${rango.hasta}`
 
     return `
-      <div class="rank-node ${clase}" data-rank-tier="${visual.tier}" data-rank-motif="${visual.motif || 'core'}" data-rank-power="${visual.power || '1'}" style="${estiloVisualRango(visual)}">
+      <div class="rank-node ${clase}" data-rank-tier="${visual.tier}" data-rank-motif="${visual.motif || 'core'}" data-rank-era="${visual.era || 'core'}" data-rank-material="${visual.material || 'dark-glass'}" data-rank-density="${visual.density || 'medium'}" data-rank-geometry="${visual.geometry || 'layered'}" data-rank-power="${visual.power || '1'}" style="${estiloVisualRango(visual)}">
         <div class="rank-node-head">
           <span class="rank-node-emblem">${escaparHtml(visual.emblem)}</span>
           <span class="rank-node-level">${rangoTexto}</span>
@@ -366,6 +411,7 @@ function estiloVisualRango(visual) {
     '--node-border-alpha': visual.power ? String(0.32 + (poder * 0.035)) : '',
     '--node-glow-boost': visual.power ? `${poder * 4}px` : '',
     '--node-glow-boost-lg': visual.power ? `${poder * 7}px` : '',
+    '--node-density': visual.density === 'minimal' ? '0.55' : visual.density === 'clean' ? '0.72' : visual.density === 'dense' ? '1.16' : visual.density === 'intense' ? '1.34' : '0.94',
   }
 
   return Object.entries(vars)
