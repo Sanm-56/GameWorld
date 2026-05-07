@@ -18,6 +18,7 @@ const modal = document.getElementById("storeModal")
 const boosterList = document.getElementById("storeBoosters")
 const coinList = document.getElementById("storeCoinsPackages")
 const cosmeticsList = document.getElementById("storeCosmetics")
+const cosmeticTabs = [...document.querySelectorAll("[data-cosmetic-tab]")]
 const statusEl = document.getElementById("storeStatus")
 const coinsEl = document.getElementById("storeCoins")
 const activeEl = document.getElementById("storeActiveBooster")
@@ -25,6 +26,7 @@ const openButtons = document.querySelectorAll("[data-open-store]")
 const closeButtons = document.querySelectorAll("[data-close-store]")
 
 let timer = null
+let cosmeticTabActiva = "fondo"
 
 function usuarioActual() {
   return localStorage.getItem("usuario") || localStorage.getItem("ultimo_usuario") || ""
@@ -40,6 +42,13 @@ function initStore() {
   })
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal.classList.contains("abierto")) cerrarTienda()
+  })
+  cosmeticTabs.forEach((button) => {
+    button.addEventListener("click", () => {
+      cosmeticTabActiva = button.dataset.cosmeticTab || "fondo"
+      cosmeticTabs.forEach((tab) => tab.classList.toggle("active", tab === button))
+      renderCosmeticos()
+    })
   })
 }
 
@@ -107,17 +116,20 @@ async function renderTienda() {
 }
 
 function renderCosmeticos() {
-  cosmeticsList.innerHTML = [
-    { tipo: "fondo", titulo: "Fondos", detalle: "Banners y atmosferas de perfil." },
-    { tipo: "id", titulo: "IDs", detalle: "Identidades visuales para destacar tu nombre." },
-    { tipo: "marco", titulo: "Marcos", detalle: "Bordes competitivos para tarjetas y ranking." },
-  ]
-    .map(renderCategoriaCosmeticos)
-    .join("")
+  const categoria = obtenerCategoriaActiva()
+  cosmeticsList.innerHTML = renderCategoriaCosmeticos(categoria)
 
   cosmeticsList.querySelectorAll("[data-buy-cosmetic]").forEach((button) => {
     button.addEventListener("click", () => comprarConMonedas("cosmetico", button.dataset.buyCosmetic))
   })
+}
+
+function obtenerCategoriaActiva() {
+  return {
+    fondo: { tipo: "fondo", titulo: "Fondos", detalle: "Banners y atmosferas de perfil." },
+    id: { tipo: "id", titulo: "IDs", detalle: "Identidades visuales para destacar tu nombre." },
+    marco: { tipo: "marco", titulo: "Marcos", detalle: "Bordes competitivos para tarjetas y ranking." },
+  }[cosmeticTabActiva] || { tipo: "fondo", titulo: "Fondos", detalle: "Banners y atmosferas de perfil." }
 }
 
 function renderCategoriaCosmeticos(categoria) {
