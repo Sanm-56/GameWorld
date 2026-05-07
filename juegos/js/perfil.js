@@ -212,6 +212,10 @@ function instalarDragRutaRangos() {
   if (!rangoRutaListEl || rutaDragInstalado) return
 
   rutaDragInstalado = true
+  rangoRutaListEl.tabIndex = 0
+  rangoRutaListEl.setAttribute('role', 'region')
+  rangoRutaListEl.setAttribute('aria-label', 'Ruta de rangos')
+
   let activo = false
   let inicioX = 0
   let scrollInicial = 0
@@ -219,10 +223,40 @@ function instalarDragRutaRangos() {
   let ultimaMarca = 0
   let velocidad = 0
   let raf = null
+  let tecladoRaf = null
+  let tecladoDelta = 0
+  let tecladoTimeout = null
 
   const detenerInercia = () => {
     if (raf) cancelAnimationFrame(raf)
     raf = null
+  }
+
+  const finalizarDesplazamientoTeclado = () => {
+    rangoRutaListEl.classList.remove('keyboard-scrolling')
+    tecladoTimeout = null
+  }
+
+  const prepararDesplazamientoTeclado = () => {
+    rangoRutaListEl.classList.add('keyboard-scrolling')
+    if (tecladoTimeout) clearTimeout(tecladoTimeout)
+    tecladoTimeout = setTimeout(finalizarDesplazamientoTeclado, 130)
+  }
+
+  const aplicarDesplazamientoTeclado = () => {
+    rangoRutaListEl.scrollLeft += tecladoDelta
+    tecladoDelta = 0
+    tecladoRaf = null
+  }
+
+  const desplazarConTeclado = (delta) => {
+    detenerInercia()
+    prepararDesplazamientoTeclado()
+    tecladoDelta += delta
+
+    if (!tecladoRaf) {
+      tecladoRaf = requestAnimationFrame(aplicarDesplazamientoTeclado)
+    }
   }
 
   const animarInercia = () => {
@@ -245,6 +279,7 @@ function instalarDragRutaRangos() {
     ultimaMarca = performance.now()
     velocidad = 0
     detenerInercia()
+    rangoRutaListEl.focus({ preventScroll: true })
     rangoRutaListEl.classList.add('dragging')
     rangoRutaListEl.setPointerCapture?.(event.pointerId)
   })
@@ -273,6 +308,23 @@ function instalarDragRutaRangos() {
   rangoRutaListEl.addEventListener('pointerup', finalizarDrag)
   rangoRutaListEl.addEventListener('pointercancel', finalizarDrag)
   rangoRutaListEl.addEventListener('pointerleave', finalizarDrag)
+
+  rangoRutaListEl.addEventListener('keydown', (event) => {
+    const anchoPaso = Math.max(96, rangoRutaListEl.clientWidth * 0.34)
+    const pasos = {
+      ArrowRight: anchoPaso,
+      ArrowLeft: -anchoPaso,
+      PageDown: rangoRutaListEl.clientWidth * 0.82,
+      PageUp: -rangoRutaListEl.clientWidth * 0.82,
+      Home: -rangoRutaListEl.scrollWidth,
+      End: rangoRutaListEl.scrollWidth,
+    }
+
+    if (!(event.key in pasos)) return
+
+    event.preventDefault()
+    desplazarConTeclado(pasos[event.key])
+  })
 }
 
 function getEstado(result) {

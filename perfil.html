@@ -2587,8 +2587,8 @@ body.sudoku-screen-shake{
   gap:12px;
   overflow-x:auto;
   overscroll-behavior-x:contain;
-  scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;
+  scroll-snap-type:x proximity;
+  scroll-behavior:auto;
   padding:4px 4px 14px;
   scrollbar-width:thin;
   scrollbar-color:var(--rank-primary) rgba(15,23,42,0.82);
@@ -2596,12 +2596,19 @@ body.sudoku-screen-shake{
   touch-action:pan-y;
   user-select:none;
   -webkit-overflow-scrolling:touch;
+  outline:none;
 }
 
-.rank-path-list.dragging{
+.rank-path-list.dragging,
+.rank-path-list.keyboard-scrolling{
   cursor:grabbing;
   scroll-snap-type:none;
   scroll-behavior:auto;
+}
+
+.rank-path-list:focus-visible{
+  box-shadow:0 0 0 2px rgba(var(--rank-rgb),0.34);
+  border-radius:16px;
 }
 
 .rank-path-list::-webkit-scrollbar{
