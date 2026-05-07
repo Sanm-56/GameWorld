@@ -198,21 +198,105 @@ select{
 
 .season-bonus-card{
   display:grid;
+  gap:16px;
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(56,189,248,0.24);
+  background:
+    linear-gradient(135deg, rgba(8,47,73,0.72), rgba(15,23,42,0.9) 48%, rgba(49,46,129,0.42)),
+    rgba(15,23,42,0.9);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.season-bonus-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg, transparent, rgba(125,211,252,0.08), transparent),
+    radial-gradient(circle at 80% 12%, rgba(56,189,248,0.18), transparent 30%);
+}
+
+.season-bonus-card > *{
+  position:relative;
+  z-index:1;
+}
+
+.season-header{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+}
+
+.season-kicker{
+  display:block;
+  margin-bottom:8px;
+  color:#7dd3fc;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+}
+
+.season-title{
+  margin:0;
+  font-size:clamp(24px, 4vw, 36px);
+  line-height:1;
+}
+
+.season-subtitle{
+  margin:8px 0 0;
+  color:#c4b5fd;
+  font-size:17px;
+  font-weight:800;
+}
+
+.season-pill{
+  flex:0 0 auto;
+  padding:9px 12px;
+  border:1px solid rgba(125,211,252,0.35);
+  border-radius:999px;
+  color:#e0f2fe;
+  background:rgba(2,6,23,0.52);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  box-shadow:0 0 24px rgba(56,189,248,0.14);
+}
+
+.season-form-grid{
+  display:grid;
+  grid-template-columns:minmax(140px, 0.55fr) minmax(220px, 1.45fr);
   gap:12px;
 }
 
-.bonus-current{
+.season-controls{
   display:grid;
-  gap:6px;
-  padding:14px;
-  border:1px solid rgba(250,204,21,0.2);
-  border-radius:14px;
-  background:rgba(250,204,21,0.08);
+  grid-template-columns:repeat(3, minmax(160px, 1fr)) auto;
+  gap:12px;
+  align-items:end;
+}
+
+.bonus-current{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px;
+  border:1px solid rgba(125,211,252,0.2);
+  border-radius:12px;
+  background:rgba(2,6,23,0.42);
 }
 
 .bonus-current strong{
   font-size:28px;
-  color:#fde68a;
+  color:#bae6fd;
+  text-shadow:0 0 18px rgba(56,189,248,0.36);
 }
 
 .bonus-state{
@@ -230,6 +314,14 @@ select{
   color:#cbd5e1;
   font-size:13px;
   font-weight:800;
+}
+
+.season-bonus-card input,
+.season-bonus-card select{
+  width:100%;
+  min-width:0;
+  border-color:rgba(125,211,252,0.22);
+  background:rgba(2,6,23,0.74);
 }
 
 .table-toolbar{
@@ -297,6 +389,16 @@ th:last-child{
   .admin-grid{
     grid-template-columns:1fr;
   }
+
+  .season-header,
+  .bonus-current{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .season-controls{
+    grid-template-columns:1fr 1fr;
+  }
 }
 
 @media (max-width:560px){
@@ -310,7 +412,9 @@ th:last-child{
 
   .control-row,
   .button-grid,
-  .reset-actions{
+  .reset-actions,
+  .season-form-grid,
+  .season-controls{
     display:grid;
     grid-template-columns:1fr;
   }
@@ -409,25 +513,49 @@ th:last-child{
     </div>
 
     <div class="section wide season-bonus-card">
-      <h3>Bonus de experiencia por temporada</h3>
-      <div class="bonus-current">
-        <span id="bonusJuegoActual">Juego: Sudoku</span>
-        <span>Bonus actual:</span>
-        <strong id="bonusActual">x1.0</strong>
-        <span id="bonusEstado" class="bonus-state">Bonus normal de temporada</span>
+      <div class="season-header">
+        <div>
+          <span class="season-kicker">Temporada activa</span>
+          <h3 class="season-title" id="temporadaTituloActual">Temporada 1</h3>
+          <p class="season-subtitle" id="temporadaSubtituloActual">Temporada actual</p>
+        </div>
+        <span class="season-pill">XP Snapshot</span>
       </div>
-      <div class="control-row">
+
+      <div class="season-form-grid">
         <label>
-          Juego con bonus
+          Numero temporada
+          <input id="temporadaNumero" type="number" min="1" step="1" value="1" aria-label="Numero de temporada">
+        </label>
+        <label>
+          Nombre temporada
+          <input id="temporadaNombre" type="text" value="Eclipse del Vacio" maxlength="80" aria-label="Nombre de temporada">
+        </label>
+      </div>
+
+      <div class="season-controls">
+        <label>
+          Juego con bonus XP
           <select id="bonusJuegoSelect" aria-label="Juego con bonus de experiencia"></select>
         </label>
         <label>
-          Multiplicador
+          Multiplicador XP
           <select id="bonusTemporadaSelect" aria-label="Cambiar bonus de experiencia"></select>
         </label>
-        <button class="success" onclick="guardarBonusTemporadaAdmin()">Guardar bonus</button>
+        <label>
+          Estado
+          <select id="temporadaEstadoSelect" aria-label="Estado de temporada"></select>
+        </label>
+        <button class="success" onclick="guardarTemporadaAdmin()">Guardar temporada</button>
       </div>
-      <p class="export-note">El bonus se aplica a torneo principal, minitorneos y niveles solitario antes del booster del usuario.</p>
+
+      <div class="bonus-current">
+        <span id="bonusJuegoActual">Juego con bonus: Sudoku</span>
+        <strong id="bonusActual">x1.0</strong>
+        <span id="bonusEstado" class="bonus-state">Temporada activa - bonus base</span>
+      </div>
+
+      <p class="export-note">La temporada no depende del torneo. Al iniciar partida, nivel o minitorneo, el bonus queda congelado y se usa hasta terminar.</p>
     </div>
 
     <div class="section wide">

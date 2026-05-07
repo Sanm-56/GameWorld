@@ -31,8 +31,22 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
   const resultadoNivel = await reportLevelResult(supabase, { usuario, juego, valor: numero, modo, posicion, invalido })
   const origenExperiencia = resultadoNivel ? "solitario" : obtenerOrigenExperiencia(juego)
   const snapshotBonusXP = await obtenerSnapshotBonusXP(juego, origenExperiencia)
+  const payloadConSnapshot = {
+    ...payload,
+    bonus_xp_aplicado: snapshotBonusXP?.bonusXPAplicado ?? 1,
+    temporada_id: snapshotBonusXP?.temporadaId || null,
+  }
 
-  const { error } = await supabase.from("partidas").insert(payload)
+  let { error } = await supabase
+    .from("partidas")
+    .insert(payloadConSnapshot)
+
+  if (error && esErrorColumnasSnapshot(error)) {
+    const fallback = await supabase
+      .from("partidas")
+      .insert(payload)
+    error = fallback.error
+  }
 
   if (error) {
     console.warn("No se pudo registrar la partida", error)
@@ -54,6 +68,14 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
   })
 
   limpiarSnapshotBonusXP(juego)
+}
+
+function esErrorColumnasSnapshot(error) {
+  const mensaje = String(error?.message || "")
+  return error?.code === "42703"
+    || mensaje.includes("bonus_xp_aplicado")
+    || mensaje.includes("temporada_id")
+    || mensaje.includes("Could not find")
 }
 
 async function obtenerPosicion(usuario, juego, modo) {

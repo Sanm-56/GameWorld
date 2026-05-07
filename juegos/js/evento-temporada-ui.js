@@ -12,8 +12,10 @@ async function initSeasonEvent() {
   }
 
   banner.style.display = "flex"
+  const temporada = destacado.temporada
+  const nombre = temporada?.nombre ? ` - ${temporada.nombre}` : ""
   banner.innerHTML = `
-    <strong>EVENTO DE TEMPORADA</strong>
+    <strong>TEMPORADA ${temporada?.numero || ""}${nombre}</strong>
     <span>${destacado.label} da ${formatearMultiplicador(destacado.bonus)} experiencia</span>
   `
 }

@@ -1,6 +1,17 @@
 import { supabase } from "./supabase.js"
 import { cleanText, errorMessage, escapeHtml, safeAlert, setCleanText } from "./mensajes.js"
-import { BONUS_TEMPORADA_VALORES, JUEGOS_TEMPORADA, etiquetaJuego, formatearMultiplicador, guardarBonusTemporada, obtenerBonusesTemporada, obtenerJuegoDestacadoTemporada } from "./experiencia-temporada.js"
+import {
+  BONUS_TEMPORADA_VALORES,
+  JUEGOS_TEMPORADA,
+  etiquetaJuego,
+  formatearMultiplicador,
+  guardarBonusTemporada,
+  guardarTemporadaActiva,
+  normalizarEstadoTemporada,
+  obtenerBonusesTemporada,
+  obtenerJuegoDestacadoTemporada,
+  obtenerTemporadaActiva,
+} from "./experiencia-temporada.js"
 
 const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch"])
 const NUMCATCH_DEFAULT_COND = "multiplos_3"
@@ -11,6 +22,8 @@ const TABLAS_RANKING_POR_JUEGO = {
 }
 let claveAdminSesion = ""
 let bonusesTemporada = {}
+let temporadaActiva = null
+let formularioTemporadaInicializado = false
 
 function escapeJsString(valor){
 return cleanText(valor)
@@ -712,6 +725,7 @@ return document.getElementById("juegoSelect")?.value || "sudoku"
 
 async function cargarBonusTemporadaAdmin(){
 bonusesTemporada = await obtenerBonusesTemporada()
+temporadaActiva = await obtenerTemporadaActiva()
 rellenarSelectorBonus()
 actualizarVistaBonusAdmin()
 }
@@ -725,10 +739,21 @@ juegoSelect.innerHTML = JUEGOS_TEMPORADA
 }
 
 const select = document.getElementById("bonusTemporadaSelect")
-if(!select || select.options.length) return
+if(select && !select.options.length){
 select.innerHTML = BONUS_TEMPORADA_VALORES
 .map((valor) => `<option value="${valor.toFixed(1)}">${formatearMultiplicador(valor)}</option>`)
 .join("")
+}
+
+const estadoSelect = document.getElementById("temporadaEstadoSelect")
+if(estadoSelect && !estadoSelect.options.length){
+estadoSelect.innerHTML = [
+["activa", "Activa"],
+["preparacion", "Preparacion"],
+["pausada", "Pausada"],
+["finalizada", "Finalizada"],
+].map(([value, label]) => `<option value="${value}">${label}</option>`).join("")
+}
 }
 
 function obtenerJuegoBonusSeleccionado(){
@@ -736,44 +761,97 @@ return document.getElementById("bonusJuegoSelect")?.value || "sudoku"
 }
 
 async function actualizarVistaBonusAdmin(){
-const juego = obtenerJuegoBonusSeleccionado()
-const bonus = Number(bonusesTemporada[juego] || 1)
+const temporada = temporadaActiva || await obtenerTemporadaActiva()
 const select = document.getElementById("bonusTemporadaSelect")
+const juegoSelect = document.getElementById("bonusJuegoSelect")
+if(!formularioTemporadaInicializado && juegoSelect && temporada?.bonusJuego){
+juegoSelect.value = temporada.bonusJuego
+}
+if(!formularioTemporadaInicializado && select && temporada?.bonusXP){
+select.value = Number(temporada.bonusXP).toFixed(1)
+}
+
+const juego = juegoSelect?.value || temporada?.bonusJuego || obtenerJuegoBonusSeleccionado()
+const bonus = Number(select?.value || (juego === temporada?.bonusJuego ? temporada?.bonusXP : bonusesTemporada[juego]) || 1)
 const juegoEl = document.getElementById("bonusJuegoActual")
 const actualEl = document.getElementById("bonusActual")
 const estadoEl = document.getElementById("bonusEstado")
+const numeroInput = document.getElementById("temporadaNumero")
+const nombreInput = document.getElementById("temporadaNombre")
+const estadoSelect = document.getElementById("temporadaEstadoSelect")
+const tituloEl = document.getElementById("temporadaTituloActual")
+const subtituloEl = document.getElementById("temporadaSubtituloActual")
 const destacado = await obtenerJuegoDestacadoTemporada()
 
 if(select) select.value = bonus.toFixed(1)
-if(juegoEl) setCleanText(juegoEl, "Juego: " + etiquetaJuego(juego))
+if(!formularioTemporadaInicializado && numeroInput) numeroInput.value = temporada?.numero || 1
+if(!formularioTemporadaInicializado && nombreInput) nombreInput.value = temporada?.nombre || "Temporada actual"
+if(!formularioTemporadaInicializado && estadoSelect) estadoSelect.value = normalizarEstadoTemporada(temporada?.estado, temporada?.activa)
+formularioTemporadaInicializado = true
+if(tituloEl) setCleanText(tituloEl, `Temporada ${temporada?.numero || 1}`)
+if(subtituloEl) setCleanText(subtituloEl, temporada?.nombre || "Temporada actual")
+if(juegoEl) setCleanText(juegoEl, "Juego con bonus: " + etiquetaJuego(juego))
 if(actualEl) setCleanText(actualEl, formatearMultiplicador(bonus))
 if(estadoEl){
 const esDestacado = destacado?.key === juego && Number(destacado?.bonus || 1) > 1
-setCleanText(estadoEl, esDestacado ? "Juego destacado de temporada" : "Bonus normal de temporada")
+const estadoTexto = normalizarEstadoTemporada(temporada?.estado, temporada?.activa)
+setCleanText(estadoEl, esDestacado ? `Temporada ${estadoTexto} - juego destacado` : `Temporada ${estadoTexto} - bonus base`)
 estadoEl.classList.toggle("highlight", esDestacado)
 }
 }
 
 async function guardarBonusTemporadaAdmin(){
+return guardarTemporadaAdmin()
+}
+
+async function guardarTemporadaAdmin(){
 const juego = obtenerJuegoBonusSeleccionado()
 const valor = document.getElementById("bonusTemporadaSelect")?.value || "1.0"
-const rpc = await ejecutarRpcAdmin("admin_guardar_bonus_temporada", {
+const numero = Number(document.getElementById("temporadaNumero")?.value || 1)
+const nombre = document.getElementById("temporadaNombre")?.value || "Temporada actual"
+const estado = normalizarEstadoTemporada(document.getElementById("temporadaEstadoSelect")?.value || "activa")
+const id = temporadaActiva?.id || `temporada-${Math.max(1, Math.trunc(numero || 1))}`
+const payloadTemporada = {
+id,
+numero,
+nombre,
+estado,
+bonusJuego: juego,
+bonusXP: Number(valor),
+activa: estado === "activa",
+fechaInicio: temporadaActiva?.fechaInicio || new Date().toISOString(),
+fechaFin: estado === "finalizada" ? (temporadaActiva?.fechaFin || new Date().toISOString()) : null,
+visual: temporadaActiva?.visual || {},
+}
+
+const rpcTemporada = await ejecutarRpcAdmin("admin_guardar_temporada_activa", {
+p_id: payloadTemporada.id,
+p_numero: payloadTemporada.numero,
+p_nombre: payloadTemporada.nombre,
 p_juego: juego,
 p_multiplicador: Number(valor),
+p_estado: payloadTemporada.estado,
 })
-if(rpc.ok){
-bonusesTemporada[juego] = Number(valor)
+if(rpcTemporada.ok){
+temporadaActiva = payloadTemporada
+bonusesTemporada = await obtenerBonusesTemporada()
+formularioTemporadaInicializado = false
 await actualizarVistaBonusAdmin()
-safeAlert("Bonus guardado para " + etiquetaJuego(juego))
+safeAlert("Temporada guardada: " + cleanText(payloadTemporada.nombre))
 return
 }
 
-const resultado = await guardarBonusTemporada(juego, valor)
-bonusesTemporada[juego] = resultado.bonus
+const resultado = await guardarTemporadaActiva(payloadTemporada)
+if(!resultado.ok){
+const legado = await guardarBonusTemporada(juego, valor)
+bonusesTemporada[juego] = legado.bonus
+}
+temporadaActiva = resultado.temporada || payloadTemporada
+formularioTemporadaInicializado = false
 await actualizarVistaBonusAdmin()
 safeAlert(resultado.ok
-? "Bonus guardado para " + etiquetaJuego(juego)
-: "Bonus guardado localmente. Ejecuta el SQL actualizado para habilitar el guardado admin con RLS.")
+? "Temporada guardada: " + cleanText(payloadTemporada.nombre)
+: "Temporada guardada localmente. Ejecuta el SQL actualizado para persistencia global.")
 }
 
 function inicioDeSemanaISO(){
@@ -987,6 +1065,7 @@ window.reiniciarTemporada = reiniciarTemporada
 window.resetTotal = resetTotal
 window.verEstado = verEstado
 window.guardarBonusTemporadaAdmin = guardarBonusTemporadaAdmin
+window.guardarTemporadaAdmin = guardarTemporadaAdmin
 window.exportarRankingActual = exportarRankingActual
 window.exportarTablasRanking = exportarTablasRanking
 window.exportarHistorialPartidas = exportarHistorialPartidas
@@ -1005,6 +1084,14 @@ document.getElementById('juegoSelect')?.addEventListener('change', () => {
 })
 
 document.getElementById('bonusJuegoSelect')?.addEventListener('change', () => {
+  actualizarVistaBonusAdmin()
+})
+
+document.getElementById('bonusTemporadaSelect')?.addEventListener('change', () => {
+  actualizarVistaBonusAdmin()
+})
+
+document.getElementById('temporadaEstadoSelect')?.addEventListener('change', () => {
   actualizarVistaBonusAdmin()
 })
 

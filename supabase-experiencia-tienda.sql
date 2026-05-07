@@ -1,6 +1,117 @@
 -- Extensiones de experiencia, temporada y tienda.
 -- Ejecutar en Supabase SQL Editor si quieres persistencia global.
 
+create table if not exists public.temporadas (
+  id text primary key,
+  numero integer,
+  nombre text not null,
+  estado text not null default 'activa',
+  bonus_juego text,
+  bonus_xp numeric(3,1) not null default 1.0,
+  activa boolean not null default false,
+  fecha_inicio timestamptz not null default now(),
+  fecha_fin timestamptz,
+  visual_config jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+alter table public.temporadas
+add column if not exists numero integer;
+
+alter table public.temporadas
+add column if not exists estado text not null default 'activa';
+
+alter table public.temporadas
+add column if not exists bonus_juego text;
+
+alter table public.temporadas
+add column if not exists bonus_xp numeric(3,1) not null default 1.0;
+
+alter table public.temporadas
+add column if not exists visual_config jsonb not null default '{}'::jsonb;
+
+alter table public.temporadas
+drop constraint if exists temporadas_estado_check;
+
+alter table public.temporadas
+add constraint temporadas_estado_check
+check (estado in ('activa', 'preparacion', 'pausada', 'finalizada'));
+
+alter table public.temporadas
+drop constraint if exists temporadas_bonus_juego_check;
+
+alter table public.temporadas
+add constraint temporadas_bonus_juego_check
+check (
+  bonus_juego is null
+  or bonus_juego in (
+    'sudoku',
+    'memoria',
+    'matematicas',
+    'flashmind',
+    'numcatch',
+    'ajedrez',
+    'domino',
+    'damas'
+  )
+);
+
+alter table public.temporadas
+drop constraint if exists temporadas_bonus_xp_check;
+
+alter table public.temporadas
+add constraint temporadas_bonus_xp_check
+check (bonus_xp between 1.0 and 3.5);
+
+update public.temporadas
+set
+  numero = coalesce(numero, 1),
+  estado = case when activa then 'activa' else coalesce(nullif(estado, ''), 'finalizada') end,
+  bonus_juego = coalesce(bonus_juego, 'sudoku'),
+  bonus_xp = coalesce(bonus_xp, 1.0),
+  visual_config = coalesce(visual_config, '{}'::jsonb)
+where id = 'temporada-actual'
+   or numero is null
+   or bonus_juego is null;
+
+insert into public.temporadas (
+  id,
+  numero,
+  nombre,
+  estado,
+  bonus_juego,
+  bonus_xp,
+  activa,
+  fecha_inicio,
+  visual_config
+)
+values (
+  'temporada-actual',
+  1,
+  'Eclipse del Vacio',
+  'activa',
+  'sudoku',
+  1.0,
+  true,
+  now(),
+  '{}'::jsonb
+)
+on conflict (id) do update set
+  numero = coalesce(public.temporadas.numero, excluded.numero),
+  estado = case when public.temporadas.activa then 'activa' else public.temporadas.estado end,
+  bonus_juego = coalesce(public.temporadas.bonus_juego, excluded.bonus_juego),
+  bonus_xp = coalesce(public.temporadas.bonus_xp, excluded.bonus_xp),
+  visual_config = coalesce(public.temporadas.visual_config, excluded.visual_config);
+
+alter table public.partidas
+add column if not exists bonus_xp_aplicado numeric(3,1) not null default 1.0;
+
+alter table public.partidas
+add column if not exists temporada_id text;
+
+create index if not exists partidas_temporada_idx
+on public.partidas (temporada_id, juego, fecha desc);
+
 create table if not exists public.bonus_temporada (
   juego text primary key check (juego in (
     'sudoku',
@@ -66,6 +177,105 @@ begin
     multiplicador = excluded.multiplicador,
     updated_at = excluded.updated_at;
 
+  update public.temporadas
+  set bonus_juego = p_juego,
+      bonus_xp = multiplicador_limpio
+  where activa = true;
+
+  return true;
+end;
+$$;
+
+create or replace function public.admin_guardar_temporada_activa(
+  p_clave text,
+  p_id text,
+  p_numero integer,
+  p_nombre text,
+  p_juego text,
+  p_multiplicador numeric,
+  p_estado text default 'activa'
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  estado_limpio text := coalesce(nullif(lower(btrim(p_estado)), ''), 'activa');
+  multiplicador_limpio numeric(3,1);
+  id_limpio text := coalesce(nullif(btrim(p_id), ''), 'temporada-' || greatest(coalesce(p_numero, 1), 1)::text);
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  if estado_limpio not in ('activa', 'preparacion', 'pausada', 'finalizada') then
+    return false;
+  end if;
+
+  if p_juego not in (
+    'sudoku',
+    'memoria',
+    'matematicas',
+    'flashmind',
+    'numcatch',
+    'ajedrez',
+    'domino',
+    'damas'
+  ) then
+    return false;
+  end if;
+
+  multiplicador_limpio := round(greatest(1.0, least(3.5, coalesce(p_multiplicador, 1.0)))::numeric, 1);
+
+  if estado_limpio = 'activa' then
+    update public.temporadas
+    set activa = false,
+        estado = case when estado = 'activa' then 'finalizada' else estado end,
+        fecha_fin = coalesce(fecha_fin, now())
+    where id <> id_limpio
+      and activa = true;
+  end if;
+
+  insert into public.temporadas (
+    id,
+    numero,
+    nombre,
+    estado,
+    bonus_juego,
+    bonus_xp,
+    activa,
+    fecha_inicio,
+    fecha_fin,
+    visual_config
+  )
+  values (
+    id_limpio,
+    greatest(coalesce(p_numero, 1), 1),
+    coalesce(nullif(btrim(p_nombre), ''), 'Temporada ' || greatest(coalesce(p_numero, 1), 1)::text),
+    estado_limpio,
+    p_juego,
+    multiplicador_limpio,
+    estado_limpio = 'activa',
+    now(),
+    case when estado_limpio = 'finalizada' then now() else null end,
+    '{}'::jsonb
+  )
+  on conflict (id) do update set
+    numero = excluded.numero,
+    nombre = excluded.nombre,
+    estado = excluded.estado,
+    bonus_juego = excluded.bonus_juego,
+    bonus_xp = excluded.bonus_xp,
+    activa = excluded.activa,
+    fecha_fin = excluded.fecha_fin;
+
+  insert into public.bonus_temporada (juego, multiplicador, updated_at)
+  values (p_juego, multiplicador_limpio, now())
+  on conflict (juego) do update set
+    multiplicador = excluded.multiplicador,
+    updated_at = excluded.updated_at;
+
   return true;
 end;
 $$;
@@ -104,9 +314,22 @@ on public.usuario_cosmeticos (usuario_id, equipado, created_at desc);
 -- usuario_boosters: lectura/escritura publica para que el cliente actual pueda activar boosters sin auth.uid().
 -- usuario_cosmeticos: lectura publica para rankings/perfiles y upsert publico para compras/equipado.
 
+alter table public.temporadas enable row level security;
 alter table public.bonus_temporada enable row level security;
 alter table public.usuario_boosters enable row level security;
 alter table public.usuario_cosmeticos enable row level security;
+
+drop policy if exists temporadas_anon_select on public.temporadas;
+
+create policy temporadas_anon_select
+on public.temporadas
+for select
+to anon, authenticated
+using (true);
+
+revoke insert, update, delete on table public.temporadas from anon, authenticated;
+grant select on table public.temporadas to anon, authenticated;
+grant execute on function public.admin_guardar_temporada_activa(text, text, integer, text, text, numeric, text) to anon, authenticated;
 
 drop policy if exists bonus_temporada_anon_select on public.bonus_temporada;
 drop policy if exists bonus_temporada_anon_insert on public.bonus_temporada;
