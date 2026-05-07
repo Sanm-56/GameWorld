@@ -3,6 +3,7 @@ import { registrarXpPorPartida } from "./progreso-nivel.js"
 import { reportLevelResult } from "./solitario-niveles.js"
 import { obtenerOrigenExperiencia } from "./mini-torneo.js"
 import { registrarMonedasPorActividad } from "./tienda.js"
+import { limpiarSnapshotBonusXP, obtenerSnapshotBonusXP } from "./experiencia-temporada.js"
 
 const FALLBACK_TABLES = {
   ajedrez: "ranking_ajedrez",
@@ -29,6 +30,7 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
 
   const resultadoNivel = await reportLevelResult(supabase, { usuario, juego, valor: numero, modo, posicion, invalido })
   const origenExperiencia = resultadoNivel ? "solitario" : obtenerOrigenExperiencia(juego)
+  const snapshotBonusXP = await obtenerSnapshotBonusXP(juego, origenExperiencia)
 
   const { error } = await supabase.from("partidas").insert(payload)
 
@@ -42,6 +44,7 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     juego,
     posicion,
     origen: origenExperiencia,
+    bonusXPAplicado: snapshotBonusXP?.bonusXPAplicado,
   })
 
   registrarMonedasPorActividad(usuario, {
@@ -49,6 +52,8 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     origen: origenExperiencia,
     accionKey: `partida:${usuario}:${juego}:${origenExperiencia}:${Date.now()}`,
   })
+
+  limpiarSnapshotBonusXP(juego)
 }
 
 async function obtenerPosicion(usuario, juego, modo) {

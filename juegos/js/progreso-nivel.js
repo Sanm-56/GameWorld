@@ -156,14 +156,16 @@ export async function obtenerRecompensasHastaNivel(nivel) {
   return data || []
 }
 
-export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, accionKey = null, juego = null, origen = 'torneo' }) {
+export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, accionKey = null, juego = null, origen = 'torneo', bonusXPAplicado = null }) {
   if (!usuario) return null
 
   const xpBase = Math.max(0, Number(xpGanado) || 0)
   if (!xpBase) return null
 
   const multiplicadorOrigen = multiplicadorOrigenExperiencia(origen)
-  const bonusTemporada = juego ? await obtenerBonusTemporada(juego) : 1
+  const bonusTemporada = Number.isFinite(Number(bonusXPAplicado))
+    ? Number(bonusXPAplicado)
+    : juego ? await obtenerBonusTemporada(juego) : 1
   const bonusUsuario = await obtenerBonusUsuario(usuario)
   const xp = Math.max(1, Math.round(xpBase * multiplicadorOrigen * bonusTemporada * bonusUsuario))
   if (!xp) return null
@@ -235,7 +237,7 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
   }
 }
 
-export async function registrarXpPorPartida({ usuario, juego, posicion, partidaId = null, origen = 'torneo' }) {
+export async function registrarXpPorPartida({ usuario, juego, posicion, partidaId = null, origen = 'torneo', bonusXPAplicado = null }) {
   if (!usuario || !juego) return []
 
   const baseKey = partidaId || `${juego}:${Date.now()}:${Math.random().toString(16).slice(2)}`
@@ -246,7 +248,8 @@ export async function registrarXpPorPartida({ usuario, juego, posicion, partidaI
       xpGanado: XP_ACCIONES.partida_completada,
       juego,
       origen,
-      detalle: { juego, posicion, origen },
+      bonusXPAplicado,
+      detalle: { juego, posicion, origen, bonusXPAplicado },
       accionKey: `partida:${baseKey}`,
     },
     {
@@ -255,7 +258,8 @@ export async function registrarXpPorPartida({ usuario, juego, posicion, partidaI
       xpGanado: XP_ACCIONES.torneo_participacion,
       juego,
       origen,
-      detalle: { juego, posicion, origen },
+      bonusXPAplicado,
+      detalle: { juego, posicion, origen, bonusXPAplicado },
       accionKey: `torneo:${baseKey}`,
     },
   ]
@@ -268,7 +272,8 @@ export async function registrarXpPorPartida({ usuario, juego, posicion, partidaI
       xpGanado: xpRanking,
       juego,
       origen,
-      detalle: { juego, posicion, origen },
+      bonusXPAplicado,
+      detalle: { juego, posicion, origen, bonusXPAplicado },
       accionKey: `ranking:${baseKey}`,
     })
   }

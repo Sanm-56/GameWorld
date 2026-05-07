@@ -16,7 +16,9 @@ export const BONUS_TEMPORADA_VALORES = Array.from({ length: 26 }, (_, index) => 
 })
 
 const STORAGE_KEY = "bonus_temporada_juegos"
+const SNAPSHOT_KEY = "bonus_xp_partida_snapshot"
 const DEFAULT_BONUS = 1
+const SNAPSHOT_TTL_MS = 3 * 60 * 60 * 1000
 
 export function etiquetaJuego(juego) {
   return JUEGOS_TEMPORADA.find((item) => item.key === juego)?.label || juego || "-"
@@ -43,6 +45,33 @@ export async function obtenerBonusTemporada(juego) {
   }
 
   return normalizarBonus(data?.multiplicador ?? fallback)
+}
+
+export async function crearSnapshotBonusXP(juego, origen = "torneo") {
+  if (!juego) return null
+
+  const bonus = await obtenerBonusTemporada(juego)
+  const snapshot = {
+    juego,
+    origen,
+    bonusXPAplicado: normalizarBonus(bonus),
+    createdAt: new Date().toISOString(),
+  }
+  localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snapshot))
+  return snapshot
+}
+
+export async function obtenerSnapshotBonusXP(juego, origen = "torneo") {
+  const snapshot = leerSnapshotBonusXP()
+  if (snapshotValido(snapshot, juego, origen)) return snapshot
+  return crearSnapshotBonusXP(juego, origen)
+}
+
+export function limpiarSnapshotBonusXP(juego = null) {
+  const snapshot = leerSnapshotBonusXP()
+  if (!juego || snapshot?.juego === juego) {
+    localStorage.removeItem(SNAPSHOT_KEY)
+  }
 }
 
 export async function obtenerBonusesTemporada() {
@@ -112,4 +141,22 @@ function guardarBonusLocal(juego, bonus) {
   const actuales = leerBonusesLocales()
   actuales[juego] = normalizarBonus(bonus)
   localStorage.setItem(STORAGE_KEY, JSON.stringify(actuales))
+}
+
+function leerSnapshotBonusXP() {
+  try {
+    return JSON.parse(localStorage.getItem(SNAPSHOT_KEY) || "null")
+  } catch {
+    return null
+  }
+}
+
+function snapshotValido(snapshot, juego, origen) {
+  if (!snapshot || snapshot.juego !== juego || snapshot.origen !== origen) return false
+
+  const createdAt = Date.parse(snapshot.createdAt)
+  if (!Number.isFinite(createdAt)) return false
+  if (Date.now() - createdAt > SNAPSHOT_TTL_MS) return false
+
+  return Number.isFinite(Number(snapshot.bonusXPAplicado))
 }

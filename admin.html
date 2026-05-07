@@ -224,6 +224,14 @@ select{
   color:#fb923c;
 }
 
+.season-bonus-card label{
+  display:grid;
+  gap:6px;
+  color:#cbd5e1;
+  font-size:13px;
+  font-weight:800;
+}
+
 .table-toolbar{
   display:flex;
   justify-content:space-between;
@@ -409,7 +417,14 @@ th:last-child{
         <span id="bonusEstado" class="bonus-state">Bonus normal de temporada</span>
       </div>
       <div class="control-row">
-        <select id="bonusTemporadaSelect" aria-label="Cambiar bonus de experiencia"></select>
+        <label>
+          Juego con bonus
+          <select id="bonusJuegoSelect" aria-label="Juego con bonus de experiencia"></select>
+        </label>
+        <label>
+          Multiplicador
+          <select id="bonusTemporadaSelect" aria-label="Cambiar bonus de experiencia"></select>
+        </label>
         <button class="success" onclick="guardarBonusTemporadaAdmin()">Guardar bonus</button>
       </div>
       <p class="export-note">El bonus se aplica a torneo principal, minitorneos y niveles solitario antes del booster del usuario.</p>

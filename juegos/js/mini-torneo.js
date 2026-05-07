@@ -1,4 +1,5 @@
 import { installSafeAlert } from "./mensajes.js"
+import { obtenerSnapshotBonusXP } from "./experiencia-temporada.js"
 
 installSafeAlert()
 
@@ -25,6 +26,7 @@ export function obtenerOrigenExperiencia(juego) {
 
 export async function obtenerInicioTorneo(supabase, juego) {
   if (esMiniTorneo(juego)) {
+    await obtenerSnapshotBonusXP(juego, "minitorneo")
     const salaId = localStorage.getItem("solitario_sala_id")
     const { data } = await supabase
       .from("salas")
@@ -37,8 +39,11 @@ export async function obtenerInicioTorneo(supabase, juego) {
   }
 
   if (esNivelSolitario(juego)) {
+    await obtenerSnapshotBonusXP(juego, "solitario")
     return inicioSeguroParaSolitario(juego, "nivel", leerContextoNivel()?.startedAt)
   }
+
+  await obtenerSnapshotBonusXP(juego, "torneo")
 
   const { data } = await supabase
     .from("estado_torneo")

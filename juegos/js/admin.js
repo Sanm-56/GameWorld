@@ -1,6 +1,6 @@
 import { supabase } from "./supabase.js"
 import { cleanText, errorMessage, escapeHtml, safeAlert, setCleanText } from "./mensajes.js"
-import { BONUS_TEMPORADA_VALORES, etiquetaJuego, formatearMultiplicador, guardarBonusTemporada, obtenerBonusesTemporada, obtenerJuegoDestacadoTemporada } from "./experiencia-temporada.js"
+import { BONUS_TEMPORADA_VALORES, JUEGOS_TEMPORADA, etiquetaJuego, formatearMultiplicador, guardarBonusTemporada, obtenerBonusesTemporada, obtenerJuegoDestacadoTemporada } from "./experiencia-temporada.js"
 
 const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch"])
 const NUMCATCH_DEFAULT_COND = "multiplos_3"
@@ -717,6 +717,13 @@ actualizarVistaBonusAdmin()
 }
 
 function rellenarSelectorBonus(){
+const juegoSelect = document.getElementById("bonusJuegoSelect")
+if(juegoSelect && !juegoSelect.options.length){
+juegoSelect.innerHTML = JUEGOS_TEMPORADA
+.map((juego) => `<option value="${juego.key}">${juego.label}</option>`)
+.join("")
+}
+
 const select = document.getElementById("bonusTemporadaSelect")
 if(!select || select.options.length) return
 select.innerHTML = BONUS_TEMPORADA_VALORES
@@ -724,8 +731,12 @@ select.innerHTML = BONUS_TEMPORADA_VALORES
 .join("")
 }
 
+function obtenerJuegoBonusSeleccionado(){
+return document.getElementById("bonusJuegoSelect")?.value || "sudoku"
+}
+
 async function actualizarVistaBonusAdmin(){
-const juego = obtenerJuegoSeleccionado()
+const juego = obtenerJuegoBonusSeleccionado()
 const bonus = Number(bonusesTemporada[juego] || 1)
 const select = document.getElementById("bonusTemporadaSelect")
 const juegoEl = document.getElementById("bonusJuegoActual")
@@ -744,7 +755,7 @@ estadoEl.classList.toggle("highlight", esDestacado)
 }
 
 async function guardarBonusTemporadaAdmin(){
-const juego = obtenerJuegoSeleccionado()
+const juego = obtenerJuegoBonusSeleccionado()
 const valor = document.getElementById("bonusTemporadaSelect")?.value || "1.0"
 const rpc = await ejecutarRpcAdmin("admin_guardar_bonus_temporada", {
 p_juego: juego,
@@ -989,9 +1000,12 @@ function syncNumcatchUI(){
 
 document.getElementById('juegoSelect')?.addEventListener('change', () => {
   syncNumcatchUI()
-  actualizarVistaBonusAdmin()
   cargarRanking()
   cargarVistaAdmin()
+})
+
+document.getElementById('bonusJuegoSelect')?.addEventListener('change', () => {
+  actualizarVistaBonusAdmin()
 })
 
 syncNumcatchUI()
