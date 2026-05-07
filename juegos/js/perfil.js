@@ -76,6 +76,108 @@ const RANGOS_VISUALES = {
   'leyenda maxima': { tier: 'leyenda-maxima', emblem: 'LM' },
 }
 
+const TEMAS_RANGO_AVANZADO = [
+  {
+    match: ['vacio', 'vac', 'umbra', 'sombras'],
+    tier: 'advanced-void',
+    motif: 'void',
+    primary: '#8b5cf6',
+    secondary: '#050816',
+    accent: '#c084fc',
+    rgb: '139,92,246',
+    title: '#f3e8ff',
+    glyphs: ['VX', 'UM', 'SV', 'VP'],
+  },
+  {
+    match: ['astral', 'estrellas', 'constelacion', 'celestial', 'aurora'],
+    tier: 'advanced-astral',
+    motif: 'stars',
+    primary: '#e0f2fe',
+    secondary: '#38bdf8',
+    accent: '#93c5fd',
+    rgb: '224,242,254',
+    title: '#ffffff',
+    glyphs: ['AR', 'ST', 'CE', 'AU'],
+  },
+  {
+    match: ['carmesi', 'carmes', 'juicio', 'llama', 'cenizas'],
+    tier: 'advanced-crimson',
+    motif: 'flare',
+    primary: '#fb7185',
+    secondary: '#ef4444',
+    accent: '#fbbf24',
+    rgb: '251,113,133',
+    title: '#ffe4e6',
+    glyphs: ['CR', 'JG', 'FL', 'CN'],
+  },
+  {
+    match: ['eclipse', 'sol muerto'],
+    tier: 'advanced-eclipse',
+    motif: 'eclipse',
+    primary: '#f8fafc',
+    secondary: '#7c3aed',
+    accent: '#f59e0b',
+    rgb: '248,250,252',
+    title: '#ffffff',
+    glyphs: ['EC', 'SL', 'OR', 'NO'],
+  },
+  {
+    match: ['ether', 'infinito', 'eternidad', 'eterno', 'absoluto'],
+    tier: 'advanced-infinity',
+    motif: 'infinity',
+    primary: '#67e8f9',
+    secondary: '#a78bfa',
+    accent: '#f0abfc',
+    rgb: '103,232,249',
+    title: '#ecfeff',
+    glyphs: ['IN', 'ET', 'AE', 'OM'],
+  },
+  {
+    match: ['abismo', 'ruina', 'ruinas', 'perdido', 'caidos', 'caid'],
+    tier: 'advanced-abyss',
+    motif: 'fracture',
+    primary: '#22d3ee',
+    secondary: '#0f172a',
+    accent: '#64748b',
+    rgb: '34,211,238',
+    title: '#cffafe',
+    glyphs: ['AB', 'RN', 'CX', 'FD'],
+  },
+  {
+    match: ['trono', 'corona', 'reino', 'rey', 'senor', 'monarca', 'soberano', 'emperador'],
+    tier: 'advanced-crown',
+    motif: 'crown',
+    primary: '#fef08a',
+    secondary: '#f59e0b',
+    accent: '#f472b6',
+    rgb: '254,240,138',
+    title: '#fff7ed',
+    glyphs: ['KR', 'TR', 'RG', 'MN'],
+  },
+  {
+    match: ['profeta', 'heraldo', 'emisario', 'portador', 'vigia', 'viga', 'guardian', 'guardi', 'custodio', 'heredero'],
+    tier: 'advanced-oracle',
+    motif: 'sigil',
+    primary: '#34d399',
+    secondary: '#06b6d4',
+    accent: '#fef3c7',
+    rgb: '52,211,153',
+    title: '#d1fae5',
+    glyphs: ['SG', 'HR', 'PT', 'VG'],
+  },
+  {
+    match: ['devorador', 'devastador', 'tiran', 'titan', 'conquistador'],
+    tier: 'advanced-war',
+    motif: 'blade',
+    primary: '#f97316',
+    secondary: '#dc2626',
+    accent: '#fde047',
+    rgb: '249,115,22',
+    title: '#ffedd5',
+    glyphs: ['WR', 'DV', 'TX', 'CQ'],
+  },
+]
+
 let rutaDragInstalado = false
 
 function formatearTiempo(segundos) {
@@ -98,30 +200,75 @@ function normalizarTextoVisual(valor) {
     .trim()
 }
 
+function hashTextoVisual(valor) {
+  return [...String(valor || '')].reduce((total, char) => ((total << 5) - total + char.charCodeAt(0)) | 0, 0)
+}
+
+function obtenerTemaAvanzado(clave) {
+  return TEMAS_RANGO_AVANZADO.find((tema) => tema.match.some((fragmento) => clave.includes(fragmento)))
+    || TEMAS_RANGO_AVANZADO[Math.abs(hashTextoVisual(clave)) % TEMAS_RANGO_AVANZADO.length]
+}
+
+function obtenerInicialesRango(clave) {
+  const partes = clave.split(/\s+/).filter(Boolean)
+  return partes.length
+    ? partes.slice(0, 2).map((parte) => parte[0]).join('').toUpperCase()
+    : 'RX'
+}
+
 function obtenerVisualRango(titulo) {
   const clave = normalizarTextoVisual(titulo)
   const visual = RANGOS_VISUALES[clave]
 
   if (visual) return visual
 
-  const partes = clave.split(/\s+/).filter(Boolean)
-  const iniciales = partes.length
-    ? partes.slice(0, 2).map((parte) => parte[0]).join('').toUpperCase()
-    : 'RX'
+  const tema = obtenerTemaAvanzado(clave)
+  const firma = Math.abs(hashTextoVisual(clave))
+  const poder = 1 + (firma % 5)
+  const glyph = tema.glyphs[firma % tema.glyphs.length] || obtenerInicialesRango(clave)
 
   return {
-    tier: 'ascendido',
-    emblem: iniciales,
+    tier: tema.tier,
+    emblem: glyph,
+    motif: tema.motif,
+    power: String(poder),
+    primary: tema.primary,
+    secondary: tema.secondary,
+    accent: tema.accent,
+    rgb: tema.rgb,
+    title: tema.title,
   }
 }
 
 function aplicarVisualRangoActual(titulo) {
   const visual = obtenerVisualRango(titulo)
+  const poder = Number(visual.power || 1)
 
   document.body.dataset.rankTier = visual.tier
+  document.body.dataset.rankMotif = visual.motif || 'core'
+  document.body.dataset.rankPower = visual.power || '1'
   if (perfilHeroEl) perfilHeroEl.dataset.rankTier = visual.tier
+  if (perfilHeroEl) perfilHeroEl.dataset.rankMotif = visual.motif || 'core'
   if (perfilAvatarEl) perfilAvatarEl.dataset.rankEmblem = visual.emblem
   if (perfilTituloRangoEl) perfilTituloRangoEl.dataset.rankEmblem = visual.emblem
+
+  const rootVars = {
+    '--rank-primary': visual.primary,
+    '--rank-secondary': visual.secondary,
+    '--rank-accent': visual.accent,
+    '--rank-rgb': visual.rgb,
+    '--rank-title': visual.title,
+    '--rank-power': visual.power,
+    '--rank-glow-boost': visual.power ? `${poder * 8}px` : '',
+    '--rank-border': visual.rgb ? `rgba(${visual.rgb},${0.42 + (poder * 0.04)})` : '',
+    '--rank-glow': visual.rgb ? `rgba(${visual.rgb},${0.26 + (poder * 0.035)})` : '',
+    '--rank-glow-soft': visual.rgb ? `rgba(${visual.rgb},${0.13 + (poder * 0.02)})` : '',
+  }
+
+  Object.entries(rootVars).forEach(([name, value]) => {
+    if (value) document.body.style.setProperty(name, value)
+    else document.body.style.removeProperty(name)
+  })
 }
 
 function renderPill(el, label, value) {
@@ -177,7 +324,7 @@ function renderRutaRangos(progreso) {
       : `Nivel ${rango.desde}-${rango.hasta}`
 
     return `
-      <div class="rank-node ${clase}" data-rank-tier="${visual.tier}">
+      <div class="rank-node ${clase}" data-rank-tier="${visual.tier}" data-rank-motif="${visual.motif || 'core'}" data-rank-power="${visual.power || '1'}" style="${estiloVisualRango(visual)}">
         <div class="rank-node-head">
           <span class="rank-node-emblem">${escaparHtml(visual.emblem)}</span>
           <span class="rank-node-level">${rangoTexto}</span>
@@ -206,6 +353,25 @@ function renderRutaRangos(progreso) {
 
   const restantes = Math.max(0, siguiente.desde - nivel)
   rangoProgresoTextoEl.innerText = `${restantes} niveles restantes para ${siguiente.titulo}`
+}
+
+function estiloVisualRango(visual) {
+  const poder = Number(visual.power || 1)
+  const vars = {
+    '--node-primary': visual.primary,
+    '--node-secondary': visual.secondary,
+    '--node-accent': visual.accent,
+    '--node-rgb': visual.rgb,
+    '--node-power': visual.power,
+    '--node-border-alpha': visual.power ? String(0.32 + (poder * 0.035)) : '',
+    '--node-glow-boost': visual.power ? `${poder * 4}px` : '',
+    '--node-glow-boost-lg': visual.power ? `${poder * 7}px` : '',
+  }
+
+  return Object.entries(vars)
+    .filter(([, value]) => value)
+    .map(([name, value]) => `${name}:${value}`)
+    .join(';')
 }
 
 function instalarDragRutaRangos() {
