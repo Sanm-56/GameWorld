@@ -1,10 +1,15 @@
 import { supabase } from './supabase.js'
 import {
   NIVEL_MAXIMO,
+  calcularProgresoHaciaRango,
   obtenerProgresoNivel,
+  obtenerRangoNivel,
   obtenerRankingNivel,
   obtenerRecompensaNivel,
+  obtenerRangosDesdeNivel,
+  obtenerRangosHastaNivel,
   obtenerTituloNivel,
+  xpRequeridaParaRango,
   registrarXpPorLogros,
 } from './progreso-nivel.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js'
@@ -57,6 +62,30 @@ const rankingNivelListEl = document.getElementById('rankingNivelList')
 const rangoRutaListEl = document.getElementById('rangoRutaList')
 const rangoProgresoTextoEl = document.getElementById('rangoProgresoTexto')
 const perfilHeroEl = document.querySelector('.hero.profile-card')
+const rangoEquipadoTextoEl = document.getElementById('rangoEquipadoTexto')
+const proximoRangoNombreEl = document.getElementById('proximoRangoNombre')
+const proximoRangoXpEl = document.getElementById('proximoRangoXp')
+const proximoRangoFaltanteEl = document.getElementById('proximoRangoFaltante')
+const chatGlobalListEl = document.getElementById('chatGlobalList')
+const chatGlobalFormEl = document.getElementById('chatGlobalForm')
+const chatGlobalInputEl = document.getElementById('chatGlobalInput')
+const chatGlobalStatusEl = document.getElementById('chatGlobalStatus')
+const chatPrivateSearchEl = document.getElementById('chatPrivateSearch')
+const chatPrivateOpenEl = document.getElementById('chatPrivateOpen')
+const chatPrivateTargetEl = document.getElementById('chatPrivateTarget')
+const chatPrivateListEl = document.getElementById('chatPrivateList')
+const chatPrivateFormEl = document.getElementById('chatPrivateForm')
+const chatPrivateInputEl = document.getElementById('chatPrivateInput')
+const chatPrivateStatusEl = document.getElementById('chatPrivateStatus')
+const RANGO_EQUIPADO_KEY = 'perfil_rango_equipado_usuario'
+const CHAT_GLOBAL_TABLA = 'chat_global'
+const CHAT_PRIVADO_TABLA = 'chat_privado'
+const CHAT_LIMITE = 60
+let rangoEquipadoActual = 'Novato'
+let progresoNivelActual = null
+let chatGlobalCanal = null
+let chatPrivadoCanal = null
+let chatPrivadoDestino = ''
 
 const RANGOS_VISUALES = {
   novato: { tier: 'novato', emblem: 'NV', motif: 'stars', era: 'astral', material: 'space-glass', density: 'minimal', geometry: 'particles' },
@@ -323,6 +352,41 @@ function normalizarTextoVisual(valor) {
     .trim()
 }
 
+function formatearNumero(valor) {
+  return new Intl.NumberFormat('es-CO').format(Math.max(0, Math.trunc(Number(valor) || 0)))
+}
+
+function leerObjetoLocal(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || '{}')
+  } catch (error) {
+    return {}
+  }
+}
+
+function leerRangoEquipado(usuarioId) {
+  if (!usuarioId) return 'Novato'
+  return leerObjetoLocal(RANGO_EQUIPADO_KEY)[usuarioId] || 'Novato'
+}
+
+function guardarRangoEquipado(usuarioId, titulo) {
+  if (!usuarioId) return
+  const datos = leerObjetoLocal(RANGO_EQUIPADO_KEY)
+  datos[usuarioId] = titulo || 'Novato'
+  localStorage.setItem(RANGO_EQUIPADO_KEY, JSON.stringify(datos))
+}
+
+function rangoEstaDesbloqueado(rango, nivel) {
+  return Boolean(rango?.desde && rango.desde <= (Number(nivel) || 1))
+}
+
+function aplicarRangoEquipado(titulo) {
+  rangoEquipadoActual = titulo || 'Novato'
+  if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = rangoEquipadoActual
+  if (rangoEquipadoTextoEl) rangoEquipadoTextoEl.innerText = `Equipado: ${rangoEquipadoActual}`
+  aplicarVisualRangoActual(rangoEquipadoActual)
+}
+
 function hashTextoVisual(valor) {
   return [...String(valor || '')].reduce((total, char) => ((total << 5) - total + char.charCodeAt(0)) | 0, 0)
 }
@@ -442,17 +506,25 @@ function renderRutaRangos(progreso) {
   if (!rangoRutaListEl) return
 
   const nivel = progreso?.nivel || 1
-  const rangos = obtenerSiguientesRangos(nivel)
-  const siguiente = rangos[1]
+  const rangos = obtenerRangosDesdeNivel(1)
+  const siguiente = obtenerRangosDesdeNivel(nivel + 1).find((rango) => rango.desde > nivel)
 
   rangoRutaListEl.innerHTML = rangos.map((rango, index) => {
+    const desbloqueado = rangoEstaDesbloqueado(rango, nivel)
     const esActual = nivel >= rango.desde && nivel <= rango.hasta
-    const estado = esActual ? 'Actual' : 'Bloqueado'
-    const clase = esActual ? 'current' : 'locked'
+    const equipado = normalizarTextoVisual(rango.titulo) === normalizarTextoVisual(rangoEquipadoActual)
+    const progresoRango = calcularProgresoHaciaRango(progreso, rango)
+    const estado = equipado ? 'Equipado' : esActual ? 'Rango actual' : desbloqueado ? 'Desbloqueado' : 'Bloqueado'
+    const clase = `${esActual ? 'current' : ''} ${desbloqueado ? 'unlocked' : 'locked'} ${equipado ? 'equipped' : ''}`.trim()
     const visual = obtenerVisualRango(rango.titulo)
     const rangoTexto = rango.desde === rango.hasta
       ? `Nivel ${rango.desde}`
       : `Nivel ${rango.desde}-${rango.hasta}`
+    const boton = equipado
+      ? `<button class="rank-equip-btn secondary" type="button" data-rank-action="unequip" data-rank-title="${escaparHtml(rango.titulo)}">Desequipar</button>`
+      : desbloqueado
+        ? `<button class="rank-equip-btn" type="button" data-rank-action="equip" data-rank-title="${escaparHtml(rango.titulo)}">Equipar</button>`
+        : `<button class="rank-equip-btn secondary" type="button" disabled>Bloqueado</button>`
 
     return `
       <div class="rank-node ${clase}" data-rank-tier="${visual.tier}" data-rank-motif="${visual.motif || 'core'}" data-rank-era="${visual.era || 'core'}" data-rank-material="${visual.material || 'dark-glass'}" data-rank-density="${visual.density || 'medium'}" data-rank-geometry="${visual.geometry || 'layered'}" data-rank-power="${visual.power || '1'}" style="${estiloVisualRango(visual)}">
@@ -461,14 +533,18 @@ function renderRutaRangos(progreso) {
           <span class="rank-node-level">${rangoTexto}</span>
         </div>
         <span class="rank-node-name">${escaparHtml(rango.titulo)}</span>
-        <span class="rank-node-state">${index === 0 ? estado : 'Proximo rango'}</span>
+        <span class="rank-node-requirement">Requiere ${formatearNumero(xpRequeridaParaRango(rango))} XP</span>
+        <span class="rank-node-progress"><span style="width:${progresoRango.porcentaje}%"></span></span>
+        <span class="rank-node-state">${estado}</span>
+        ${boton}
       </div>
     `
   }).join('')
 
   instalarDragRutaRangos()
+  instalarEventosRangos()
 
-  const nodoActual = rangoRutaListEl.querySelector('.rank-node.current')
+  const nodoActual = rangoRutaListEl.querySelector('.rank-node.equipped') || rangoRutaListEl.querySelector('.rank-node.current')
   if (nodoActual) {
     requestAnimationFrame(() => {
       nodoActual.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
@@ -483,7 +559,27 @@ function renderRutaRangos(progreso) {
   }
 
   const restantes = Math.max(0, siguiente.desde - nivel)
-  rangoProgresoTextoEl.innerText = `${restantes} niveles restantes para ${siguiente.titulo}`
+  const avanceSiguiente = calcularProgresoHaciaRango(progreso, siguiente)
+  rangoProgresoTextoEl.innerText = `${restantes} niveles y ${formatearNumero(avanceSiguiente.faltante)} XP para ${siguiente.titulo}`
+}
+
+function instalarEventosRangos() {
+  if (!rangoRutaListEl) return
+  rangoRutaListEl.querySelectorAll('[data-rank-action]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!usuario || !progresoNivelActual) return
+      const action = button.dataset.rankAction
+      const titulo = action === 'unequip' ? 'Novato' : button.dataset.rankTitle
+      const rango = obtenerRangosHastaNivel(progresoNivelActual.nivel)
+        .find((item) => normalizarTextoVisual(item.titulo) === normalizarTextoVisual(titulo))
+
+      if (action === 'equip' && !rangoEstaDesbloqueado(rango, progresoNivelActual.nivel)) return
+
+      guardarRangoEquipado(usuario, titulo)
+      aplicarRangoEquipado(titulo)
+      renderRutaRangos(progresoNivelActual)
+    })
+  })
 }
 
 function estiloVisualRango(visual) {
@@ -569,6 +665,7 @@ function instalarDragRutaRangos() {
   }
 
   rangoRutaListEl.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'touch') return
     if (event.button !== undefined && event.button !== 0) return
     activo = true
     inicioX = event.clientX
@@ -4403,8 +4500,16 @@ async function renderProgresoNivel() {
   }
 
   const progreso = await obtenerProgresoNivel(usuario)
+  progresoNivelActual = progreso
   const tituloNivel = obtenerTituloNivel(progreso.nivel)
+  const rangoActual = obtenerRangoNivel(progreso.nivel)
+  const rangosDesbloqueados = obtenerRangosHastaNivel(progreso.nivel)
+  const rangoGuardado = leerRangoEquipado(usuario)
+  const rangoGuardadoDesbloqueado = rangosDesbloqueados.some((rango) => normalizarTextoVisual(rango.titulo) === normalizarTextoVisual(rangoGuardado))
+  const tituloEquipado = rangoGuardadoDesbloqueado ? rangoGuardado : 'Novato'
   const siguienteNivel = Math.min(NIVEL_MAXIMO, progreso.nivel + 1)
+  const siguienteRango = obtenerRangosDesdeNivel(progreso.nivel + 1).find((rango) => rango.desde > progreso.nivel)
+  const progresoSiguienteRango = siguienteRango ? calcularProgresoHaciaRango(progreso, siguienteRango) : null
   const recompensa = progreso.nivel >= NIVEL_MAXIMO
     ? null
     : await obtenerRecompensaNivel(siguienteNivel)
@@ -4414,17 +4519,22 @@ async function renderProgresoNivel() {
   porcentajeNivelEl.innerText = `${progreso.porcentaje}%`
   barraNivelEl.style.width = `${progreso.porcentaje}%`
   renderPill(pillNivelEl, 'Nivel / rango', `${progreso.nivel} - ${tituloNivel}`)
-  if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = tituloNivel
-  aplicarVisualRangoActual(tituloNivel)
+  aplicarRangoEquipado(tituloEquipado)
   renderRutaRangos(progreso)
 
   if (progreso.nivel >= NIVEL_MAXIMO) {
     xpNivelDetalleEl.innerText = 'Nivel maximo alcanzado'
     xpRestanteEl.innerText = 'Temporada completada'
     recompensaSiguienteEl.innerText = 'Ya desbloqueaste todas las recompensas.'
+    if (proximoRangoNombreEl) proximoRangoNombreEl.innerText = 'Rango maximo'
+    if (proximoRangoXpEl) proximoRangoXpEl.innerText = 'XP necesaria: completado'
+    if (proximoRangoFaltanteEl) proximoRangoFaltanteEl.innerText = 'Te faltan: 0 XP'
   } else {
     xpNivelDetalleEl.innerText = `${progreso.xpEnNivel} / ${progreso.xpSiguiente} XP`
     xpRestanteEl.innerText = `Faltan ${progreso.xpParaSiguiente} XP`
+    if (proximoRangoNombreEl) proximoRangoNombreEl.innerText = siguienteRango?.titulo || rangoActual.titulo
+    if (proximoRangoXpEl) proximoRangoXpEl.innerText = `XP necesaria: ${formatearNumero(siguienteRango ? xpRequeridaParaRango(siguienteRango) : progreso.xpSiguiente)} XP`
+    if (proximoRangoFaltanteEl) proximoRangoFaltanteEl.innerText = `Te faltan: ${formatearNumero(progresoSiguienteRango?.faltante || progreso.xpParaSiguiente)} XP`
     recompensaSiguienteEl.innerText = recompensa
       ? `Nivel ${recompensa.nivel}: ${formatearTipoRecompensa(recompensa.tipo)} - ${recompensa.valor}`
       : `Nivel ${siguienteNivel}: recompensa pendiente`
@@ -4444,14 +4554,18 @@ async function renderRankingNivel() {
   rankingNivelListEl.innerHTML = ''
   ranking.forEach((item, index) => {
     const tituloNivel = obtenerTituloNivel(item.nivel)
+    const visual = obtenerVisualRango(item.usuario_id === usuario ? rangoEquipadoActual : tituloNivel)
     const div = document.createElement('div')
     div.className = `level-row${item.usuario_id === usuario ? ' current' : ''}`
+    div.dataset.rankTier = visual.tier
+    div.dataset.rankMotif = visual.motif || 'core'
+    div.setAttribute('style', estiloVisualRango(visual))
     div.innerHTML = `
       <div class="level-rank-pos">#${index + 1}</div>
       <div class="level-rank-user">
         <strong>${escaparHtml(item.usuario_id)}</strong>
         <br>
-        <small>${escaparHtml(tituloNivel)} - ${item.xp} XP del nivel</small>
+        <small>${escaparHtml(item.usuario_id === usuario ? rangoEquipadoActual : tituloNivel)} - ${item.xp} XP del nivel</small>
       </div>
       <div class="level-rank-score">Nivel ${item.nivel}</div>
     `
@@ -4470,6 +4584,164 @@ function formatearTipoRecompensa(tipo) {
   }
 
   return labels[tipo] || tipo
+}
+
+function normalizarMensajeChat(valor) {
+  return String(valor || '').replace(/\s+/g, ' ').trim().slice(0, 280)
+}
+
+function horaChat(valor) {
+  const fecha = valor ? new Date(valor) : new Date()
+  if (Number.isNaN(fecha.getTime())) return ''
+  return fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
+}
+
+function crearPayloadChat(texto, extra = {}) {
+  const nivel = progresoNivelActual?.nivel || 1
+  return {
+    usuario_id: usuario,
+    usuario,
+    mensaje: texto,
+    nivel,
+    rango: rangoEquipadoActual || obtenerTituloNivel(nivel),
+    created_at: new Date().toISOString(),
+    ...extra,
+  }
+}
+
+function renderMensajesChat(contenedor, mensajes, privado = false) {
+  if (!contenedor) return
+  contenedor.innerHTML = ''
+
+  if (!mensajes.length) {
+    contenedor.innerHTML = `<div class="empty">${privado ? 'Abre una conversacion para empezar.' : 'Todavia no hay mensajes.'}</div>`
+    return
+  }
+
+  mensajes.forEach((mensaje) => {
+    const titulo = mensaje.rango || obtenerTituloNivel(mensaje.nivel || 1)
+    const visual = obtenerVisualRango(titulo)
+    const div = document.createElement('div')
+    div.className = `chat-message${mensaje.usuario === usuario || mensaje.usuario_id === usuario ? ' own' : ''}`
+    div.dataset.rankTier = visual.tier
+    div.setAttribute('style', estiloVisualRango(visual))
+    div.innerHTML = `
+      <div class="chat-message-head">
+        <strong>${escaparHtml(mensaje.usuario || mensaje.usuario_id || 'Jugador')}</strong>
+        <span>Nivel ${escaparHtml(mensaje.nivel || 1)} · ${escaparHtml(titulo)} · ${horaChat(mensaje.created_at)}</span>
+      </div>
+      <p>${escaparHtml(mensaje.mensaje || '')}</p>
+    `
+    contenedor.appendChild(div)
+  })
+
+  contenedor.scrollTop = contenedor.scrollHeight
+}
+
+async function cargarChatGlobal() {
+  if (!chatGlobalListEl || !usuario) return
+  const { data, error } = await supabase
+    .from(CHAT_GLOBAL_TABLA)
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(CHAT_LIMITE)
+
+  if (error) {
+    chatGlobalStatusEl.innerText = 'Chat global pendiente de configurar en Supabase.'
+    chatGlobalListEl.innerHTML = '<div class="empty">Ejecuta el SQL social para activar mensajes en tiempo real.</div>'
+    return
+  }
+
+  chatGlobalStatusEl.innerText = 'Chat global activo.'
+  renderMensajesChat(chatGlobalListEl, (data || []).reverse())
+}
+
+async function enviarChatGlobal(event) {
+  event.preventDefault()
+  const mensaje = normalizarMensajeChat(chatGlobalInputEl?.value)
+  if (!mensaje || !usuario) return
+  chatGlobalInputEl.value = ''
+
+  const { error } = await supabase.from(CHAT_GLOBAL_TABLA).insert(crearPayloadChat(mensaje))
+  if (error) {
+    chatGlobalStatusEl.innerText = 'No se pudo enviar. Falta configurar la tabla de chat global.'
+    return
+  }
+  await cargarChatGlobal()
+}
+
+async function cargarChatPrivado(destino = chatPrivadoDestino) {
+  if (!chatPrivateListEl || !usuario || !destino) return
+  chatPrivadoDestino = destino
+  if (chatPrivateTargetEl) chatPrivateTargetEl.innerText = `Conversacion con ${destino}`
+
+  const { data, error } = await supabase
+    .from(CHAT_PRIVADO_TABLA)
+    .select('*')
+    .or(`and(remitente.eq.${usuario},destinatario.eq.${destino}),and(remitente.eq.${destino},destinatario.eq.${usuario})`)
+    .order('created_at', { ascending: true })
+    .limit(CHAT_LIMITE)
+
+  if (error) {
+    chatPrivateStatusEl.innerText = 'Mensajes privados pendientes de configurar en Supabase.'
+    chatPrivateListEl.innerHTML = '<div class="empty">Ejecuta el SQL social para activar privados.</div>'
+    return
+  }
+
+  chatPrivateStatusEl.innerText = 'Conversacion activa.'
+  renderMensajesChat(chatPrivateListEl, data || [], true)
+}
+
+async function abrirChatPrivado() {
+  const destino = String(chatPrivateSearchEl?.value || '').trim()
+  if (!destino || destino === usuario) return
+  await cargarChatPrivado(destino)
+}
+
+async function enviarChatPrivado(event) {
+  event.preventDefault()
+  const mensaje = normalizarMensajeChat(chatPrivateInputEl?.value)
+  if (!mensaje || !usuario || !chatPrivadoDestino) return
+  chatPrivateInputEl.value = ''
+
+  const payload = crearPayloadChat(mensaje, {
+    remitente: usuario,
+    destinatario: chatPrivadoDestino,
+  })
+  const { error } = await supabase.from(CHAT_PRIVADO_TABLA).insert(payload)
+  if (error) {
+    chatPrivateStatusEl.innerText = 'No se pudo enviar. Falta configurar la tabla de privados.'
+    return
+  }
+  await cargarChatPrivado()
+}
+
+function instalarChatSocial() {
+  if (!usuario) return
+  chatGlobalFormEl?.addEventListener('submit', enviarChatGlobal)
+  chatPrivateOpenEl?.addEventListener('click', abrirChatPrivado)
+  chatPrivateFormEl?.addEventListener('submit', enviarChatPrivado)
+
+  cargarChatGlobal()
+
+  chatGlobalCanal = supabase
+    .channel('perfil-chat-global')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: CHAT_GLOBAL_TABLA }, cargarChatGlobal)
+    .subscribe()
+
+  chatPrivadoCanal = supabase
+    .channel(`perfil-chat-privado-${usuario}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: CHAT_PRIVADO_TABLA }, (payload) => {
+      const row = payload.new || {}
+      const pertenece = row.remitente === usuario || row.destinatario === usuario
+      if (!pertenece) return
+      if (chatPrivadoDestino && (row.remitente === chatPrivadoDestino || row.destinatario === chatPrivadoDestino)) {
+        cargarChatPrivado()
+      } else if (chatPrivateStatusEl) {
+        chatPrivateStatusEl.innerText = `Mensaje nuevo de ${row.remitente || 'un jugador'}`
+      }
+    })
+    .subscribe()
 }
 
 function renderHistorial(resultados) {
@@ -4512,6 +4784,7 @@ window.cerrarSesion = function () {
 }
 
 cargarPerfil()
+instalarChatSocial()
 
 supabase
   .channel('perfil-progreso-nivel')

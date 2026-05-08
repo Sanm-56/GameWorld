@@ -3,6 +3,8 @@ import { obtenerBonusTemporada } from './experiencia-temporada.js'
 import { obtenerBonusUsuario } from './tienda.js'
 
 export const NIVEL_MAXIMO = 3000
+export const NIVEL_ESCALADO_AVANZADO = 1416
+export const MULTIPLICADOR_XP_AVANZADO = 5
 
 const XP_ACCIONES = {
   partida_completada: 25,
@@ -140,7 +142,8 @@ export function obtenerTituloNivel(nivelActual = 1) {
 
 export function xpNecesarioParaNivel(nivel) {
   if (nivel >= NIVEL_MAXIMO) return 0
-  return (100 + Math.floor(Math.pow(nivel - 1, 1.45) * 35) + (nivel - 1) * 15) * 3
+  const base = (100 + Math.floor(Math.pow(nivel - 1, 1.45) * 35) + (nivel - 1) * 15) * 3
+  return nivel >= NIVEL_ESCALADO_AVANZADO ? base * MULTIPLICADOR_XP_AVANZADO : base
 }
 
 export function xpAcumuladoParaNivel(nivel) {
@@ -196,6 +199,44 @@ export function calcularProgresoNivelActual(nivelActual = 1, xpNivelActual = 0) 
     xpParaSiguiente: nivel >= NIVEL_MAXIMO ? 0 : Math.max(0, xpSiguiente - xpEnNivel),
     porcentaje,
   }
+}
+
+export function obtenerRangoNivel(nivelActual = 1) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  return TITULOS_NIVEL.find((rango) => nivel >= rango.desde && nivel <= rango.hasta) || TITULOS_NIVEL[TITULOS_NIVEL.length - 1]
+}
+
+export function obtenerRangosHastaNivel(nivelActual = 1) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  return TITULOS_NIVEL.filter((rango) => rango.desde <= nivel)
+}
+
+export function obtenerRangosDesdeNivel(nivelActual = 1) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  return TITULOS_NIVEL.filter((rango) => rango.hasta >= nivel)
+}
+
+export function xpRequeridaParaRango(rango) {
+  if (!rango?.desde) return 0
+  return xpAcumuladoParaNivel(rango.desde)
+}
+
+export function calcularProgresoHaciaRango(progreso, rango) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(progreso?.nivel) || 1)))
+  const xpEnNivel = Math.max(0, Number(progreso?.xpEnNivel ?? progreso?.xp) || 0)
+  if (!rango?.desde) return { requerido: 0, faltante: 0, porcentaje: 100 }
+  if (nivel >= rango.desde) return { requerido: xpRequeridaParaRango(rango), faltante: 0, porcentaje: 100 }
+
+  let requerido = xpNecesarioParaNivel(nivel)
+  for (let actual = nivel + 1; actual < rango.desde; actual += 1) {
+    const xpNivel = xpNecesarioParaNivel(actual)
+    requerido += xpNivel
+  }
+
+  const completado = Math.min(requerido, xpEnNivel)
+  const faltante = Math.max(0, requerido - completado)
+  const porcentaje = requerido ? Math.min(100, Math.round((completado / requerido) * 100)) : 100
+  return { requerido, faltante, porcentaje }
 }
 
 export function calcularXpRanking(posicion) {
@@ -317,11 +358,16 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
   if (existente) return null
 
   const progresoAnterior = await obtenerProgresoNivel(usuario)
-  const xpConGanancia = progresoAnterior.xp + xp
-  const requisitoNivel = xpNecesarioParaNivel(progresoAnterior.nivel)
-  const subioNivel = progresoAnterior.nivel < NIVEL_MAXIMO && xpConGanancia >= requisitoNivel
-  const nuevoNivel = subioNivel ? Math.min(NIVEL_MAXIMO, progresoAnterior.nivel + 1) : progresoAnterior.nivel
-  const nuevoXp = subioNivel ? 0 : xpConGanancia
+  let nuevoNivel = progresoAnterior.nivel
+  let nuevoXp = progresoAnterior.xp + xp
+  while (nuevoNivel < NIVEL_MAXIMO) {
+    const requisitoNivel = xpNecesarioParaNivel(nuevoNivel)
+    if (nuevoXp < requisitoNivel) break
+    nuevoXp -= requisitoNivel
+    nuevoNivel += 1
+  }
+  if (nuevoNivel >= NIVEL_MAXIMO) nuevoXp = 0
+  const subioNivel = nuevoNivel > progresoAnterior.nivel
   const calculado = calcularProgresoNivelActual(nuevoNivel, nuevoXp)
 
   const { error: progresoError } = await supabase
