@@ -4595,6 +4595,172 @@ body.sudoku-screen-shake{
   opacity:0.66;
 }
 
+.rank-node[data-rank-tier^="final-"]{
+  flex-basis:clamp(240px, 42vw, 306px);
+  min-height:182px;
+  border-color:rgba(var(--node-rgb), var(--final-border, 0.28));
+  background:
+    var(--final-material),
+    var(--final-phenomenon),
+    linear-gradient(var(--final-angle, 145deg), var(--final-surface, rgba(5,7,14,0.95)), var(--final-ink, rgba(0,1,5,0.99)));
+  box-shadow:
+    var(--final-shadow, 0 30px 82px rgba(0,0,0,0.54)),
+    0 0 calc(12px + var(--node-glow-boost, 0px)) rgba(var(--node-rgb), var(--final-glow, 0.08)),
+    inset 0 1px 0 rgba(255,255,255,0.09),
+    inset 0 -38px 66px rgba(0,0,0,0.42);
+}
+
+.rank-node[data-rank-tier^="final-"]::before{
+  background:var(--final-form);
+  background-size:var(--final-size, auto);
+  opacity:var(--final-opacity, 0.54);
+  mix-blend-mode:screen;
+  animation:var(--final-motion, profileAuraDrift 12s ease-in-out infinite);
+}
+
+.rank-node[data-rank-tier^="final-"]::after{
+  height:var(--final-line-height, 2px);
+  background:var(--final-mark);
+  opacity:var(--final-line-opacity, 0.58);
+  box-shadow:0 0 18px rgba(var(--node-rgb),0.14);
+}
+
+.rank-node[data-rank-tier^="final-"] .rank-node-emblem{
+  width:46px;
+  height:46px;
+  border-radius:var(--final-emblem-radius, 16px);
+  color:var(--final-emblem-color, #fff);
+  background:var(--final-emblem, linear-gradient(135deg, rgba(255,255,255,0.15), rgba(var(--node-rgb),0.22)));
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:0 0 20px rgba(var(--node-rgb),0.14), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.rank-node[data-rank-tier^="final-"] .rank-node-name{
+  color:#fff;
+  font-size:1.01rem;
+  line-height:1.14;
+  text-shadow:0 16px 32px rgba(0,0,0,0.52), 0 0 14px rgba(var(--node-rgb),0.16);
+}
+
+.rank-node[data-rank-tier^="final-"] .rank-node-level{
+  color:color-mix(in srgb, var(--node-primary) 76%, white);
+}
+
+.rank-node[data-rank-tier^="final-"].current{
+  border-color:rgba(var(--node-rgb),0.62);
+  background:
+    var(--final-material),
+    var(--final-phenomenon),
+    linear-gradient(var(--final-angle, 145deg), color-mix(in srgb, var(--final-surface, rgba(5,7,14,0.95)) 86%, rgba(var(--node-rgb),0.12)), var(--final-ink, rgba(0,1,5,0.99)));
+}
+
+.rank-node[data-rank-tier="final-supreme-horizon"]{
+  --final-border:0.22;
+  --final-glow:0.045;
+  --final-surface:rgba(3,9,18,0.96);
+  --final-ink:rgba(0,1,5,0.99);
+  --final-material:linear-gradient(180deg, transparent 0 64%, rgba(224,242,254,0.13) 65%, transparent 67%), linear-gradient(90deg, rgba(0,0,0,0.72), transparent 10% 90%, rgba(0,0,0,0.78));
+  --final-phenomenon:repeating-linear-gradient(180deg, transparent 0 30px, rgba(224,242,254,0.045) 31px, transparent 32px 52px);
+  --final-form:linear-gradient(90deg, transparent, rgba(224,242,254,0.09), transparent);
+  --final-motion:none;
+  --final-mark:linear-gradient(90deg, transparent, #e0f2fe, transparent);
+  --final-line-height:1px;
+}
+
+.rank-node[data-rank-tier="final-last-dimension"]{
+  --final-surface:rgba(10,14,34,0.93);
+  --final-ink:rgba(1,4,12,0.99);
+  --final-material:linear-gradient(114deg, transparent 0 18%, rgba(196,181,253,0.16) 19% 34%, transparent 35%), linear-gradient(68deg, transparent 0 60%, rgba(103,232,249,0.13) 61% 78%, transparent 79%);
+  --final-phenomenon:radial-gradient(ellipse at 22% 68%, rgba(23,37,84,0.42), transparent 34%), radial-gradient(ellipse at 78% 28%, rgba(196,181,253,0.14), transparent 26%);
+  --final-form:linear-gradient(90deg, transparent 0 24%, rgba(255,255,255,0.07) 25%, transparent 26% 74%, rgba(196,181,253,0.1) 75%, transparent 76%), linear-gradient(0deg, transparent 0 46%, rgba(103,232,249,0.08) 47%, transparent 48%);
+  --final-mark:linear-gradient(90deg, #c4b5fd, transparent 22%, #67e8f9, transparent);
+}
+
+.rank-node[data-rank-tier="final-astral-devourer"]{
+  --final-surface:rgba(16,11,24,0.94);
+  --final-ink:rgba(0,1,6,0.99);
+  --final-material:radial-gradient(ellipse at 70% 46%, rgba(0,0,0,0.96) 0 22%, rgba(253,230,138,0.18) 23% 26%, transparent 40%), radial-gradient(circle at 20% 28%, rgba(253,230,138,0.38) 0 1px, transparent 3px);
+  --final-phenomenon:linear-gradient(128deg, transparent 0 24%, rgba(167,139,250,0.16) 25% 28%, transparent 29%), radial-gradient(circle at 44% 72%, rgba(253,230,138,0.1), transparent 20%);
+  --final-form:radial-gradient(ellipse at 70% 46%, transparent 0 38%, rgba(253,230,138,0.08) 39% 40%, transparent 41%), linear-gradient(32deg, transparent 0 54%, rgba(255,255,255,0.055) 55%, transparent 56%);
+  --final-mark:linear-gradient(90deg, transparent, #fde68a, #a78bfa, rgba(0,0,0,0.7));
+}
+
+.rank-node[data-rank-tier="final-eternal-shadow-herald"]{
+  --final-border:0.18;
+  --final-glow:0.035;
+  --final-surface:rgba(3,3,7,0.97);
+  --final-ink:rgba(0,0,2,1);
+  --final-material:radial-gradient(ellipse at 18% 64%, rgba(0,0,0,0.98), transparent 42%), radial-gradient(ellipse at 82% 28%, rgba(109,40,217,0.14), transparent 30%);
+  --final-phenomenon:linear-gradient(112deg, rgba(0,0,0,0.86) 0 28%, transparent 52%), linear-gradient(246deg, rgba(0,0,0,0.8) 0 24%, transparent 46%);
+  --final-form:radial-gradient(ellipse at 54% 58%, rgba(161,161,170,0.05), transparent 26%);
+  --final-mark:linear-gradient(90deg, rgba(0,0,0,0.86), #a1a1aa, rgba(0,0,0,0.92));
+  --final-line-opacity:0.34;
+}
+
+.rank-node[data-rank-tier="final-judgment-emperor"]{
+  --final-surface:rgba(12,17,27,0.93);
+  --final-ink:rgba(1,3,9,0.99);
+  --final-material:linear-gradient(180deg, rgba(255,255,255,0.46) 0 10%, rgba(244,63,94,0.13) 11% 38%, transparent 66%), linear-gradient(90deg, transparent 0 42%, rgba(255,255,255,0.12) 45% 55%, transparent 58%);
+  --final-phenomenon:radial-gradient(ellipse at 50% 10%, rgba(255,255,255,0.2), transparent 28%), linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.52));
+  --final-form:linear-gradient(90deg, transparent 0 18%, rgba(255,255,255,0.075) 18.4% 18.8%, transparent 19.2% 81%, rgba(244,63,94,0.09) 81.4% 82%, transparent 82.6%);
+  --final-motion:rankEnergyDrift 7s ease-in-out infinite;
+  --final-mark:linear-gradient(90deg, transparent, #ffffff, #f43f5e, transparent);
+  --final-line-height:3px;
+}
+
+.rank-node[data-rank-tier="final-primordial-void-titan"]{
+  --final-surface:rgba(3,2,8,0.97);
+  --final-ink:rgba(0,0,1,1);
+  --final-material:radial-gradient(circle at 50% 56%, rgba(0,0,0,0.98) 0 28%, rgba(139,92,246,0.18) 29% 34%, rgba(34,211,238,0.06) 35% 46%, transparent 58%), linear-gradient(180deg, rgba(255,255,255,0.025), transparent 60%);
+  --final-phenomenon:conic-gradient(from 120deg at 50% 56%, rgba(0,0,0,0.82), transparent 18%, rgba(139,92,246,0.14), transparent 40%, rgba(34,211,238,0.08), transparent 72%);
+  --final-form:radial-gradient(circle at 50% 56%, transparent 0 44%, rgba(139,92,246,0.1) 45% 46%, transparent 47%);
+  --final-motion:rankCoreBreathe 7.2s ease-in-out infinite;
+  --final-mark:linear-gradient(90deg, transparent, #8b5cf6, #22d3ee, transparent);
+}
+
+.rank-node[data-rank-tier="final-last-ascended"]{
+  --final-border:0.2;
+  --final-glow:0.055;
+  --final-shadow:0 34px 90px rgba(0,0,0,0.5);
+  --final-surface:rgba(9,10,18,0.9);
+  --final-ink:rgba(2,3,8,0.98);
+  --final-material:radial-gradient(ellipse at 50% 42%, rgba(255,255,255,0.18), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.09), transparent 48%);
+  --final-phenomenon:radial-gradient(circle at 50% 44%, rgba(255,255,255,0.78) 0 1px, rgba(167,139,250,0.14) 2px 18%, transparent 30%), linear-gradient(90deg, rgba(0,0,0,0.22), transparent 38% 62%, rgba(0,0,0,0.26));
+  --final-form:radial-gradient(ellipse at 50% 44%, transparent 0 36%, rgba(233,213,255,0.09) 37% 38%, transparent 39%);
+  --final-motion:profileAuraDrift 14s ease-in-out infinite;
+  --final-mark:linear-gradient(90deg, transparent, rgba(255,255,255,0.82), #e9d5ff, transparent);
+  --final-line-opacity:0.48;
+  --final-emblem:linear-gradient(145deg, rgba(255,255,255,0.92), rgba(233,213,255,0.34));
+  --final-emblem-color:#111827;
+}
+
+.hero[data-rank-tier^="final-"]{
+  background:
+    radial-gradient(ellipse at 50% 24%, rgba(var(--rank-rgb),0.1), transparent 36%),
+    linear-gradient(90deg, rgba(0,0,0,0.4), transparent 18% 82%, rgba(0,0,0,0.46)),
+    linear-gradient(145deg, rgba(5,7,14,0.94), rgba(0,1,6,0.99));
+  box-shadow:
+    0 40px 120px rgba(0,0,0,0.6),
+    0 0 34px rgba(var(--rank-rgb),0.07),
+    inset 0 1px 0 rgba(255,255,255,0.09),
+    inset 0 -40px 76px rgba(0,0,0,0.44);
+}
+
+.hero[data-rank-tier="final-last-ascended"]{
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(255,255,255,0.15), transparent 34%),
+    radial-gradient(ellipse at 72% 70%, rgba(167,139,250,0.1), transparent 30%),
+    linear-gradient(145deg, rgba(8,9,18,0.92), rgba(1,2,8,0.99));
+}
+
+.hero[data-rank-tier^="final-"]::after{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.46), transparent 22% 78%, rgba(0,0,0,0.52)),
+    radial-gradient(ellipse at 50% 48%, rgba(var(--rank-rgb),0.055), transparent 34%);
+  animation:profileAuraDrift 14s ease-in-out infinite;
+  opacity:0.58;
+}
+
 .reward-preview small,
 .level-ranking small{
   color:var(--muted);
