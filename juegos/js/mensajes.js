@@ -69,8 +69,120 @@ export function setCleanText(element, value, fallback = "") {
   if (element) element.textContent = cleanText(value, fallback)
 }
 
+let modalPendiente = Promise.resolve()
+
+function ensureDialogStyles() {
+  if (document.getElementById("modernDialogStyles")) return
+  const style = document.createElement("style")
+  style.id = "modernDialogStyles"
+  style.textContent = `
+    .modern-dialog-overlay{position:fixed;inset:0;z-index:9999;display:none;place-items:center;padding:18px;background:rgba(2,6,23,.72);backdrop-filter:blur(12px)}
+    .modern-dialog-overlay.open{display:grid}
+    .modern-dialog-modal{width:min(430px,100%);display:grid;gap:16px;padding:20px;border:1px solid rgba(56,189,248,.28);border-radius:20px;background:radial-gradient(circle at 90% 0%,rgba(56,189,248,.18),transparent 34%),linear-gradient(145deg,rgba(15,23,42,.98),rgba(2,6,23,.96));box-shadow:0 28px 90px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.06);color:#f8fafc;transform:translateY(8px) scale(.98);opacity:0;animation:modernDialogIn .18s ease forwards;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+    .modern-dialog-icon{width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(125,211,252,.34);border-radius:14px;color:#e0f2fe;background:rgba(8,47,73,.52);font-weight:900}
+    .modern-dialog-title{margin:0;color:#f8fafc;font-size:1.12rem;line-height:1.2}
+    .modern-dialog-message{margin:6px 0 0;color:#cbd5e1;font-size:.94rem;line-height:1.45;overflow-wrap:anywhere}
+    .modern-dialog-input{width:100%;min-height:44px;border:1px solid rgba(125,211,252,.24);border-radius:12px;background:rgba(2,6,23,.72);color:#f8fafc;padding:11px 12px;outline:none}
+    .modern-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .modern-dialog-actions.single{grid-template-columns:1fr}
+    .modern-dialog-btn{min-height:42px;border:0;border-radius:10px;padding:10px 12px;color:#fff;font-weight:900;cursor:pointer;background:#2563eb}
+    .modern-dialog-btn.secondary{background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.2)}
+    .modern-dialog-btn.danger{background:#dc2626}
+    @keyframes modernDialogIn{to{opacity:1;transform:translateY(0) scale(1)}}
+    @media (max-width:560px){.modern-dialog-modal{padding:16px;border-radius:16px}.modern-dialog-actions{grid-template-columns:1fr}}
+  `
+  document.head.appendChild(style)
+}
+
+function createDialogShell() {
+  ensureDialogStyles()
+  const overlay = document.createElement("div")
+  overlay.className = "modern-dialog-overlay"
+  overlay.innerHTML = `
+    <div class="modern-dialog-modal" role="dialog" aria-modal="true">
+      <div class="modern-dialog-icon" aria-hidden="true">!</div>
+      <div>
+        <h3 class="modern-dialog-title"></h3>
+        <p class="modern-dialog-message"></p>
+      </div>
+      <div class="modern-dialog-input-wrap"></div>
+      <div class="modern-dialog-actions"></div>
+    </div>
+  `
+  document.body.appendChild(overlay)
+  return overlay
+}
+
+function showModernDialog({ title = "Aviso", message = "", acceptText = "Aceptar", cancelText = "Cancelar", confirm = false, prompt = false, danger = false } = {}) {
+  if (typeof document === "undefined") return Promise.resolve(prompt ? null : confirm ? false : true)
+
+  modalPendiente = modalPendiente.then(() => new Promise((resolve) => {
+    const overlay = createDialogShell()
+    const titleEl = overlay.querySelector(".modern-dialog-title")
+    const messageEl = overlay.querySelector(".modern-dialog-message")
+    const inputWrap = overlay.querySelector(".modern-dialog-input-wrap")
+    const actions = overlay.querySelector(".modern-dialog-actions")
+    const input = prompt ? document.createElement("input") : null
+
+    titleEl.textContent = cleanText(title, "Aviso")
+    messageEl.textContent = cleanText(message, "Mensaje no disponible")
+    inputWrap.innerHTML = ""
+    actions.innerHTML = ""
+    actions.classList.toggle("single", !confirm && !prompt)
+
+    if (input) {
+      input.className = "modern-dialog-input"
+      input.autocomplete = "off"
+      inputWrap.appendChild(input)
+    }
+
+    const close = (value) => {
+      overlay.classList.remove("open")
+      overlay.remove()
+      document.removeEventListener("keydown", onKey)
+      resolve(value)
+    }
+    const cancel = document.createElement("button")
+    cancel.type = "button"
+    cancel.className = "modern-dialog-btn secondary"
+    cancel.textContent = cancelText
+    cancel.addEventListener("click", () => close(prompt ? null : false))
+
+    const accept = document.createElement("button")
+    accept.type = "button"
+    accept.className = `modern-dialog-btn${danger ? " danger" : ""}`
+    accept.textContent = acceptText
+    accept.addEventListener("click", () => close(prompt ? input.value : true))
+
+    if (confirm || prompt) actions.appendChild(cancel)
+    actions.appendChild(accept)
+
+    const onKey = (event) => {
+      if (event.key === "Escape") close(prompt ? null : false)
+      if (event.key === "Enter") close(prompt ? input.value : true)
+    }
+    document.addEventListener("keydown", onKey)
+    overlay.classList.add("open")
+    setTimeout(() => (input || accept).focus(), 0)
+  }))
+
+  return modalPendiente
+}
+
 export function safeAlert(value, fallback = "Mensaje no disponible") {
-  alert(cleanText(value, fallback) || fallback)
+  return showModernDialog({
+    title: "Aviso",
+    message: cleanText(value, fallback) || fallback,
+    acceptText: "Aceptar",
+  })
+}
+
+export function confirmAction(message, { title = "Confirmar accion", acceptText = "Aceptar", cancelText = "Cancelar", danger = true } = {}) {
+  return showModernDialog({ title, message, acceptText, cancelText, confirm: true, danger })
+}
+
+export function promptAction(message, { title = "Completar accion", acceptText = "Aceptar", cancelText = "Cancelar", danger = false } = {}) {
+  return showModernDialog({ title, message, acceptText, cancelText, prompt: true, danger })
 }
 
 export function escapeHtml(value) {
@@ -84,7 +196,6 @@ export function escapeHtml(value) {
 
 export function installSafeAlert() {
   if (window.__safeAlertInstalled) return
-  const originalAlert = window.alert.bind(window)
-  window.alert = (value) => originalAlert(cleanText(value, "Mensaje no disponible") || "Mensaje no disponible")
+  window.alert = (value) => safeAlert(value)
   window.__safeAlertInstalled = true
 }

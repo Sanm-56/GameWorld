@@ -5219,8 +5219,34 @@ body.sudoku-screen-shake{
   display:flex;
   justify-content:space-between;
   gap:10px;
+  align-items:center;
   color:#f8fafc;
   font-size:0.82rem;
+}
+
+.chat-message-meta{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:8px;
+  min-width:0;
+}
+
+.chat-message-delete{
+  min-height:26px;
+  padding:4px 8px;
+  border:1px solid rgba(248,113,113,0.28);
+  border-radius:8px;
+  color:#fecaca;
+  background:rgba(127,29,29,0.18);
+  font-size:0.68rem;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.chat-message-delete:hover{
+  background:rgba(127,29,29,0.34);
 }
 
 .chat-private-panel .chat-message-head{
@@ -5245,6 +5271,85 @@ body.sudoku-screen-shake{
   margin-top:8px;
   font-size:1rem;
   line-height:1.5;
+}
+
+.chat-confirm-overlay{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:none;
+  place-items:center;
+  padding:18px;
+  background:rgba(2,6,23,0.72);
+  backdrop-filter:blur(12px);
+}
+
+.chat-confirm-overlay.open{
+  display:grid;
+}
+
+.chat-confirm-modal{
+  width:min(430px, 100%);
+  display:grid;
+  gap:16px;
+  padding:20px;
+  border:1px solid rgba(var(--rank-rgb),0.28);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(var(--rank-rgb),0.2), transparent 34%),
+    linear-gradient(145deg, rgba(15,23,42,0.98), rgba(2,6,23,0.96));
+  box-shadow:0 28px 90px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.06);
+  transform:translateY(8px) scale(0.98);
+  opacity:0;
+  animation:chatConfirmIn 0.18s ease forwards;
+}
+
+.chat-confirm-icon{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  color:#fef2f2;
+  border:1px solid rgba(248,113,113,0.36);
+  background:rgba(127,29,29,0.42);
+  font-weight:900;
+}
+
+.chat-confirm-title{
+  margin:0;
+  color:#f8fafc;
+  font-size:1.12rem;
+  line-height:1.2;
+}
+
+.chat-confirm-message{
+  margin:6px 0 0;
+  color:#cbd5e1;
+  font-size:0.94rem;
+  line-height:1.45;
+}
+
+.chat-confirm-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.chat-confirm-actions .btn{
+  min-height:42px;
+}
+
+.chat-confirm-actions .danger{
+  background:#dc2626;
+}
+
+.chat-confirm-actions .danger:hover{
+  background:#b91c1c;
+}
+
+@keyframes chatConfirmIn{
+  to{ opacity:1; transform:translateY(0) scale(1); }
 }
 
 @keyframes chatIn{
@@ -5429,6 +5534,15 @@ body.sudoku-screen-shake{
   .chat-thread{
     padding:10px;
     border-radius:14px;
+  }
+
+  .chat-confirm-modal{
+    padding:16px;
+    border-radius:16px;
+  }
+
+  .chat-confirm-actions{
+    grid-template-columns:1fr;
   }
 
   .chat-message-head{
@@ -5922,6 +6036,20 @@ body.sudoku-screen-shake{
       <div class="history-list" id="historialList"></div>
     </article>
   </section>
+</div>
+
+<div class="chat-confirm-overlay" id="chatConfirmOverlay" aria-hidden="true">
+  <div class="chat-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="chatConfirmTitle" aria-describedby="chatConfirmMessage">
+    <div class="chat-confirm-icon" aria-hidden="true">!</div>
+    <div>
+      <h3 class="chat-confirm-title" id="chatConfirmTitle">Confirmar accion</h3>
+      <p class="chat-confirm-message" id="chatConfirmMessage">Seguro que deseas continuar?</p>
+    </div>
+    <div class="chat-confirm-actions">
+      <button class="btn secondary" type="button" id="chatConfirmCancel">Cancelar</button>
+      <button class="btn danger" type="button" id="chatConfirmAccept">Aceptar</button>
+    </div>
+  </div>
 </div>
 
 <script type="module" src="./juegos/js/perfil.js"></script>

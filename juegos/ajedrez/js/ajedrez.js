@@ -1,6 +1,7 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
+import { confirmAction } from '../../js/mensajes.js'
 
 // =============================
 // 🔒 BLOQUEO MULTI-PESTAÑA
@@ -1208,8 +1209,8 @@ async function finishGame(message, wasVictory = true) {
   }, 1400)
 }
 
-function resetGame() {
-  if (juegoTerminado && !confirm('¿Reiniciar la partida?')) return
+async function resetGame() {
+  if (juegoTerminado && !await confirmAction('Reiniciar la partida?', { title: 'Reiniciar ajedrez' })) return
   
   game.reset()
   board.start()

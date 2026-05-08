@@ -81,6 +81,11 @@ const chatPrivateStatusEl = document.getElementById('chatPrivateStatus')
 const chatPrivateClearViewEl = document.getElementById('chatPrivateClearView')
 const chatPrivateDeleteOwnEl = document.getElementById('chatPrivateDeleteOwn')
 const chatPrivateDeleteConversationEl = document.getElementById('chatPrivateDeleteConversation')
+const chatConfirmOverlayEl = document.getElementById('chatConfirmOverlay')
+const chatConfirmTitleEl = document.getElementById('chatConfirmTitle')
+const chatConfirmMessageEl = document.getElementById('chatConfirmMessage')
+const chatConfirmCancelEl = document.getElementById('chatConfirmCancel')
+const chatConfirmAcceptEl = document.getElementById('chatConfirmAccept')
 const RANGO_EQUIPADO_KEY = 'perfil_rango_equipado_usuario'
 const CHAT_GLOBAL_TABLA = 'chat_global'
 const CHAT_PRIVADO_TABLA = 'chat_privado'
@@ -4667,6 +4672,48 @@ function usuarioMensajeChat(mensaje) {
   return mensaje.usuario || mensaje.usuario_id || mensaje.remitente || 'Jugador'
 }
 
+function confirmarAccionChat({ titulo = 'Confirmar accion', mensaje = 'Seguro que deseas continuar?', textoAceptar = 'Aceptar' } = {}) {
+  if (!chatConfirmOverlayEl || !chatConfirmCancelEl || !chatConfirmAcceptEl) {
+    return Promise.resolve(false)
+  }
+
+  return new Promise((resolve) => {
+    let resuelto = false
+    const cerrar = (aceptado) => {
+      if (resuelto) return
+      resuelto = true
+      chatConfirmOverlayEl.classList.remove('open')
+      chatConfirmOverlayEl.setAttribute('aria-hidden', 'true')
+      chatConfirmAcceptEl.textContent = 'Aceptar'
+      chatConfirmCancelEl.removeEventListener('click', cancelar)
+      chatConfirmAcceptEl.removeEventListener('click', aceptar)
+      chatConfirmOverlayEl.removeEventListener('click', clickFondo)
+      document.removeEventListener('keydown', tecla)
+      resolve(aceptado)
+    }
+    const cancelar = () => cerrar(false)
+    const aceptar = () => cerrar(true)
+    const clickFondo = (event) => {
+      if (event.target === chatConfirmOverlayEl) cerrar(false)
+    }
+    const tecla = (event) => {
+      if (event.key === 'Escape') cerrar(false)
+      if (event.key === 'Enter') cerrar(true)
+    }
+
+    if (chatConfirmTitleEl) chatConfirmTitleEl.textContent = titulo
+    if (chatConfirmMessageEl) chatConfirmMessageEl.textContent = mensaje
+    chatConfirmAcceptEl.textContent = textoAceptar
+    chatConfirmOverlayEl.classList.add('open')
+    chatConfirmOverlayEl.setAttribute('aria-hidden', 'false')
+    chatConfirmCancelEl.addEventListener('click', cancelar)
+    chatConfirmAcceptEl.addEventListener('click', aceptar)
+    chatConfirmOverlayEl.addEventListener('click', clickFondo)
+    document.addEventListener('keydown', tecla)
+    setTimeout(() => chatConfirmCancelEl.focus(), 0)
+  })
+}
+
 function crearPayloadChat(texto, extra = {}) {
   const nivel = progresoNivelActual?.nivel || 1
   return {
@@ -4693,8 +4740,9 @@ function renderMensajesChat(contenedor, mensajes, privado = false) {
     const titulo = mensaje.rango || obtenerTituloNivel(mensaje.nivel || 1)
     const visual = obtenerVisualRango(titulo)
     const autor = usuarioMensajeChat(mensaje)
+    const esPropio = mensaje.usuario === usuario || mensaje.usuario_id === usuario || mensaje.remitente === usuario
     const div = document.createElement('div')
-    div.className = `chat-message${mensaje.usuario === usuario || mensaje.usuario_id === usuario || mensaje.remitente === usuario ? ' own' : ''}`
+    div.className = `chat-message${esPropio ? ' own' : ''}`
     div.dataset.rankTier = visual.tier
     div.setAttribute('style', estiloVisualRango(visual))
     div.innerHTML = `
@@ -4702,6 +4750,7 @@ function renderMensajesChat(contenedor, mensajes, privado = false) {
       <div class="chat-message-body">
       <div class="chat-message-head">
         <strong>${escaparHtml(autor)}</strong>
+        ${privado && esPropio && mensaje.id ? `<button class="chat-message-delete" type="button" data-chat-delete-message="${escaparHtml(String(mensaje.id))}">Borrar</button>` : ''}
         <span>Nivel ${escaparHtml(mensaje.nivel || 1)} · ${escaparHtml(titulo)} · ${horaChat(mensaje.created_at)}</span>
       </div>
       <p>${escaparHtml(mensaje.mensaje || '')}</p>
@@ -4899,7 +4948,11 @@ async function limpiarVistaChatPrivado() {
     chatPrivateStatusEl.innerText = 'Abre una conversacion para limpiar la vista.'
     return
   }
-  if (!confirm('Seguro que deseas limpiar el historial visual de esta conversacion en este dispositivo?')) return
+  const confirmado = await confirmarAccionChat({
+    titulo: 'Limpiar historial visual',
+    mensaje: 'Seguro que deseas limpiar esta conversacion solo en este dispositivo?',
+  })
+  if (!confirmado) return
   ocultarConversacionLocal(chatPrivadoDestino)
   chatPrivateListEl.innerHTML = '<div class="empty">Historial visual limpio en este dispositivo.</div>'
   chatPrivateStatusEl.innerText = 'Vista local limpia. Los mensajes nuevos volveran a aparecer.'
@@ -4911,7 +4964,11 @@ async function borrarMensajesPropiosChatPrivado() {
     chatPrivateStatusEl.innerText = 'Abre una conversacion para borrar mensajes propios.'
     return
   }
-  if (!confirm('Seguro que deseas borrar tus mensajes enviados en esta conversacion?')) return
+  const confirmado = await confirmarAccionChat({
+    titulo: 'Borrar mensajes propios',
+    mensaje: 'Seguro que deseas borrar tus mensajes enviados en esta conversacion?',
+  })
+  if (!confirmado) return
 
   const { error } = await supabase
     .from(CHAT_PRIVADO_TABLA)
@@ -4928,13 +4985,39 @@ async function borrarMensajesPropiosChatPrivado() {
   await cargarChatPrivado()
 }
 
+async function borrarMensajePrivado(id) {
+  if (!id || !chatPrivadoDestino) return
+  const confirmado = await confirmarAccionChat({
+    titulo: 'Borrar mensaje',
+    mensaje: 'Seguro que deseas borrar este mensaje?',
+  })
+  if (!confirmado) return
+
+  const { error } = await supabase
+    .from(CHAT_PRIVADO_TABLA)
+    .delete()
+    .eq('id', id)
+    .eq('remitente', usuario)
+
+  if (error) {
+    chatPrivateStatusEl.innerText = 'No se pudo borrar este mensaje.'
+    return
+  }
+
+  chatPrivateStatusEl.innerText = 'Mensaje borrado.'
+  await cargarChatPrivado()
+}
+
 async function borrarConversacionChatPrivado() {
   if (!chatPrivadoDestino) {
     chatPrivateStatusEl.innerText = 'Abre una conversacion para borrar.'
     return
   }
-  const confirmar = prompt(`Seguro que deseas borrar la conversacion con ${chatPrivadoDestino}? Escribe BORRAR para confirmar.`)
-  if (confirmar !== 'BORRAR') return
+  const confirmado = await confirmarAccionChat({
+    titulo: 'Borrar conversacion',
+    mensaje: `Seguro que deseas borrar la conversacion con ${chatPrivadoDestino}?`,
+  })
+  if (!confirmado) return
 
   const [propios, recibidos] = await Promise.all([
     supabase
@@ -4977,6 +5060,11 @@ function instalarChatSocial() {
     const button = event.target.closest('[data-chat-user]')
     if (!button) return
     cargarChatPrivado(button.dataset.chatUser)
+  })
+  chatPrivateListEl?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-chat-delete-message]')
+    if (!button) return
+    borrarMensajePrivado(button.dataset.chatDeleteMessage)
   })
   chatPrivateFormEl?.addEventListener('submit', enviarChatPrivado)
   chatPrivateClearViewEl?.addEventListener('click', limpiarVistaChatPrivado)
@@ -5038,8 +5126,11 @@ window.seleccionarJuegoLogros = seleccionarJuegoLogros
 window.volverMenu = function () {
   window.location.href = 'index.html'
 }
-window.cerrarSesion = function () {
-  const confirmar = confirm('Quieres cerrar sesion en este navegador?')
+window.cerrarSesion = async function () {
+  const confirmar = await confirmarAccionChat({
+    titulo: 'Cerrar sesion',
+    mensaje: 'Quieres cerrar sesion en este navegador?',
+  })
   if (!confirmar) return
 
   localStorage.removeItem('usuario')

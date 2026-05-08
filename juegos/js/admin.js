@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js"
-import { cleanText, errorMessage, escapeHtml, safeAlert, setCleanText } from "./mensajes.js"
+import { cleanText, confirmAction, errorMessage, escapeHtml, promptAction, safeAlert, setCleanText } from "./mensajes.js"
 import {
   BONUS_TEMPORADA_VALORES,
   JUEGOS_TEMPORADA,
@@ -297,7 +297,7 @@ async function limpiarRanking(){
 
 const juego = document.getElementById("juegoSelect")?.value
 
-if(!confirm(cleanText("Seguro que quieres borrar solo el ranking temporal de " + juego + "?"))) return
+if(!await confirmAction(cleanText("Seguro que quieres borrar solo el ranking temporal de " + juego + "?"), { title: "Limpiar ranking temporal" })) return
 
 const rpc = await ejecutarRpcAdmin("admin_limpiar_ranking_temporal", { p_juego: juego })
 if(rpc.ok){
@@ -491,7 +491,7 @@ return grouped
 
 async function finalizarMiniTorneoAdmin(id){
 if(!id) return
-if(!confirm("Esto marcara solo este mini torneo como finalizado para sacarlo de activos. No toca torneos normales ni rankings. Continuar?")) return
+if(!await confirmAction("Esto marcara solo este mini torneo como finalizado para sacarlo de activos. No toca torneos normales ni rankings. Continuar?", { title: "Limpiar mini torneo" })) return
 
 const { error } = await supabase
 .from("salas")
@@ -510,7 +510,7 @@ cargarMiniTorneosAdmin()
 
 async function borrarMiniTorneoAdmin(id){
 if(!id) return
-const confirmacion = prompt("Borrado definitivo del mini torneo #" + id + ". Escribe BORRAR para confirmar.")
+const confirmacion = await promptAction("Borrado definitivo del mini torneo #" + id + ". Escribe BORRAR para confirmar.", { title: "Borrar mini torneo", danger: true })
 if(confirmacion !== "BORRAR") return
 
 await supabase
@@ -1004,7 +1004,7 @@ return inicio.toISOString()
 async function borrarRankingSemana(){
 const juego = obtenerJuegoSeleccionado()
 
-if(!confirm("Esto borrara el ranking semanal de " + juego + ". El global y las victorias historicas se conservan.")) return
+if(!await confirmAction("Esto borrara el ranking semanal de " + juego + ". El global y las victorias historicas se conservan.", { title: "Borrar ranking semanal" })) return
 
 const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_semana", { p_juego: juego })
 if(rpc.ok){
@@ -1034,7 +1034,7 @@ cargarVistaAdmin()
 async function borrarRankingVictorias(){
 const juego = obtenerJuegoSeleccionado()
 
-if(!confirm("Esto borrara las victorias acumuladas de " + juego + " sin borrar los resultados globales.")) return
+if(!await confirmAction("Esto borrara las victorias acumuladas de " + juego + " sin borrar los resultados globales.", { title: "Borrar ranking de victorias" })) return
 
 const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_victorias", { p_juego: juego })
 if(rpc.ok){
@@ -1064,7 +1064,7 @@ cargarVistaAdmin()
 async function borrarRankingGlobal(){
 const juego = obtenerJuegoSeleccionado()
 
-if(!confirm("Esto borrara el ranking global y el historial de " + juego + ". El ranking temporal actual tambien se limpiara.")) return
+if(!await confirmAction("Esto borrara el ranking global y el historial de " + juego + ". El ranking temporal actual tambien se limpiara.", { title: "Borrar ranking global" })) return
 
 const rpc = await ejecutarRpcAdmin("admin_borrar_ranking_global", { p_juego: juego })
 if(rpc.ok){
@@ -1094,7 +1094,7 @@ cargarVistaAdmin()
 }
 
 async function reiniciarTemporada(){
-const confirmacion = prompt("Esto creara una nueva temporada y bajara 3 niveles a todos los usuarios. Escribe TEMPORADA para confirmar.")
+const confirmacion = await promptAction("Esto creara una nueva temporada y bajara 3 niveles a todos los usuarios. Escribe TEMPORADA para confirmar.", { title: "Reiniciar temporada", danger: true })
 if(confirmacion !== "TEMPORADA") return
 
 const rpc = await ejecutarRpcAdmin("admin_reiniciar_temporada")
@@ -1134,7 +1134,7 @@ console.warn("No se pudo limpiar " + tablaExtra, extra.error)
 
 async function resetTotal(){
 
-const confirmacion = prompt("Esto borrara rankings, historial y tableros unicos de Sudoku. Escribe RESET para confirmar.")
+const confirmacion = await promptAction("Esto borrara rankings, historial y tableros unicos de Sudoku. Escribe RESET para confirmar.", { title: "Reset total", danger: true })
 if(confirmacion !== "RESET") return
 
 const rpc = await ejecutarRpcAdmin("admin_reset_total")

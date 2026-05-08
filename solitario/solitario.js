@@ -1,5 +1,5 @@
 import { supabase } from "../juegos/js/supabase.js"
-import { errorMessage, escapeHtml, setCleanText } from "../juegos/js/mensajes.js"
+import { errorMessage, escapeHtml, promptAction, setCleanText } from "../juegos/js/mensajes.js"
 import {
   LEVELS,
   getGameLabel,
@@ -701,7 +701,7 @@ async function updateRoomState(estado) {
 
 async function addRoomPoints() {
   if (!state.activeRoom) return
-  const entered = prompt("Puntos obtenidos en el juego")
+  const entered = await promptAction("Puntos obtenidos en el juego", { title: "Registrar puntos" })
   if (entered === null) return
 
   const gained = Number.parseInt(entered, 10)
