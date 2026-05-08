@@ -73,6 +73,7 @@ const chatGlobalStatusEl = document.getElementById('chatGlobalStatus')
 const chatPrivateSearchEl = document.getElementById('chatPrivateSearch')
 const chatPrivateOpenEl = document.getElementById('chatPrivateOpen')
 const chatPrivateTargetEl = document.getElementById('chatPrivateTarget')
+const chatConversationListEl = document.getElementById('chatConversationList')
 const chatPrivateListEl = document.getElementById('chatPrivateList')
 const chatPrivateFormEl = document.getElementById('chatPrivateForm')
 const chatPrivateInputEl = document.getElementById('chatPrivateInput')
@@ -81,6 +82,7 @@ const RANGO_EQUIPADO_KEY = 'perfil_rango_equipado_usuario'
 const CHAT_GLOBAL_TABLA = 'chat_global'
 const CHAT_PRIVADO_TABLA = 'chat_privado'
 const CHAT_LIMITE = 60
+const CHAT_LECTURAS_KEY = `perfil_chat_privado_lecturas_${usuario || 'anon'}`
 let rangoEquipadoActual = 'Novato'
 let progresoNivelActual = null
 let chatGlobalCanal = null
@@ -4596,6 +4598,45 @@ function horaChat(valor) {
   return fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
 }
 
+function inicialesChat(nombre) {
+  return String(nombre || 'J')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((parte) => parte.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'J'
+}
+
+function obtenerLecturasChat() {
+  try {
+    return JSON.parse(localStorage.getItem(CHAT_LECTURAS_KEY) || '{}') || {}
+  } catch {
+    return {}
+  }
+}
+
+function guardarLecturasChat(lecturas) {
+  localStorage.setItem(CHAT_LECTURAS_KEY, JSON.stringify(lecturas || {}))
+}
+
+function marcarConversacionLeida(destino) {
+  if (!destino) return
+  const lecturas = obtenerLecturasChat()
+  lecturas[destino] = new Date().toISOString()
+  guardarLecturasChat(lecturas)
+}
+
+function otroParticipanteChat(mensaje) {
+  if (!mensaje) return ''
+  return mensaje.remitente === usuario ? mensaje.destinatario : mensaje.remitente
+}
+
+function usuarioMensajeChat(mensaje) {
+  return mensaje.usuario || mensaje.usuario_id || mensaje.remitente || 'Jugador'
+}
+
 function crearPayloadChat(texto, extra = {}) {
   const nivel = progresoNivelActual?.nivel || 1
   return {
@@ -4621,21 +4662,81 @@ function renderMensajesChat(contenedor, mensajes, privado = false) {
   mensajes.forEach((mensaje) => {
     const titulo = mensaje.rango || obtenerTituloNivel(mensaje.nivel || 1)
     const visual = obtenerVisualRango(titulo)
+    const autor = usuarioMensajeChat(mensaje)
     const div = document.createElement('div')
-    div.className = `chat-message${mensaje.usuario === usuario || mensaje.usuario_id === usuario ? ' own' : ''}`
+    div.className = `chat-message${mensaje.usuario === usuario || mensaje.usuario_id === usuario || mensaje.remitente === usuario ? ' own' : ''}`
     div.dataset.rankTier = visual.tier
     div.setAttribute('style', estiloVisualRango(visual))
     div.innerHTML = `
+      <div class="chat-avatar" aria-hidden="true">${escaparHtml(inicialesChat(autor))}</div>
+      <div class="chat-message-body">
       <div class="chat-message-head">
-        <strong>${escaparHtml(mensaje.usuario || mensaje.usuario_id || 'Jugador')}</strong>
+        <strong>${escaparHtml(autor)}</strong>
         <span>Nivel ${escaparHtml(mensaje.nivel || 1)} · ${escaparHtml(titulo)} · ${horaChat(mensaje.created_at)}</span>
       </div>
       <p>${escaparHtml(mensaje.mensaje || '')}</p>
+      </div>
     `
     contenedor.appendChild(div)
+    aplicarPersonalizacionUsuario(div, autor)
   })
 
   contenedor.scrollTop = contenedor.scrollHeight
+}
+
+function renderConversacionesChat(mensajes) {
+  if (!chatConversationListEl) return
+  chatConversationListEl.innerHTML = ''
+
+  const lecturas = obtenerLecturasChat()
+  const conversaciones = new Map()
+
+  mensajes.forEach((mensaje) => {
+    const destino = otroParticipanteChat(mensaje)
+    if (!destino) return
+    const actual = conversaciones.get(destino) || { destino, ultimo: null, unread: 0 }
+    if (!actual.ultimo || new Date(mensaje.created_at) > new Date(actual.ultimo.created_at)) {
+      actual.ultimo = mensaje
+    }
+    const noLeido = mensaje.destinatario === usuario
+      && mensaje.remitente === destino
+      && (!lecturas[destino] || new Date(mensaje.created_at) > new Date(lecturas[destino]))
+    if (noLeido) actual.unread += 1
+    conversaciones.set(destino, actual)
+  })
+
+  const items = [...conversaciones.values()]
+    .sort((a, b) => new Date(b.ultimo?.created_at || 0) - new Date(a.ultimo?.created_at || 0))
+
+  if (!items.length) {
+    chatConversationListEl.innerHTML = '<div class="empty">Todavia no hay conversaciones.</div>'
+    return
+  }
+
+  items.forEach((item) => {
+    const ultimo = item.ultimo || {}
+    const titulo = ultimo.rango || obtenerTituloNivel(ultimo.nivel || 1)
+    const visual = obtenerVisualRango(titulo)
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = `chat-conversation${item.destino === chatPrivadoDestino ? ' active' : ''}`
+    button.dataset.chatUser = item.destino
+    button.dataset.rankTier = visual.tier
+    button.setAttribute('style', estiloVisualRango(visual))
+    button.innerHTML = `
+      <span class="chat-conversation-avatar">${escaparHtml(inicialesChat(item.destino))}</span>
+      <span class="chat-conversation-main">
+        <span class="chat-conversation-title">${escaparHtml(item.destino)}</span>
+        <span class="chat-conversation-preview">Nivel ${escaparHtml(ultimo.nivel || 1)} - ${escaparHtml(titulo)} - ${escaparHtml(ultimo.mensaje || '')}</span>
+      </span>
+      <span class="chat-conversation-meta">
+        <span>${horaChat(ultimo.created_at)}</span>
+        ${item.unread ? `<span class="chat-unread">${item.unread > 9 ? '9+' : item.unread}</span>` : ''}
+      </span>
+    `
+    chatConversationListEl.appendChild(button)
+    aplicarPersonalizacionUsuario(button, item.destino)
+  })
 }
 
 async function cargarChatGlobal() {
@@ -4670,32 +4771,75 @@ async function enviarChatGlobal(event) {
   await cargarChatGlobal()
 }
 
+async function cargarConversacionesPrivadas() {
+  if (!chatConversationListEl || !usuario) return
+
+  const [enviados, recibidos] = await Promise.all([
+    supabase
+      .from(CHAT_PRIVADO_TABLA)
+      .select('*')
+      .eq('remitente', usuario)
+      .order('created_at', { ascending: false })
+      .limit(90),
+    supabase
+      .from(CHAT_PRIVADO_TABLA)
+      .select('*')
+      .eq('destinatario', usuario)
+      .order('created_at', { ascending: false })
+      .limit(90),
+  ])
+
+  if (enviados.error || recibidos.error) {
+    chatConversationListEl.innerHTML = '<div class="empty">Ejecuta el SQL social para activar conversaciones.</div>'
+    return
+  }
+
+  renderConversacionesChat([...(enviados.data || []), ...(recibidos.data || [])])
+}
+
 async function cargarChatPrivado(destino = chatPrivadoDestino) {
   if (!chatPrivateListEl || !usuario || !destino) return
   chatPrivadoDestino = destino
   if (chatPrivateTargetEl) chatPrivateTargetEl.innerText = `Conversacion con ${destino}`
+  marcarConversacionLeida(destino)
 
-  const { data, error } = await supabase
-    .from(CHAT_PRIVADO_TABLA)
-    .select('*')
-    .or(`and(remitente.eq.${usuario},destinatario.eq.${destino}),and(remitente.eq.${destino},destinatario.eq.${usuario})`)
-    .order('created_at', { ascending: true })
-    .limit(CHAT_LIMITE)
+  const [enviados, recibidos] = await Promise.all([
+    supabase
+      .from(CHAT_PRIVADO_TABLA)
+      .select('*')
+      .eq('remitente', usuario)
+      .eq('destinatario', destino)
+      .order('created_at', { ascending: false })
+      .limit(CHAT_LIMITE),
+    supabase
+      .from(CHAT_PRIVADO_TABLA)
+      .select('*')
+      .eq('remitente', destino)
+      .eq('destinatario', usuario)
+      .order('created_at', { ascending: false })
+      .limit(CHAT_LIMITE),
+  ])
 
-  if (error) {
+  if (enviados.error || recibidos.error) {
     chatPrivateStatusEl.innerText = 'Mensajes privados pendientes de configurar en Supabase.'
     chatPrivateListEl.innerHTML = '<div class="empty">Ejecuta el SQL social para activar privados.</div>'
     return
   }
 
+  const data = [...(enviados.data || []), ...(recibidos.data || [])]
+    .sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0))
+    .slice(-CHAT_LIMITE)
+
   chatPrivateStatusEl.innerText = 'Conversacion activa.'
-  renderMensajesChat(chatPrivateListEl, data || [], true)
+  renderMensajesChat(chatPrivateListEl, data, true)
+  await cargarConversacionesPrivadas()
 }
 
 async function abrirChatPrivado() {
   const destino = String(chatPrivateSearchEl?.value || '').trim()
   if (!destino || destino === usuario) return
   await cargarChatPrivado(destino)
+  if (chatPrivateSearchEl) chatPrivateSearchEl.value = ''
 }
 
 async function enviarChatPrivado(event) {
@@ -4714,15 +4858,27 @@ async function enviarChatPrivado(event) {
     return
   }
   await cargarChatPrivado()
+  await cargarConversacionesPrivadas()
 }
 
 function instalarChatSocial() {
   if (!usuario) return
   chatGlobalFormEl?.addEventListener('submit', enviarChatGlobal)
   chatPrivateOpenEl?.addEventListener('click', abrirChatPrivado)
+  chatPrivateSearchEl?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    abrirChatPrivado()
+  })
+  chatConversationListEl?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-chat-user]')
+    if (!button) return
+    cargarChatPrivado(button.dataset.chatUser)
+  })
   chatPrivateFormEl?.addEventListener('submit', enviarChatPrivado)
 
   cargarChatGlobal()
+  cargarConversacionesPrivadas()
 
   chatGlobalCanal = supabase
     .channel('perfil-chat-global')
@@ -4740,6 +4896,7 @@ function instalarChatSocial() {
       } else if (chatPrivateStatusEl) {
         chatPrivateStatusEl.innerText = `Mensaje nuevo de ${row.remitente || 'un jugador'}`
       }
+      cargarConversacionesPrivadas()
     })
     .subscribe()
 }

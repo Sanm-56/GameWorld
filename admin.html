@@ -377,13 +377,77 @@ th:last-child{
 .invalido{ background:rgba(239,68,68,0.16); }
 .normal{ background:rgba(34,197,94,0.12); }
 
+.mini-admin-panel{
+  border-color:rgba(56,189,248,0.22);
+  background:
+    linear-gradient(135deg, rgba(14,116,144,0.12), rgba(15,23,42,0.86)),
+    rgba(15,23,42,0.82);
+}
+
+.mini-admin-head,
+.mini-admin-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+
+.mini-admin-head p,
+.mini-admin-meta,
+.mini-admin-players{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.mini-admin-list{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+
+.mini-admin-row{
+  padding:12px;
+  border:1px solid rgba(148,163,184,0.14);
+  border-radius:14px;
+  background:rgba(2,6,23,0.42);
+}
+
+.mini-admin-title{
+  margin:0;
+  color:#f8fafc;
+  font-weight:900;
+  overflow-wrap:anywhere;
+}
+
+.mini-admin-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+.mini-admin-actions button{
+  min-height:36px;
+  padding:9px 11px;
+  border-radius:9px;
+  font-size:13px;
+}
+
 @media (max-width:900px){
   body{ padding:16px; }
 
   .admin-header,
-  .table-toolbar{
+  .table-toolbar,
+  .mini-admin-head,
+  .mini-admin-row{
     flex-direction:column;
     align-items:stretch;
+  }
+
+  .mini-admin-actions{
+    justify-content:stretch;
   }
 
   .admin-grid{
@@ -509,6 +573,19 @@ th:last-child{
         <button onclick="verSospechosos()">Sospechosos</button>
         <button onclick="verInvalidos()">Invalidos</button>
         <button onclick="limpiarRanking()">Limpiar ranking</button>
+      </div>
+    </div>
+
+    <div class="section mini-admin-panel">
+      <div class="mini-admin-head">
+        <div>
+          <h3>Mini torneos activos</h3>
+          <p>Herramienta segura para sacar de activos salas bugueadas sin tocar torneos normales.</p>
+        </div>
+        <button class="ghost" onclick="cargarMiniTorneosAdmin()">Actualizar</button>
+      </div>
+      <div class="mini-admin-list" id="miniTorneosAdminList">
+        <div class="export-note">Inicia sesion para cargar mini torneos.</div>
       </div>
     </div>
 

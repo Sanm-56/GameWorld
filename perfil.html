@@ -4896,7 +4896,156 @@ body.sudoku-screen-shake{
 .chat-panel{
   min-width:0;
   display:grid;
+  gap:14px;
+  overflow:hidden;
+  border-color:rgba(var(--rank-rgb),0.2);
+  background:
+    linear-gradient(145deg, rgba(15,23,42,0.92), rgba(2,6,23,0.78)),
+    rgba(15,23,42,0.86);
+}
+
+.chat-panel .section-title{
+  margin-bottom:0;
+}
+
+.chat-panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
   gap:12px;
+}
+
+.chat-panel-kicker{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:0.78rem;
+  font-weight:800;
+}
+
+.chat-private-shell{
+  display:grid;
+  grid-template-columns:minmax(180px, 0.78fr) minmax(0, 1.22fr);
+  gap:12px;
+  min-height:420px;
+}
+
+.chat-conversations{
+  display:grid;
+  grid-template-rows:auto minmax(0, 1fr);
+  gap:10px;
+  min-width:0;
+  padding:10px;
+  border:1px solid rgba(148,163,184,0.12);
+  border-radius:16px;
+  background:rgba(2,6,23,0.42);
+}
+
+.chat-conversation-list{
+  display:grid;
+  align-content:start;
+  gap:8px;
+  min-height:0;
+  overflow:auto;
+  padding-right:2px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(var(--rank-rgb),0.7) rgba(15,23,42,0.52);
+}
+
+.chat-conversation{
+  width:100%;
+  min-width:0;
+  display:grid;
+  grid-template-columns:38px minmax(0, 1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:9px;
+  border:1px solid rgba(148,163,184,0.12);
+  border-radius:13px;
+  color:#e5e7eb;
+  text-align:left;
+  background:rgba(15,23,42,0.68);
+  box-shadow:none;
+}
+
+.chat-conversation:hover,
+.chat-conversation.active{
+  transform:none;
+  border-color:rgba(var(--rank-rgb),0.44);
+  background:rgba(var(--rank-rgb),0.12);
+}
+
+.chat-conversation-avatar,
+.chat-avatar{
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  border:1px solid rgba(var(--node-rgb),0.32);
+  border-radius:12px;
+  color:#f8fafc;
+  background:
+    radial-gradient(circle at 35% 20%, rgba(var(--node-rgb),0.42), transparent 40%),
+    rgba(2,6,23,0.88);
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.chat-conversation-avatar{
+  width:38px;
+  height:38px;
+  font-size:0.82rem;
+}
+
+.chat-conversation-main{
+  min-width:0;
+}
+
+.chat-conversation-title,
+.chat-conversation-preview{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.chat-conversation-title{
+  color:#f8fafc;
+  font-size:0.86rem;
+  font-weight:900;
+}
+
+.chat-conversation-preview{
+  margin-top:3px;
+  color:#94a3b8;
+  font-size:0.74rem;
+}
+
+.chat-conversation-meta{
+  display:grid;
+  justify-items:end;
+  gap:5px;
+  color:#94a3b8;
+  font-size:0.68rem;
+}
+
+.chat-unread{
+  min-width:19px;
+  height:19px;
+  display:grid;
+  place-items:center;
+  padding:0 6px;
+  border-radius:999px;
+  color:#020617;
+  background:#38bdf8;
+  font-size:0.68rem;
+  font-weight:900;
+}
+
+.chat-thread{
+  min-width:0;
+  display:grid;
+  grid-template-rows:auto minmax(0, 1fr) auto auto;
+  gap:10px;
 }
 
 .chat-toolbar,
@@ -4926,31 +5075,54 @@ body.sudoku-screen-shake{
 .chat-list{
   display:grid;
   align-content:start;
-  gap:10px;
+  gap:12px;
   height:360px;
   max-height:52vh;
   overflow:auto;
   overscroll-behavior:contain;
-  padding:6px;
+  padding:12px;
+  border:1px solid rgba(148,163,184,0.11);
+  border-radius:16px;
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.36), rgba(15,23,42,0.28)),
+    rgba(2,6,23,0.32);
   scrollbar-width:thin;
-  scrollbar-color:var(--rank-primary) rgba(15,23,42,0.82);
+  scrollbar-color:rgba(var(--rank-rgb),0.74) rgba(15,23,42,0.82);
   -webkit-overflow-scrolling:touch;
 }
 
 .chat-message{
-  padding:11px 12px;
-  border-radius:14px;
+  width:min(82%, 620px);
+  display:grid;
+  grid-template-columns:auto minmax(0, 1fr);
+  gap:9px;
+  justify-self:start;
+  padding:10px 12px;
+  border-radius:16px 16px 16px 5px;
   border:1px solid rgba(var(--node-rgb),0.2);
   background:
     radial-gradient(circle at 92% 0%, rgba(var(--node-rgb),0.12), transparent 28%),
     rgba(15,23,42,0.72);
+  animation:chatIn 0.18s ease both;
 }
 
 .chat-message.own{
+  justify-self:end;
+  border-radius:16px 16px 5px 16px;
   border-color:rgba(var(--node-rgb),0.42);
   background:
     radial-gradient(circle at 92% 0%, rgba(var(--node-rgb),0.22), transparent 30%),
     rgba(2,6,23,0.86);
+}
+
+.chat-avatar{
+  width:34px;
+  height:34px;
+  font-size:0.72rem;
+}
+
+.chat-message-body{
+  min-width:0;
 }
 
 .chat-message-head{
@@ -4972,6 +5144,11 @@ body.sudoku-screen-shake{
   color:#dbeafe;
   line-height:1.35;
   overflow-wrap:anywhere;
+}
+
+@keyframes chatIn{
+  from{ opacity:0; transform:translateY(4px); }
+  to{ opacity:1; transform:translateY(0); }
 }
 
 @media (max-width:900px){
@@ -5008,6 +5185,15 @@ body.sudoku-screen-shake{
   .chat-toolbar,
   .chat-form{
     grid-template-columns:1fr;
+  }
+
+  .chat-private-shell{
+    grid-template-columns:1fr;
+    min-height:0;
+  }
+
+  .chat-conversation-list{
+    max-height:220px;
   }
 
   .chat-list{
@@ -5110,6 +5296,23 @@ body.sudoku-screen-shake{
   .card{
     padding:14px;
     border-radius:12px;
+  }
+
+  .chat-message{
+    width:100%;
+  }
+
+  .chat-message-head{
+    display:grid;
+  }
+
+  .chat-conversation{
+    grid-template-columns:34px minmax(0, 1fr) auto;
+  }
+
+  .chat-conversation-avatar{
+    width:34px;
+    height:34px;
   }
 
   .stat-value{
@@ -5519,7 +5722,12 @@ body.sudoku-screen-shake{
 
     <div class="social-grid">
       <article class="card profile-card chat-panel">
-        <h2 class="section-title">Chat global</h2>
+        <div class="chat-panel-head">
+          <div>
+            <h2 class="section-title">Chat global</h2>
+            <span class="chat-panel-kicker">Arena publica competitiva</span>
+          </div>
+        </div>
         <div class="chat-list" id="chatGlobalList"></div>
         <form class="chat-form" id="chatGlobalForm">
           <input class="chat-input" id="chatGlobalInput" maxlength="280" autocomplete="off" placeholder="Mensaje global">
@@ -5529,18 +5737,30 @@ body.sudoku-screen-shake{
       </article>
 
       <article class="card profile-card chat-panel">
-        <h2 class="section-title">Chat privado</h2>
-        <div class="chat-toolbar">
-          <input class="chat-input" id="chatPrivateSearch" autocomplete="off" placeholder="Buscar usuario">
-          <button class="btn secondary" type="button" id="chatPrivateOpen">Abrir</button>
+        <div class="chat-panel-head">
+          <div>
+            <h2 class="section-title">Mensajes</h2>
+            <span class="chat-panel-kicker">Conversaciones privadas</span>
+          </div>
         </div>
-        <div class="chat-status" id="chatPrivateTarget">Sin conversacion abierta</div>
-        <div class="chat-list" id="chatPrivateList"></div>
-        <form class="chat-form" id="chatPrivateForm">
-          <input class="chat-input" id="chatPrivateInput" maxlength="280" autocomplete="off" placeholder="Mensaje privado">
-          <button class="btn" type="submit">Enviar</button>
-        </form>
-        <div class="chat-status" id="chatPrivateStatus">Busca un usuario para iniciar.</div>
+        <div class="chat-private-shell">
+          <aside class="chat-conversations">
+            <div class="chat-toolbar">
+              <input class="chat-input" id="chatPrivateSearch" autocomplete="off" placeholder="Buscar usuario">
+              <button class="btn secondary" type="button" id="chatPrivateOpen">Abrir</button>
+            </div>
+            <div class="chat-conversation-list" id="chatConversationList"></div>
+          </aside>
+          <div class="chat-thread">
+            <div class="chat-status" id="chatPrivateTarget">Sin conversacion abierta</div>
+            <div class="chat-list" id="chatPrivateList"></div>
+            <form class="chat-form" id="chatPrivateForm">
+              <input class="chat-input" id="chatPrivateInput" maxlength="280" autocomplete="off" placeholder="Mensaje privado">
+              <button class="btn" type="submit">Enviar</button>
+            </form>
+            <div class="chat-status" id="chatPrivateStatus">Selecciona una conversacion o busca un usuario.</div>
+          </div>
+        </div>
       </article>
     </div>
 

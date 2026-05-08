@@ -127,6 +127,7 @@ document.getElementById("panelAdmin").style.display = "block"
 cargarRanking()
 cargarVistaAdmin()
 cargarBonusTemporadaAdmin()
+cargarMiniTorneosAdmin()
 verEstado()
 return
 }
@@ -151,6 +152,7 @@ document.getElementById("panelAdmin").style.display = "block"
 cargarRanking()
 cargarVistaAdmin()
 cargarBonusTemporadaAdmin()
+cargarMiniTorneosAdmin()
 verEstado()
 
 }else{
@@ -416,6 +418,133 @@ console.warn("No se pudo conservar el historico antes de limpiar", error)
 }
 
 // =============================
+// MINI TORNEOS ACTIVOS
+// =============================
+async function cargarMiniTorneosAdmin(){
+const list = document.getElementById("miniTorneosAdminList")
+if(!list) return
+
+list.innerHTML = '<div class="export-note">Cargando mini torneos activos...</div>'
+
+const { data, error } = await supabase
+.from("salas")
+.select("id,nombre,codigo,creador_id,estado,max_jugadores,juego,created_at,inicio_torneo")
+.neq("estado", "finalizado")
+.order("created_at", { ascending: false })
+.limit(30)
+
+if(error){
+console.warn("No se pudieron cargar mini torneos", error)
+list.innerHTML = '<div class="export-note">No se pudieron cargar mini torneos. Revisa que la tabla salas exista.</div>'
+return
+}
+
+if(!data?.length){
+list.innerHTML = '<div class="export-note">No hay mini torneos activos.</div>'
+return
+}
+
+const playersByRoom = await cargarJugadoresMiniTorneos(data.map((room) => room.id))
+
+list.innerHTML = data.map((room) => {
+const jugadores = playersByRoom.get(room.id) || []
+const creado = room.created_at ? new Date(room.created_at).toLocaleString("es-CO") : "-"
+return `
+<div class="mini-admin-row">
+  <div>
+    <p class="mini-admin-title">${escapeHtml(room.nombre || "Mini torneo")}</p>
+    <p class="mini-admin-meta">ID ${room.id} | ${escapeHtml(room.juego || "sin juego")} | ${escapeHtml(room.estado || "esperando")} | codigo ${escapeHtml(room.codigo || "-")} | creado ${escapeHtml(creado)}</p>
+    <p class="mini-admin-players">${jugadores.length ? escapeHtml(jugadores.join(", ")) : "Sin jugadores registrados"}</p>
+  </div>
+  <div class="mini-admin-actions">
+    <button class="ghost" onclick="finalizarMiniTorneoAdmin(${Number(room.id)})">Limpiar de activos</button>
+    <button class="danger" onclick="borrarMiniTorneoAdmin(${Number(room.id)})">Borrar definitivo</button>
+  </div>
+</div>
+`
+}).join("")
+}
+
+async function cargarJugadoresMiniTorneos(ids){
+const grouped = new Map()
+if(!ids.length) return grouped
+
+const { data, error } = await supabase
+.from("sala_jugadores")
+.select("sala_id,usuario_id,usuario")
+.in("sala_id", ids)
+.order("created_at", { ascending: true })
+
+if(error){
+console.warn("No se pudieron cargar jugadores de mini torneos", error)
+return grouped
+}
+
+;(data || []).forEach((player) => {
+const current = grouped.get(player.sala_id) || []
+if(current.length < 8) current.push(player.usuario || player.usuario_id || "Jugador")
+grouped.set(player.sala_id, current)
+})
+
+return grouped
+}
+
+async function finalizarMiniTorneoAdmin(id){
+if(!id) return
+if(!confirm("Esto marcara solo este mini torneo como finalizado para sacarlo de activos. No toca torneos normales ni rankings. Continuar?")) return
+
+const { error } = await supabase
+.from("salas")
+.update({ estado: "finalizado", fecha_fin: new Date().toISOString() })
+.eq("id", id)
+
+if(error){
+console.warn("No se pudo finalizar mini torneo", error)
+safeAlert(errorMessage(error, "No se pudo limpiar el mini torneo."))
+return
+}
+
+safeAlert("Mini torneo limpiado de activos.")
+cargarMiniTorneosAdmin()
+}
+
+async function borrarMiniTorneoAdmin(id){
+if(!id) return
+const confirmacion = prompt("Borrado definitivo del mini torneo #" + id + ". Escribe BORRAR para confirmar.")
+if(confirmacion !== "BORRAR") return
+
+await supabase
+.from("sala_jugadores")
+.delete()
+.eq("sala_id", id)
+
+const { error } = await supabase
+.from("salas")
+.delete()
+.eq("id", id)
+
+if(error){
+console.warn("No se pudo borrar definitivamente; se intentara limpiar de activos", error)
+const fallback = await supabase
+.from("salas")
+.update({ estado: "finalizado", fecha_fin: new Date().toISOString() })
+.eq("id", id)
+
+if(fallback.error){
+safeAlert(errorMessage(fallback.error, "No se pudo borrar ni finalizar el mini torneo."))
+return
+}
+
+safeAlert("No hubo permiso para borrar definitivamente, pero quedo limpiado de activos.")
+cargarMiniTorneosAdmin()
+return
+}
+
+safeAlert("Mini torneo borrado definitivamente.")
+cargarMiniTorneosAdmin()
+}
+
+// =============================
 // ❌ ELIMINAR JUGADOR
 // =============================
 async function eliminar(usuario){
@@ -636,6 +765,15 @@ supabase
 cargarRanking()
 cargarVistaAdmin()
 }
+)
+.subscribe()
+
+supabase
+.channel("admin-mini-torneos-cambios")
+.on(
+"postgres_changes",
+{ event: "*", schema: "public", table: "salas" },
+() => cargarMiniTorneosAdmin()
 )
 .subscribe()
 
@@ -1069,6 +1207,9 @@ window.guardarTemporadaAdmin = guardarTemporadaAdmin
 window.exportarRankingActual = exportarRankingActual
 window.exportarTablasRanking = exportarTablasRanking
 window.exportarHistorialPartidas = exportarHistorialPartidas
+window.cargarMiniTorneosAdmin = cargarMiniTorneosAdmin
+window.finalizarMiniTorneoAdmin = finalizarMiniTorneoAdmin
+window.borrarMiniTorneoAdmin = borrarMiniTorneoAdmin
 
 function syncNumcatchUI(){
   const juego = document.getElementById("juegoSelect")?.value
