@@ -3397,11 +3397,1202 @@ body.sudoku-screen-shake{
     linear-gradient(145deg, var(--node-surface), var(--node-ink));
 }
 
+.rank-node[data-rank-tier^="entity-"]{
+  flex-basis:clamp(224px, 39vw, 282px);
+  min-height:172px;
+  border-color:rgba(var(--node-rgb), var(--entity-border, 0.34));
+  background:
+    var(--entity-material, var(--node-material)),
+    var(--entity-phenomenon, var(--node-phenomenon)),
+    linear-gradient(var(--entity-angle, 145deg), var(--entity-surface, var(--node-surface)), var(--entity-ink, var(--node-ink)));
+  box-shadow:
+    var(--entity-shadow, 0 22px 54px rgba(0,0,0,0.4)),
+    0 0 calc(16px + var(--node-glow-boost, 0px)) rgba(var(--node-rgb), var(--entity-glow, 0.12)),
+    inset 0 1px 0 rgba(255,255,255,0.09),
+    inset 0 -28px 48px rgba(0,0,0,0.3);
+}
+
+.rank-node[data-rank-tier^="entity-"]::before{
+  background:var(--entity-geometry, var(--node-geometry));
+  background-size:var(--entity-size, auto);
+  opacity:var(--entity-opacity, 0.58);
+  mix-blend-mode:screen;
+  animation:var(--entity-motion, rankEnergyDrift 8s ease-in-out infinite);
+}
+
+.rank-node[data-rank-tier^="entity-"]::after{
+  height:var(--entity-line-height, 2px);
+  background:var(--entity-signature, var(--node-signature));
+  opacity:var(--entity-line-opacity, 0.72);
+  box-shadow:0 0 18px rgba(var(--node-rgb),0.22);
+}
+
+.rank-node[data-rank-tier^="entity-"] .rank-node-emblem{
+  width:44px;
+  height:44px;
+  border-radius:15px;
+  color:var(--entity-emblem-color, #f8fafc);
+  background:var(--entity-emblem, linear-gradient(135deg, rgba(255,255,255,0.18), rgba(var(--node-rgb),0.36)));
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:0 0 24px rgba(var(--node-rgb),0.22), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.rank-node[data-rank-tier^="entity-"] .rank-node-name{
+  color:#fff;
+  font-size:1rem;
+  line-height:1.16;
+  text-shadow:0 12px 24px rgba(0,0,0,0.42), 0 0 18px rgba(var(--node-rgb),0.22);
+}
+
+.rank-node[data-rank-tier^="entity-"] .rank-node-level{
+  color:color-mix(in srgb, var(--node-primary) 72%, white);
+}
+
+.rank-node[data-rank-tier^="entity-"] .rank-node-state{
+  background:rgba(2,6,23,0.6);
+  border-color:rgba(var(--node-rgb),0.2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.rank-node[data-rank-tier^="entity-"].current{
+  border-color:rgba(var(--node-rgb),0.62);
+}
+
+.rank-node[data-rank-tier="entity-living-void"]{
+  --entity-border:0.18;
+  --entity-glow:0.04;
+  --entity-surface:rgba(5,5,14,0.96);
+  --entity-ink:rgba(0,0,4,0.99);
+  --entity-material:
+    radial-gradient(circle at 50% 52%, rgba(0,0,0,0.98) 0 24%, rgba(22,18,45,0.64) 25% 31%, transparent 45%),
+    radial-gradient(circle at 12% 20%, rgba(255,255,255,0.045), transparent 18%);
+  --entity-phenomenon:
+    radial-gradient(circle at 50% 52%, transparent 0 30%, rgba(109,93,252,0.08) 31% 32%, transparent 36%),
+    conic-gradient(from 25deg at 50% 52%, rgba(0,0,0,0.58), transparent 18%, rgba(255,255,255,0.035), transparent 42%, rgba(0,0,0,0.72));
+  --entity-geometry:
+    radial-gradient(circle at 50% 52%, transparent 0 41%, rgba(255,255,255,0.055) 42% 43%, transparent 44%),
+    linear-gradient(90deg, rgba(0,0,0,0.48), transparent 18% 82%, rgba(0,0,0,0.5));
+  --entity-signature:radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0.96), rgba(109,93,252,0.18), transparent 70%);
+  --entity-line-height:3px;
+  --entity-line-opacity:0.32;
+  --entity-motion:rankCoreBreathe 5.8s ease-in-out infinite;
+}
+
+.rank-node[data-rank-tier="entity-black-crown"]{
+  --entity-surface:rgba(10,10,17,0.94);
+  --entity-ink:rgba(1,1,8,0.98);
+  --entity-material:
+    linear-gradient(180deg, rgba(255,255,255,0.07), transparent 36%),
+    radial-gradient(ellipse at 52% 16%, rgba(215,195,122,0.16), transparent 28%);
+  --entity-phenomenon:
+    radial-gradient(ellipse at 54% 22%, transparent 0 28%, rgba(0,0,0,0.9) 29% 34%, rgba(215,195,122,0.2) 35% 36%, transparent 39%),
+    linear-gradient(90deg, transparent 0 32%, rgba(255,255,255,0.06) 33% 34%, transparent 35% 64%, rgba(215,195,122,0.13) 65% 66%, transparent 67%);
+  --entity-geometry:
+    conic-gradient(from 10deg at 54% 22%, transparent, rgba(215,195,122,0.22), transparent 14%, rgba(0,0,0,0.4), transparent 32%),
+    linear-gradient(140deg, transparent 0 46%, rgba(255,255,255,0.06) 47%, transparent 48%);
+  --entity-signature:linear-gradient(90deg, transparent, rgba(215,195,122,0.76), rgba(0,0,0,0.4), transparent);
+  --entity-emblem:linear-gradient(145deg, #090912, #2d2a3f 58%, #d7c37a);
+}
+
+.rank-node[data-rank-tier="entity-dark-infinity"]{
+  --entity-surface:rgba(5,8,22,0.94);
+  --entity-ink:rgba(0,1,8,0.98);
+  --entity-material:
+    radial-gradient(ellipse at 28% 48%, rgba(125,211,252,0.13), transparent 32%),
+    radial-gradient(ellipse at 72% 48%, rgba(76,29,149,0.24), transparent 34%);
+  --entity-phenomenon:
+    radial-gradient(ellipse at 30% 48%, transparent 0 20%, rgba(125,211,252,0.18) 21% 22%, transparent 24%),
+    radial-gradient(ellipse at 72% 48%, transparent 0 26%, rgba(76,29,149,0.24) 27% 28%, transparent 30%),
+    linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.62));
+  --entity-geometry:
+    linear-gradient(90deg, transparent 0 46%, rgba(255,255,255,0.08) 48%, transparent 51%),
+    radial-gradient(circle at 50% 48%, rgba(255,255,255,0.12) 0 1px, transparent 2px);
+  --entity-motion:profileAuraDrift 9s ease-in-out infinite;
+  --entity-signature:linear-gradient(90deg, transparent, #7dd3fc, #4c1d95, transparent);
+}
+
+.rank-node[data-rank-tier="entity-eternal-ruins"]{
+  --entity-surface:rgba(13,18,29,0.93);
+  --entity-ink:rgba(2,6,18,0.97);
+  --entity-material:
+    linear-gradient(90deg, rgba(255,255,255,0.09) 0 1px, transparent 1px 30px),
+    linear-gradient(180deg, rgba(156,163,175,0.1), transparent 38%);
+  --entity-phenomenon:
+    linear-gradient(118deg, transparent 0 18%, rgba(156,163,175,0.25) 18.4% 25%, transparent 25.5%),
+    linear-gradient(74deg, transparent 0 58%, rgba(56,189,248,0.18) 58.4% 64%, transparent 64.5%),
+    radial-gradient(circle at 82% 24%, rgba(56,189,248,0.14), transparent 24%);
+  --entity-geometry:
+    linear-gradient(0deg, transparent 0 30%, rgba(255,255,255,0.1) 30.4% 31%, transparent 31.6%),
+    linear-gradient(90deg, transparent 0 23%, rgba(156,163,175,0.18) 23.4% 24%, transparent 24.6% 76%, rgba(255,255,255,0.08) 76.4% 77%, transparent 77.6%);
+  --entity-size:auto, auto;
+  --entity-signature:linear-gradient(90deg, #9ca3af, transparent 25%, #38bdf8, transparent);
+}
+
+.rank-node[data-rank-tier="entity-dark-ether"]{
+  --entity-surface:rgba(20,8,34,0.9);
+  --entity-ink:rgba(5,3,15,0.97);
+  --entity-material:
+    radial-gradient(ellipse at 28% 72%, rgba(192,132,252,0.18), transparent 34%),
+    radial-gradient(ellipse at 76% 22%, rgba(34,211,238,0.12), transparent 26%);
+  --entity-phenomenon:
+    linear-gradient(166deg, transparent 0 18%, rgba(192,132,252,0.2) 24%, transparent 38% 58%, rgba(91,33,182,0.23) 66%, transparent 78%),
+    radial-gradient(ellipse at 48% 56%, rgba(192,132,252,0.14), transparent 42%);
+  --entity-geometry:
+    linear-gradient(172deg, transparent 0 42%, rgba(255,255,255,0.09) 44%, transparent 48%),
+    linear-gradient(8deg, transparent 0 52%, rgba(34,211,238,0.11) 54%, transparent 60%);
+  --entity-motion:profileAuraDrift 6.8s ease-in-out infinite;
+  --entity-signature:linear-gradient(90deg, transparent, #c084fc, #22d3ee, transparent);
+}
+
+.rank-node[data-rank-tier="entity-crimson-horizon"]{
+  --entity-surface:rgba(23,9,17,0.91);
+  --entity-ink:rgba(3,4,12,0.98);
+  --entity-material:
+    linear-gradient(180deg, rgba(255,255,255,0.05), transparent 42%),
+    radial-gradient(ellipse at 50% 76%, rgba(251,113,133,0.14), transparent 34%);
+  --entity-phenomenon:
+    linear-gradient(180deg, transparent 0 58%, rgba(251,113,133,0.54) 59% 60%, rgba(251,191,36,0.18) 61%, transparent 72%),
+    radial-gradient(ellipse at 50% 70%, rgba(127,29,29,0.42), transparent 42%);
+  --entity-geometry:
+    linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent),
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.12) 0 1px, transparent 2px);
+  --entity-size:auto, 120px 120px;
+  --entity-signature:linear-gradient(90deg, transparent, #fb7185, #fbbf24, transparent);
+  --entity-line-height:1px;
+}
+
+.rank-node[data-rank-tier="entity-titans"]{
+  --entity-surface:rgba(18,24,34,0.94);
+  --entity-ink:rgba(4,8,16,0.98);
+  --entity-shadow:0 28px 62px rgba(0,0,0,0.48);
+  --entity-material:
+    linear-gradient(90deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 18px),
+    linear-gradient(180deg, rgba(226,232,240,0.08), transparent 50%);
+  --entity-phenomenon:
+    linear-gradient(90deg, transparent 0 16%, rgba(148,163,184,0.28) 17% 27%, transparent 28% 42%, rgba(71,85,105,0.34) 43% 56%, transparent 57% 74%, rgba(226,232,240,0.18) 75% 84%, transparent 85%),
+    linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.58));
+  --entity-geometry:
+    linear-gradient(180deg, rgba(255,255,255,0.1), transparent 24% 78%, rgba(0,0,0,0.4)),
+    linear-gradient(90deg, transparent 0 50%, rgba(255,255,255,0.07) 50.4% 51%, transparent 51.6%);
+  --entity-signature:linear-gradient(90deg, #475569, #e2e8f0, transparent);
+}
+
+.rank-node[data-rank-tier="entity-dead-stars"]{
+  --entity-surface:rgba(10,13,20,0.94);
+  --entity-ink:rgba(2,4,10,0.98);
+  --entity-material:
+    radial-gradient(circle at 24% 28%, rgba(203,213,225,0.22) 0 2px, transparent 4px),
+    radial-gradient(circle at 70% 62%, rgba(161,98,7,0.15) 0 4px, transparent 10px);
+  --entity-phenomenon:
+    radial-gradient(circle at 76% 28%, rgba(255,255,255,0.38) 0 1px, rgba(100,116,139,0.16) 2px 10px, transparent 18px),
+    radial-gradient(circle at 38% 72%, rgba(203,213,225,0.12), transparent 22%);
+  --entity-geometry:
+    radial-gradient(circle at 18% 22%, rgba(255,255,255,0.16) 0 1px, transparent 2px),
+    radial-gradient(circle at 64% 46%, rgba(203,213,225,0.12) 0 1px, transparent 2px);
+  --entity-size:96px 96px, 138px 138px;
+  --entity-signature:linear-gradient(90deg, rgba(203,213,225,0.65), rgba(161,98,7,0.28), transparent);
+}
+
+.rank-node[data-rank-tier="entity-final-eclipse"]{
+  --entity-surface:rgba(22,8,12,0.92);
+  --entity-ink:rgba(2,3,9,0.98);
+  --entity-phenomenon:
+    radial-gradient(circle at 50% 42%, #020617 0 19%, rgba(153,27,27,0.82) 20% 23%, rgba(249,115,22,0.2) 24% 34%, transparent 46%),
+    conic-gradient(from 210deg at 50% 42%, transparent, rgba(254,202,202,0.25), transparent 24%, rgba(249,115,22,0.18), transparent 68%);
+  --entity-material:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,0.09), transparent 38%),
+    linear-gradient(180deg, rgba(255,255,255,0.055), transparent 46%);
+  --entity-geometry:
+    radial-gradient(circle at 50% 42%, transparent 0 38%, rgba(254,202,202,0.16) 39% 40%, transparent 41%);
+  --entity-motion:rankHaloTurn 14s linear infinite;
+  --entity-signature:linear-gradient(90deg, transparent, #991b1b, #fecaca, #f97316, transparent);
+}
+
+.rank-node[data-rank-tier="entity-empire-breaker"]{
+  --entity-surface:rgba(30,13,8,0.92);
+  --entity-ink:rgba(5,4,10,0.98);
+  --entity-material:
+    linear-gradient(145deg, rgba(255,255,255,0.08), transparent 32%),
+    radial-gradient(circle at 76% 22%, rgba(249,115,22,0.2), transparent 28%);
+  --entity-phenomenon:
+    linear-gradient(104deg, transparent 0 30%, rgba(250,204,21,0.2) 31% 32%, rgba(220,38,38,0.28) 33% 36%, transparent 37%),
+    linear-gradient(22deg, transparent 0 62%, rgba(249,115,22,0.26) 63% 65%, transparent 66%);
+  --entity-geometry:
+    linear-gradient(60deg, transparent 0 26%, rgba(255,255,255,0.1) 26.4% 27%, transparent 27.6%),
+    linear-gradient(141deg, transparent 0 74%, rgba(250,204,21,0.12) 74.4% 75%, transparent 75.6%);
+  --entity-signature:linear-gradient(90deg, #dc2626, #f97316, #facc15, transparent);
+}
+
+.rank-node[data-rank-tier="entity-living-throne"]{
+  --entity-surface:rgba(6,24,20,0.91);
+  --entity-ink:rgba(1,8,10,0.98);
+  --entity-material:
+    radial-gradient(ellipse at 52% 64%, rgba(52,211,153,0.16), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.055), transparent 44%);
+  --entity-phenomenon:
+    radial-gradient(ellipse at 50% 72%, transparent 0 24%, rgba(52,211,153,0.22) 25% 27%, transparent 29%),
+    linear-gradient(90deg, transparent 0 26%, rgba(167,243,208,0.12) 27% 28%, transparent 29% 70%, rgba(52,211,153,0.14) 71% 72%, transparent 73%);
+  --entity-geometry:
+    radial-gradient(ellipse at 42% 48%, rgba(52,211,153,0.14), transparent 24%),
+    radial-gradient(ellipse at 62% 44%, rgba(167,243,208,0.1), transparent 22%);
+  --entity-motion:rankCoreBreathe 4.8s ease-in-out infinite;
+  --entity-signature:linear-gradient(90deg, transparent, #34d399, #a7f3d0, transparent);
+}
+
+.rank-node[data-rank-tier="entity-abyss-watch"]{
+  --entity-border:0.22;
+  --entity-glow:0.06;
+  --entity-surface:rgba(2,6,18,0.96);
+  --entity-ink:rgba(0,0,5,0.99);
+  --entity-material:
+    linear-gradient(180deg, rgba(255,255,255,0.035), transparent 52%),
+    radial-gradient(ellipse at 50% 100%, rgba(56,189,248,0.1), transparent 34%);
+  --entity-phenomenon:
+    linear-gradient(180deg, rgba(0,0,0,0.72), transparent 42%, rgba(0,0,0,0.76)),
+    radial-gradient(ellipse at 50% 72%, rgba(30,58,138,0.16), transparent 36%);
+  --entity-geometry:
+    linear-gradient(90deg, transparent 0 49%, rgba(56,189,248,0.14) 50%, transparent 51%),
+    radial-gradient(circle at 50% 36%, rgba(255,255,255,0.16) 0 1px, transparent 2px);
+  --entity-signature:linear-gradient(90deg, transparent, rgba(56,189,248,0.5), transparent);
+  --entity-line-opacity:0.42;
+}
+
+.rank-node[data-rank-tier="entity-ninth-seal"]{
+  --entity-surface:rgba(5,22,28,0.91);
+  --entity-ink:rgba(2,6,23,0.98);
+  --entity-material:
+    radial-gradient(circle at 50% 46%, rgba(45,212,191,0.12), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,0.08), transparent 28% 72%, rgba(254,243,199,0.05));
+  --entity-phenomenon:
+    radial-gradient(circle at 50% 46%, transparent 0 18%, rgba(45,212,191,0.24) 19% 20%, transparent 21% 32%, rgba(254,243,199,0.14) 33% 34%, transparent 35%),
+    conic-gradient(from 0deg at 50% 46%, transparent, rgba(45,212,191,0.2), transparent 12%, rgba(254,243,199,0.14), transparent 28%);
+  --entity-geometry:
+    linear-gradient(0deg, transparent 0 49%, rgba(255,255,255,0.1) 50%, transparent 51%),
+    linear-gradient(60deg, transparent 0 49%, rgba(45,212,191,0.14) 50%, transparent 51%),
+    linear-gradient(120deg, transparent 0 49%, rgba(254,243,199,0.09) 50%, transparent 51%);
+  --entity-motion:rankHaloTurn 16s linear infinite;
+  --entity-signature:linear-gradient(90deg, transparent, #2dd4bf, #fef3c7, transparent);
+}
+
+.rank-node[data-rank-tier="entity-umbra-prime"]{
+  --entity-border:0.3;
+  --entity-glow:0.08;
+  --entity-surface:rgba(11,10,13,0.94);
+  --entity-ink:rgba(1,1,5,0.99);
+  --entity-material:
+    linear-gradient(180deg, rgba(255,255,255,0.085), transparent 34%),
+    linear-gradient(90deg, transparent 0 46%, rgba(214,189,119,0.16) 47% 53%, transparent 54%);
+  --entity-phenomenon:
+    radial-gradient(ellipse at 50% 24%, rgba(214,189,119,0.16), transparent 28%),
+    linear-gradient(135deg, transparent 0 42%, rgba(255,255,255,0.05) 43%, transparent 44%);
+  --entity-geometry:
+    linear-gradient(90deg, transparent 0 22%, rgba(214,189,119,0.12) 22.4% 22.8%, transparent 23.2% 76%, rgba(214,189,119,0.1) 76.4% 76.8%, transparent 77.2%);
+  --entity-signature:linear-gradient(90deg, transparent, #6b5b3e, #d6bd77, transparent);
+  --entity-emblem:linear-gradient(145deg, #0a0a10, #272018, #d6bd77);
+}
+
+.rank-node[data-rank-tier="entity-absolute-end"]{
+  --entity-border:0.18;
+  --entity-glow:0.04;
+  --entity-surface:rgba(12,16,24,0.92);
+  --entity-ink:rgba(1,2,7,0.99);
+  --entity-material:
+    linear-gradient(90deg, rgba(0,0,0,0.46), transparent 20% 80%, rgba(0,0,0,0.54)),
+    linear-gradient(180deg, rgba(255,255,255,0.04), transparent 50%);
+  --entity-phenomenon:
+    radial-gradient(circle at 18% 24%, rgba(148,163,184,0.12) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 76%, rgba(71,85,105,0.1) 0 1px, transparent 2px),
+    linear-gradient(120deg, transparent 0 70%, rgba(0,0,0,0.5));
+  --entity-geometry:
+    linear-gradient(90deg, transparent, rgba(148,163,184,0.05), transparent);
+  --entity-size:118px 118px, 160px 160px, auto;
+  --entity-signature:linear-gradient(90deg, rgba(148,163,184,0.42), transparent);
+  --entity-line-opacity:0.38;
+}
+
+.rank-node[data-rank-tier="entity-lost-realm"]{
+  --entity-surface:rgba(8,23,34,0.91);
+  --entity-ink:rgba(2,6,16,0.98);
+  --entity-material:
+    linear-gradient(90deg, rgba(103,232,249,0.08) 0 1px, transparent 1px 24px),
+    linear-gradient(180deg, rgba(196,181,253,0.08), transparent 44%);
+  --entity-phenomenon:
+    linear-gradient(112deg, transparent 0 20%, rgba(103,232,249,0.18) 21% 29%, transparent 30%),
+    linear-gradient(74deg, transparent 0 66%, rgba(196,181,253,0.16) 67% 73%, transparent 74%),
+    radial-gradient(ellipse at 52% 64%, rgba(21,94,117,0.28), transparent 40%);
+  --entity-geometry:
+    linear-gradient(0deg, transparent 0 38%, rgba(255,255,255,0.09) 38.4% 39%, transparent 39.6%),
+    linear-gradient(90deg, transparent 0 34%, rgba(103,232,249,0.12) 34.4% 35%, transparent 35.6%);
+  --entity-signature:linear-gradient(90deg, #67e8f9, transparent 20%, #c4b5fd, transparent);
+}
+
+.rank-node[data-rank-tier="entity-last-aurora"]{
+  --entity-surface:rgba(28,16,22,0.88);
+  --entity-ink:rgba(4,6,16,0.97);
+  --entity-material:
+    radial-gradient(ellipse at 42% 18%, rgba(253,230,138,0.2), transparent 30%),
+    linear-gradient(180deg, rgba(255,255,255,0.07), transparent 48%);
+  --entity-phenomenon:
+    linear-gradient(150deg, transparent 0 18%, rgba(253,230,138,0.22) 24%, transparent 40%),
+    linear-gradient(22deg, transparent 0 46%, rgba(251,113,133,0.18) 53%, transparent 68%),
+    radial-gradient(ellipse at 64% 70%, rgba(125,211,252,0.12), transparent 34%);
+  --entity-geometry:
+    linear-gradient(160deg, transparent 0 34%, rgba(255,255,255,0.09) 36%, transparent 42%),
+    radial-gradient(circle at 82% 26%, rgba(253,230,138,0.18) 0 1px, transparent 2px);
+  --entity-motion:profileAuraDrift 7.2s ease-in-out infinite;
+  --entity-signature:linear-gradient(90deg, transparent, #fde68a, #fb7185, #7dd3fc, transparent);
+}
+
+.rank-node[data-rank-tier="entity-astral-throne"]{
+  --entity-surface:rgba(13,13,36,0.91);
+  --entity-ink:rgba(2,4,18,0.98);
+  --entity-material:
+    radial-gradient(ellipse at 50% 48%, rgba(167,139,250,0.14), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.065), transparent 44%);
+  --entity-phenomenon:
+    radial-gradient(ellipse at 52% 48%, transparent 0 28%, rgba(167,139,250,0.22) 29% 30%, transparent 31% 42%, rgba(56,189,248,0.16) 43% 44%, transparent 45%),
+    conic-gradient(from 18deg at 52% 48%, transparent, rgba(224,242,254,0.16), transparent 20%, rgba(167,139,250,0.18), transparent 58%);
+  --entity-geometry:
+    radial-gradient(circle at 52% 48%, rgba(255,255,255,0.58) 0 1px, transparent 2px);
+  --entity-motion:rankHaloTurn 12s linear infinite;
+  --entity-signature:linear-gradient(90deg, transparent, #a78bfa, #38bdf8, #e0f2fe, transparent);
+}
+
+.rank-node[data-rank-tier="entity-frozen-eternity"]{
+  --entity-border:0.24;
+  --entity-glow:0.06;
+  --entity-surface:rgba(12,17,28,0.94);
+  --entity-ink:rgba(2,4,12,0.99);
+  --entity-material:
+    linear-gradient(180deg, rgba(255,255,255,0.075), transparent 52%),
+    radial-gradient(circle at 50% 46%, rgba(191,219,254,0.12), transparent 30%);
+  --entity-phenomenon:
+    radial-gradient(circle at 22% 28%, rgba(191,219,254,0.2) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 68%, rgba(129,140,248,0.18) 0 1px, transparent 2px),
+    linear-gradient(90deg, rgba(0,0,0,0.24), transparent 42% 58%, rgba(0,0,0,0.28));
+  --entity-geometry:
+    linear-gradient(90deg, transparent 0 49%, rgba(191,219,254,0.1) 50%, transparent 51%),
+    linear-gradient(0deg, transparent 0 49%, rgba(255,255,255,0.06) 50%, transparent 51%);
+  --entity-motion:none;
+  --entity-signature:linear-gradient(90deg, transparent, #bfdbfe, transparent);
+}
+
+.rank-node[data-rank-tier="entity-horizon-eater"]{
+  --entity-border:0.32;
+  --entity-glow:0.08;
+  --entity-surface:rgba(5,5,9,0.96);
+  --entity-ink:rgba(0,0,3,0.99);
+  --entity-shadow:0 32px 76px rgba(0,0,0,0.56);
+  --entity-material:
+    radial-gradient(circle at 50% 54%, rgba(0,0,0,0.98) 0 22%, rgba(239,68,68,0.2) 23% 25%, rgba(248,250,252,0.1) 26%, transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.05), transparent 48%);
+  --entity-phenomenon:
+    radial-gradient(circle at 50% 54%, transparent 0 30%, rgba(248,250,252,0.12) 31% 32%, transparent 34%),
+    conic-gradient(from 180deg at 50% 54%, rgba(0,0,0,0.8), transparent 14%, rgba(239,68,68,0.18), transparent 26%, rgba(0,0,0,0.88), transparent 62%);
+  --entity-geometry:
+    radial-gradient(circle at 50% 54%, transparent 0 42%, rgba(255,255,255,0.08) 43% 44%, transparent 45%),
+    linear-gradient(90deg, rgba(0,0,0,0.64), transparent 22% 78%, rgba(0,0,0,0.68));
+  --entity-motion:rankCoreBreathe 6.4s ease-in-out infinite;
+  --entity-signature:linear-gradient(90deg, transparent, rgba(248,250,252,0.58), #ef4444, rgba(0,0,0,0.6), transparent);
+  --entity-line-height:3px;
+}
+
+.hero[data-rank-tier^="entity-"]{
+  background:
+    radial-gradient(circle at 20% 18%, rgba(var(--rank-rgb),0.18), transparent 28%),
+    radial-gradient(circle at 78% 70%, color-mix(in srgb, var(--rank-accent) 14%, transparent), transparent 34%),
+    linear-gradient(145deg, rgba(8,10,22,0.9), rgba(1,3,10,0.98));
+  box-shadow:
+    0 34px 100px rgba(0,0,0,0.52),
+    0 0 42px rgba(var(--rank-rgb),0.12),
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 -34px 64px rgba(0,0,0,0.34);
+}
+
+.hero[data-rank-tier^="entity-"]::after{
+  background:
+    radial-gradient(circle at 50% 52%, rgba(0,0,0,0.56), transparent 28%),
+    conic-gradient(from 40deg at 50% 52%, transparent, rgba(var(--rank-rgb),0.16), transparent 26%, color-mix(in srgb, var(--rank-accent) 10%, transparent), transparent 68%);
+  animation:profileAuraDrift 10s ease-in-out infinite;
+  opacity:0.68;
+}
+
 .rank-node.current{
   background:
     var(--node-material),
     var(--node-phenomenon),
     linear-gradient(145deg, color-mix(in srgb, var(--node-surface) 82%, rgba(var(--node-rgb),0.18)), var(--node-ink));
+}
+
+.rank-node[data-rank-tier^="entity-"].current{
+  background:
+    var(--entity-material, var(--node-material)),
+    var(--entity-phenomenon, var(--node-phenomenon)),
+    linear-gradient(var(--entity-angle, 145deg), color-mix(in srgb, var(--entity-surface, var(--node-surface)) 84%, rgba(var(--node-rgb),0.16)), var(--entity-ink, var(--node-ink)));
+}
+
+.rank-node[data-rank-tier^="rupture-"]{
+  flex-basis:clamp(230px, 40vw, 292px);
+  min-height:176px;
+  border-color:rgba(var(--node-rgb), var(--rupture-border, 0.34));
+  background:
+    var(--rupture-material),
+    var(--rupture-phenomenon),
+    linear-gradient(var(--rupture-angle, 145deg), var(--rupture-surface, rgba(8,13,26,0.92)), var(--rupture-ink, rgba(1,3,10,0.98)));
+  box-shadow:
+    var(--rupture-shadow, 0 24px 62px rgba(0,0,0,0.44)),
+    0 0 calc(18px + var(--node-glow-boost, 0px)) rgba(var(--node-rgb), var(--rupture-glow, 0.12)),
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 -30px 52px rgba(0,0,0,0.32);
+}
+
+.rank-node[data-rank-tier^="rupture-"]::before{
+  background:var(--rupture-geometry);
+  background-size:var(--rupture-size, auto);
+  opacity:var(--rupture-opacity, 0.58);
+  mix-blend-mode:screen;
+  animation:var(--rupture-motion, rankEnergyDrift 8.6s ease-in-out infinite);
+}
+
+.rank-node[data-rank-tier^="rupture-"]::after{
+  height:var(--rupture-line-height, 2px);
+  background:var(--rupture-signature);
+  opacity:var(--rupture-line-opacity, 0.74);
+  box-shadow:0 0 18px rgba(var(--node-rgb),0.22);
+}
+
+.rank-node[data-rank-tier^="rupture-"] .rank-node-emblem{
+  width:44px;
+  height:44px;
+  border-radius:var(--rupture-emblem-radius, 14px);
+  color:var(--rupture-emblem-color, #f8fafc);
+  background:var(--rupture-emblem, linear-gradient(135deg, rgba(255,255,255,0.16), rgba(var(--node-rgb),0.34)));
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:0 0 24px rgba(var(--node-rgb),0.22), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.rank-node[data-rank-tier^="rupture-"] .rank-node-name{
+  color:#fff;
+  font-size:1rem;
+  line-height:1.16;
+  text-shadow:0 12px 26px rgba(0,0,0,0.44), 0 0 18px rgba(var(--node-rgb),0.22);
+}
+
+.rank-node[data-rank-tier^="rupture-"] .rank-node-level{
+  color:color-mix(in srgb, var(--node-primary) 74%, white);
+}
+
+.rank-node[data-rank-tier^="rupture-"].current{
+  background:
+    var(--rupture-material),
+    var(--rupture-phenomenon),
+    linear-gradient(var(--rupture-angle, 145deg), color-mix(in srgb, var(--rupture-surface, rgba(8,13,26,0.92)) 84%, rgba(var(--node-rgb),0.15)), var(--rupture-ink, rgba(1,3,10,0.98)));
+  border-color:rgba(var(--node-rgb),0.66);
+}
+
+.rank-node[data-rank-tier="rupture-infinite-echoes"]{
+  --rupture-surface:rgba(12,16,42,0.92);
+  --rupture-ink:rgba(2,4,18,0.98);
+  --rupture-material:linear-gradient(180deg, rgba(255,255,255,0.07), transparent 44%), radial-gradient(ellipse at 18% 76%, rgba(196,181,253,0.12), transparent 34%);
+  --rupture-phenomenon:repeating-radial-gradient(ellipse at 24% 52%, rgba(147,197,253,0.2) 0 1px, transparent 2px 16px), repeating-radial-gradient(ellipse at 72% 48%, rgba(196,181,253,0.16) 0 1px, transparent 2px 22px);
+  --rupture-geometry:linear-gradient(90deg, transparent 0 44%, rgba(255,255,255,0.08) 48%, transparent 52%), radial-gradient(circle at 50% 52%, rgba(147,197,253,0.14), transparent 24%);
+  --rupture-motion:profileAuraDrift 9s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, transparent, #93c5fd, transparent 32%, #c4b5fd, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-dead-sun"]{
+  --rupture-surface:rgba(28,13,9,0.93);
+  --rupture-ink:rgba(5,4,8,0.98);
+  --rupture-material:radial-gradient(circle at 32% 42%, rgba(0,0,0,0.86) 0 16%, rgba(124,45,18,0.42) 17% 26%, transparent 38%), linear-gradient(180deg, rgba(252,165,165,0.07), transparent 48%);
+  --rupture-phenomenon:linear-gradient(38deg, transparent 0 24%, rgba(252,165,165,0.18) 24.4% 25%, transparent 25.6%), linear-gradient(128deg, transparent 0 58%, rgba(120,53,15,0.28) 58.4% 60%, transparent 61%);
+  --rupture-geometry:radial-gradient(circle at 32% 42%, transparent 0 32%, rgba(252,165,165,0.12) 33% 34%, transparent 35%), linear-gradient(80deg, transparent 0 43%, rgba(251,146,60,0.14) 43.4% 44%, transparent 44.6%);
+  --rupture-motion:rankCoreBreathe 6s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, #78350f, #fca5a5, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-final-judgment"]{
+  --rupture-surface:rgba(13,18,29,0.92);
+  --rupture-ink:rgba(1,3,10,0.98);
+  --rupture-material:linear-gradient(180deg, rgba(248,250,252,0.16), transparent 52%), linear-gradient(90deg, transparent 0 42%, rgba(248,250,252,0.14) 46% 54%, transparent 58%);
+  --rupture-phenomenon:linear-gradient(180deg, rgba(248,250,252,0.48) 0 8%, rgba(245,158,11,0.16) 9% 34%, transparent 56%), radial-gradient(ellipse at 50% 18%, rgba(248,250,252,0.2), transparent 28%);
+  --rupture-geometry:linear-gradient(90deg, transparent 0 18%, rgba(255,255,255,0.09) 18.4% 18.8%, transparent 19.2% 80%, rgba(245,158,11,0.13) 80.4% 81%, transparent 81.6%);
+  --rupture-signature:linear-gradient(90deg, transparent, #f8fafc, #f59e0b, transparent);
+  --rupture-line-height:3px;
+}
+
+.rank-node[data-rank-tier="rupture-eternal-crown"]{
+  --rupture-surface:rgba(31,23,10,0.9);
+  --rupture-ink:rgba(5,4,9,0.98);
+  --rupture-material:radial-gradient(ellipse at 50% 26%, rgba(254,243,199,0.18), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.07), transparent 42%);
+  --rupture-phenomenon:radial-gradient(ellipse at 50% 28%, transparent 0 28%, rgba(254,243,199,0.28) 29% 30%, transparent 31% 42%, rgba(192,132,252,0.16) 43% 44%, transparent 45%), conic-gradient(from 30deg at 50% 28%, transparent, rgba(254,243,199,0.2), transparent 20%, rgba(192,132,252,0.16), transparent 62%);
+  --rupture-geometry:linear-gradient(115deg, transparent 0 39%, rgba(255,255,255,0.08) 40%, transparent 41%), linear-gradient(65deg, transparent 0 62%, rgba(254,243,199,0.12) 63%, transparent 64%);
+  --rupture-motion:rankHaloTurn 13s linear infinite;
+  --rupture-signature:linear-gradient(90deg, transparent, #fef3c7, #a16207, #c084fc, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-absolute-void"]{
+  --rupture-border:0.14;
+  --rupture-glow:0.03;
+  --rupture-surface:rgba(0,0,2,0.98);
+  --rupture-ink:rgba(0,0,0,1);
+  --rupture-material:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 0 38%, rgba(30,27,75,0.16) 39% 40%, transparent 48%), linear-gradient(90deg, rgba(0,0,0,0.72), transparent 44% 56%, rgba(0,0,0,0.74));
+  --rupture-phenomenon:radial-gradient(circle at 50% 50%, rgba(0,0,0,0.98) 0 50%, transparent 72%);
+  --rupture-geometry:linear-gradient(180deg, transparent, rgba(100,116,139,0.035), transparent);
+  --rupture-signature:linear-gradient(90deg, transparent, rgba(100,116,139,0.24), transparent);
+  --rupture-line-opacity:0.26;
+}
+
+.rank-node[data-rank-tier="rupture-crimson-eclipse-titan"]{
+  --rupture-surface:rgba(29,7,7,0.94);
+  --rupture-ink:rgba(4,2,6,0.99);
+  --rupture-shadow:0 32px 76px rgba(0,0,0,0.55);
+  --rupture-material:radial-gradient(circle at 60% 42%, #050505 0 20%, rgba(69,10,10,0.9) 21% 27%, rgba(239,68,68,0.18) 28% 42%, transparent 52%), linear-gradient(180deg, rgba(255,255,255,0.05), transparent 44%);
+  --rupture-phenomenon:conic-gradient(from 0deg at 60% 42%, transparent, rgba(239,68,68,0.32), transparent 10%, rgba(251,146,60,0.2), transparent 21%, rgba(0,0,0,0.48), transparent 58%);
+  --rupture-geometry:linear-gradient(70deg, transparent 0 46%, rgba(251,146,60,0.16) 46.4% 47%, transparent 47.6%), radial-gradient(circle at 60% 42%, transparent 0 37%, rgba(239,68,68,0.14) 38% 39%, transparent 40%);
+  --rupture-motion:rankCoreBreathe 5.4s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, #450a0a, #ef4444, #fb923c, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-celestial-realm"]{
+  --rupture-surface:rgba(14,23,35,0.86);
+  --rupture-ink:rgba(3,8,18,0.96);
+  --rupture-material:linear-gradient(180deg, rgba(255,255,255,0.18), transparent 38%), radial-gradient(ellipse at 50% 18%, rgba(186,230,253,0.22), transparent 36%);
+  --rupture-phenomenon:linear-gradient(90deg, transparent 0 18%, rgba(248,250,252,0.18) 19% 30%, transparent 31% 44%, rgba(167,139,250,0.14) 45% 56%, transparent 57% 82%, rgba(186,230,253,0.16) 83% 90%, transparent 91%);
+  --rupture-geometry:radial-gradient(ellipse at 26% 68%, transparent 0 28%, rgba(248,250,252,0.13) 29% 30%, transparent 31%), radial-gradient(ellipse at 78% 44%, transparent 0 24%, rgba(186,230,253,0.12) 25% 26%, transparent 27%);
+  --rupture-signature:linear-gradient(90deg, transparent, #f8fafc, #bae6fd, #a78bfa, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-last-constellation"]{
+  --rupture-surface:rgba(5,12,28,0.93);
+  --rupture-ink:rgba(1,3,12,0.98);
+  --rupture-material:radial-gradient(circle at 22% 28%, rgba(191,219,254,0.72) 0 1px, transparent 2px), radial-gradient(circle at 68% 36%, rgba(254,243,199,0.62) 0 1px, transparent 2px);
+  --rupture-phenomenon:linear-gradient(28deg, transparent 0 26%, rgba(191,219,254,0.15) 26.2% 26.6%, transparent 27%), linear-gradient(152deg, transparent 0 54%, rgba(56,189,248,0.14) 54.2% 54.8%, transparent 55.2%);
+  --rupture-geometry:radial-gradient(circle at 44% 68%, rgba(191,219,254,0.52) 0 1px, transparent 2px), radial-gradient(circle at 82% 72%, rgba(56,189,248,0.46) 0 1px, transparent 2px);
+  --rupture-size:112px 112px, 150px 150px;
+  --rupture-signature:linear-gradient(90deg, #bfdbfe, transparent 24%, #fef3c7, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-eternal-shadows"]{
+  --rupture-surface:rgba(4,5,12,0.95);
+  --rupture-ink:rgba(0,0,3,0.99);
+  --rupture-material:radial-gradient(ellipse at 28% 54%, rgba(0,0,0,0.88), transparent 36%), radial-gradient(ellipse at 74% 44%, rgba(76,29,149,0.22), transparent 30%);
+  --rupture-phenomenon:linear-gradient(112deg, rgba(0,0,0,0.82) 0 18%, transparent 34%), linear-gradient(248deg, rgba(0,0,0,0.74) 0 24%, transparent 42%), radial-gradient(ellipse at 54% 62%, rgba(167,139,250,0.1), transparent 34%);
+  --rupture-geometry:radial-gradient(ellipse at 34% 38%, rgba(255,255,255,0.045), transparent 18%), radial-gradient(ellipse at 68% 66%, rgba(167,139,250,0.08), transparent 22%);
+  --rupture-motion:profileAuraDrift 8.4s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, rgba(0,0,0,0.8), #a78bfa, rgba(0,0,0,0.8));
+}
+
+.rank-node[data-rank-tier="rupture-infinite-horizon"]{
+  --rupture-surface:rgba(7,16,29,0.93);
+  --rupture-ink:rgba(2,5,14,0.98);
+  --rupture-material:linear-gradient(180deg, rgba(125,211,252,0.08), transparent 52%), radial-gradient(ellipse at 50% 76%, rgba(125,211,252,0.12), transparent 44%);
+  --rupture-phenomenon:repeating-linear-gradient(180deg, transparent 0 21px, rgba(125,211,252,0.12) 22px, transparent 23px 34px), linear-gradient(90deg, rgba(0,0,0,0.54), transparent 18% 82%, rgba(0,0,0,0.6));
+  --rupture-geometry:linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent), linear-gradient(180deg, transparent 0 66%, rgba(148,163,184,0.16) 67%, transparent 68%);
+  --rupture-signature:linear-gradient(90deg, transparent, #7dd3fc, transparent);
+  --rupture-line-height:1px;
+}
+
+.rank-node[data-rank-tier="rupture-astral-transcendent"]{
+  --rupture-surface:rgba(18,21,43,0.87);
+  --rupture-ink:rgba(3,6,18,0.96);
+  --rupture-material:radial-gradient(ellipse at 50% 38%, rgba(224,231,255,0.22), transparent 32%), linear-gradient(180deg, rgba(255,255,255,0.11), transparent 44%);
+  --rupture-phenomenon:linear-gradient(180deg, transparent 0 24%, rgba(224,231,255,0.14) 38%, transparent 62%), radial-gradient(circle at 50% 28%, rgba(103,232,249,0.18), transparent 22%);
+  --rupture-geometry:radial-gradient(circle at 26% 68%, rgba(224,231,255,0.2) 0 1px, transparent 2px), radial-gradient(circle at 76% 34%, rgba(103,232,249,0.18) 0 1px, transparent 2px);
+  --rupture-motion:profileAuraDrift 7.8s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, transparent, #e0e7ff, #67e8f9, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-eternal-end"]{
+  --rupture-border:0.2;
+  --rupture-glow:0.05;
+  --rupture-surface:rgba(13,17,25,0.93);
+  --rupture-ink:rgba(2,4,10,0.99);
+  --rupture-material:linear-gradient(90deg, rgba(0,0,0,0.5), transparent 30% 70%, rgba(0,0,0,0.56)), linear-gradient(180deg, rgba(255,255,255,0.045), transparent 58%);
+  --rupture-phenomenon:radial-gradient(circle at 24% 32%, rgba(203,213,225,0.16) 0 1px, transparent 2px), radial-gradient(circle at 70% 66%, rgba(100,116,139,0.12) 0 1px, transparent 2px);
+  --rupture-geometry:linear-gradient(180deg, transparent, rgba(203,213,225,0.05), transparent);
+  --rupture-size:130px 130px, 180px 180px, auto;
+  --rupture-motion:none;
+  --rupture-signature:linear-gradient(90deg, rgba(203,213,225,0.5), transparent);
+  --rupture-line-opacity:0.36;
+}
+
+.rank-node[data-rank-tier="rupture-primordial-void"]{
+  --rupture-surface:rgba(7,6,12,0.96);
+  --rupture-ink:rgba(0,0,3,0.99);
+  --rupture-material:radial-gradient(circle at 42% 58%, rgba(0,0,0,0.96) 0 26%, rgba(41,37,36,0.35) 27% 34%, transparent 46%), linear-gradient(145deg, rgba(139,92,246,0.08), transparent 46%);
+  --rupture-phenomenon:conic-gradient(from 130deg at 42% 58%, rgba(0,0,0,0.8), transparent 16%, rgba(139,92,246,0.14), transparent 34%, rgba(41,37,36,0.34), transparent 70%);
+  --rupture-geometry:radial-gradient(circle at 42% 58%, transparent 0 42%, rgba(255,255,255,0.05) 43% 44%, transparent 45%);
+  --rupture-motion:rankCoreBreathe 6.8s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, transparent, #292524, #8b5cf6, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-eternity-architect"]{
+  --rupture-surface:rgba(7,24,28,0.9);
+  --rupture-ink:rgba(2,7,13,0.98);
+  --rupture-material:linear-gradient(90deg, rgba(94,234,212,0.1) 0 1px, transparent 1px 26px), linear-gradient(0deg, rgba(94,234,212,0.07) 0 1px, transparent 1px 22px);
+  --rupture-phenomenon:linear-gradient(120deg, transparent 0 24%, rgba(94,234,212,0.16) 25% 38%, transparent 39%), linear-gradient(60deg, transparent 0 62%, rgba(248,250,252,0.12) 63% 72%, transparent 73%);
+  --rupture-geometry:conic-gradient(from 45deg at 32% 36%, transparent, rgba(94,234,212,0.18), transparent 18%), conic-gradient(from 225deg at 76% 70%, transparent, rgba(248,250,252,0.12), transparent 20%);
+  --rupture-signature:linear-gradient(90deg, #5eead4, transparent 22%, #f8fafc, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-supreme-eclipse"]{
+  --rupture-surface:rgba(12,10,6,0.94);
+  --rupture-ink:rgba(0,0,2,0.99);
+  --rupture-material:radial-gradient(circle at 50% 44%, #020202 0 21%, rgba(253,230,138,0.5) 22% 23%, rgba(161,98,7,0.18) 24% 34%, transparent 45%), linear-gradient(180deg, rgba(255,255,255,0.055), transparent 44%);
+  --rupture-phenomenon:radial-gradient(circle at 50% 44%, transparent 0 35%, rgba(253,230,138,0.16) 36% 37%, transparent 38%);
+  --rupture-geometry:linear-gradient(90deg, rgba(0,0,0,0.42), transparent 44% 56%, rgba(0,0,0,0.46));
+  --rupture-signature:linear-gradient(90deg, transparent, #050505, #fde68a, #a16207, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-forbidden-realm"]{
+  --rupture-surface:rgba(5,20,22,0.92);
+  --rupture-ink:rgba(2,5,14,0.98);
+  --rupture-material:linear-gradient(180deg, rgba(255,255,255,0.06), transparent 44%), radial-gradient(ellipse at 50% 58%, rgba(52,211,153,0.14), transparent 38%);
+  --rupture-phenomenon:linear-gradient(90deg, transparent 0 26%, rgba(52,211,153,0.18) 27% 29%, transparent 30% 70%, rgba(167,139,250,0.16) 71% 73%, transparent 74%), radial-gradient(ellipse at 50% 52%, transparent 0 28%, rgba(52,211,153,0.16) 29% 30%, transparent 31%);
+  --rupture-geometry:linear-gradient(0deg, transparent 0 49%, rgba(255,255,255,0.08) 50%, transparent 51%), linear-gradient(90deg, transparent 0 49%, rgba(52,211,153,0.12) 50%, transparent 51%);
+  --rupture-signature:linear-gradient(90deg, transparent, #34d399, #a78bfa, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-last-truth"]{
+  --rupture-surface:rgba(10,22,28,0.88);
+  --rupture-ink:rgba(2,6,12,0.98);
+  --rupture-material:linear-gradient(90deg, rgba(255,255,255,0.13) 0 1px, transparent 1px 14px), linear-gradient(0deg, rgba(56,189,248,0.1) 0 1px, transparent 1px 18px);
+  --rupture-phenomenon:linear-gradient(180deg, rgba(255,255,255,0.18), transparent 22% 78%, rgba(34,197,94,0.08)), radial-gradient(circle at 72% 28%, rgba(255,255,255,0.22), transparent 22%);
+  --rupture-geometry:linear-gradient(90deg, transparent 0 12%, rgba(255,255,255,0.18) 12.4% 12.8%, transparent 13.2% 62%, rgba(34,197,94,0.15) 62.4% 63%, transparent 63.6%);
+  --rupture-signature:linear-gradient(90deg, #ffffff, #38bdf8, #22c55e, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-infinity-breaker"]{
+  --rupture-surface:rgba(31,10,14,0.93);
+  --rupture-ink:rgba(3,3,8,0.99);
+  --rupture-material:linear-gradient(145deg, rgba(255,255,255,0.075), transparent 30%), radial-gradient(circle at 18% 78%, rgba(251,113,133,0.16), transparent 28%);
+  --rupture-phenomenon:linear-gradient(118deg, transparent 0 18%, rgba(254,240,138,0.2) 19% 20%, rgba(251,113,133,0.28) 21% 28%, transparent 29%), linear-gradient(52deg, transparent 0 66%, rgba(124,45,18,0.3) 67% 72%, transparent 73%);
+  --rupture-geometry:linear-gradient(8deg, transparent 0 40%, rgba(255,255,255,0.1) 40.4% 41%, transparent 41.6%), linear-gradient(145deg, transparent 0 74%, rgba(254,240,138,0.13) 74.4% 75%, transparent 75.6%);
+  --rupture-motion:rankGlitchStep 5.2s steps(1, end) infinite;
+  --rupture-signature:linear-gradient(90deg, #fb7185, transparent 18%, #fef08a, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-black-throne"]{
+  --rupture-surface:rgba(6,7,12,0.95);
+  --rupture-ink:rgba(0,0,4,0.99);
+  --rupture-material:linear-gradient(180deg, rgba(255,255,255,0.07), transparent 38%), radial-gradient(ellipse at 50% 78%, rgba(209,213,219,0.09), transparent 32%);
+  --rupture-phenomenon:linear-gradient(90deg, transparent 0 28%, rgba(113,113,122,0.22) 29% 38%, transparent 39% 60%, rgba(0,0,0,0.78) 61% 72%, transparent 73%), linear-gradient(180deg, transparent 0 32%, rgba(0,0,0,0.62) 68%);
+  --rupture-geometry:linear-gradient(90deg, transparent 0 48%, rgba(209,213,219,0.08) 49%, transparent 50%), linear-gradient(0deg, transparent 0 72%, rgba(113,113,122,0.12) 73%, transparent 74%);
+  --rupture-signature:linear-gradient(90deg, transparent, #71717a, #d1d5db, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-final-horizon"]{
+  --rupture-border:0.2;
+  --rupture-glow:0.05;
+  --rupture-surface:rgba(4,8,17,0.95);
+  --rupture-ink:rgba(0,1,5,0.99);
+  --rupture-material:linear-gradient(180deg, transparent 0 56%, rgba(148,163,184,0.12) 57%, rgba(248,113,113,0.08) 58%, transparent 72%), linear-gradient(90deg, rgba(0,0,0,0.64), transparent 28% 72%, rgba(0,0,0,0.7));
+  --rupture-phenomenon:radial-gradient(ellipse at 50% 72%, rgba(248,113,113,0.1), transparent 36%);
+  --rupture-geometry:linear-gradient(90deg, transparent, rgba(148,163,184,0.08), transparent);
+  --rupture-signature:linear-gradient(90deg, transparent, rgba(148,163,184,0.46), #f87171, transparent);
+  --rupture-line-height:1px;
+}
+
+.rank-node[data-rank-tier="rupture-fallen-worlds"]{
+  --rupture-surface:rgba(28,18,10,0.92);
+  --rupture-ink:rgba(5,5,10,0.98);
+  --rupture-material:radial-gradient(circle at 24% 34%, rgba(251,191,36,0.22) 0 7px, transparent 15px), radial-gradient(circle at 72% 64%, rgba(100,116,139,0.2) 0 5px, transparent 13px);
+  --rupture-phenomenon:linear-gradient(28deg, transparent 0 34%, rgba(251,191,36,0.13) 34.4% 35%, transparent 35.6%), linear-gradient(142deg, transparent 0 68%, rgba(120,53,15,0.24) 68.4% 70%, transparent 71%);
+  --rupture-geometry:radial-gradient(circle at 48% 48%, transparent 0 36%, rgba(251,191,36,0.12) 37% 38%, transparent 39%), radial-gradient(circle at 78% 28%, rgba(255,255,255,0.08) 0 1px, transparent 2px);
+  --rupture-signature:linear-gradient(90deg, #fbbf24, #64748b, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-supreme-abyss"]{
+  --rupture-surface:rgba(3,8,20,0.95);
+  --rupture-ink:rgba(0,1,6,0.99);
+  --rupture-material:radial-gradient(circle at 50% 70%, rgba(0,0,0,0.96) 0 20%, rgba(49,46,129,0.3) 21% 32%, transparent 48%), linear-gradient(180deg, transparent, rgba(0,0,0,0.58));
+  --rupture-phenomenon:repeating-radial-gradient(circle at 50% 70%, rgba(96,165,250,0.12) 0 1px, transparent 2px 18px);
+  --rupture-geometry:linear-gradient(180deg, rgba(96,165,250,0.08), transparent 38% 60%, rgba(0,0,0,0.58));
+  --rupture-motion:rankCoreBreathe 6.2s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, transparent, #60a5fa, #312e81, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-ether-prime"]{
+  --rupture-surface:rgba(17,15,38,0.9);
+  --rupture-ink:rgba(3,7,18,0.98);
+  --rupture-material:radial-gradient(ellipse at 24% 70%, rgba(192,132,252,0.2), transparent 34%), radial-gradient(ellipse at 78% 28%, rgba(45,212,191,0.16), transparent 28%);
+  --rupture-phenomenon:linear-gradient(165deg, transparent 0 20%, rgba(192,132,252,0.2) 26%, transparent 42% 58%, rgba(45,212,191,0.18) 66%, transparent 82%);
+  --rupture-geometry:linear-gradient(172deg, transparent 0 34%, rgba(255,255,255,0.1) 36%, transparent 42%), linear-gradient(12deg, transparent 0 58%, rgba(240,171,252,0.12) 60%, transparent 66%);
+  --rupture-motion:profileAuraDrift 6.6s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, transparent, #c084fc, #2dd4bf, #f0abfc, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-eternal-void-king"]{
+  --rupture-border:0.16;
+  --rupture-glow:0.035;
+  --rupture-surface:rgba(0,0,1,0.98);
+  --rupture-ink:rgba(0,0,0,1);
+  --rupture-material:radial-gradient(circle at 50% 52%, rgba(0,0,0,1) 0 34%, rgba(71,85,105,0.09) 35% 36%, transparent 48%), linear-gradient(180deg, rgba(255,255,255,0.018), transparent 60%);
+  --rupture-phenomenon:radial-gradient(circle at 50% 52%, transparent 0 46%, rgba(17,24,39,0.12) 47%, transparent 52%);
+  --rupture-geometry:linear-gradient(90deg, rgba(0,0,0,0.64), transparent 44% 56%, rgba(0,0,0,0.7));
+  --rupture-signature:linear-gradient(90deg, transparent, rgba(71,85,105,0.28), transparent);
+  --rupture-line-opacity:0.24;
+}
+
+.rank-node[data-rank-tier="rupture-last-eclipse-guardian"]{
+  --rupture-surface:rgba(24,15,10,0.93);
+  --rupture-ink:rgba(3,3,8,0.98);
+  --rupture-material:radial-gradient(circle at 42% 44%, #050505 0 18%, rgba(251,146,60,0.32) 19% 22%, rgba(254,243,199,0.12) 23% 34%, transparent 46%), linear-gradient(180deg, rgba(255,255,255,0.055), transparent 44%);
+  --rupture-phenomenon:radial-gradient(circle at 42% 44%, transparent 0 36%, rgba(251,146,60,0.14) 37% 38%, transparent 39%), linear-gradient(90deg, transparent 0 18%, rgba(254,243,199,0.08) 19%, transparent 20%);
+  --rupture-geometry:conic-gradient(from 70deg at 42% 44%, transparent, rgba(251,146,60,0.16), transparent 16%, rgba(254,243,199,0.1), transparent 42%);
+  --rupture-signature:linear-gradient(90deg, transparent, #fb923c, #fef3c7, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-corrupt-ether"]{
+  --rupture-surface:rgba(28,10,45,0.9);
+  --rupture-ink:rgba(3,4,12,0.98);
+  --rupture-material:radial-gradient(ellipse at 30% 76%, rgba(216,180,254,0.2), transparent 34%), radial-gradient(ellipse at 74% 24%, rgba(88,28,135,0.28), transparent 32%);
+  --rupture-phenomenon:linear-gradient(160deg, rgba(15,23,42,0.18), transparent 22% 46%, rgba(216,180,254,0.18) 54%, transparent 72%), linear-gradient(18deg, transparent 0 38%, rgba(88,28,135,0.28) 46%, transparent 62%);
+  --rupture-geometry:radial-gradient(ellipse at 48% 54%, rgba(255,255,255,0.08), transparent 22%), linear-gradient(172deg, transparent 0 58%, rgba(216,180,254,0.12) 60%, transparent 66%);
+  --rupture-motion:profileAuraDrift 7s ease-in-out infinite;
+  --rupture-signature:linear-gradient(90deg, transparent, #d8b4fe, #581c87, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-celestial-ruin"]{
+  --rupture-surface:rgba(18,24,32,0.9);
+  --rupture-ink:rgba(3,6,14,0.98);
+  --rupture-material:linear-gradient(180deg, rgba(224,242,254,0.16), transparent 38%), radial-gradient(ellipse at 52% 22%, rgba(254,243,199,0.12), transparent 32%);
+  --rupture-phenomenon:linear-gradient(118deg, transparent 0 18%, rgba(224,242,254,0.2) 19% 28%, transparent 29%), linear-gradient(72deg, transparent 0 62%, rgba(100,116,139,0.24) 63% 70%, transparent 71%);
+  --rupture-geometry:linear-gradient(0deg, transparent 0 34%, rgba(255,255,255,0.1) 34.4% 35%, transparent 35.6%), linear-gradient(90deg, transparent 0 70%, rgba(254,243,199,0.1) 70.4% 71%, transparent 71.6%);
+  --rupture-signature:linear-gradient(90deg, #e0f2fe, transparent 22%, #fef3c7, #64748b, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-black-horizon"]{
+  --rupture-border:0.22;
+  --rupture-glow:0.06;
+  --rupture-surface:rgba(2,5,14,0.96);
+  --rupture-ink:rgba(0,0,4,0.99);
+  --rupture-material:linear-gradient(180deg, transparent 0 60%, rgba(0,0,0,0.94) 61% 74%, transparent 92%), radial-gradient(ellipse at 50% 72%, rgba(129,140,248,0.1), transparent 38%);
+  --rupture-phenomenon:linear-gradient(90deg, rgba(0,0,0,0.66), transparent 24% 76%, rgba(0,0,0,0.72));
+  --rupture-geometry:linear-gradient(180deg, transparent 0 58%, rgba(129,140,248,0.1) 59%, transparent 60%);
+  --rupture-signature:linear-gradient(90deg, transparent, rgba(129,140,248,0.38), transparent);
+  --rupture-line-height:1px;
+}
+
+.rank-node[data-rank-tier="rupture-last-era"]{
+  --rupture-surface:rgba(25,22,29,0.91);
+  --rupture-ink:rgba(4,6,12,0.98);
+  --rupture-material:linear-gradient(90deg, rgba(252,165,165,0.08) 0 1px, transparent 1px 20px), linear-gradient(180deg, rgba(253,230,138,0.08), transparent 54%);
+  --rupture-phenomenon:linear-gradient(105deg, transparent 0 20%, rgba(252,165,165,0.14) 21% 38%, transparent 39% 72%, rgba(51,65,85,0.26) 73% 82%, transparent 83%), radial-gradient(ellipse at 22% 78%, rgba(253,230,138,0.08), transparent 32%);
+  --rupture-geometry:linear-gradient(0deg, transparent 0 24%, rgba(255,255,255,0.055) 24.4% 25%, transparent 25.6% 68%, rgba(252,165,165,0.08) 68.4% 69%, transparent 69.6%);
+  --rupture-signature:linear-gradient(90deg, #fca5a5, transparent 26%, #fde68a, transparent);
+}
+
+.rank-node[data-rank-tier="rupture-astral-heart"]{
+  --rupture-surface:rgba(22,15,40,0.9);
+  --rupture-ink:rgba(3,7,18,0.98);
+  --rupture-material:radial-gradient(circle at 50% 50%, rgba(240,171,252,0.5) 0 4%, rgba(56,189,248,0.2) 5% 16%, transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.08), transparent 42%);
+  --rupture-phenomenon:radial-gradient(ellipse at 50% 50%, transparent 0 28%, rgba(240,171,252,0.18) 29% 30%, transparent 31% 42%, rgba(56,189,248,0.16) 43% 44%, transparent 45%), conic-gradient(from 20deg at 50% 50%, transparent, rgba(254,243,199,0.18), transparent 18%, rgba(56,189,248,0.18), transparent 56%);
+  --rupture-geometry:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.72) 0 1px, transparent 2px);
+  --rupture-motion:rankHaloTurn 12s linear infinite;
+  --rupture-signature:linear-gradient(90deg, transparent, #f0abfc, #38bdf8, #fef3c7, transparent);
+  --rupture-line-height:3px;
+}
+
+.hero[data-rank-tier^="rupture-"]{
+  background:
+    radial-gradient(circle at 18% 16%, rgba(var(--rank-rgb),0.16), transparent 28%),
+    linear-gradient(90deg, rgba(255,255,255,0.025), transparent 24% 76%, color-mix(in srgb, var(--rank-accent) 7%, transparent)),
+    linear-gradient(145deg, rgba(7,9,20,0.92), rgba(1,3,10,0.98));
+  box-shadow:
+    0 36px 104px rgba(0,0,0,0.54),
+    0 0 44px rgba(var(--rank-rgb),0.1),
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 -36px 66px rgba(0,0,0,0.35);
+}
+
+.hero[data-rank-tier^="rupture-"]::after{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.42), transparent 20% 80%, rgba(0,0,0,0.48)),
+    radial-gradient(circle at 50% 52%, rgba(var(--rank-rgb),0.08), transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,0.035), transparent 48%);
+  animation:profileAuraDrift 11s ease-in-out infinite;
+  opacity:0.72;
+}
+
+.rank-node[data-rank-tier^="lawless-"]{
+  flex-basis:clamp(234px, 41vw, 298px);
+  min-height:178px;
+  border-color:rgba(var(--node-rgb), var(--lawless-border, 0.32));
+  background:
+    var(--lawless-material),
+    var(--lawless-event),
+    linear-gradient(var(--lawless-angle, 145deg), var(--lawless-surface, rgba(7,9,18,0.94)), var(--lawless-ink, rgba(0,1,6,0.99)));
+  box-shadow:
+    var(--lawless-shadow, 0 26px 68px rgba(0,0,0,0.48)),
+    0 0 calc(14px + var(--node-glow-boost, 0px)) rgba(var(--node-rgb), var(--lawless-glow, 0.1)),
+    inset 0 1px 0 rgba(255,255,255,0.085),
+    inset 0 -34px 58px rgba(0,0,0,0.36);
+}
+
+.rank-node[data-rank-tier^="lawless-"]::before{
+  background:var(--lawless-form);
+  background-size:var(--lawless-size, auto);
+  opacity:var(--lawless-opacity, 0.56);
+  mix-blend-mode:screen;
+  animation:var(--lawless-motion, profileAuraDrift 9s ease-in-out infinite);
+}
+
+.rank-node[data-rank-tier^="lawless-"]::after{
+  height:var(--lawless-line-height, 2px);
+  background:var(--lawless-mark);
+  opacity:var(--lawless-line-opacity, 0.68);
+  box-shadow:0 0 18px rgba(var(--node-rgb),0.18);
+}
+
+.rank-node[data-rank-tier^="lawless-"] .rank-node-emblem{
+  width:44px;
+  height:44px;
+  border-radius:var(--lawless-emblem-radius, 13px);
+  color:var(--lawless-emblem-color, #f8fafc);
+  background:var(--lawless-emblem, linear-gradient(135deg, rgba(255,255,255,0.14), rgba(var(--node-rgb),0.28)));
+  border:1px solid rgba(255,255,255,0.16);
+  box-shadow:0 0 22px rgba(var(--node-rgb),0.18), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.rank-node[data-rank-tier^="lawless-"] .rank-node-name{
+  color:#fff;
+  font-size:1rem;
+  line-height:1.15;
+  text-shadow:0 14px 28px rgba(0,0,0,0.48), 0 0 16px rgba(var(--node-rgb),0.18);
+}
+
+.rank-node[data-rank-tier^="lawless-"] .rank-node-level{
+  color:color-mix(in srgb, var(--node-primary) 72%, white);
+}
+
+.rank-node[data-rank-tier^="lawless-"].current{
+  border-color:rgba(var(--node-rgb),0.64);
+  background:
+    var(--lawless-material),
+    var(--lawless-event),
+    linear-gradient(var(--lawless-angle, 145deg), color-mix(in srgb, var(--lawless-surface, rgba(7,9,18,0.94)) 84%, rgba(var(--node-rgb),0.14)), var(--lawless-ink, rgba(0,1,6,0.99)));
+}
+
+.rank-node[data-rank-tier="lawless-primordial-shadows"]{
+  --lawless-surface:rgba(4,4,9,0.96);
+  --lawless-ink:rgba(0,0,2,0.99);
+  --lawless-material:radial-gradient(ellipse at 20% 48%, rgba(0,0,0,0.94), transparent 44%), radial-gradient(ellipse at 78% 30%, rgba(59,7,100,0.22), transparent 34%);
+  --lawless-event:linear-gradient(104deg, rgba(0,0,0,0.84) 0 22%, transparent 42%), linear-gradient(252deg, rgba(0,0,0,0.76) 0 26%, transparent 48%);
+  --lawless-form:radial-gradient(ellipse at 36% 66%, rgba(107,114,128,0.08), transparent 28%), radial-gradient(ellipse at 70% 58%, rgba(255,255,255,0.035), transparent 18%);
+  --lawless-mark:linear-gradient(90deg, rgba(0,0,0,0.8), #6b7280, rgba(0,0,0,0.9));
+}
+
+.rank-node[data-rank-tier="lawless-eternal-throne"]{
+  --lawless-border:0.24;
+  --lawless-glow:0.05;
+  --lawless-surface:rgba(13,12,10,0.94);
+  --lawless-ink:rgba(2,2,3,0.99);
+  --lawless-material:linear-gradient(180deg, rgba(255,255,255,0.07), transparent 44%), linear-gradient(90deg, transparent 0 28%, rgba(214,211,209,0.12) 29% 31%, transparent 32% 68%, rgba(120,113,108,0.16) 69% 71%, transparent 72%);
+  --lawless-event:linear-gradient(90deg, transparent 0 44%, rgba(214,211,209,0.14) 45% 55%, transparent 56%);
+  --lawless-form:repeating-linear-gradient(90deg, transparent 0 24px, rgba(214,211,209,0.055) 25px, transparent 26px 42px);
+  --lawless-motion:none;
+  --lawless-mark:linear-gradient(90deg, transparent, #d6d3d1, #78716c, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-crimson-judgment"]{
+  --lawless-surface:rgba(31,7,9,0.94);
+  --lawless-ink:rgba(5,2,4,0.99);
+  --lawless-material:linear-gradient(180deg, rgba(239,68,68,0.46) 0 8%, rgba(127,29,29,0.22) 9% 38%, transparent 64%), linear-gradient(90deg, transparent 0 38%, rgba(254,202,202,0.12) 44% 56%, transparent 62%);
+  --lawless-event:radial-gradient(ellipse at 50% 10%, rgba(254,202,202,0.18), transparent 26%), linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.54));
+  --lawless-form:linear-gradient(90deg, transparent 0 18%, rgba(239,68,68,0.12) 18.5% 19%, transparent 19.5% 81%, rgba(254,202,202,0.09) 81.5% 82%, transparent 82.5%);
+  --lawless-motion:rankEnergyDrift 6s ease-in-out infinite;
+  --lawless-mark:linear-gradient(90deg, transparent, #ef4444, #fecaca, transparent);
+  --lawless-line-height:3px;
+}
+
+.rank-node[data-rank-tier="lawless-absolute-realm"]{
+  --lawless-surface:rgba(5,25,28,0.9);
+  --lawless-ink:rgba(1,8,12,0.98);
+  --lawless-material:linear-gradient(90deg, rgba(153,246,228,0.11) 0 1px, transparent 1px 18px), linear-gradient(0deg, rgba(226,232,240,0.08) 0 1px, transparent 1px 24px);
+  --lawless-event:conic-gradient(from 45deg at 28% 34%, transparent, rgba(153,246,228,0.2), transparent 16%), conic-gradient(from 225deg at 78% 68%, transparent, rgba(226,232,240,0.14), transparent 20%);
+  --lawless-form:linear-gradient(118deg, transparent 0 22%, rgba(153,246,228,0.16) 23% 35%, transparent 36%), linear-gradient(62deg, transparent 0 64%, rgba(226,232,240,0.12) 65% 76%, transparent 77%);
+  --lawless-mark:linear-gradient(90deg, #99f6e4, transparent 22%, #e2e8f0, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-infinite-void"]{
+  --lawless-border:0.16;
+  --lawless-glow:0.035;
+  --lawless-surface:rgba(0,0,1,0.99);
+  --lawless-ink:rgba(0,0,0,1);
+  --lawless-material:repeating-radial-gradient(circle at 50% 52%, rgba(100,116,139,0.075) 0 1px, transparent 2px 24px), radial-gradient(circle at 50% 52%, rgba(0,0,0,1) 0 38%, transparent 58%);
+  --lawless-event:linear-gradient(90deg, rgba(0,0,0,0.78), transparent 42% 58%, rgba(0,0,0,0.82));
+  --lawless-form:radial-gradient(circle at 50% 52%, transparent 0 46%, rgba(255,255,255,0.035) 47%, transparent 50%);
+  --lawless-motion:rankCoreBreathe 7s ease-in-out infinite;
+  --lawless-mark:linear-gradient(90deg, transparent, rgba(100,116,139,0.28), transparent);
+  --lawless-line-opacity:0.25;
+}
+
+.rank-node[data-rank-tier="lawless-fallen-gods"]{
+  --lawless-surface:rgba(25,22,18,0.91);
+  --lawless-ink:rgba(5,5,9,0.98);
+  --lawless-material:linear-gradient(180deg, rgba(253,230,138,0.12), transparent 46%), radial-gradient(ellipse at 72% 24%, rgba(203,213,225,0.1), transparent 26%);
+  --lawless-event:linear-gradient(108deg, transparent 0 16%, rgba(253,230,138,0.16) 17% 28%, transparent 29%), linear-gradient(76deg, transparent 0 62%, rgba(87,83,78,0.28) 63% 72%, transparent 73%);
+  --lawless-form:linear-gradient(90deg, transparent 0 28%, rgba(255,255,255,0.075) 28.4% 29%, transparent 29.6% 75%, rgba(253,230,138,0.1) 75.4% 76%, transparent 76.6%);
+  --lawless-mark:linear-gradient(90deg, #fde68a, transparent 26%, #cbd5e1, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-absolute-horizon"]{
+  --lawless-border:0.22;
+  --lawless-glow:0.055;
+  --lawless-surface:rgba(4,12,24,0.95);
+  --lawless-ink:rgba(0,2,8,0.99);
+  --lawless-material:linear-gradient(180deg, transparent 0 62%, rgba(186,230,253,0.14) 63%, transparent 65%), linear-gradient(90deg, rgba(0,0,0,0.64), transparent 14% 86%, rgba(0,0,0,0.7));
+  --lawless-event:repeating-linear-gradient(180deg, transparent 0 24px, rgba(186,230,253,0.06) 25px, transparent 26px 38px);
+  --lawless-form:linear-gradient(90deg, transparent, rgba(186,230,253,0.1), transparent);
+  --lawless-motion:none;
+  --lawless-mark:linear-gradient(90deg, transparent, #bae6fd, transparent);
+  --lawless-line-height:1px;
+}
+
+.rank-node[data-rank-tier="lawless-last-kingdom"]{
+  --lawless-surface:rgba(23,21,18,0.92);
+  --lawless-ink:rgba(4,4,8,0.98);
+  --lawless-material:linear-gradient(180deg, rgba(245,245,244,0.09), transparent 40%), radial-gradient(ellipse at 50% 72%, rgba(214,189,119,0.12), transparent 38%);
+  --lawless-event:linear-gradient(90deg, transparent 0 14%, rgba(245,245,244,0.13) 15% 24%, transparent 25% 42%, rgba(68,64,60,0.34) 43% 58%, transparent 59% 78%, rgba(214,189,119,0.12) 79% 88%, transparent 89%);
+  --lawless-form:linear-gradient(180deg, rgba(255,255,255,0.075), transparent 26% 76%, rgba(0,0,0,0.38));
+  --lawless-mark:linear-gradient(90deg, transparent, #f5f5f4, #d6bd77, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-crimson-eternity"]{
+  --lawless-surface:rgba(35,7,17,0.91);
+  --lawless-ink:rgba(5,2,8,0.98);
+  --lawless-material:linear-gradient(180deg, rgba(251,113,133,0.1), transparent 50%), radial-gradient(ellipse at 28% 78%, rgba(253,164,175,0.12), transparent 30%);
+  --lawless-event:repeating-linear-gradient(90deg, transparent 0 34px, rgba(251,113,133,0.11) 35px, transparent 36px 58px), linear-gradient(160deg, transparent 0 38%, rgba(76,5,25,0.32) 48%, transparent 62%);
+  --lawless-form:linear-gradient(180deg, rgba(255,255,255,0.05), transparent 45%);
+  --lawless-mark:linear-gradient(90deg, transparent, #fb7185, #fda4af, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-star-devourer"]{
+  --lawless-surface:rgba(18,10,10,0.94);
+  --lawless-ink:rgba(0,1,7,0.99);
+  --lawless-material:radial-gradient(circle at 68% 42%, rgba(0,0,0,0.96) 0 18%, rgba(254,240,138,0.2) 19% 23%, transparent 36%), radial-gradient(circle at 22% 28%, rgba(254,240,138,0.48) 0 1px, transparent 3px);
+  --lawless-event:linear-gradient(118deg, transparent 0 24%, rgba(251,113,133,0.2) 25% 28%, transparent 29%), radial-gradient(circle at 44% 70%, rgba(254,240,138,0.14), transparent 20%);
+  --lawless-form:radial-gradient(circle at 68% 42%, transparent 0 36%, rgba(254,240,138,0.1) 37% 38%, transparent 39%);
+  --lawless-mark:linear-gradient(90deg, #fef08a, #fb7185, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-end-throne"]{
+  --lawless-border:0.2;
+  --lawless-glow:0.045;
+  --lawless-surface:rgba(12,10,9,0.95);
+  --lawless-ink:rgba(1,1,2,0.99);
+  --lawless-material:linear-gradient(180deg, rgba(168,162,158,0.055), transparent 54%), linear-gradient(90deg, transparent 0 36%, rgba(87,83,78,0.18) 37% 63%, transparent 64%);
+  --lawless-event:radial-gradient(ellipse at 50% 86%, rgba(168,162,158,0.08), transparent 28%);
+  --lawless-form:linear-gradient(0deg, transparent 0 72%, rgba(168,162,158,0.08) 73%, transparent 74%);
+  --lawless-motion:none;
+  --lawless-mark:linear-gradient(90deg, transparent, rgba(168,162,158,0.42), transparent);
+}
+
+.rank-node[data-rank-tier="lawless-eternal-umbra"]{
+  --lawless-surface:rgba(3,3,9,0.95);
+  --lawless-ink:rgba(0,0,2,0.99);
+  --lawless-material:radial-gradient(ellipse at 20% 72%, rgba(167,139,250,0.14), transparent 34%), radial-gradient(ellipse at 76% 30%, rgba(49,46,129,0.2), transparent 30%);
+  --lawless-event:linear-gradient(168deg, rgba(0,0,0,0.62), transparent 34% 58%, rgba(0,0,0,0.78)), linear-gradient(12deg, transparent 0 48%, rgba(167,139,250,0.08) 56%, transparent 72%);
+  --lawless-form:radial-gradient(ellipse at 48% 56%, rgba(255,255,255,0.045), transparent 22%);
+  --lawless-mark:linear-gradient(90deg, transparent, #a78bfa, rgba(0,0,0,0.8), transparent);
+}
+
+.rank-node[data-rank-tier="lawless-infinite-eclipse"]{
+  --lawless-surface:rgba(15,13,19,0.93);
+  --lawless-ink:rgba(1,1,5,0.99);
+  --lawless-material:radial-gradient(ellipse at 52% 44%, #030303 0 18%, rgba(254,243,199,0.18) 19% 20%, rgba(139,92,246,0.16) 21% 34%, transparent 48%), linear-gradient(180deg, rgba(255,255,255,0.055), transparent 44%);
+  --lawless-event:radial-gradient(ellipse at 60% 40%, transparent 0 34%, rgba(139,92,246,0.12) 35% 36%, transparent 37%), conic-gradient(from 80deg at 52% 44%, transparent, rgba(254,243,199,0.14), transparent 18%, rgba(139,92,246,0.16), transparent 52%);
+  --lawless-form:linear-gradient(100deg, transparent 0 44%, rgba(255,255,255,0.06) 46%, transparent 50%);
+  --lawless-mark:linear-gradient(90deg, transparent, #fef3c7, #8b5cf6, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-celestial-void"]{
+  --lawless-surface:rgba(8,17,28,0.9);
+  --lawless-ink:rgba(0,2,8,0.98);
+  --lawless-material:radial-gradient(circle at 50% 48%, rgba(224,242,254,0.18), transparent 32%), radial-gradient(circle at 50% 48%, rgba(0,0,0,0.8) 0 14%, transparent 38%);
+  --lawless-event:linear-gradient(180deg, rgba(248,250,252,0.11), transparent 50%), linear-gradient(90deg, rgba(0,0,0,0.28), transparent 42% 58%, rgba(0,0,0,0.32));
+  --lawless-form:radial-gradient(circle at 50% 48%, transparent 0 42%, rgba(224,242,254,0.12) 43% 44%, transparent 45%);
+  --lawless-mark:linear-gradient(90deg, transparent, #e0f2fe, #f8fafc, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-end-echoes"]{
+  --lawless-surface:rgba(15,21,30,0.92);
+  --lawless-ink:rgba(2,5,12,0.98);
+  --lawless-material:repeating-radial-gradient(ellipse at 28% 52%, rgba(203,213,225,0.12) 0 1px, transparent 2px 18px), linear-gradient(180deg, rgba(255,255,255,0.04), transparent 54%);
+  --lawless-event:repeating-radial-gradient(ellipse at 76% 48%, rgba(125,211,252,0.09) 0 1px, transparent 2px 28px);
+  --lawless-form:linear-gradient(90deg, transparent 0 62%, rgba(51,65,85,0.28));
+  --lawless-mark:linear-gradient(90deg, #cbd5e1, transparent 24%, #7dd3fc, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-eternal-worlds"]{
+  --lawless-surface:rgba(6,24,22,0.9);
+  --lawless-ink:rgba(2,8,14,0.98);
+  --lawless-material:linear-gradient(90deg, rgba(134,239,172,0.11) 0 1px, transparent 1px 28px), linear-gradient(0deg, rgba(224,242,254,0.08) 0 1px, transparent 1px 20px);
+  --lawless-event:radial-gradient(ellipse at 24% 34%, transparent 0 24%, rgba(134,239,172,0.14) 25% 26%, transparent 27%), radial-gradient(ellipse at 74% 70%, transparent 0 28%, rgba(224,242,254,0.1) 29% 30%, transparent 31%);
+  --lawless-form:conic-gradient(from 20deg at 50% 50%, transparent, rgba(134,239,172,0.16), transparent 22%, rgba(224,242,254,0.12), transparent 62%);
+  --lawless-mark:linear-gradient(90deg, #86efac, transparent 18%, #e0f2fe, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-crimson-abyss"]{
+  --lawless-surface:rgba(31,7,10,0.94);
+  --lawless-ink:rgba(3,1,5,0.99);
+  --lawless-material:radial-gradient(ellipse at 50% 78%, rgba(69,10,10,0.72), transparent 42%), linear-gradient(180deg, rgba(248,113,113,0.1), transparent 50%);
+  --lawless-event:linear-gradient(170deg, transparent 0 20%, rgba(248,113,113,0.2) 28%, transparent 48% 62%, rgba(192,132,252,0.1) 72%, transparent 86%);
+  --lawless-form:radial-gradient(ellipse at 50% 80%, transparent 0 32%, rgba(248,113,113,0.12) 33% 34%, transparent 35%);
+  --lawless-mark:linear-gradient(90deg, transparent, #f87171, #c084fc, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-final-crown"]{
+  --lawless-surface:rgba(23,20,14,0.92);
+  --lawless-ink:rgba(3,3,7,0.98);
+  --lawless-material:radial-gradient(ellipse at 50% 22%, rgba(253,230,138,0.2), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.075), transparent 44%);
+  --lawless-event:linear-gradient(108deg, transparent 0 36%, rgba(253,230,138,0.18) 37% 39%, transparent 40%), linear-gradient(72deg, transparent 0 60%, rgba(248,250,252,0.12) 61% 63%, transparent 64%);
+  --lawless-form:radial-gradient(ellipse at 50% 24%, transparent 0 32%, rgba(253,230,138,0.18) 33% 34%, transparent 35%);
+  --lawless-mark:linear-gradient(90deg, transparent, #fde68a, #f8fafc, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-absolute-infinity-watch"]{
+  --lawless-border:0.2;
+  --lawless-glow:0.045;
+  --lawless-surface:rgba(3,8,18,0.96);
+  --lawless-ink:rgba(0,1,6,0.99);
+  --lawless-material:repeating-linear-gradient(180deg, transparent 0 28px, rgba(147,197,253,0.07) 29px, transparent 30px 46px), linear-gradient(90deg, rgba(0,0,0,0.6), transparent 24% 76%, rgba(0,0,0,0.66));
+  --lawless-event:linear-gradient(90deg, transparent 0 49%, rgba(147,197,253,0.12) 50%, transparent 51%);
+  --lawless-form:radial-gradient(circle at 50% 42%, rgba(255,255,255,0.12) 0 1px, transparent 2px);
+  --lawless-motion:none;
+  --lawless-mark:linear-gradient(90deg, transparent, #93c5fd, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-last-ruin"]{
+  --lawless-surface:rgba(23,20,17,0.92);
+  --lawless-ink:rgba(5,5,8,0.98);
+  --lawless-material:radial-gradient(circle at 22% 72%, rgba(214,211,209,0.12) 0 3px, transparent 9px), radial-gradient(circle at 76% 32%, rgba(245,158,11,0.1) 0 2px, transparent 8px);
+  --lawless-event:linear-gradient(118deg, transparent 0 22%, rgba(214,211,209,0.16) 23% 31%, transparent 32%), linear-gradient(74deg, transparent 0 68%, rgba(41,37,36,0.34) 69% 76%, transparent 77%);
+  --lawless-form:linear-gradient(180deg, transparent 0 64%, rgba(0,0,0,0.36));
+  --lawless-mark:linear-gradient(90deg, #d6d3d1, transparent 24%, #f59e0b, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-primordial-eclipse"]{
+  --lawless-surface:rgba(25,17,10,0.93);
+  --lawless-ink:rgba(3,2,5,0.99);
+  --lawless-material:radial-gradient(circle at 36% 46%, #050505 0 16%, rgba(251,191,36,0.25) 17% 21%, rgba(167,139,250,0.12) 22% 34%, transparent 46%), linear-gradient(180deg, rgba(255,255,255,0.045), transparent 46%);
+  --lawless-event:conic-gradient(from 15deg at 36% 46%, transparent, rgba(251,191,36,0.18), transparent 13%, rgba(167,139,250,0.12), transparent 38%);
+  --lawless-form:radial-gradient(circle at 36% 46%, transparent 0 34%, rgba(251,191,36,0.12) 35% 36%, transparent 37%);
+  --lawless-mark:linear-gradient(90deg, transparent, #fbbf24, #a78bfa, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-dead-star-emperor"]{
+  --lawless-surface:rgba(9,13,20,0.94);
+  --lawless-ink:rgba(1,3,8,0.99);
+  --lawless-material:radial-gradient(circle at 24% 30%, rgba(0,0,0,0.9) 0 6px, rgba(203,213,225,0.13) 7px 12px, transparent 20px), radial-gradient(circle at 72% 66%, rgba(0,0,0,0.86) 0 5px, rgba(96,165,250,0.12) 6px 14px, transparent 22px);
+  --lawless-event:radial-gradient(circle at 50% 52%, rgba(203,213,225,0.08), transparent 32%);
+  --lawless-form:radial-gradient(circle at 82% 24%, rgba(255,255,255,0.12) 0 1px, transparent 2px);
+  --lawless-size:auto, auto, 130px 130px;
+  --lawless-mark:linear-gradient(90deg, #cbd5e1, #60a5fa, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-absolute-throne"]{
+  --lawless-border:0.24;
+  --lawless-glow:0.055;
+  --lawless-surface:rgba(10,10,13,0.94);
+  --lawless-ink:rgba(0,0,2,0.99);
+  --lawless-material:linear-gradient(180deg, rgba(248,250,252,0.08), transparent 42%), linear-gradient(90deg, transparent 0 40%, rgba(248,250,252,0.12) 41% 59%, transparent 60%);
+  --lawless-event:linear-gradient(180deg, transparent 0 28%, rgba(161,161,170,0.13) 29% 76%, transparent 77%);
+  --lawless-form:linear-gradient(90deg, transparent 0 48%, rgba(255,255,255,0.08) 49%, transparent 50%);
+  --lawless-motion:none;
+  --lawless-mark:linear-gradient(90deg, transparent, #f8fafc, #a1a1aa, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-living-void-guardian"]{
+  --lawless-surface:rgba(4,3,10,0.95);
+  --lawless-ink:rgba(0,0,2,0.99);
+  --lawless-material:radial-gradient(ellipse at 50% 54%, rgba(0,0,0,0.92), transparent 42%), radial-gradient(ellipse at 72% 24%, rgba(52,211,153,0.1), transparent 24%);
+  --lawless-event:conic-gradient(from 40deg at 50% 54%, rgba(0,0,0,0.7), transparent 20%, rgba(124,58,237,0.16), transparent 42%, rgba(52,211,153,0.1), transparent 70%);
+  --lawless-form:radial-gradient(ellipse at 50% 54%, transparent 0 34%, rgba(124,58,237,0.12) 35% 36%, transparent 37%);
+  --lawless-motion:rankCoreBreathe 5.8s ease-in-out infinite;
+  --lawless-mark:linear-gradient(90deg, transparent, #7c3aed, #34d399, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-black-eternity"]{
+  --lawless-border:0.14;
+  --lawless-glow:0.03;
+  --lawless-surface:rgba(0,0,1,0.99);
+  --lawless-ink:rgba(0,0,0,1);
+  --lawless-material:linear-gradient(180deg, rgba(255,255,255,0.018), transparent 70%), radial-gradient(ellipse at 50% 72%, rgba(31,41,55,0.08), transparent 38%);
+  --lawless-event:linear-gradient(90deg, rgba(0,0,0,0.76), transparent 45% 55%, rgba(0,0,0,0.82));
+  --lawless-form:linear-gradient(180deg, transparent, rgba(148,163,184,0.025), transparent);
+  --lawless-motion:none;
+  --lawless-mark:linear-gradient(90deg, transparent, rgba(148,163,184,0.22), transparent);
+  --lawless-line-opacity:0.22;
+}
+
+.rank-node[data-rank-tier="lawless-lost-realms"]{
+  --lawless-surface:rgba(9,23,32,0.9);
+  --lawless-ink:rgba(2,6,14,0.98);
+  --lawless-material:linear-gradient(180deg, rgba(103,232,249,0.08), transparent 44%), radial-gradient(ellipse at 22% 70%, rgba(196,181,253,0.1), transparent 34%);
+  --lawless-event:linear-gradient(90deg, transparent 0 18%, rgba(103,232,249,0.13) 19% 28%, transparent 29% 62%, rgba(51,65,85,0.28) 63% 72%, transparent 73%);
+  --lawless-form:linear-gradient(0deg, transparent 0 36%, rgba(255,255,255,0.055) 36.4% 37%, transparent 37.6%);
+  --lawless-mark:linear-gradient(90deg, #67e8f9, transparent 24%, #c4b5fd, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-time-end"]{
+  --lawless-surface:rgba(12,17,36,0.92);
+  --lawless-ink:rgba(2,4,12,0.99);
+  --lawless-material:linear-gradient(90deg, rgba(191,219,254,0.08) 0 1px, transparent 1px 30px), linear-gradient(180deg, rgba(255,255,255,0.045), transparent 54%);
+  --lawless-event:linear-gradient(108deg, transparent 0 28%, rgba(191,219,254,0.18) 29% 30%, transparent 31%), linear-gradient(78deg, transparent 0 62%, rgba(248,250,252,0.14) 63% 64%, transparent 65%);
+  --lawless-form:radial-gradient(circle at 26% 32%, rgba(191,219,254,0.16) 0 1px, transparent 2px), radial-gradient(circle at 76% 72%, rgba(248,250,252,0.12) 0 1px, transparent 2px);
+  --lawless-motion:rankGlitchStep 6s steps(1, end) infinite;
+  --lawless-mark:linear-gradient(90deg, #bfdbfe, transparent 22%, #f8fafc, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-void-crown"]{
+  --lawless-border:0.2;
+  --lawless-glow:0.04;
+  --lawless-surface:rgba(2,2,5,0.97);
+  --lawless-ink:rgba(0,0,0,1);
+  --lawless-material:radial-gradient(ellipse at 50% 24%, rgba(0,0,0,0.98) 0 24%, rgba(76,29,149,0.14) 25% 28%, transparent 38%), linear-gradient(180deg, rgba(255,255,255,0.035), transparent 54%);
+  --lawless-event:radial-gradient(ellipse at 50% 24%, transparent 0 34%, rgba(163,163,163,0.12) 35% 36%, transparent 37%);
+  --lawless-form:linear-gradient(90deg, transparent 0 38%, rgba(163,163,163,0.08) 39% 40%, transparent 41% 60%, rgba(76,29,149,0.08) 61% 62%, transparent 63%);
+  --lawless-mark:linear-gradient(90deg, transparent, #a3a3a3, #4c1d95, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-eternal-eclipse-architect"]{
+  --lawless-surface:rgba(18,15,18,0.92);
+  --lawless-ink:rgba(2,3,8,0.98);
+  --lawless-material:radial-gradient(circle at 28% 42%, #050505 0 9%, rgba(253,230,138,0.18) 10% 12%, transparent 22%), radial-gradient(circle at 72% 54%, #050505 0 8%, rgba(251,113,133,0.14) 9% 11%, transparent 20%);
+  --lawless-event:conic-gradient(from 20deg at 50% 48%, transparent, rgba(253,230,138,0.16), transparent 18%, rgba(251,113,133,0.14), transparent 52%);
+  --lawless-form:linear-gradient(90deg, transparent 0 49%, rgba(253,230,138,0.1) 50%, transparent 51%), linear-gradient(0deg, transparent 0 49%, rgba(251,113,133,0.08) 50%, transparent 51%);
+  --lawless-mark:linear-gradient(90deg, transparent, #fde68a, #fb7185, transparent);
+}
+
+.rank-node[data-rank-tier="lawless-infinite-umbra-emissary"]{
+  --lawless-border:0.24;
+  --lawless-glow:0.055;
+  --lawless-material:radial-gradient(ellipse at 16% 74%, rgba(196,181,253,0.12), transparent 34%), radial-gradient(ellipse at 84% 22%, rgba(17,24,39,0.55), transparent 38%);
+  --lawless-event:linear-gradient(120deg, rgba(0,0,0,0.74), transparent 32% 66%, rgba(0,0,0,0.82));
+  --lawless-form:radial-gradient(ellipse at 54% 52%, rgba(196,181,253,0.08), transparent 30%);
+  --lawless-mark:linear-gradient(90deg, transparent, #c4b5fd, rgba(0,0,0,0.9), transparent);
+}
+
+.hero[data-rank-tier^="lawless-"]{
+  background:
+    radial-gradient(ellipse at 18% 22%, rgba(var(--rank-rgb),0.11), transparent 32%),
+    linear-gradient(90deg, rgba(0,0,0,0.36), transparent 22% 78%, rgba(0,0,0,0.44)),
+    linear-gradient(145deg, rgba(6,7,15,0.94), rgba(0,1,6,0.99));
+  box-shadow:
+    0 38px 112px rgba(0,0,0,0.58),
+    0 0 38px rgba(var(--rank-rgb),0.08),
+    inset 0 1px 0 rgba(255,255,255,0.085),
+    inset 0 -38px 70px rgba(0,0,0,0.42);
+}
+
+.hero[data-rank-tier^="lawless-"]::after{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.5), transparent 18% 82%, rgba(0,0,0,0.56)),
+    radial-gradient(ellipse at 50% 54%, rgba(var(--rank-rgb),0.06), transparent 34%);
+  animation:profileAuraDrift 12s ease-in-out infinite;
+  opacity:0.66;
 }
 
 .reward-preview small,
