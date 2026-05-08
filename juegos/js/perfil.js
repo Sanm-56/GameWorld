@@ -78,11 +78,15 @@ const chatPrivateListEl = document.getElementById('chatPrivateList')
 const chatPrivateFormEl = document.getElementById('chatPrivateForm')
 const chatPrivateInputEl = document.getElementById('chatPrivateInput')
 const chatPrivateStatusEl = document.getElementById('chatPrivateStatus')
+const chatPrivateClearViewEl = document.getElementById('chatPrivateClearView')
+const chatPrivateDeleteOwnEl = document.getElementById('chatPrivateDeleteOwn')
+const chatPrivateDeleteConversationEl = document.getElementById('chatPrivateDeleteConversation')
 const RANGO_EQUIPADO_KEY = 'perfil_rango_equipado_usuario'
 const CHAT_GLOBAL_TABLA = 'chat_global'
 const CHAT_PRIVADO_TABLA = 'chat_privado'
 const CHAT_LIMITE = 60
 const CHAT_LECTURAS_KEY = `perfil_chat_privado_lecturas_${usuario || 'anon'}`
+const CHAT_OCULTOS_KEY = `perfil_chat_privado_ocultos_${usuario || 'anon'}`
 let rangoEquipadoActual = 'Novato'
 let progresoNivelActual = null
 let chatGlobalCanal = null
@@ -4621,6 +4625,32 @@ function guardarLecturasChat(lecturas) {
   localStorage.setItem(CHAT_LECTURAS_KEY, JSON.stringify(lecturas || {}))
 }
 
+function obtenerOcultosChat() {
+  try {
+    return JSON.parse(localStorage.getItem(CHAT_OCULTOS_KEY) || '{}') || {}
+  } catch {
+    return {}
+  }
+}
+
+function guardarOcultosChat(ocultos) {
+  localStorage.setItem(CHAT_OCULTOS_KEY, JSON.stringify(ocultos || {}))
+}
+
+function ocultarConversacionLocal(destino) {
+  if (!destino) return
+  const ocultos = obtenerOcultosChat()
+  ocultos[destino] = new Date().toISOString()
+  guardarOcultosChat(ocultos)
+}
+
+function filtrarMensajesOcultos(mensajes, destino) {
+  if (!destino) return mensajes
+  const ocultoDesde = obtenerOcultosChat()[destino]
+  if (!ocultoDesde) return mensajes
+  return mensajes.filter((mensaje) => new Date(mensaje.created_at || 0) > new Date(ocultoDesde))
+}
+
 function marcarConversacionLeida(destino) {
   if (!destino) return
   const lecturas = obtenerLecturasChat()
@@ -4689,11 +4719,13 @@ function renderConversacionesChat(mensajes) {
   chatConversationListEl.innerHTML = ''
 
   const lecturas = obtenerLecturasChat()
+  const ocultos = obtenerOcultosChat()
   const conversaciones = new Map()
 
   mensajes.forEach((mensaje) => {
     const destino = otroParticipanteChat(mensaje)
     if (!destino) return
+    if (ocultos[destino] && new Date(mensaje.created_at || 0) <= new Date(ocultos[destino])) return
     const actual = conversaciones.get(destino) || { destino, ultimo: null, unread: 0 }
     if (!actual.ultimo || new Date(mensaje.created_at) > new Date(actual.ultimo.created_at)) {
       actual.ultimo = mensaje
@@ -4829,9 +4861,10 @@ async function cargarChatPrivado(destino = chatPrivadoDestino) {
   const data = [...(enviados.data || []), ...(recibidos.data || [])]
     .sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0))
     .slice(-CHAT_LIMITE)
+  const visibles = filtrarMensajesOcultos(data, destino)
 
   chatPrivateStatusEl.innerText = 'Conversacion activa.'
-  renderMensajesChat(chatPrivateListEl, data, true)
+  renderMensajesChat(chatPrivateListEl, visibles, true)
   await cargarConversacionesPrivadas()
 }
 
@@ -4861,6 +4894,76 @@ async function enviarChatPrivado(event) {
   await cargarConversacionesPrivadas()
 }
 
+async function limpiarVistaChatPrivado() {
+  if (!chatPrivadoDestino) {
+    chatPrivateStatusEl.innerText = 'Abre una conversacion para limpiar la vista.'
+    return
+  }
+  if (!confirm('Seguro que deseas limpiar el historial visual de esta conversacion en este dispositivo?')) return
+  ocultarConversacionLocal(chatPrivadoDestino)
+  chatPrivateListEl.innerHTML = '<div class="empty">Historial visual limpio en este dispositivo.</div>'
+  chatPrivateStatusEl.innerText = 'Vista local limpia. Los mensajes nuevos volveran a aparecer.'
+  await cargarConversacionesPrivadas()
+}
+
+async function borrarMensajesPropiosChatPrivado() {
+  if (!chatPrivadoDestino) {
+    chatPrivateStatusEl.innerText = 'Abre una conversacion para borrar mensajes propios.'
+    return
+  }
+  if (!confirm('Seguro que deseas borrar tus mensajes enviados en esta conversacion?')) return
+
+  const { error } = await supabase
+    .from(CHAT_PRIVADO_TABLA)
+    .delete()
+    .eq('remitente', usuario)
+    .eq('destinatario', chatPrivadoDestino)
+
+  if (error) {
+    chatPrivateStatusEl.innerText = 'Supabase no permitio borrar mensajes propios. Puedes usar Limpiar vista.'
+    return
+  }
+
+  chatPrivateStatusEl.innerText = 'Mensajes propios borrados.'
+  await cargarChatPrivado()
+}
+
+async function borrarConversacionChatPrivado() {
+  if (!chatPrivadoDestino) {
+    chatPrivateStatusEl.innerText = 'Abre una conversacion para borrar.'
+    return
+  }
+  const confirmar = prompt(`Seguro que deseas borrar la conversacion con ${chatPrivadoDestino}? Escribe BORRAR para confirmar.`)
+  if (confirmar !== 'BORRAR') return
+
+  const [propios, recibidos] = await Promise.all([
+    supabase
+      .from(CHAT_PRIVADO_TABLA)
+      .delete()
+      .eq('remitente', usuario)
+      .eq('destinatario', chatPrivadoDestino),
+    supabase
+      .from(CHAT_PRIVADO_TABLA)
+      .delete()
+      .eq('remitente', chatPrivadoDestino)
+      .eq('destinatario', usuario),
+  ])
+
+  if (propios.error || recibidos.error) {
+    ocultarConversacionLocal(chatPrivadoDestino)
+    chatPrivateListEl.innerHTML = '<div class="empty">Conversacion oculta en este dispositivo.</div>'
+    chatPrivateStatusEl.innerText = 'No hubo permiso para borrar todo en Supabase; se limpio la vista local.'
+    await cargarConversacionesPrivadas()
+    return
+  }
+
+  chatPrivateListEl.innerHTML = '<div class="empty">Conversacion borrada.</div>'
+  chatPrivateStatusEl.innerText = 'Conversacion borrada.'
+  chatPrivadoDestino = ''
+  if (chatPrivateTargetEl) chatPrivateTargetEl.innerText = 'Sin conversacion abierta'
+  await cargarConversacionesPrivadas()
+}
+
 function instalarChatSocial() {
   if (!usuario) return
   chatGlobalFormEl?.addEventListener('submit', enviarChatGlobal)
@@ -4876,6 +4979,9 @@ function instalarChatSocial() {
     cargarChatPrivado(button.dataset.chatUser)
   })
   chatPrivateFormEl?.addEventListener('submit', enviarChatPrivado)
+  chatPrivateClearViewEl?.addEventListener('click', limpiarVistaChatPrivado)
+  chatPrivateDeleteOwnEl?.addEventListener('click', borrarMensajesPropiosChatPrivado)
+  chatPrivateDeleteConversationEl?.addEventListener('click', borrarConversacionChatPrivado)
 
   cargarChatGlobal()
   cargarConversacionesPrivadas()
