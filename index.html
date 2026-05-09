@@ -862,6 +862,15 @@ h1{
   min-height:106px;
 }
 
+.cosmetic-fondo .cosmetic-art::before{
+  content:"";
+  position:absolute;
+  inset:6px 10px;
+  border:1px solid var(--fondo-line, rgba(255,255,255,0.1));
+  opacity:0.72;
+  pointer-events:none;
+}
+
 .cosmetic-fondo .cosmetic-art-mark{
   inset:8px 12px;
   border-radius:50%;
@@ -1025,6 +1034,95 @@ h1{
   box-shadow:0 0 30px rgba(56,189,248,0.26);
 }
 
+.cosmetic-fondo.rarity-normal,
+.cosmetic-fondo.rarity-raro{
+  --fondo-main:hsl(var(--fondo-hue, 204) 36% 16%);
+  --fondo-accent-color:hsl(var(--fondo-accent, 188) 72% 52%);
+  --fondo-soft:hsl(var(--fondo-accent, 188) 70% 68% / 0.16);
+  --fondo-line:hsl(var(--fondo-accent, 188) 80% 76% / 0.16);
+}
+
+.cosmetic-fondo.rarity-normal .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--fondo-x, 44%) var(--fondo-y, 38%), hsl(var(--fondo-accent, 188) 52% 42% / 0.12), transparent 26%),
+    linear-gradient(var(--fondo-angle, 132deg), hsl(var(--fondo-hue, 204) 30% var(--fondo-luz, 16%) / 0.34), transparent 48%),
+    linear-gradient(145deg, rgba(2,6,23,0.74), hsl(var(--fondo-hue, 204) 30% 11% / 0.82));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -22px 42px rgba(0,0,0,0.32);
+}
+
+.cosmetic-fondo.rarity-raro .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--fondo-x, 50%) var(--fondo-y, 36%), hsl(var(--fondo-accent, 188) 90% 58% / 0.24), transparent 28%),
+    radial-gradient(circle at calc(100% - var(--fondo-x, 50%)) calc(100% - var(--fondo-y, 36%)), rgba(20,184,166,0.12), transparent 24%),
+    linear-gradient(var(--fondo-angle, 132deg), hsl(var(--fondo-hue, 198) 72% var(--fondo-luz, 30%) / 0.28), transparent 52%),
+    linear-gradient(145deg, rgba(8,47,73,0.66), rgba(2,6,23,0.78));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -24px 44px rgba(0,0,0,0.28), 0 0 22px hsl(var(--fondo-accent, 188) 90% 58% / 0.12);
+}
+
+.cosmetic-fondo.rarity-normal .cosmetic-art-mark,
+.cosmetic-fondo.rarity-raro .cosmetic-art-mark{
+  inset:10px 14px;
+  border-radius:0;
+  filter:none;
+  opacity:0.74;
+}
+
+.cosmetic-fondo.rarity-raro .cosmetic-art-mark{
+  opacity:0.88;
+}
+
+.fondo-layout-0 .cosmetic-art-mark{ clip-path:polygon(0 16%, 72% 16%, 72% 0, 100% 30%, 82% 100%, 20% 100%, 20% 72%, 0 72%); }
+.fondo-layout-1 .cosmetic-art-mark{ clip-path:polygon(12% 0, 88% 0, 100% 42%, 72% 42%, 72% 100%, 0 100%, 0 24%, 12% 24%); }
+.fondo-layout-2 .cosmetic-art-mark{ clip-path:polygon(0 0, 54% 0, 72% 18%, 100% 18%, 100% 84%, 62% 84%, 48% 100%, 0 100%); }
+.fondo-layout-3 .cosmetic-art-mark{ clip-path:polygon(8% 8%, 38% 8%, 38% 0, 92% 0, 100% 58%, 86% 58%, 86% 92%, 8% 92%); }
+.fondo-layout-4 .cosmetic-art-mark{ clip-path:polygon(0 28%, 28% 0, 100% 0, 100% 70%, 70% 100%, 0 100%); }
+.fondo-layout-5 .cosmetic-art-mark{ clip-path:polygon(18% 0, 100% 0, 100% 34%, 82% 34%, 82% 100%, 0 100%, 0 18%, 18% 18%); }
+.fondo-layout-6 .cosmetic-art-mark{ clip-path:polygon(0 0, 100% 0, 100% 22%, 76% 22%, 76% 76%, 100% 76%, 100% 100%, 0 100%, 0 78%, 24% 78%, 24% 24%, 0 24%); }
+.fondo-layout-7 .cosmetic-art-mark{ clip-path:polygon(30% 0, 100% 0, 100% 100%, 36% 100%, 36% 72%, 0 72%, 0 24%, 30% 24%); }
+.fondo-layout-8 .cosmetic-art-mark{ clip-path:polygon(0 12%, 46% 12%, 46% 0, 100% 0, 100% 88%, 54% 88%, 54% 100%, 0 100%); }
+.fondo-layout-9 .cosmetic-art-mark{ clip-path:polygon(0 0, 78% 0, 78% 18%, 100% 18%, 100% 100%, 22% 100%, 22% 82%, 0 82%); }
+.fondo-layout-10 .cosmetic-art-mark{ clip-path:polygon(14% 0, 86% 0, 86% 14%, 100% 14%, 100% 86%, 86% 86%, 86% 100%, 14% 100%, 14% 86%, 0 86%, 0 14%, 14% 14%); }
+.fondo-layout-11 .cosmetic-art-mark{ clip-path:polygon(0 0, 34% 0, 50% 16%, 66% 0, 100% 0, 100% 68%, 84% 84%, 84% 100%, 0 100%); }
+
+.fondo-panel-0 .cosmetic-art::before{ clip-path:polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+.fondo-panel-1 .cosmetic-art::before{ clip-path:polygon(8% 0, 100% 0, 92% 100%, 0 100%); }
+.fondo-panel-2 .cosmetic-art::before{ clip-path:polygon(0 0, 82% 0, 100% 26%, 100% 100%, 18% 100%, 0 74%); }
+.fondo-panel-3 .cosmetic-art::before{ clip-path:polygon(14% 0, 86% 0, 100% 50%, 86% 100%, 14% 100%, 0 50%); }
+.fondo-panel-4 .cosmetic-art::before{ clip-path:polygon(0 18%, 18% 0, 100% 0, 100% 82%, 82% 100%, 0 100%); }
+.fondo-panel-5 .cosmetic-art::before{ clip-path:polygon(0 0, 100% 0, 100% 70%, 72% 70%, 72% 100%, 0 100%); }
+.fondo-panel-6 .cosmetic-art::before{ clip-path:polygon(0 0, 72% 0, 72% 22%, 100% 22%, 100% 100%, 0 100%); }
+.fondo-panel-7 .cosmetic-art::before{ clip-path:polygon(10% 0, 90% 0, 90% 12%, 100% 12%, 100% 88%, 90% 88%, 90% 100%, 10% 100%, 10% 88%, 0 88%, 0 12%, 10% 12%); }
+
+.fondo-textura-0 .cosmetic-preview::after{ background:linear-gradient(90deg, var(--fondo-line) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size:22px 100%, 100% 28px; }
+.fondo-textura-1 .cosmetic-preview::after{ background:repeating-linear-gradient(0deg, transparent 0 11px, var(--fondo-line) 11px 12px), radial-gradient(circle at 18% 80%, rgba(255,255,255,0.06), transparent 24%); }
+.fondo-textura-2 .cosmetic-preview::after{ background:linear-gradient(135deg, transparent 0 38%, var(--fondo-line) 38% 39%, transparent 39%), linear-gradient(35deg, transparent 0 62%, rgba(255,255,255,0.05) 62% 63%, transparent 63%); }
+.fondo-textura-3 .cosmetic-preview::after{ background:radial-gradient(circle at 22% 28%, var(--fondo-line) 0 2px, transparent 3px), radial-gradient(circle at 72% 64%, rgba(255,255,255,0.06) 0 2px, transparent 3px); background-size:34px 34px, 46px 46px; }
+.fondo-textura-4 .cosmetic-preview::after{ background:linear-gradient(120deg, transparent 16%, rgba(255,255,255,0.07) 17%, transparent 18% 62%, var(--fondo-line) 63%, transparent 64%); }
+.fondo-textura-5 .cosmetic-preview::after{ background:repeating-linear-gradient(90deg, transparent 0 18px, rgba(255,255,255,0.04) 18px 20px), linear-gradient(180deg, transparent, var(--fondo-line), transparent); }
+.fondo-textura-6 .cosmetic-preview::after{ background:conic-gradient(from var(--fondo-angle), transparent 0 16%, var(--fondo-line) 17%, transparent 18% 44%, rgba(255,255,255,0.04) 45%, transparent 46%); }
+.fondo-textura-7 .cosmetic-preview::after{ background:linear-gradient(0deg, transparent 0 46%, var(--fondo-line) 47%, transparent 48%), linear-gradient(90deg, transparent 0 28%, rgba(255,255,255,0.045) 29%, transparent 30% 74%, var(--fondo-line) 75%, transparent 76%); }
+.fondo-textura-8 .cosmetic-preview::after{ background:radial-gradient(ellipse at 50% 100%, var(--fondo-line), transparent 42%), linear-gradient(160deg, rgba(255,255,255,0.05), transparent 38%); }
+.fondo-textura-9 .cosmetic-preview::after{ background:linear-gradient(90deg, transparent 0 8%, var(--fondo-line) 8% 9%, transparent 9% 91%, rgba(255,255,255,0.05) 91% 92%, transparent 92%), linear-gradient(0deg, transparent 0 18%, rgba(255,255,255,0.045) 18% 19%, transparent 19%); }
+
+.fondo-simbolo-0 .cosmetic-art-mark{ background:linear-gradient(90deg, transparent, var(--fondo-line), transparent); }
+.fondo-simbolo-1 .cosmetic-art-mark{ background:radial-gradient(circle at 50% 50%, transparent 0 34%, var(--fondo-line) 35% 37%, transparent 38%); }
+.fondo-simbolo-2 .cosmetic-art-mark{ background:linear-gradient(90deg, transparent 0 42%, var(--fondo-line) 42% 44%, transparent 44% 56%, var(--fondo-line) 56% 58%, transparent 58%); }
+.fondo-simbolo-3 .cosmetic-art-mark{ background:conic-gradient(from 45deg, transparent 0 22%, var(--fondo-line) 23%, transparent 24% 72%, rgba(255,255,255,0.05) 73%, transparent 74%); }
+.fondo-simbolo-4 .cosmetic-art-mark{ background:linear-gradient(135deg, transparent 0 46%, var(--fondo-line) 47%, transparent 48%), radial-gradient(circle at 30% 70%, rgba(255,255,255,0.06), transparent 20%); }
+.fondo-simbolo-5 .cosmetic-art-mark{ background:linear-gradient(0deg, transparent 0 48%, var(--fondo-line) 49%, transparent 50%), linear-gradient(90deg, transparent 0 48%, var(--fondo-line) 49%, transparent 50%); }
+.fondo-simbolo-6 .cosmetic-art-mark{ background:radial-gradient(ellipse at 62% 38%, var(--fondo-line), transparent 34%); }
+.fondo-simbolo-7 .cosmetic-art-mark{ background:linear-gradient(90deg, transparent 0 24%, var(--fondo-line) 25%, transparent 26% 74%, var(--fondo-line) 75%, transparent 76%); }
+.fondo-simbolo-8 .cosmetic-art-mark{ background:conic-gradient(from 180deg, var(--fondo-line), transparent 18% 82%, var(--fondo-line)); }
+.fondo-simbolo-9 .cosmetic-art-mark{ background:radial-gradient(circle at 24% 24%, var(--fondo-line), transparent 16%), radial-gradient(circle at 76% 76%, rgba(255,255,255,0.06), transparent 18%); }
+.fondo-simbolo-10 .cosmetic-art-mark{ background:linear-gradient(45deg, transparent 0 28%, var(--fondo-line) 29%, transparent 30% 70%, rgba(255,255,255,0.05) 71%, transparent 72%); }
+.fondo-simbolo-11 .cosmetic-art-mark{ background:radial-gradient(circle at 50% 50%, var(--fondo-line) 0 2px, transparent 3px), linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); background-size:18px 18px, 100% 100%; }
+
+.cosmetic-fondo.rarity-raro.fondo-layout-0 .cosmetic-preview,
+.cosmetic-fondo.rarity-raro.fondo-layout-4 .cosmetic-preview,
+.cosmetic-fondo.rarity-raro.fondo-layout-8 .cosmetic-preview{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -24px 44px rgba(0,0,0,0.28), 0 0 24px hsl(var(--fondo-accent, 188) 92% 58% / 0.18);
+}
+
 .store-cosmetic.rarity-epico{
   border-color:rgba(168,85,247,0.52);
   background:
@@ -1090,8 +1188,6 @@ h1{
   text-shadow:2px 0 rgba(34,197,94,0.32), -2px 0 rgba(168,85,247,0.22), 0 10px 24px rgba(0,0,0,0.6);
 }
 
-.cosmetic-fondo.rarity-normal .cosmetic-art-mark{ border-radius:42% 58% 48% 52%; opacity:0.42; }
-.cosmetic-fondo.rarity-raro .cosmetic-art-mark{ background:linear-gradient(135deg, transparent, rgba(56,189,248,0.38), transparent), repeating-linear-gradient(90deg, rgba(125,211,252,0.18) 0 1px, transparent 1px 10px); border-radius:0; }
 .cosmetic-fondo.rarity-epico .cosmetic-art-mark{ background:radial-gradient(circle at 62% 30%, rgba(216,180,254,0.38), transparent 28%), radial-gradient(circle at 32% 72%, rgba(168,85,247,0.3), transparent 30%); filter:blur(1px); }
 .cosmetic-fondo.rarity-legendario .cosmetic-art-mark{ background:conic-gradient(from 80deg, transparent, rgba(250,204,21,0.42), transparent, rgba(253,186,116,0.24), transparent); border-radius:50%; }
 .cosmetic-fondo.rarity-mitico .cosmetic-art-mark{ background:conic-gradient(from 0deg, rgba(45,212,191,0.22), rgba(168,85,247,0.28), rgba(244,114,182,0.2), rgba(45,212,191,0.22)); border-radius:45% 55% 50% 50%; animation:cosmicDrift 8s linear infinite; }
@@ -1593,6 +1689,22 @@ h1{
 
   .ranking-score{
     grid-column:2;
+  }
+}
+
+@media (max-width: 720px){
+  .cosmetic-fondo.rarity-normal .cosmetic-preview,
+  .cosmetic-fondo.rarity-raro .cosmetic-preview{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -16px 28px rgba(0,0,0,0.26);
+  }
+
+  .cosmetic-fondo.rarity-normal .cosmetic-preview::after,
+  .cosmetic-fondo.rarity-raro .cosmetic-preview::after{
+    opacity:0.55;
+  }
+
+  .cosmetic-fondo.rarity-raro .cosmetic-art-mark{
+    opacity:0.72;
   }
 }
 

@@ -187,7 +187,7 @@ function renderRarezaCosmeticos(itemsCategoria, rareza) {
 
 function renderCosmetico(item) {
   return `
-    <article class="store-item store-cosmetic cosmetic-${escapeHtml(item.tipo)} rarity-${rarezaClase(item.rareza)}">
+    <article class="store-item store-cosmetic cosmetic-${escapeHtml(item.tipo)} rarity-${rarezaClase(item.rareza)}${clasesVisualesCosmetico(item)}"${estiloVisualCosmetico(item)}>
       ${item.etiqueta ? `<span class="store-badge">${escapeHtml(item.etiqueta)}</span>` : ""}
       <div class="cosmetic-preview" aria-hidden="true">
         <div class="cosmetic-art">
@@ -211,6 +211,27 @@ function renderCosmetico(item) {
       </div>
     </article>
   `
+}
+
+function clasesVisualesCosmetico(item) {
+  const fondo = item.diseno?.fondo
+  if (item.tipo !== "fondo" || !fondo) return ""
+  return ` fondo-layout-${fondo.layout} fondo-textura-${fondo.textura} fondo-simbolo-${fondo.simbolo} fondo-panel-${fondo.panel}`
+}
+
+function estiloVisualCosmetico(item) {
+  const fondo = item.diseno?.fondo
+  if (item.tipo !== "fondo" || !fondo) return ""
+  const estilo = [
+    `--fondo-hue:${Number(fondo.hue || 200)}`,
+    `--fondo-accent:${Number(fondo.accent || 190)}`,
+    `--fondo-luz:${Number(fondo.luz || 18)}%`,
+    `--fondo-depth:${Number(fondo.profundidad || 36)}%`,
+    `--fondo-x:${Number(fondo.focoX || 50)}%`,
+    `--fondo-y:${Number(fondo.focoY || 40)}%`,
+    `--fondo-angle:${Number(fondo.angulo || 0)}deg`,
+  ].join(";")
+  return ` style="${estilo}"`
 }
 
 function siglaCategoria(tipo) {

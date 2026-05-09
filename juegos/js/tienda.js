@@ -326,13 +326,49 @@ function generarCosmeticos(tipo, cantidad) {
       precio: precio.monedas,
       precioReal: precio.real,
       etiqueta: precio.etiqueta,
-      diseno: {
-        tema: TEMAS_VISUALES[index % TEMAS_VISUALES.length],
-        brillo: intensidad,
-        patron: ["lineas", "pulso", "anillo", "fragmentos", "halo"][index % 5],
-      },
+      diseno: crearDisenoCosmetico(tipo, rareza.nombre, index, intensidad),
     }
   })
+}
+
+function crearDisenoCosmetico(tipo, rareza, index, intensidad) {
+  const base = {
+    tema: TEMAS_VISUALES[index % TEMAS_VISUALES.length],
+    brillo: intensidad,
+    patron: ["lineas", "pulso", "anillo", "fragmentos", "halo"][index % 5],
+  }
+
+  if (tipo !== "fondo" || !["Normal", "Raro"].includes(rareza)) return base
+
+  const fondoBase = rareza === "Raro"
+    ? {
+        paleta: "rare",
+        hue: 184 + ((index * 19) % 42),
+        accent: 166 + ((index * 13) % 54),
+        luz: 26 + ((index * 7) % 48),
+        profundidad: 38 + ((index * 11) % 34),
+      }
+    : {
+        paleta: "normal",
+        hue: 198 + ((index * 11) % 28),
+        accent: 188 + ((index * 7) % 26),
+        luz: 12 + ((index * 5) % 24),
+        profundidad: 28 + ((index * 9) % 28),
+      }
+
+  return {
+    ...base,
+    fondo: {
+      ...fondoBase,
+      layout: index % 12,
+      textura: Math.floor(index / 2) % 10,
+      simbolo: (index * 5 + 3) % 12,
+      panel: (index * 7 + 1) % 8,
+      focoX: 18 + ((index * 17) % 64),
+      focoY: 16 + ((index * 23) % 62),
+      angulo: (index * 37) % 360,
+    },
+  }
 }
 
 function precioCosmetico(tipo, rareza) {
