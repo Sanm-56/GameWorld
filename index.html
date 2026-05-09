@@ -1034,8 +1034,7 @@ h1{
   box-shadow:0 0 30px rgba(56,189,248,0.26);
 }
 
-.cosmetic-fondo.rarity-normal,
-.cosmetic-fondo.rarity-raro{
+.cosmetic-fondo{
   --fondo-main:hsl(var(--fondo-hue, 204) 36% 16%);
   --fondo-accent-color:hsl(var(--fondo-accent, 188) 72% 52%);
   --fondo-soft:hsl(var(--fondo-accent, 188) 70% 68% / 0.16);
@@ -1123,6 +1122,14 @@ h1{
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -24px 44px rgba(0,0,0,0.28), 0 0 24px hsl(var(--fondo-accent, 188) 92% 58% / 0.18);
 }
 
+.cosmetic-fondo .cosmetic-art::after{
+  content:"";
+  position:absolute;
+  inset:18px 24px;
+  pointer-events:none;
+  opacity:0.54;
+}
+
 .store-cosmetic.rarity-epico{
   border-color:rgba(168,85,247,0.52);
   background:
@@ -1133,8 +1140,11 @@ h1{
 
 .store-cosmetic.rarity-epico .cosmetic-preview{
   background:
-    radial-gradient(circle at 70% 24%, rgba(216,180,254,0.22), transparent 26%),
-    linear-gradient(145deg, rgba(88,28,135,0.56), rgba(3,7,18,0.7));
+    radial-gradient(circle at var(--fondo-x, 62%) var(--fondo-y, 30%), hsl(var(--fondo-accent, 296) 88% 62% / 0.24), transparent 30%),
+    linear-gradient(var(--fondo-angle, 145deg), hsl(var(--fondo-hue, 270) 72% var(--fondo-luz, 34%) / 0.24), transparent 54%),
+    radial-gradient(circle at calc(100% - var(--fondo-x, 62%)) 82%, rgba(30,64,175,0.18), transparent 30%),
+    linear-gradient(145deg, rgba(46,16,101,0.64), rgba(3,7,18,0.78));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -28px 48px rgba(0,0,0,0.34), 0 0 24px hsl(var(--fondo-accent, 296) 90% 62% / 0.14);
 }
 
 .store-cosmetic.rarity-legendario{
@@ -1147,9 +1157,11 @@ h1{
 
 .store-cosmetic.rarity-legendario .cosmetic-preview{
   background:
-    linear-gradient(135deg, rgba(253,224,71,0.18), transparent 42%),
-    repeating-linear-gradient(45deg, rgba(250,204,21,0.08) 0 2px, transparent 2px 18px),
-    rgba(69,26,3,0.64);
+    radial-gradient(circle at var(--fondo-x, 50%) var(--fondo-y, 32%), hsl(var(--fondo-accent, 42) 96% 68% / 0.24), transparent 30%),
+    linear-gradient(var(--fondo-angle, 135deg), hsl(var(--fondo-hue, 40) 94% var(--fondo-luz, 42%) / 0.26), transparent 52%),
+    radial-gradient(circle at 82% 82%, rgba(185,28,28,0.16), transparent 28%),
+    linear-gradient(145deg, rgba(69,26,3,0.72), rgba(3,7,18,0.78));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14), inset 0 -30px 52px rgba(0,0,0,0.32), 0 0 30px hsl(var(--fondo-accent, 42) 96% 62% / 0.18);
 }
 
 .store-cosmetic.rarity-mitico{
@@ -1162,8 +1174,10 @@ h1{
 
 .store-cosmetic.rarity-mitico .cosmetic-preview{
   background:
-    conic-gradient(from 210deg at 50% 50%, rgba(45,212,191,0.18), rgba(168,85,247,0.16), rgba(244,114,182,0.16), rgba(45,212,191,0.18)),
-    rgba(8,13,35,0.72);
+    radial-gradient(circle at var(--fondo-x, 44%) var(--fondo-y, 34%), hsl(var(--fondo-accent, 174) 88% 66% / 0.24), transparent 30%),
+    conic-gradient(from var(--fondo-angle, 210deg) at 50% 50%, rgba(45,212,191,0.16), rgba(168,85,247,0.14), rgba(226,232,240,0.14), rgba(45,212,191,0.16)),
+    linear-gradient(145deg, rgba(8,13,35,0.78), rgba(3,7,18,0.84));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -30px 54px rgba(0,0,0,0.34), 0 0 28px hsl(var(--fondo-accent, 174) 86% 62% / 0.16);
 }
 
 .store-cosmetic.rarity-prohibido{
@@ -1178,9 +1192,11 @@ h1{
 
 .store-cosmetic.rarity-prohibido .cosmetic-preview{
   background:
-    linear-gradient(91deg, transparent 0 18%, rgba(255,255,255,0.08) 18% 19%, transparent 19% 58%, rgba(34,197,94,0.08) 58% 59%, transparent 59%),
-    radial-gradient(circle at 48% 42%, rgba(0,0,0,0.18), rgba(0,0,0,0.74) 62%),
+    radial-gradient(circle at var(--fondo-x, 48%) var(--fondo-y, 42%), hsl(var(--fondo-accent, 186) 92% 62% / 0.16), transparent 26%),
+    linear-gradient(var(--fondo-angle, 91deg), transparent 0 18%, rgba(255,255,255,0.08) 18% 19%, transparent 19% 58%, hsl(var(--fondo-accent, 186) 82% 56% / 0.1) 58% 59%, transparent 59%),
+    radial-gradient(circle at 48% 42%, rgba(0,0,0,0.18), rgba(0,0,0,0.76) 62%),
     rgba(3,7,18,0.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -34px 58px rgba(0,0,0,0.46), 0 0 28px hsl(var(--fondo-accent, 186) 90% 52% / 0.11);
 }
 
 .store-cosmetic.rarity-prohibido .cosmetic-art-code{
@@ -1188,10 +1204,52 @@ h1{
   text-shadow:2px 0 rgba(34,197,94,0.32), -2px 0 rgba(168,85,247,0.22), 0 10px 24px rgba(0,0,0,0.6);
 }
 
-.cosmetic-fondo.rarity-epico .cosmetic-art-mark{ background:radial-gradient(circle at 62% 30%, rgba(216,180,254,0.38), transparent 28%), radial-gradient(circle at 32% 72%, rgba(168,85,247,0.3), transparent 30%); filter:blur(1px); }
-.cosmetic-fondo.rarity-legendario .cosmetic-art-mark{ background:conic-gradient(from 80deg, transparent, rgba(250,204,21,0.42), transparent, rgba(253,186,116,0.24), transparent); border-radius:50%; }
-.cosmetic-fondo.rarity-mitico .cosmetic-art-mark{ background:conic-gradient(from 0deg, rgba(45,212,191,0.22), rgba(168,85,247,0.28), rgba(244,114,182,0.2), rgba(45,212,191,0.22)); border-radius:45% 55% 50% 50%; animation:cosmicDrift 8s linear infinite; }
-.cosmetic-fondo.rarity-prohibido .cosmetic-art-mark{ background:linear-gradient(90deg, transparent 0 28%, rgba(34,197,94,0.22) 28% 30%, transparent 30% 62%, rgba(88,28,135,0.22) 62% 64%, transparent 64%), radial-gradient(circle, rgba(0,0,0,0.4), transparent 58%); border-radius:8px; }
+.cosmetic-fondo.rarity-epico .cosmetic-art-mark,
+.cosmetic-fondo.rarity-legendario .cosmetic-art-mark,
+.cosmetic-fondo.rarity-mitico .cosmetic-art-mark,
+.cosmetic-fondo.rarity-prohibido .cosmetic-art-mark{
+  inset:8px 12px;
+  filter:none;
+}
+
+.cosmetic-fondo.rarity-epico .cosmetic-art-mark{ opacity:0.86; }
+.cosmetic-fondo.rarity-legendario .cosmetic-art-mark{ opacity:0.92; }
+.cosmetic-fondo.rarity-mitico .cosmetic-art-mark{ opacity:0.9; animation:cosmicDrift 10s linear infinite; }
+.cosmetic-fondo.rarity-prohibido .cosmetic-art-mark{ opacity:0.78; }
+
+.fondo-energia-0 .cosmetic-art::after{ background:radial-gradient(circle, var(--fondo-line), transparent 38%); border-radius:50%; }
+.fondo-energia-1 .cosmetic-art::after{ background:linear-gradient(90deg, transparent, var(--fondo-line), transparent); transform:rotate(12deg); }
+.fondo-energia-2 .cosmetic-art::after{ background:conic-gradient(from 30deg, transparent, var(--fondo-line), transparent 34%, rgba(255,255,255,0.05), transparent); border-radius:50%; }
+.fondo-energia-3 .cosmetic-art::after{ background:linear-gradient(135deg, transparent 0 42%, var(--fondo-line) 43%, transparent 44% 58%, var(--fondo-line) 59%, transparent 60%); }
+.fondo-energia-4 .cosmetic-art::after{ background:radial-gradient(ellipse at 30% 50%, var(--fondo-line), transparent 42%); }
+.fondo-energia-5 .cosmetic-art::after{ background:radial-gradient(ellipse at 70% 50%, var(--fondo-line), transparent 42%); }
+.fondo-energia-6 .cosmetic-art::after{ background:linear-gradient(0deg, transparent 0 45%, var(--fondo-line) 46%, transparent 47% 54%, var(--fondo-line) 55%, transparent 56%); }
+.fondo-energia-7 .cosmetic-art::after{ background:conic-gradient(from 120deg, var(--fondo-line), transparent 20% 80%, var(--fondo-line)); border-radius:40% 60%; }
+.fondo-energia-8 .cosmetic-art::after{ background:radial-gradient(circle at 20% 20%, var(--fondo-line), transparent 24%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.06), transparent 24%); }
+.fondo-energia-9 .cosmetic-art::after{ background:linear-gradient(90deg, transparent 0 28%, var(--fondo-line) 29%, transparent 30% 70%, var(--fondo-line) 71%, transparent 72%); }
+.fondo-energia-10 .cosmetic-art::after{ background:radial-gradient(ellipse at 50% 20%, var(--fondo-line), transparent 35%); }
+.fondo-energia-11 .cosmetic-art::after{ background:radial-gradient(ellipse at 50% 80%, var(--fondo-line), transparent 35%); }
+
+.fondo-fractura-0 .cosmetic-preview::before{ background:linear-gradient(118deg, transparent 0 44%, rgba(255,255,255,0.16) 45%, transparent 46%); }
+.fondo-fractura-1 .cosmetic-preview::before{ background:linear-gradient(28deg, transparent 0 30%, rgba(255,255,255,0.12) 31%, transparent 32% 68%, var(--fondo-line) 69%, transparent 70%); }
+.fondo-fractura-2 .cosmetic-preview::before{ background:linear-gradient(90deg, transparent 0 22%, var(--fondo-line) 23%, transparent 24% 76%, rgba(255,255,255,0.09) 77%, transparent 78%); }
+.fondo-fractura-3 .cosmetic-preview::before{ background:radial-gradient(circle at var(--fondo-x) var(--fondo-y), rgba(255,255,255,0.16), transparent 28%); }
+.fondo-fractura-4 .cosmetic-preview::before{ background:conic-gradient(from var(--fondo-angle), transparent 0 12%, var(--fondo-line) 13%, transparent 14% 62%, rgba(255,255,255,0.08) 63%, transparent 64%); }
+.fondo-fractura-5 .cosmetic-preview::before{ background:linear-gradient(160deg, transparent 0 18%, rgba(255,255,255,0.11) 19%, transparent 20% 52%, var(--fondo-line) 53%, transparent 54%); }
+.fondo-fractura-6 .cosmetic-preview::before{ background:radial-gradient(ellipse at 50% 50%, transparent 0 42%, var(--fondo-line) 43%, transparent 45%); }
+.fondo-fractura-7 .cosmetic-preview::before{ background:linear-gradient(0deg, transparent 0 34%, var(--fondo-line) 35%, transparent 36% 64%, rgba(255,255,255,0.1) 65%, transparent 66%); }
+.fondo-fractura-8 .cosmetic-preview::before{ background:linear-gradient(45deg, transparent 0 46%, rgba(255,255,255,0.13) 47%, transparent 48%), linear-gradient(135deg, transparent 0 54%, var(--fondo-line) 55%, transparent 56%); }
+.fondo-fractura-9 .cosmetic-preview::before{ background:radial-gradient(circle at 18% 82%, var(--fondo-line), transparent 24%), linear-gradient(95deg, transparent, rgba(255,255,255,0.08), transparent); }
+
+.fondo-reliquia-0 .cosmetic-art::before{ border-radius:50%; clip-path:none; }
+.fondo-reliquia-1 .cosmetic-art::before{ clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.fondo-reliquia-2 .cosmetic-art::before{ clip-path:polygon(18% 0, 82% 0, 100% 28%, 82% 100%, 18% 100%, 0 28%); }
+.fondo-reliquia-3 .cosmetic-art::before{ clip-path:polygon(0 18%, 18% 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0 82%); }
+.fondo-reliquia-4 .cosmetic-art::before{ clip-path:polygon(0 0, 100% 0, 86% 50%, 100% 100%, 0 100%, 14% 50%); }
+.fondo-reliquia-5 .cosmetic-art::before{ clip-path:polygon(12% 0, 88% 0, 88% 18%, 100% 18%, 100% 82%, 88% 82%, 88% 100%, 12% 100%, 12% 82%, 0 82%, 0 18%, 12% 18%); }
+.fondo-reliquia-6 .cosmetic-art::before{ clip-path:polygon(50% 0, 62% 34%, 100% 34%, 70% 56%, 82% 100%, 50% 72%, 18% 100%, 30% 56%, 0 34%, 38% 34%); }
+.fondo-reliquia-7 .cosmetic-art::before{ clip-path:polygon(8% 8%, 92% 8%, 92% 32%, 100% 32%, 100% 68%, 92% 68%, 92% 92%, 8% 92%, 8% 68%, 0 68%, 0 32%, 8% 32%); }
+.fondo-reliquia-8 .cosmetic-art::before{ clip-path:polygon(0 50%, 18% 32%, 18% 0, 82% 0, 82% 32%, 100% 50%, 82% 68%, 82% 100%, 18% 100%, 18% 68%); }
 
 .cosmetic-id.rarity-raro .cosmetic-art{ box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), 0 0 26px rgba(56,189,248,0.22); }
 .cosmetic-id.rarity-epico .cosmetic-art{ clip-path:polygon(4% 0, 96% 0, 100% 18%, 92% 100%, 8% 100%, 0 18%); box-shadow:0 0 32px rgba(168,85,247,0.25); }
@@ -1705,6 +1763,35 @@ h1{
 
   .cosmetic-fondo.rarity-raro .cosmetic-art-mark{
     opacity:0.72;
+  }
+
+  .cosmetic-fondo.rarity-epico .cosmetic-preview,
+  .cosmetic-fondo.rarity-legendario .cosmetic-preview,
+  .cosmetic-fondo.rarity-mitico .cosmetic-preview,
+  .cosmetic-fondo.rarity-prohibido .cosmetic-preview{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -18px 32px rgba(0,0,0,0.32);
+  }
+
+  .cosmetic-fondo.rarity-epico .cosmetic-art-mark,
+  .cosmetic-fondo.rarity-legendario .cosmetic-art-mark,
+  .cosmetic-fondo.rarity-mitico .cosmetic-art-mark,
+  .cosmetic-fondo.rarity-prohibido .cosmetic-art-mark,
+  .cosmetic-fondo .cosmetic-art::after{
+    opacity:0.58;
+    animation:none;
+  }
+
+  .fondo-fractura-0 .cosmetic-preview::before,
+  .fondo-fractura-1 .cosmetic-preview::before,
+  .fondo-fractura-2 .cosmetic-preview::before,
+  .fondo-fractura-3 .cosmetic-preview::before,
+  .fondo-fractura-4 .cosmetic-preview::before,
+  .fondo-fractura-5 .cosmetic-preview::before,
+  .fondo-fractura-6 .cosmetic-preview::before,
+  .fondo-fractura-7 .cosmetic-preview::before,
+  .fondo-fractura-8 .cosmetic-preview::before,
+  .fondo-fractura-9 .cosmetic-preview::before{
+    opacity:0.48;
   }
 }
 

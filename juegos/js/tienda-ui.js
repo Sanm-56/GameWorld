@@ -216,7 +216,7 @@ function renderCosmetico(item) {
 function clasesVisualesCosmetico(item) {
   const fondo = item.diseno?.fondo
   if (item.tipo !== "fondo" || !fondo) return ""
-  return ` fondo-layout-${fondo.layout} fondo-textura-${fondo.textura} fondo-simbolo-${fondo.simbolo} fondo-panel-${fondo.panel}`
+  return ` fondo-layout-${fondo.layout} fondo-textura-${fondo.textura} fondo-simbolo-${fondo.simbolo} fondo-panel-${fondo.panel} fondo-energia-${fondo.energia} fondo-fractura-${fondo.fractura} fondo-reliquia-${fondo.reliquia}`
 }
 
 function estiloVisualCosmetico(item) {

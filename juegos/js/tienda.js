@@ -338,23 +338,19 @@ function crearDisenoCosmetico(tipo, rareza, index, intensidad) {
     patron: ["lineas", "pulso", "anillo", "fragmentos", "halo"][index % 5],
   }
 
-  if (tipo !== "fondo" || !["Normal", "Raro"].includes(rareza)) return base
+  if (tipo !== "fondo") return base
 
-  const fondoBase = rareza === "Raro"
-    ? {
-        paleta: "rare",
-        hue: 184 + ((index * 19) % 42),
-        accent: 166 + ((index * 13) % 54),
-        luz: 26 + ((index * 7) % 48),
-        profundidad: 38 + ((index * 11) % 34),
-      }
-    : {
-        paleta: "normal",
-        hue: 198 + ((index * 11) % 28),
-        accent: 188 + ((index * 7) % 26),
-        luz: 12 + ((index * 5) % 24),
-        profundidad: 28 + ((index * 9) % 28),
-      }
+  const perfilesFondo = {
+    Normal: { paleta: "normal", hue: 198 + ((index * 11) % 28), accent: 188 + ((index * 7) % 26), luz: 12 + ((index * 5) % 24), profundidad: 28 + ((index * 9) % 28) },
+    Raro: { paleta: "rare", hue: 184 + ((index * 19) % 42), accent: 166 + ((index * 13) % 54), luz: 26 + ((index * 7) % 48), profundidad: 38 + ((index * 11) % 34) },
+    Epico: { paleta: "epic", hue: 252 + ((index * 17) % 54), accent: 286 + ((index * 23) % 42), luz: 24 + ((index * 11) % 42), profundidad: 48 + ((index * 13) % 34) },
+    Legendario: { paleta: "legendary", hue: 36 + ((index * 13) % 24), accent: [42, 32, 8, 48, 214][index % 5], luz: 34 + ((index * 7) % 38), profundidad: 56 + ((index * 17) % 30) },
+    Mitico: { paleta: "mythic", hue: [184, 196, 172, 268, 154][index % 5] + ((index * 7) % 16), accent: [174, 204, 278, 150, 226][index % 5], luz: 30 + ((index * 13) % 42), profundidad: 62 + ((index * 11) % 26) },
+    Prohibido: { paleta: "forbidden", hue: [268, 286, 352, 196, 0][index % 5] + ((index * 5) % 12), accent: [186, 354, 280, 210, 0][index % 5], luz: 18 + ((index * 17) % 34), profundidad: 70 + ((index * 19) % 24) },
+  }
+
+  const fondoBase = perfilesFondo[rareza]
+  if (!fondoBase) return base
 
   return {
     ...base,
@@ -367,6 +363,9 @@ function crearDisenoCosmetico(tipo, rareza, index, intensidad) {
       focoX: 18 + ((index * 17) % 64),
       focoY: 16 + ((index * 23) % 62),
       angulo: (index * 37) % 360,
+      energia: (index * 11 + intensidad) % 12,
+      fractura: (index * 13 + 2) % 10,
+      reliquia: (index * 17 + 5) % 9,
     },
   }
 }
