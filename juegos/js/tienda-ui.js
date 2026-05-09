@@ -1,11 +1,14 @@
 import {
+  BOOSTERS_MONEDAS,
   BOOSTERS_XP,
   COSMETICOS,
   PAQUETES_MONEDAS,
   comprarBooster,
+  comprarBoosterMonedas,
   comprarCosmetico,
   descontarMonedas,
   obtenerBoosterActivo,
+  obtenerBoosterMonedasActivo,
   obtenerMonedas,
   rarezaClase,
   rarezaEtiqueta,
@@ -15,8 +18,11 @@ import { escapeHtml, safeAlert } from "./mensajes.js"
 
 const modal = document.getElementById("storeModal")
 const boosterList = document.getElementById("storeBoosters")
+const coinBoosterList = document.getElementById("storeCoinBoosters")
 const coinList = document.getElementById("storeCoinsPackages")
 const cosmeticsList = document.getElementById("storeCosmetics")
+const storeTabs = [...document.querySelectorAll("[data-store-tab]")]
+const storePanels = [...document.querySelectorAll("[data-store-panel]")]
 const cosmeticTabs = [...document.querySelectorAll("[data-cosmetic-tab]")]
 const rarityTabs = [...document.querySelectorAll("[data-rarity-tab]")]
 const statusEl = document.getElementById("storeStatus")
@@ -26,6 +32,7 @@ const openButtons = document.querySelectorAll("[data-open-store]")
 const closeButtons = document.querySelectorAll("[data-close-store]")
 
 let timer = null
+let storeTabActiva = "boosters-xp"
 let cosmeticTabActiva = "fondo"
 let rarezaTabActiva = "Normal"
 
@@ -34,7 +41,7 @@ function usuarioActual() {
 }
 
 function initStore() {
-  if (!modal || !boosterList || !cosmeticsList) return
+  if (!modal || !boosterList || !coinBoosterList || !coinList || !cosmeticsList) return
 
   openButtons.forEach((button) => button.addEventListener("click", abrirTienda))
   closeButtons.forEach((button) => button.addEventListener("click", cerrarTienda))
@@ -43,6 +50,9 @@ function initStore() {
   })
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal.classList.contains("abierto")) cerrarTienda()
+  })
+  storeTabs.forEach((button) => {
+    button.addEventListener("click", () => activarStoreTab(button.dataset.storeTab || "boosters-xp"))
   })
   cosmeticTabs.forEach((button) => {
     button.addEventListener("click", () => {
@@ -63,6 +73,7 @@ function initStore() {
 async function abrirTienda() {
   modal.classList.add("abierto")
   modal.setAttribute("aria-hidden", "false")
+  activarStoreTab(storeTabActiva)
   await renderTienda()
   clearInterval(timer)
   timer = setInterval(actualizarBoosterActivo, 30000)
@@ -85,25 +96,21 @@ async function renderTienda() {
   coinsEl.textContent = `${obtenerMonedas(usuario)} monedas`
   await actualizarBoosterActivo()
 
-  boosterList.innerHTML = BOOSTERS_XP.map((booster) => `
-    <article class="store-item booster-card booster-tier-${tierBooster(booster)} ${boosterDestacado(booster) ? "featured" : ""}">
-      ${booster.etiqueta ? `<span class="store-badge">${escapeHtml(booster.etiqueta)}</span>` : ""}
-      <div class="booster-sigil">
-        <span>x${formatearMultiplicador(booster.multiplicador)}</span>
-        <small>XP</small>
-      </div>
-      <div class="store-copy">
-        <span class="store-kicker">${escapeHtml(booster.rareza || "Potenciador")}</span>
-        <strong>${escapeHtml(booster.nombre)}</strong>
-        <small>${duracionLabel(booster.duracionMs)} de progreso acelerado</small>
-        <span class="store-price">${booster.precio.toLocaleString("es-CO")} monedas</span>
-      </div>
-      <div class="store-actions-inline">
-        <button class="store-soft-btn" type="button" data-buy-booster="${booster.id}">Monedas</button>
-        <button class="store-main-btn" type="button" data-real-buy="booster:${booster.id}">${booster.precioReal}</button>
-      </div>
-    </article>
-  `).join("")
+  boosterList.innerHTML = BOOSTERS_XP.map((booster) => renderBoosterCard(booster, {
+    tipo: "xp",
+    unidad: "XP",
+    boton: "Monedas",
+    dataAttr: "data-buy-booster",
+    detalle: "de progreso acelerado",
+  })).join("")
+
+  coinBoosterList.innerHTML = BOOSTERS_MONEDAS.map((booster) => renderBoosterCard(booster, {
+    tipo: "coins",
+    unidad: "MC",
+    boton: "Monedas",
+    dataAttr: "data-buy-coin-booster",
+    detalle: "para premios de monedas",
+  })).join("")
 
   coinList.innerHTML = PAQUETES_MONEDAS.map((paquete) => `
     <article class="store-item coin-card${paqueteDestacado(paquete) ? " popular" : ""}">
@@ -126,8 +133,48 @@ async function renderTienda() {
   boosterList.querySelectorAll("[data-buy-booster]").forEach((button) => {
     button.addEventListener("click", () => comprarConMonedas("booster", button.dataset.buyBooster))
   })
+  coinBoosterList.querySelectorAll("[data-buy-coin-booster]").forEach((button) => {
+    button.addEventListener("click", () => comprarConMonedas("coin-booster", button.dataset.buyCoinBooster))
+  })
   modal.querySelectorAll("[data-real-buy]").forEach((button) => {
     button.addEventListener("click", compraRealPendiente)
+  })
+}
+
+function renderBoosterCard(booster, config) {
+  const claseTipo = config.tipo === "coins" ? "coin-booster-card" : ""
+  return `
+    <article class="store-item booster-card booster-tier-${tierBooster(booster)} ${boosterDestacado(booster) ? "featured" : ""}">
+      ${booster.etiqueta ? `<span class="store-badge">${escapeHtml(booster.etiqueta)}</span>` : ""}
+      <div class="booster-sigil ${claseTipo}">
+        <span>x${formatearMultiplicador(booster.multiplicador)}</span>
+        <small>${escapeHtml(config.unidad)}</small>
+      </div>
+      <div class="store-copy">
+        <span class="store-kicker">${escapeHtml(booster.rareza || "Potenciador")}</span>
+        <strong>${escapeHtml(booster.nombre)}</strong>
+        <small>${duracionLabel(booster.duracionMs)} ${escapeHtml(config.detalle)}</small>
+        <span class="store-price">${booster.precio.toLocaleString("es-CO")} monedas</span>
+      </div>
+      <div class="store-actions-inline">
+        <button class="store-soft-btn" type="button" ${config.dataAttr}="${booster.id}">${escapeHtml(config.boton)}</button>
+        <button class="store-main-btn" type="button" data-real-buy="booster:${booster.id}">${booster.precioReal}</button>
+      </div>
+    </article>
+  `
+}
+
+function activarStoreTab(tab) {
+  storeTabActiva = tab
+  storeTabs.forEach((button) => {
+    const activa = button.dataset.storeTab === tab
+    button.classList.toggle("active", activa)
+    button.setAttribute("aria-selected", activa ? "true" : "false")
+  })
+  storePanels.forEach((panel) => {
+    const activa = panel.dataset.storePanel === tab
+    panel.classList.toggle("active", activa)
+    panel.hidden = !activa
   })
 }
 
@@ -306,6 +353,8 @@ async function comprarConMonedas(tipo, id) {
 
   const item = tipo === "booster"
     ? BOOSTERS_XP.find((booster) => booster.id === id)
+    : tipo === "coin-booster"
+      ? BOOSTERS_MONEDAS.find((booster) => booster.id === id)
     : COSMETICOS.find((cosmetico) => cosmetico.id === id)
 
   if (!item || !descontarMonedas(usuario, item.precio, { tipo, id })) {
@@ -315,6 +364,8 @@ async function comprarConMonedas(tipo, id) {
 
   const resultado = tipo === "booster"
     ? await comprarBooster(usuario, id)
+    : tipo === "coin-booster"
+      ? await comprarBoosterMonedas(usuario, id)
     : await comprarCosmetico(usuario, id)
 
   if (!resultado.ok) {
@@ -332,10 +383,14 @@ function compraRealPendiente() {
 
 async function actualizarBoosterActivo() {
   const usuario = usuarioActual()
-  const activo = await obtenerBoosterActivo(usuario)
-  activeEl.textContent = activo
-    ? `Activo: x${formatearMultiplicador(activo.multiplicador)} - termina en ${tiempoRestante(activo.fecha_fin)}`
-    : "Sin booster activo"
+  const [xpActivo, monedasActivo] = await Promise.all([
+    obtenerBoosterActivo(usuario),
+    obtenerBoosterMonedasActivo(usuario),
+  ])
+  const estados = []
+  if (xpActivo) estados.push(`XP x${formatearMultiplicador(xpActivo.multiplicador)} ${tiempoRestante(xpActivo.fecha_fin)}`)
+  if (monedasActivo) estados.push(`Monedas x${formatearMultiplicador(monedasActivo.multiplicador)} ${tiempoRestante(monedasActivo.fecha_fin)}`)
+  activeEl.textContent = estados.length ? `Activo: ${estados.join(" | ")}` : "Sin booster activo"
 }
 
 function duracionLabel(ms) {

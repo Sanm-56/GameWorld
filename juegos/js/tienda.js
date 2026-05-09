@@ -14,6 +14,12 @@ export const BOOSTERS_XP = [
   { id: "xp8_60d", nombre: "Booster Supremo x8", multiplicador: 8, duracionMs: 60 * 24 * 60 * 60 * 1000, precio: 95000, precioReal: "$59.99", rareza: "Supremo", etiqueta: "Maximo poder" },
 ]
 
+export const BOOSTERS_MONEDAS = [
+  { id: "coins_boost15_10h", nombre: "Impulso Monedas x1.5", multiplicador: 1.5, duracionMs: 10 * 60 * 60 * 1000, precio: 900, precioReal: "$0.99", rareza: "Premium", etiqueta: "Recomendado" },
+  { id: "coins_boost2_4h", nombre: "Impulso Monedas x2", multiplicador: 2, duracionMs: 4 * 60 * 60 * 1000, precio: 1500, precioReal: "$1.99", rareza: "Epico", etiqueta: "Popular" },
+  { id: "coins_boost3_1h", nombre: "Impulso Monedas x3", multiplicador: 3, duracionMs: 60 * 60 * 1000, precio: 2600, precioReal: "$2.99", rareza: "Legendario", etiqueta: "Limitado" },
+]
+
 export const PAQUETES_MONEDAS = [
   { id: "coins_1000", cantidad: 1000, precioReal: "$0.99" },
   { id: "coins_2500", cantidad: 2500, precioReal: "$1.99" },
@@ -121,6 +127,7 @@ export const COSMETICOS = [
 ]
 
 const BOOSTER_LOCAL_KEY = "tienda_boosters_usuario"
+const COIN_BOOSTER_LOCAL_KEY = "tienda_coin_boosters_usuario"
 const COSMETICOS_LOCAL_KEY = "tienda_cosmeticos_usuario"
 const MONEDAS_LOCAL_KEY = "monedas_usuario_saldos"
 const MONEDAS_HISTORIAL_KEY = "monedas_usuario_historial"
@@ -141,8 +148,17 @@ export async function obtenerBonusUsuario(usuario) {
 }
 
 export async function obtenerBoosterActivo(usuario) {
+  return obtenerBoosterTemporalActivo(usuario, BOOSTERS_XP, BOOSTER_LOCAL_KEY)
+}
+
+export async function obtenerBoosterMonedasActivo(usuario) {
+  return obtenerBoosterTemporalActivo(usuario, BOOSTERS_MONEDAS, COIN_BOOSTER_LOCAL_KEY)
+}
+
+async function obtenerBoosterTemporalActivo(usuario, catalogo, localKey) {
   const ahoraIso = new Date().toISOString()
-  const local = leerBoosterLocal(usuario)
+  const local = leerBoosterLocal(usuario, localKey, catalogo)
+  const idsValidos = new Set(catalogo.map((item) => item.id))
 
   if (!usuario) return local
 
@@ -153,19 +169,27 @@ export async function obtenerBoosterActivo(usuario) {
     .gt("fecha_fin", ahoraIso)
     .order("multiplicador", { ascending: false })
     .order("fecha_fin", { ascending: false })
-    .limit(1)
-    .maybeSingle()
+    .limit(20)
 
-  if (error && error.code !== "PGRST116") {
+  if (error) {
     console.warn("No se pudo cargar booster activo", error)
     return local
   }
 
-  return data || local
+  return (data || []).find((row) => idsValidos.has(row.booster_id)) || local
 }
 
 export async function comprarBooster(usuario, boosterId) {
   const booster = BOOSTERS_XP.find((item) => item.id === boosterId)
+  return comprarBoosterTemporal(usuario, booster, BOOSTER_LOCAL_KEY)
+}
+
+export async function comprarBoosterMonedas(usuario, boosterId) {
+  const booster = BOOSTERS_MONEDAS.find((item) => item.id === boosterId)
+  return comprarBoosterTemporal(usuario, booster, COIN_BOOSTER_LOCAL_KEY)
+}
+
+async function comprarBoosterTemporal(usuario, booster, localKey) {
   if (!usuario || !booster) return { ok: false, error: "Booster invalido" }
 
   const fechaInicio = new Date()
@@ -179,7 +203,7 @@ export async function comprarBooster(usuario, boosterId) {
     activo: true,
   }
 
-  guardarBoosterLocal(usuario, payload)
+  guardarBoosterLocal(usuario, payload, localKey)
 
   const { error } = await supabase
     .from("usuario_boosters")
@@ -301,17 +325,19 @@ export function calcularRecompensaMonedas({ origen = "torneo", posicion = null, 
   }
 }
 
-export function registrarMonedasPorActividad(usuario, { juego, origen = "torneo", posicion = null, resultadoNivel = null, accionKey = null } = {}) {
+export async function registrarMonedasPorActividad(usuario, { juego, origen = "torneo", posicion = null, resultadoNivel = null, accionKey = null } = {}) {
   if (!usuario) return 0
   const recompensa = calcularRecompensaMonedas({ origen, posicion, resultadoNivel })
   if (!recompensa.total) return obtenerMonedas(usuario)
   const bonusRango = obtenerBonusRangoActivo(usuario)
   const recompensaConRango = aplicarBonusMonedas(recompensa.total, bonusRango)
+  const boosterMonedas = await obtenerBoosterMonedasActivo(usuario)
+  const recompensaConBooster = aplicarBoosterMonedas(recompensaConRango.total, boosterMonedas)
   const key = accionKey || `${recompensa.origen}:${juego || "actividad"}:${Date.now()}`
   const historial = leerObjeto(MONEDAS_HISTORIAL_KEY)
   const movimientos = Array.isArray(historial[usuario]) ? historial[usuario] : []
   if (movimientos.some((movimiento) => movimiento.key === key)) return obtenerMonedas(usuario)
-  return sumarMonedas(usuario, recompensaConRango.total, {
+  return sumarMonedas(usuario, recompensaConBooster.total, {
     key,
     juego,
     origen: recompensa.origen,
@@ -320,6 +346,9 @@ export function registrarMonedasPorActividad(usuario, { juego, origen = "torneo"
     bonusPosicion: recompensa.bonus,
     bonusRango: recompensaConRango.bonusRango,
     bonusRangoPorcentaje: bonusRango.monedas,
+    boosterMonedas: boosterMonedas?.multiplicador || 1,
+    bonusBoosterMonedas: recompensaConBooster.bonusBooster,
+    boosterMonedasId: boosterMonedas?.booster_id || null,
     rangoActivo: bonusRango.titulo,
     motivo: recompensa.origen === "nivel" ? "nivel_completado" : `${recompensa.origen}_completado`,
     nivel: resultadoNivel?.level?.id || null,
@@ -338,6 +367,18 @@ export function tiempoRestante(fechaFin) {
   if (dias > 0) return `${dias}d ${horas}h`
   if (horas > 0) return `${horas}h ${minutos}m`
   return `${Math.max(1, minutos)}m`
+}
+
+function aplicarBoosterMonedas(cantidad, booster) {
+  const base = Math.max(0, Math.trunc(Number(cantidad) || 0))
+  const multiplicador = Math.max(1, Number(booster?.multiplicador) || 1)
+  const total = Math.floor(base * multiplicador)
+  return {
+    base,
+    multiplicador,
+    bonusBooster: Math.max(0, total - base),
+    total,
+  }
 }
 
 export function rarezaEtiqueta(rareza) {
@@ -664,16 +705,17 @@ function guardarMovimientoMonedas(usuario, tipo, cantidad, detalle) {
   localStorage.setItem(MONEDAS_HISTORIAL_KEY, JSON.stringify(historial))
 }
 
-function leerBoosterLocal(usuario) {
-  const row = leerObjeto(BOOSTER_LOCAL_KEY)[usuario]
+function leerBoosterLocal(usuario, key = BOOSTER_LOCAL_KEY, catalogo = BOOSTERS_XP) {
+  const row = leerObjeto(key)[usuario]
   if (!row || Date.parse(row.fecha_fin) <= Date.now()) return null
+  if (!catalogo.some((item) => item.id === row.booster_id)) return null
   return row
 }
 
-function guardarBoosterLocal(usuario, booster) {
-  const actuales = leerObjeto(BOOSTER_LOCAL_KEY)
+function guardarBoosterLocal(usuario, booster, key = BOOSTER_LOCAL_KEY) {
+  const actuales = leerObjeto(key)
   actuales[usuario] = booster
-  localStorage.setItem(BOOSTER_LOCAL_KEY, JSON.stringify(actuales))
+  localStorage.setItem(key, JSON.stringify(actuales))
 }
 
 function leerCosmeticoLocal(usuario) {

@@ -8,9 +8,9 @@ export const NIVEL_ESCALADO_AVANZADO = 1416
 export const MULTIPLICADOR_XP_AVANZADO = 5
 
 const XP_ACCIONES = {
-  partida_completada: 25,
-  torneo_participacion: 50,
-  logro_desbloqueado: 80,
+  partida_completada: 125,
+  torneo_participacion: 250,
+  logro_desbloqueado: 400,
 }
 
 const TITULOS_NIVEL = [
@@ -243,11 +243,11 @@ export function calcularProgresoHaciaRango(progreso, rango) {
 export function calcularXpRanking(posicion) {
   const pos = Number(posicion)
   if (!Number.isFinite(pos) || pos <= 0) return 0
-  if (pos === 1) return 150
-  if (pos <= 3) return 110
-  if (pos <= 10) return 75
-  if (pos <= 25) return 45
-  return 25
+  if (pos === 1) return 750
+  if (pos <= 3) return 550
+  if (pos <= 10) return 375
+  if (pos <= 25) return 225
+  return 125
 }
 
 export function multiplicadorOrigenExperiencia(origen = 'torneo') {

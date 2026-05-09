@@ -74,7 +74,7 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     bonusXPAplicado: snapshotBonusXP?.bonusXPAplicado,
   })
 
-  registrarMonedasPorActividad(usuario, {
+  await registrarMonedasPorActividad(usuario, {
     juego,
     origen: origenExperiencia,
     posicion,
