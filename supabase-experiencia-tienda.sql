@@ -284,7 +284,7 @@ create table if not exists public.usuario_boosters (
   id bigserial primary key,
   usuario_id text not null,
   booster_id text not null,
-  multiplicador numeric(3,1) not null check (multiplicador in (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0)),
+  multiplicador numeric(3,1) not null check (multiplicador in (1.2, 1.3, 1.4, 1.5, 1.8, 2.0, 2.2, 2.5, 2.7, 3.0, 4.0, 5.0, 6.0, 8.0)),
   fecha_inicio timestamptz not null default now(),
   fecha_fin timestamptz not null,
   activo boolean not null default true,
@@ -296,7 +296,7 @@ drop constraint if exists usuario_boosters_multiplicador_check;
 
 alter table public.usuario_boosters
 add constraint usuario_boosters_multiplicador_check
-check (multiplicador in (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0));
+check (multiplicador in (1.2, 1.3, 1.4, 1.5, 1.8, 2.0, 2.2, 2.5, 2.7, 3.0, 4.0, 5.0, 6.0, 8.0));
 
 create index if not exists usuario_boosters_activos_idx
 on public.usuario_boosters (usuario_id, fecha_fin desc, multiplicador desc)
@@ -371,7 +371,7 @@ to anon, authenticated
 with check (
   usuario_id is not null
   and btrim(usuario_id) <> ''
-  and multiplicador in (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0)
+  and multiplicador in (1.2, 1.3, 1.4, 1.5, 1.8, 2.0, 2.2, 2.5, 2.7, 3.0, 4.0, 5.0, 6.0, 8.0)
   and fecha_fin > fecha_inicio
 );
 
@@ -383,7 +383,7 @@ using (true)
 with check (
   usuario_id is not null
   and btrim(usuario_id) <> ''
-  and multiplicador in (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0)
+  and multiplicador in (1.2, 1.3, 1.4, 1.5, 1.8, 2.0, 2.2, 2.5, 2.7, 3.0, 4.0, 5.0, 6.0, 8.0)
   and fecha_fin > fecha_inicio
 );
 

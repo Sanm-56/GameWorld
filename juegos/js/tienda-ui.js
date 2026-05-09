@@ -145,7 +145,7 @@ function renderBoosterCard(booster, config) {
   const claseTipo = config.tipo === "coins" ? "coin-booster-card" : ""
   return `
     <article class="store-item booster-card booster-tier-${tierBooster(booster)} ${boosterDestacado(booster) ? "featured" : ""}">
-      ${booster.etiqueta ? `<span class="store-badge">${escapeHtml(booster.etiqueta)}</span>` : ""}
+      ${booster.etiqueta ? `<span class="store-badge badge-${claseEtiqueta(booster.etiqueta)}">${escapeHtml(booster.etiqueta)}</span>` : ""}
       <div class="booster-sigil ${claseTipo}">
         <span>x${formatearMultiplicador(booster.multiplicador)}</span>
         <small>${escapeHtml(config.unidad)}</small>
@@ -153,6 +153,7 @@ function renderBoosterCard(booster, config) {
       <div class="store-copy">
         <span class="store-kicker">${escapeHtml(booster.rareza || "Potenciador")}</span>
         <strong>${escapeHtml(booster.nombre)}</strong>
+        ${booster.descripcion ? `<p>${escapeHtml(booster.descripcion)}</p>` : ""}
         <small>${duracionLabel(booster.duracionMs)} ${escapeHtml(config.detalle)}</small>
         <span class="store-price">${booster.precio.toLocaleString("es-CO")} monedas</span>
       </div>
@@ -326,6 +327,7 @@ function tierBooster(booster) {
   if (valor >= 5) return "mythic"
   if (valor >= 4) return "legendary"
   if (valor >= 3) return "epic"
+  if (valor >= 2.7) return "legendary"
   if (valor >= 2.5) return "elite"
   if (valor >= 2) return "competitive"
   return "starter"
@@ -342,6 +344,15 @@ function paqueteDestacado(paquete) {
 function formatearMultiplicador(valor) {
   const numero = Number(valor || 1)
   return Number.isInteger(numero) ? String(numero) : numero.toFixed(1)
+}
+
+function claseEtiqueta(valor) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "default"
 }
 
 async function comprarConMonedas(tipo, id) {
