@@ -882,17 +882,29 @@ h1{
 
 .cosmetic-id .cosmetic-preview{
   min-height:126px;
+  --id-main:hsl(var(--id-hue, 212) 38% 13%);
+  --id-edge:hsl(var(--id-hue, 212) 34% var(--id-luz, 24%) / 0.74);
+  --id-line:hsl(var(--id-accent, 190) 86% 70% / 0.28);
+  --id-soft:hsl(var(--id-accent, 190) 86% 62% / 0.14);
+  --id-hot:hsl(var(--id-accent, 190) 88% 68% / 0.72);
+  background:
+    radial-gradient(circle at var(--id-x, 22%) var(--id-y, 34%), var(--id-soft), transparent 28%),
+    radial-gradient(ellipse at 50% 120%, hsl(var(--id-hue, 212) 38% var(--id-depth, 36%) / 0.16), transparent 52%),
+    linear-gradient(var(--id-angle, 135deg), hsl(var(--id-hue, 212) 36% var(--id-luz, 24%) / 0.2), transparent 48%),
+    linear-gradient(145deg, rgba(2,6,23,0.82), hsl(var(--id-hue, 212) 34% 10% / 0.82));
 }
 
 .cosmetic-id .cosmetic-art{
   width:min(210px, 92%);
   min-height:78px;
-  border:1px solid rgba(255,255,255,0.14);
+  border:1px solid var(--id-edge);
   clip-path:polygon(8% 0, 92% 0, 100% 28%, 94% 100%, 6% 100%, 0 28%);
   background:
-    linear-gradient(90deg, rgba(255,255,255,0.08), transparent 26%, rgba(255,255,255,0.1) 50%, transparent 76%),
-    rgba(2,6,23,0.34);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 34px rgba(0,0,0,0.28);
+    linear-gradient(var(--id-angle, 135deg), rgba(255,255,255,0.08), transparent 28%, var(--id-soft) 58%, transparent 78%),
+    radial-gradient(ellipse at 50% 115%, hsl(var(--id-hue, 212) 38% var(--id-depth, 36%) / 0.14), transparent 58%),
+    linear-gradient(145deg, rgba(2,6,23,0.4), var(--id-main));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -18px 28px rgba(0,0,0,0.22), 0 16px 30px rgba(0,0,0,0.28);
+  filter:saturate(0.98);
 }
 
 .cosmetic-id .cosmetic-art::before{
@@ -902,22 +914,439 @@ h1{
   top:50%;
   width:42px;
   height:42px;
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,0.18);
+  border:1px solid var(--id-line);
   transform:translateY(-50%);
-  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.22), rgba(15,23,42,0.24) 54%, rgba(0,0,0,0.36));
+  background:
+    linear-gradient(var(--id-angle, 135deg), rgba(255,255,255,0.1), transparent 46%),
+    radial-gradient(circle at 36% 30%, var(--id-soft), rgba(15,23,42,0.24) 58%, rgba(0,0,0,0.34));
+  box-shadow:inset 0 0 14px rgba(255,255,255,0.04);
+}
+
+.cosmetic-id .cosmetic-art::after{
+  content:"";
+  position:absolute;
+  inset:15px 58px 15px 66px;
+  pointer-events:none;
+  opacity:0.66;
+  background:linear-gradient(90deg, transparent, var(--id-line), transparent);
 }
 
 .cosmetic-id .cosmetic-art-code{
   justify-self:end;
   padding-right:18px;
   font-size:24px;
+  color:rgba(236,244,255,0.9);
+  text-shadow:0 8px 18px rgba(0,0,0,0.48);
 }
 
 .cosmetic-id .cosmetic-art-mark{
   inset:auto 18px 14px 72px;
   height:2px;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.62), transparent);
+  background:linear-gradient(90deg, transparent, var(--id-hot), transparent);
+}
+
+.id-shape-0 .cosmetic-art{ clip-path:polygon(8% 0, 92% 0, 100% 28%, 94% 100%, 6% 100%, 0 28%); }
+.id-shape-1 .cosmetic-art{ clip-path:polygon(0 0, 84% 0, 100% 34%, 92% 100%, 12% 100%, 0 74%); }
+.id-shape-2 .cosmetic-art{ clip-path:polygon(14% 0, 100% 0, 100% 72%, 84% 100%, 0 100%, 0 24%); }
+.id-shape-3 .cosmetic-art{ clip-path:polygon(0 18%, 18% 0, 82% 0, 100% 18%, 88% 50%, 100% 82%, 82% 100%, 18% 100%, 0 82%, 12% 50%); }
+.id-shape-4 .cosmetic-art{ clip-path:polygon(0 0, 70% 0, 76% 14%, 100% 14%, 100% 100%, 30% 100%, 24% 86%, 0 86%); }
+.id-shape-5 .cosmetic-art{ clip-path:polygon(10% 0, 90% 0, 90% 16%, 100% 16%, 100% 84%, 90% 84%, 90% 100%, 10% 100%, 10% 84%, 0 84%, 0 16%, 10% 16%); }
+.id-shape-6 .cosmetic-art{ clip-path:polygon(0 30%, 30% 0, 100% 0, 100% 70%, 70% 100%, 0 100%); }
+.id-shape-7 .cosmetic-art{ clip-path:polygon(18% 0, 100% 0, 100% 44%, 90% 44%, 90% 100%, 0 100%, 0 20%, 18% 20%); }
+.id-shape-8 .cosmetic-art{ clip-path:polygon(0 0, 52% 0, 66% 18%, 100% 18%, 100% 100%, 48% 100%, 34% 82%, 0 82%); }
+.id-shape-9 .cosmetic-art{ clip-path:polygon(22% 0, 78% 0, 100% 36%, 84% 100%, 16% 100%, 0 36%); }
+.id-shape-10 .cosmetic-art{ clip-path:polygon(0 0, 100% 0, 92% 24%, 100% 48%, 100% 100%, 0 100%, 8% 76%, 0 52%); }
+.id-shape-11 .cosmetic-art{ clip-path:polygon(8% 0, 100% 0, 90% 34%, 100% 68%, 90% 100%, 0 100%, 10% 66%, 0 32%); }
+.id-shape-12 .cosmetic-art{ clip-path:polygon(0 12%, 12% 12%, 12% 0, 88% 0, 88% 12%, 100% 12%, 100% 88%, 88% 88%, 88% 100%, 12% 100%, 12% 88%, 0 88%); }
+.id-shape-13 .cosmetic-art{ clip-path:polygon(0 0, 100% 0, 100% 76%, 78% 76%, 78% 100%, 0 100%); }
+.id-shape-14 .cosmetic-art{ clip-path:polygon(20% 0, 80% 0, 80% 12%, 100% 12%, 100% 88%, 80% 88%, 80% 100%, 20% 100%, 20% 88%, 0 88%, 0 12%, 20% 12%); }
+.id-shape-15 .cosmetic-art{ clip-path:polygon(0 24%, 24% 0, 76% 0, 100% 24%, 100% 76%, 76% 100%, 24% 100%, 0 76%); }
+.id-shape-16 .cosmetic-art{ clip-path:polygon(0 0, 76% 0, 100% 50%, 76% 100%, 0 100%, 12% 50%); }
+.id-shape-17 .cosmetic-art{ clip-path:polygon(12% 0, 88% 0, 100% 50%, 88% 100%, 12% 100%, 0 50%); }
+.id-shape-18 .cosmetic-art{ clip-path:polygon(6% 0, 78% 0, 88% 12%, 100% 12%, 92% 50%, 100% 88%, 88% 88%, 78% 100%, 6% 100%, 0 74%, 8% 50%, 0 26%); }
+.id-shape-19 .cosmetic-art{ clip-path:polygon(18% 0, 82% 0, 92% 18%, 100% 18%, 88% 50%, 100% 82%, 92% 82%, 82% 100%, 18% 100%, 8% 82%, 0 82%, 12% 50%, 0 18%, 8% 18%); }
+.id-shape-20 .cosmetic-art{ clip-path:polygon(0 0, 66% 0, 74% 16%, 100% 16%, 92% 44%, 100% 72%, 80% 100%, 0 100%, 12% 68%, 4% 50%, 12% 32%); }
+.id-shape-21 .cosmetic-art{ clip-path:polygon(20% 0, 100% 0, 88% 30%, 96% 48%, 84% 100%, 0 100%, 12% 70%, 4% 52%, 16% 0); }
+.id-shape-22 .cosmetic-art{ clip-path:polygon(0 12%, 24% 0, 76% 0, 100% 12%, 92% 38%, 100% 50%, 92% 62%, 100% 88%, 76% 100%, 24% 100%, 0 88%, 8% 62%, 0 50%, 8% 38%); }
+.id-shape-23 .cosmetic-art{ clip-path:polygon(10% 0, 90% 0, 100% 32%, 84% 32%, 94% 50%, 84% 68%, 100% 68%, 90% 100%, 10% 100%, 0 68%, 16% 68%, 6% 50%, 16% 32%, 0 32%); }
+.id-shape-24 .cosmetic-art{ clip-path:polygon(0 0, 54% 0, 64% 18%, 92% 8%, 100% 38%, 88% 52%, 100% 84%, 68% 100%, 50% 86%, 20% 100%, 0 72%, 10% 52%, 0 34%); }
+.id-shape-25 .cosmetic-art{ clip-path:polygon(18% 0, 70% 0, 100% 22%, 86% 44%, 100% 64%, 76% 100%, 22% 92%, 0 100%, 12% 62%, 0 42%); }
+.id-shape-26 .cosmetic-art{ clip-path:polygon(0 18%, 30% 0, 62% 8%, 100% 0, 88% 38%, 100% 58%, 82% 100%, 42% 92%, 8% 100%, 18% 62%, 0 46%); }
+.id-shape-27 .cosmetic-art{ clip-path:polygon(8% 0, 100% 0, 84% 22%, 96% 36%, 78% 50%, 100% 72%, 84% 100%, 0 100%, 16% 72%, 4% 58%, 22% 42%, 0 20%); }
+.id-shape-28 .cosmetic-art{ clip-path:polygon(0 0, 80% 0, 100% 28%, 86% 46%, 96% 62%, 70% 100%, 0 92%, 14% 66%, 0 54%, 18% 36%); }
+.id-shape-29 .cosmetic-art{ clip-path:polygon(22% 0, 100% 10%, 84% 34%, 100% 48%, 82% 66%, 94% 100%, 18% 92%, 0 100%, 14% 62%, 0 48%, 18% 28%); }
+
+.id-size-0 .cosmetic-art{ width:min(204px, 90%); min-height:76px; }
+.id-size-1 .cosmetic-art{ width:min(218px, 94%); min-height:74px; }
+.id-size-2 .cosmetic-art{ width:min(196px, 88%); min-height:82px; }
+.id-size-3 .cosmetic-art{ width:min(224px, 96%); min-height:70px; }
+.id-size-4 .cosmetic-art{ width:min(188px, 86%); min-height:86px; }
+.id-size-5 .cosmetic-art{ width:min(214px, 92%); min-height:84px; }
+.id-size-6 .cosmetic-art{ width:min(232px, 96%); min-height:78px; }
+.id-size-7 .cosmetic-art{ width:min(200px, 90%); min-height:90px; }
+.id-size-8 .cosmetic-art{ width:min(226px, 96%); min-height:88px; }
+.id-size-9 .cosmetic-art{ width:min(190px, 86%); min-height:74px; }
+
+.id-form-0 .cosmetic-art{ transform:skewX(0deg); }
+.id-form-1 .cosmetic-art{ transform:skewX(-2deg); }
+.id-form-2 .cosmetic-art{ transform:skewX(2deg); }
+.id-form-3 .cosmetic-art{ transform:perspective(340px) rotateY(-4deg); }
+.id-form-4 .cosmetic-art{ transform:perspective(340px) rotateY(4deg); }
+.id-form-5 .cosmetic-art{ transform:translateY(-1px); }
+.id-form-6 .cosmetic-art{ transform:translateY(1px); }
+.id-form-7 .cosmetic-art{ transform:skewX(-1deg) scaleX(0.98); }
+.id-form-8 .cosmetic-art{ transform:skewX(1deg) scaleX(1.02); }
+.id-form-9 .cosmetic-art{ transform:perspective(360px) rotateX(3deg); }
+.id-form-10 .cosmetic-art{ transform:perspective(360px) rotateX(-3deg); }
+.id-form-11 .cosmetic-art{ transform:scaleX(0.96); }
+.id-form-12 .cosmetic-art{ transform:scaleX(1.03); }
+.id-form-13 .cosmetic-art{ transform:translateX(2px); }
+.id-form-14 .cosmetic-art{ transform:perspective(360px) rotateY(-6deg) skewX(-1deg); }
+.id-form-15 .cosmetic-art{ transform:perspective(360px) rotateY(6deg) skewX(1deg); }
+.id-form-16 .cosmetic-art{ transform:perspective(360px) rotateX(4deg) scaleX(1.02); }
+.id-form-17 .cosmetic-art{ transform:perspective(360px) rotateX(-4deg) scaleX(0.98); }
+
+.id-cut-0 .cosmetic-art{ border-radius:4px; }
+.id-cut-1 .cosmetic-art{ border-radius:8px 2px 8px 2px; }
+.id-cut-2 .cosmetic-art{ border-radius:2px 10px 2px 10px; }
+.id-cut-3 .cosmetic-art{ border-radius:0 8px 0 8px; }
+.id-cut-4 .cosmetic-art{ border-radius:10px 0 10px 0; }
+.id-cut-5 .cosmetic-art{ border-radius:6px; }
+.id-cut-6 .cosmetic-art{ border-radius:12px 3px 3px 12px; }
+.id-cut-7 .cosmetic-art{ border-radius:3px 12px 12px 3px; }
+.id-cut-8 .cosmetic-art{ border-radius:0; }
+.id-cut-9 .cosmetic-art{ border-radius:9px 9px 2px 2px; }
+.id-cut-10 .cosmetic-art{ border-radius:2px 2px 9px 9px; }
+.id-cut-11 .cosmetic-art{ border-radius:14px 4px; }
+.id-cut-12 .cosmetic-art{ border-radius:18px 3px 10px 0; }
+.id-cut-13 .cosmetic-art{ border-radius:0 14px 4px 18px; }
+.id-cut-14 .cosmetic-art{ border-radius:20px 0 20px 6px; }
+.id-cut-15 .cosmetic-art{ border-radius:0 20px 6px 20px; }
+
+.id-plate-0 .cosmetic-art::before{ border-radius:50%; }
+.id-plate-1 .cosmetic-art::before{ clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.id-plate-2 .cosmetic-art::before{ clip-path:polygon(18% 0, 82% 0, 100% 28%, 82% 100%, 18% 100%, 0 28%); }
+.id-plate-3 .cosmetic-art::before{ clip-path:polygon(0 18%, 18% 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0 82%); }
+.id-plate-4 .cosmetic-art::before{ clip-path:polygon(0 0, 100% 0, 84% 50%, 100% 100%, 0 100%, 16% 50%); }
+.id-plate-5 .cosmetic-art::before{ width:50px; height:28px; clip-path:polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%); }
+.id-plate-6 .cosmetic-art::before{ width:34px; height:50px; clip-path:polygon(50% 0, 100% 28%, 82% 100%, 18% 100%, 0 28%); }
+.id-plate-7 .cosmetic-art::before{ left:18px; width:30px; height:46px; border-radius:14px 4px; }
+.id-plate-8 .cosmetic-art::before{ left:auto; right:58px; width:34px; height:34px; border-radius:6px; }
+.id-plate-9 .cosmetic-art::before{ width:46px; height:46px; clip-path:polygon(50% 0, 62% 34%, 100% 34%, 70% 56%, 82% 100%, 50% 72%, 18% 100%, 30% 56%, 0 34%, 38% 34%); }
+.id-plate-10 .cosmetic-art::before{ width:54px; height:22px; clip-path:polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%, 10% 50%); }
+.id-plate-11 .cosmetic-art::before{ width:38px; height:38px; clip-path:polygon(0 50%, 20% 20%, 50% 0, 80% 20%, 100% 50%, 80% 80%, 50% 100%, 20% 80%); }
+.id-plate-12 .cosmetic-art::before{ width:50px; height:50px; clip-path:polygon(50% 0, 66% 28%, 100% 20%, 78% 50%, 100% 80%, 66% 72%, 50% 100%, 34% 72%, 0 80%, 22% 50%, 0 20%, 34% 28%); }
+.id-plate-13 .cosmetic-art::before{ left:20px; width:42px; height:54px; clip-path:polygon(50% 0, 100% 20%, 86% 86%, 50% 100%, 14% 86%, 0 20%); }
+.id-plate-14 .cosmetic-art::before{ left:auto; right:54px; width:52px; height:30px; clip-path:polygon(0 0, 70% 0, 100% 50%, 70% 100%, 0 100%, 18% 50%); }
+.id-plate-15 .cosmetic-art::before{ width:58px; height:36px; clip-path:polygon(12% 0, 78% 0, 100% 34%, 82% 100%, 0 86%, 20% 48%, 0 18%); }
+.id-plate-16 .cosmetic-art::before{ left:16px; width:44px; height:44px; clip-path:polygon(0 0, 72% 0, 100% 28%, 78% 50%, 100% 72%, 72% 100%, 0 100%, 20% 50%); }
+.id-plate-17 .cosmetic-art::before{ left:auto; right:62px; width:38px; height:54px; clip-path:polygon(50% 0, 92% 18%, 72% 50%, 100% 82%, 50% 100%, 0 82%, 28% 50%, 8% 18%); }
+.id-plate-18 .cosmetic-art::before{ left:18px; width:56px; height:30px; clip-path:polygon(0 20%, 36% 0, 100% 10%, 82% 50%, 100% 90%, 36% 100%, 0 80%, 18% 50%); }
+.id-plate-19 .cosmetic-art::before{ left:auto; right:50px; width:48px; height:48px; clip-path:polygon(18% 0, 100% 12%, 76% 42%, 94% 100%, 34% 78%, 0 100%, 20% 52%, 0 20%); }
+
+.id-corner-0 .cosmetic-art::after{ inset:14px 60px 14px 68px; }
+.id-corner-1 .cosmetic-art::after{ inset:10px 74px 46px 66px; }
+.id-corner-2 .cosmetic-art::after{ inset:46px 62px 10px 76px; }
+.id-corner-3 .cosmetic-art::after{ inset:16px 48px 16px 96px; }
+.id-corner-4 .cosmetic-art::after{ inset:18px 88px 18px 56px; }
+.id-corner-5 .cosmetic-art::after{ inset:12px 56px 12px 56px; }
+.id-corner-6 .cosmetic-art::after{ inset:24px 48px 24px 84px; }
+.id-corner-7 .cosmetic-art::after{ inset:24px 86px 24px 48px; }
+.id-corner-8 .cosmetic-art::after{ inset:12px 112px 12px 58px; }
+.id-corner-9 .cosmetic-art::after{ inset:12px 58px 12px 112px; }
+.id-corner-10 .cosmetic-art::after{ inset:20px 54px 20px 70px; }
+.id-corner-11 .cosmetic-art::after{ inset:20px 70px 20px 54px; }
+.id-corner-12 .cosmetic-art::after{ inset:10px 46px 34px 90px; transform:skewX(-8deg); }
+.id-corner-13 .cosmetic-art::after{ inset:34px 86px 10px 44px; transform:skewX(8deg); }
+.id-corner-14 .cosmetic-art::after{ inset:12px 42px 12px 118px; transform:rotate(-2deg); }
+.id-corner-15 .cosmetic-art::after{ inset:16px 118px 14px 42px; transform:rotate(2deg); }
+
+.id-border-0 .cosmetic-art{ border-width:1px; }
+.id-border-1 .cosmetic-art{ border-width:2px; }
+.id-border-2 .cosmetic-art{ border-width:1px 3px; }
+.id-border-3 .cosmetic-art{ border-width:3px 1px 1px 3px; }
+.id-border-4 .cosmetic-art{ border-style:double; }
+.id-border-5 .cosmetic-art{ border-style:solid dashed; }
+.id-border-6 .cosmetic-art{ outline:1px solid rgba(255,255,255,0.08); outline-offset:-7px; }
+.id-border-7 .cosmetic-art{ outline:2px solid var(--id-line); outline-offset:-9px; }
+.id-border-8 .cosmetic-art{ box-shadow:inset 10px 0 18px rgba(255,255,255,0.04), inset 0 -18px 28px rgba(0,0,0,0.22), 0 16px 30px rgba(0,0,0,0.28); }
+.id-border-9 .cosmetic-art{ box-shadow:inset -10px 0 18px var(--id-soft), inset 0 -18px 28px rgba(0,0,0,0.22), 0 16px 30px rgba(0,0,0,0.28); }
+.id-border-10 .cosmetic-art{ border-width:2px 1px 3px; }
+.id-border-11 .cosmetic-art{ border-width:1px 2px 1px 4px; }
+.id-border-12 .cosmetic-art{ border-color:var(--id-hot); box-shadow:inset 0 0 18px var(--id-soft), 0 0 22px hsl(var(--id-accent, 190) 88% 58% / 0.14), 0 16px 30px rgba(0,0,0,0.28); }
+.id-border-13 .cosmetic-art{ border-color:rgba(255,255,255,0.22); box-shadow:inset 0 0 0 1px var(--id-line), inset 0 -18px 28px rgba(0,0,0,0.22), 0 16px 30px rgba(0,0,0,0.28); }
+.id-border-14 .cosmetic-art{ border-width:2px 4px 1px 2px; border-color:var(--id-hot); }
+.id-border-15 .cosmetic-art{ border-style:double solid solid double; border-color:var(--id-hot); }
+.id-border-16 .cosmetic-art{ outline:1px solid var(--id-hot); outline-offset:-12px; border-color:rgba(255,255,255,0.28); }
+.id-border-17 .cosmetic-art{ border-width:3px 1px 3px 1px; border-color:hsl(var(--id-accent, 42) 96% 70% / 0.78); }
+.id-border-18 .cosmetic-art{ border-style:solid dotted solid dashed; border-color:var(--id-hot); }
+.id-border-19 .cosmetic-art{ border-width:1px 5px 2px 1px; border-color:var(--id-hot); }
+.id-border-20 .cosmetic-art{ border-style:dashed solid double solid; border-color:hsl(var(--id-accent, 188) 90% 64% / 0.52); }
+.id-border-21 .cosmetic-art{ border-width:4px 1px 1px 4px; border-color:hsl(var(--id-accent, 336) 90% 64% / 0.48); }
+
+.id-line-0 .cosmetic-art-mark{ background:linear-gradient(90deg, transparent 10%, var(--id-line) 10% 13%, transparent 13% 87%, var(--id-line) 87% 90%, transparent 90%); }
+.id-line-1 .cosmetic-art-mark{ background:linear-gradient(0deg, transparent 12%, var(--id-line) 12% 15%, transparent 15% 85%, var(--id-line) 85% 88%, transparent 88%); }
+.id-line-2 .cosmetic-art-mark{ background:linear-gradient(135deg, transparent 0 45%, var(--id-line) 46%, transparent 47% 58%, rgba(255,255,255,0.1) 59%, transparent 60%); }
+.id-line-3 .cosmetic-art-mark{ background:linear-gradient(45deg, transparent 0 38%, var(--id-line) 39%, transparent 40% 72%, rgba(255,255,255,0.1) 73%, transparent 74%); }
+.id-line-4 .cosmetic-art-mark{ background:radial-gradient(ellipse at 50% 50%, transparent 0 46%, var(--id-line) 47% 49%, transparent 50%); height:auto; inset:14px 22px 14px 72px; }
+.id-line-5 .cosmetic-art-mark{ background:linear-gradient(90deg, transparent 0 48%, var(--id-line) 49%, transparent 50%), linear-gradient(0deg, transparent 0 48%, rgba(255,255,255,0.1) 49%, transparent 50%); height:auto; inset:16px 28px 16px 82px; }
+.id-line-6 .cosmetic-art-mark{ background:repeating-linear-gradient(90deg, transparent 0 18px, var(--id-line) 18px 20px); height:auto; inset:12px 24px 12px 78px; }
+.id-line-7 .cosmetic-art-mark{ background:repeating-linear-gradient(0deg, transparent 0 13px, var(--id-line) 13px 14px); height:auto; inset:12px 26px 12px 76px; }
+.id-line-8 .cosmetic-art-mark{ background:conic-gradient(from var(--id-angle, 135deg), transparent 0 18%, var(--id-line) 19%, transparent 20% 78%, rgba(255,255,255,0.1) 79%, transparent 80%); height:auto; inset:14px 26px 14px 78px; }
+.id-line-9 .cosmetic-art-mark{ background:radial-gradient(circle at 22% 24%, var(--id-line) 0 2px, transparent 3px), radial-gradient(circle at 78% 76%, rgba(255,255,255,0.1) 0 2px, transparent 3px); background-size:26px 26px, 32px 32px; height:auto; inset:13px 24px 13px 76px; }
+.id-line-10 .cosmetic-art-mark{ background:linear-gradient(100deg, transparent 0 20%, var(--id-line) 21%, transparent 22% 78%, var(--id-line) 79%, transparent 80%); }
+.id-line-11 .cosmetic-art-mark{ background:linear-gradient(160deg, transparent 0 34%, rgba(255,255,255,0.1) 35%, transparent 36% 64%, var(--id-line) 65%, transparent 66%); }
+.id-line-12 .cosmetic-art-mark{ background:linear-gradient(90deg, transparent 0 28%, var(--id-line) 29%, transparent 30% 70%, var(--id-line) 71%, transparent 72%); height:auto; inset:18px 18px 18px 96px; }
+.id-line-13 .cosmetic-art-mark{ background:radial-gradient(ellipse at 50% 100%, var(--id-line), transparent 40%), linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); height:auto; inset:18px 28px 8px 72px; }
+.id-line-14 .cosmetic-art-mark{ background:conic-gradient(from var(--id-angle), transparent 0 12%, var(--id-hot) 13%, transparent 15% 56%, var(--id-line) 57%, transparent 59%); height:auto; inset:10px 26px 10px 70px; }
+.id-line-15 .cosmetic-art-mark{ background:linear-gradient(120deg, transparent 0 18%, var(--id-hot) 19%, transparent 20% 46%, rgba(255,255,255,0.12) 47%, transparent 48% 76%, var(--id-line) 77%, transparent 78%); height:auto; inset:11px 20px 11px 82px; }
+.id-line-16 .cosmetic-art-mark{ background:radial-gradient(circle at 20% 20%, var(--id-hot), transparent 14%), radial-gradient(circle at 80% 72%, var(--id-line), transparent 16%), linear-gradient(140deg, transparent, rgba(255,255,255,0.1), transparent); height:auto; inset:10px 30px 10px 78px; }
+.id-line-17 .cosmetic-art-mark{ background:repeating-linear-gradient(115deg, transparent 0 18px, var(--id-line) 18px 20px), linear-gradient(35deg, transparent 0 42%, var(--id-hot) 43%, transparent 44%); height:auto; inset:8px 22px 8px 74px; }
+
+.id-panel-0 .cosmetic-preview::after{ clip-path:polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+.id-panel-1 .cosmetic-preview::after{ clip-path:polygon(10% 0, 100% 0, 90% 100%, 0 100%); }
+.id-panel-2 .cosmetic-preview::after{ clip-path:polygon(0 0, 78% 0, 100% 28%, 100% 100%, 22% 100%, 0 72%); }
+.id-panel-3 .cosmetic-preview::after{ clip-path:polygon(16% 0, 84% 0, 100% 50%, 84% 100%, 16% 100%, 0 50%); }
+.id-panel-4 .cosmetic-preview::after{ clip-path:polygon(0 18%, 18% 0, 100% 0, 100% 82%, 82% 100%, 0 100%); }
+.id-panel-5 .cosmetic-preview::after{ clip-path:polygon(0 0, 100% 0, 100% 72%, 72% 72%, 72% 100%, 0 100%); }
+.id-panel-6 .cosmetic-preview::after{ clip-path:polygon(0 0, 70% 0, 70% 20%, 100% 20%, 100% 100%, 0 100%); }
+.id-panel-7 .cosmetic-preview::after{ clip-path:polygon(12% 0, 88% 0, 88% 12%, 100% 12%, 100% 88%, 88% 88%, 88% 100%, 12% 100%, 12% 88%, 0 88%, 0 12%, 12% 12%); }
+.id-panel-8 .cosmetic-preview::after{ clip-path:polygon(0 0, 44% 0, 54% 12%, 100% 12%, 100% 100%, 56% 100%, 46% 88%, 0 88%); }
+.id-panel-9 .cosmetic-preview::after{ clip-path:polygon(22% 0, 78% 0, 100% 24%, 92% 100%, 8% 100%, 0 24%); }
+.id-panel-10 .cosmetic-preview::after{ clip-path:polygon(0 8%, 30% 8%, 38% 0, 62% 0, 70% 8%, 100% 8%, 100% 92%, 70% 92%, 62% 100%, 38% 100%, 30% 92%, 0 92%); }
+.id-panel-11 .cosmetic-preview::after{ clip-path:polygon(0 0, 100% 0, 88% 18%, 88% 82%, 100% 100%, 0 100%, 12% 82%, 12% 18%); }
+.id-panel-12 .cosmetic-preview::after{ clip-path:polygon(8% 0, 88% 0, 100% 24%, 84% 48%, 100% 72%, 88% 100%, 8% 100%, 20% 72%, 6% 48%, 20% 24%); }
+.id-panel-13 .cosmetic-preview::after{ clip-path:polygon(0 0, 72% 0, 100% 36%, 86% 54%, 100% 100%, 26% 100%, 0 70%, 12% 50%, 0 30%); }
+.id-panel-14 .cosmetic-preview::after{ clip-path:polygon(22% 0, 100% 0, 84% 30%, 96% 50%, 80% 100%, 0 100%, 14% 70%, 4% 50%, 18% 20%); }
+.id-panel-15 .cosmetic-preview::after{ clip-path:polygon(0 14%, 36% 0, 80% 8%, 100% 42%, 86% 58%, 100% 92%, 48% 100%, 12% 86%, 0 54%, 14% 38%); }
+
+.id-symbol-0 .cosmetic-art::after{ background:radial-gradient(circle at 50% 50%, transparent 0 30%, var(--id-line) 31% 33%, transparent 34%), linear-gradient(90deg, transparent 0 48%, var(--id-line) 49%, transparent 50%); }
+.id-symbol-1 .cosmetic-art::after{ background:conic-gradient(from 45deg, transparent 0 18%, var(--id-line) 19%, transparent 20% 48%, rgba(255,255,255,0.12) 49%, transparent 50% 78%, var(--id-line) 79%, transparent 80%); }
+.id-symbol-2 .cosmetic-art::after{ background:linear-gradient(135deg, transparent 0 35%, var(--id-line) 36%, transparent 37% 63%, var(--id-line) 64%, transparent 65%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), transparent 18%); }
+.id-symbol-3 .cosmetic-art::after{ background:radial-gradient(circle at 30% 50%, var(--id-line), transparent 18%), radial-gradient(circle at 70% 50%, rgba(255,255,255,0.1), transparent 18%), linear-gradient(90deg, transparent, var(--id-line), transparent); }
+.id-symbol-4 .cosmetic-art::after{ background:conic-gradient(from 90deg, var(--id-line), transparent 12% 38%, rgba(255,255,255,0.1), transparent 62% 88%, var(--id-line)); }
+.id-symbol-5 .cosmetic-art::after{ background:linear-gradient(0deg, transparent 0 44%, var(--id-line) 45%, transparent 46% 54%, var(--id-line) 55%, transparent 56%), linear-gradient(90deg, transparent 0 34%, rgba(255,255,255,0.1) 35%, transparent 36% 64%, var(--id-line) 65%, transparent 66%); }
+.id-symbol-6 .cosmetic-art::after{ background:radial-gradient(ellipse at 50% 50%, transparent 0 40%, var(--id-line) 41% 43%, transparent 44%), conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), transparent 30%); }
+.id-symbol-7 .cosmetic-art::after{ background:linear-gradient(60deg, transparent 0 28%, var(--id-line) 29%, transparent 30% 70%, rgba(255,255,255,0.1) 71%, transparent 72%), linear-gradient(120deg, transparent 0 40%, var(--id-line) 41%, transparent 42%); }
+.id-symbol-8 .cosmetic-art::after{ background:radial-gradient(circle at 50% 20%, var(--id-line), transparent 16%), radial-gradient(circle at 24% 76%, rgba(255,255,255,0.1), transparent 16%), radial-gradient(circle at 76% 76%, var(--id-line), transparent 16%); }
+.id-symbol-9 .cosmetic-art::after{ background:conic-gradient(from 30deg, transparent 0 10%, var(--id-line) 11%, transparent 12% 42%, rgba(255,255,255,0.1) 43%, transparent 44% 74%, var(--id-line) 75%, transparent 76%); background-size:40px 40px; }
+.id-symbol-10 .cosmetic-art::after{ background:linear-gradient(90deg, transparent 0 24%, var(--id-line) 25%, transparent 26% 74%, var(--id-line) 75%, transparent 76%), radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.1), transparent 28%); }
+.id-symbol-11 .cosmetic-art::after{ background:radial-gradient(circle at 50% 50%, var(--id-line) 0 2px, transparent 3px), linear-gradient(45deg, transparent 0 46%, rgba(255,255,255,0.1) 47%, transparent 48%); background-size:18px 18px, 100% 100%; }
+.id-symbol-12 .cosmetic-art::after{ background:linear-gradient(90deg, transparent 0 42%, var(--id-line) 42% 44%, transparent 44% 56%, var(--id-line) 56% 58%, transparent 58%); }
+.id-symbol-13 .cosmetic-art::after{ background:radial-gradient(circle at 24% 24%, var(--id-line), transparent 16%), radial-gradient(circle at 76% 76%, rgba(255,255,255,0.1), transparent 18%); }
+.id-symbol-14 .cosmetic-art::after{ background:conic-gradient(from 45deg, transparent 0 8%, var(--id-hot) 9%, transparent 10% 40%, var(--id-line) 41%, transparent 42% 72%, rgba(255,255,255,0.12) 73%, transparent 74%); }
+.id-symbol-15 .cosmetic-art::after{ background:radial-gradient(ellipse at 50% 50%, transparent 0 28%, var(--id-hot) 29% 31%, transparent 32% 44%, var(--id-line) 45% 47%, transparent 48%), linear-gradient(90deg, transparent 0 48%, rgba(255,255,255,0.12) 49%, transparent 50%); }
+.id-symbol-16 .cosmetic-art::after{ background:linear-gradient(30deg, transparent 0 22%, var(--id-hot) 23%, transparent 24% 58%, var(--id-line) 59%, transparent 60%), linear-gradient(150deg, transparent 0 36%, rgba(255,255,255,0.12) 37%, transparent 38%); }
+.id-symbol-17 .cosmetic-art::after{ background:radial-gradient(circle at 50% 18%, var(--id-hot), transparent 13%), radial-gradient(circle at 20% 78%, var(--id-line), transparent 14%), radial-gradient(circle at 82% 70%, rgba(255,255,255,0.12), transparent 14%); }
+.id-symbol-18 .cosmetic-art::after{ background:conic-gradient(from 0deg, var(--id-hot), transparent 12% 28%, var(--id-line), transparent 42% 66%, rgba(255,255,255,0.12), transparent 78%); }
+.id-symbol-19 .cosmetic-art::after{ background:repeating-conic-gradient(from var(--id-angle), transparent 0 11deg, var(--id-line) 12deg 14deg, transparent 15deg 42deg); }
+.id-symbol-20 .cosmetic-art::after{ background:linear-gradient(90deg, transparent 0 30%, var(--id-hot) 31%, transparent 32% 68%, var(--id-line) 69%, transparent 70%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.12), transparent 22%); }
+
+.id-geo-0 .cosmetic-art-code{ justify-self:end; padding-right:18px; }
+.id-geo-1 .cosmetic-art-code{ justify-self:center; padding-right:0; }
+.id-geo-2 .cosmetic-art-code{ justify-self:start; padding-left:72px; padding-right:0; }
+.id-geo-3 .cosmetic-art-code{ align-self:start; padding-top:13px; }
+.id-geo-4 .cosmetic-art-code{ align-self:end; padding-bottom:13px; }
+.id-geo-5 .cosmetic-art-code{ justify-self:end; padding-right:28px; font-size:22px; }
+.id-geo-6 .cosmetic-art-code{ justify-self:center; transform:translateX(18px); }
+.id-geo-7 .cosmetic-art-code{ justify-self:center; transform:translateX(-14px); }
+.id-geo-8 .cosmetic-art-code{ letter-spacing:0.14em; }
+.id-geo-9 .cosmetic-art-code{ letter-spacing:0.02em; }
+.id-geo-10 .cosmetic-art-code{ font-size:26px; }
+.id-geo-11 .cosmetic-art-code{ font-size:21px; }
+.id-geo-12 .cosmetic-art-code{ justify-self:center; transform:translateX(28px) skewX(-4deg); }
+.id-geo-13 .cosmetic-art-code{ justify-self:center; transform:translateX(-24px) skewX(4deg); }
+.id-geo-14 .cosmetic-art-code{ align-self:start; justify-self:end; padding-top:10px; padding-right:24px; }
+.id-geo-15 .cosmetic-art-code{ align-self:end; justify-self:start; padding-left:74px; padding-bottom:10px; }
+
+.id-texture-0 .cosmetic-preview::before{ background:linear-gradient(90deg, var(--id-line) 1px, transparent 1px), linear-gradient(var(--id-angle, 135deg), transparent, rgba(255,255,255,0.08), transparent); background-size:28px 100%, 100% 100%; }
+.id-texture-1 .cosmetic-preview::before{ background:repeating-linear-gradient(0deg, transparent 0 13px, var(--id-line) 13px 14px); }
+.id-texture-2 .cosmetic-preview::before{ background:linear-gradient(135deg, transparent 0 38%, var(--id-line) 39%, transparent 40%); }
+.id-texture-3 .cosmetic-preview::before{ background:radial-gradient(circle at 24% 30%, var(--id-line) 0 2px, transparent 3px), radial-gradient(circle at 74% 64%, rgba(255,255,255,0.08) 0 2px, transparent 3px); background-size:34px 34px, 42px 42px; }
+.id-texture-4 .cosmetic-preview::before{ background:linear-gradient(120deg, transparent 14%, rgba(255,255,255,0.08) 15%, transparent 16% 60%, var(--id-line) 61%, transparent 62%); }
+.id-texture-5 .cosmetic-preview::before{ background:repeating-linear-gradient(90deg, transparent 0 20px, rgba(255,255,255,0.05) 20px 22px), linear-gradient(180deg, transparent, var(--id-line), transparent); }
+.id-texture-6 .cosmetic-preview::before{ background:conic-gradient(from var(--id-angle, 135deg), transparent 0 16%, var(--id-line) 17%, transparent 18% 46%, rgba(255,255,255,0.06) 47%, transparent 48%); }
+.id-texture-7 .cosmetic-preview::before{ background:linear-gradient(0deg, transparent 0 46%, var(--id-line) 47%, transparent 48%), linear-gradient(90deg, transparent 0 28%, rgba(255,255,255,0.06) 29%, transparent 30% 74%, var(--id-line) 75%, transparent 76%); }
+.id-texture-8 .cosmetic-preview::before{ background:radial-gradient(ellipse at 50% 100%, var(--id-line), transparent 40%), linear-gradient(160deg, rgba(255,255,255,0.06), transparent 36%); }
+.id-texture-9 .cosmetic-preview::before{ background:linear-gradient(90deg, transparent 0 8%, var(--id-line) 8% 9%, transparent 9% 91%, rgba(255,255,255,0.06) 91% 92%, transparent 92%), linear-gradient(0deg, transparent 0 18%, rgba(255,255,255,0.05) 18% 19%, transparent 19%); }
+.id-texture-10 .cosmetic-preview::before{ background:linear-gradient(var(--id-angle, 135deg), transparent 18%, rgba(255,255,255,0.12) 44%, transparent 58%), radial-gradient(circle at var(--id-x) var(--id-y), var(--id-soft), transparent 24%); }
+.id-texture-11 .cosmetic-preview::before{ background:linear-gradient(115deg, transparent 0 22%, var(--id-line) 23%, transparent 24% 72%, rgba(255,255,255,0.08) 73%, transparent 74%); }
+.id-texture-12 .cosmetic-preview::before{ background:conic-gradient(from var(--id-angle), transparent 0 10%, var(--id-line) 11%, transparent 12% 40%, var(--id-hot) 41%, transparent 42%); }
+.id-texture-13 .cosmetic-preview::before{ background:radial-gradient(ellipse at 20% 80%, var(--id-line), transparent 34%), radial-gradient(ellipse at 80% 18%, rgba(255,255,255,0.09), transparent 30%), linear-gradient(120deg, transparent, var(--id-soft), transparent); }
+.id-texture-14 .cosmetic-preview::before{ background:repeating-linear-gradient(112deg, transparent 0 18px, var(--id-line) 18px 20px), radial-gradient(circle at var(--id-x) var(--id-y), var(--id-soft), transparent 26%); }
+.id-texture-15 .cosmetic-preview::before{ background:linear-gradient(95deg, transparent 0 16%, var(--id-hot) 17%, transparent 18% 48%, rgba(255,255,255,0.1) 49%, transparent 50% 84%, var(--id-line) 85%, transparent 86%); }
+
+.id-reflect-0 .cosmetic-art{ background:linear-gradient(90deg, rgba(255,255,255,0.08), transparent 24%, var(--id-soft) 58%, transparent 78%), linear-gradient(145deg, rgba(2,6,23,0.4), var(--id-main)); }
+.id-reflect-1 .cosmetic-art{ background:linear-gradient(30deg, rgba(255,255,255,0.1), transparent 22%, var(--id-soft) 62%, transparent 80%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-2 .cosmetic-art{ background:linear-gradient(160deg, transparent 8%, rgba(255,255,255,0.1) 24%, transparent 42%, var(--id-soft) 70%, transparent 82%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-3 .cosmetic-art{ background:radial-gradient(circle at 24% 26%, var(--id-soft), transparent 34%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-4 .cosmetic-art{ background:radial-gradient(circle at 78% 72%, var(--id-soft), transparent 32%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-5 .cosmetic-art{ background:linear-gradient(0deg, rgba(255,255,255,0.08), transparent 30%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-6 .cosmetic-art{ background:linear-gradient(180deg, rgba(255,255,255,0.09), transparent 26%, var(--id-soft) 74%, transparent), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-7 .cosmetic-art{ background:conic-gradient(from var(--id-angle, 135deg), rgba(255,255,255,0.09), transparent 18% 70%, var(--id-soft), transparent), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-8 .cosmetic-art{ background:linear-gradient(100deg, transparent 0 36%, rgba(255,255,255,0.12) 37%, transparent 38% 70%, var(--id-soft) 71%, transparent 72%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-9 .cosmetic-art{ background:radial-gradient(ellipse at 50% 0, rgba(255,255,255,0.12), transparent 44%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-10 .cosmetic-art{ background:conic-gradient(from var(--id-angle), rgba(255,255,255,0.12), transparent 14% 48%, var(--id-soft), transparent 66%), radial-gradient(ellipse at 50% 112%, var(--id-soft), transparent 54%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-11 .cosmetic-art{ background:linear-gradient(118deg, transparent 0 20%, rgba(255,255,255,0.14) 21%, transparent 22% 54%, var(--id-soft) 55%, transparent 56% 82%, rgba(255,255,255,0.1) 83%, transparent 84%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-12 .cosmetic-art{ background:radial-gradient(circle at 18% 24%, var(--id-hot), transparent 22%), radial-gradient(circle at 82% 72%, var(--id-soft), transparent 28%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+.id-reflect-13 .cosmetic-art{ background:linear-gradient(35deg, transparent 0 16%, var(--id-soft) 17%, transparent 19% 42%, rgba(255,255,255,0.12) 43%, transparent 45% 78%, var(--id-hot) 79%, transparent 80%), linear-gradient(145deg, rgba(2,6,23,0.42), var(--id-main)); }
+
+.id-energy-0 .cosmetic-art::before{ box-shadow:inset 0 0 14px rgba(255,255,255,0.04); }
+.id-energy-1 .cosmetic-art::before{ box-shadow:inset 0 0 16px var(--id-soft), 0 0 12px hsl(var(--id-accent, 190) 88% 58% / 0.1); }
+.id-energy-2 .cosmetic-art-mark{ box-shadow:0 0 18px hsl(var(--id-accent, 190) 88% 58% / 0.16); }
+.id-energy-3 .cosmetic-art::after{ opacity:0.82; filter:drop-shadow(0 0 8px hsl(var(--id-accent, 190) 88% 62% / 0.18)); }
+.id-energy-4 .cosmetic-art{ filter:saturate(1.04) contrast(1.02); }
+.id-energy-5 .cosmetic-preview{ box-shadow:inset 0 1px 0 rgba(255,255,255,0.09), inset 0 -22px 40px rgba(0,0,0,0.28), 0 0 20px hsl(var(--id-accent, 190) 88% 58% / 0.1); }
+.id-energy-6 .cosmetic-art-code{ text-shadow:0 0 12px hsl(var(--id-accent, 190) 88% 62% / 0.2), 0 8px 18px rgba(0,0,0,0.48); }
+.id-energy-7 .cosmetic-art{ box-shadow:inset 0 0 22px var(--id-soft), 0 16px 30px rgba(0,0,0,0.3); }
+.id-energy-8 .cosmetic-preview::after{ border-color:var(--id-line); opacity:0.72; }
+.id-energy-9 .cosmetic-art::before{ filter:brightness(1.1); }
+.id-energy-10 .cosmetic-preview{ filter:saturate(1.08); }
+.id-energy-11 .cosmetic-art::after{ opacity:0.9; filter:drop-shadow(0 0 10px hsl(var(--id-accent, 190) 88% 62% / 0.2)); }
+.id-energy-12 .cosmetic-art{ filter:saturate(1.12) contrast(1.04); }
+.id-energy-13 .cosmetic-art-code{ text-shadow:1px 0 hsl(var(--id-accent, 188) 88% 62% / 0.22), -1px 0 rgba(255,255,255,0.14), 0 10px 20px rgba(0,0,0,0.6); }
+
+.cosmetic-id.rarity-normal{
+  border-color:hsl(var(--id-hue, 212) 20% 54% / 0.28);
+}
+
+.cosmetic-id.rarity-normal .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--id-x, 24%) var(--id-y, 34%), hsl(var(--id-accent, 190) 56% 48% / 0.1), transparent 28%),
+    radial-gradient(ellipse at 50% 118%, hsl(var(--id-hue, 212) 36% var(--id-depth, 30%) / 0.14), transparent 54%),
+    linear-gradient(var(--id-angle, 135deg), hsl(var(--id-hue, 212) 28% var(--id-luz, 18%) / 0.24), transparent 48%),
+    linear-gradient(145deg, rgba(3,7,18,0.86), rgba(15,23,42,0.78));
+}
+
+.cosmetic-id.rarity-raro{
+  border-color:hsl(var(--id-accent, 188) 90% 62% / 0.44);
+}
+
+.cosmetic-id.rarity-raro .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--id-x, 24%) var(--id-y, 34%), hsl(var(--id-accent, 188) 92% 58% / 0.18), transparent 30%),
+    radial-gradient(circle at calc(100% - var(--id-x, 24%)) 80%, rgba(45,212,191,0.12), transparent 26%),
+    radial-gradient(ellipse at 50% 118%, hsl(var(--id-hue, 192) 62% var(--id-depth, 46%) / 0.14), transparent 54%),
+    linear-gradient(var(--id-angle, 135deg), hsl(var(--id-hue, 192) 78% var(--id-luz, 38%) / 0.24), transparent 52%),
+    linear-gradient(145deg, rgba(3,32,48,0.82), rgba(2,6,23,0.88));
+}
+
+.cosmetic-id.rarity-raro .cosmetic-art{
+  border-color:hsl(var(--id-accent, 188) 92% 62% / 0.56);
+  box-shadow:inset 0 0 20px hsl(var(--id-accent, 188) 90% 58% / 0.08), 0 0 22px hsl(var(--id-accent, 188) 92% 58% / 0.13), 0 16px 32px rgba(0,0,0,0.3);
+}
+
+.cosmetic-id.rarity-epico{
+  border-color:hsl(var(--id-accent, 292) 86% 62% / 0.5);
+}
+
+.cosmetic-id.rarity-epico .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--id-x, 24%) var(--id-y, 34%), hsl(var(--id-accent, 292) 90% 60% / 0.2), transparent 30%),
+    radial-gradient(circle at calc(100% - var(--id-x, 24%)) 82%, rgba(30,64,175,0.18), transparent 30%),
+    radial-gradient(ellipse at 50% 118%, hsl(var(--id-hue, 270) 70% var(--id-depth, 58%) / 0.16), transparent 54%),
+    linear-gradient(var(--id-angle, 145deg), hsl(var(--id-hue, 270) 74% var(--id-luz, 42%) / 0.22), transparent 50%),
+    linear-gradient(145deg, rgba(22,8,49,0.84), rgba(3,7,18,0.88));
+}
+
+.cosmetic-id.rarity-epico .cosmetic-art{
+  border-color:hsl(var(--id-accent, 292) 88% 64% / 0.58);
+  box-shadow:inset 0 0 24px hsl(var(--id-accent, 292) 88% 64% / 0.1), 0 0 24px hsl(var(--id-accent, 292) 88% 58% / 0.14), 0 16px 34px rgba(0,0,0,0.34);
+}
+
+.cosmetic-id.rarity-legendario{
+  border-color:hsl(var(--id-accent, 42) 96% 66% / 0.62);
+}
+
+.cosmetic-id.rarity-legendario .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--id-x, 24%) var(--id-y, 34%), hsl(var(--id-accent, 42) 98% 68% / 0.24), transparent 31%),
+    radial-gradient(circle at 82% 76%, rgba(185,28,28,0.16), transparent 28%),
+    radial-gradient(ellipse at 50% 118%, hsl(var(--id-hue, 40) 92% var(--id-depth, 68%) / 0.16), transparent 54%),
+    linear-gradient(var(--id-angle, 135deg), hsl(var(--id-hue, 40) 96% var(--id-luz, 52%) / 0.24), transparent 52%),
+    linear-gradient(145deg, rgba(69,26,3,0.82), rgba(3,7,18,0.86));
+}
+
+.cosmetic-id.rarity-legendario .cosmetic-art{
+  border-color:hsl(var(--id-accent, 42) 96% 68% / 0.72);
+  box-shadow:inset 0 0 28px hsl(var(--id-accent, 42) 96% 68% / 0.13), 0 0 30px hsl(var(--id-accent, 42) 96% 60% / 0.18), 0 18px 38px rgba(0,0,0,0.36);
+}
+
+.cosmetic-id.rarity-legendario .cosmetic-art-code{
+  color:#fff7d6;
+  text-shadow:0 0 16px hsl(var(--id-accent, 42) 96% 68% / 0.3), 0 11px 22px rgba(0,0,0,0.56);
+}
+
+.cosmetic-id.rarity-mitico{
+  border-color:hsl(var(--id-accent, 184) 88% 66% / 0.54);
+}
+
+.cosmetic-id.rarity-mitico .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--id-x, 24%) var(--id-y, 34%), hsl(var(--id-accent, 184) 90% 66% / 0.2), transparent 30%),
+    conic-gradient(from var(--id-angle, 210deg) at 50% 50%, rgba(45,212,191,0.13), rgba(168,85,247,0.13), rgba(226,232,240,0.1), rgba(21,128,61,0.1), rgba(45,212,191,0.13)),
+    radial-gradient(ellipse at 50% 118%, hsl(var(--id-hue, 184) 84% var(--id-depth, 70%) / 0.15), transparent 54%),
+    linear-gradient(145deg, rgba(5,23,38,0.84), rgba(3,7,18,0.88));
+}
+
+.cosmetic-id.rarity-mitico .cosmetic-art{
+  border-color:hsl(var(--id-accent, 184) 88% 68% / 0.6);
+  box-shadow:inset 0 0 28px hsl(var(--id-accent, 184) 90% 66% / 0.12), 0 0 28px hsl(var(--id-accent, 184) 88% 62% / 0.16), 0 18px 40px rgba(0,0,0,0.38);
+}
+
+.cosmetic-id.rarity-mitico .cosmetic-art-code{
+  color:#eaffff;
+  text-shadow:0 0 16px hsl(var(--id-accent, 184) 88% 66% / 0.28), 0 10px 22px rgba(0,0,0,0.58);
+}
+
+.cosmetic-id.rarity-prohibido{
+  border-color:rgba(51,65,85,0.9);
+}
+
+.cosmetic-id.rarity-prohibido .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--id-x, 24%) var(--id-y, 34%), hsl(var(--id-accent, 188) 88% 58% / 0.14), transparent 28%),
+    radial-gradient(circle at calc(100% - var(--id-x, 24%)) calc(100% - var(--id-y, 34%)), rgba(127,29,29,0.22), transparent 30%),
+    linear-gradient(var(--id-angle, 91deg), transparent 0 18%, rgba(255,255,255,0.07) 18% 19%, transparent 19% 58%, hsl(var(--id-accent, 188) 82% 56% / 0.1) 58% 59%, transparent 59%),
+    radial-gradient(circle at 48% 42%, rgba(0,0,0,0.22), rgba(0,0,0,0.76) 62%),
+    rgba(3,7,18,0.92);
+}
+
+.cosmetic-id.rarity-prohibido .cosmetic-art{
+  border-color:hsl(var(--id-accent, 188) 88% 58% / 0.4);
+  box-shadow:inset 0 0 30px rgba(0,0,0,0.46), 0 0 26px hsl(var(--id-accent, 188) 88% 54% / 0.12), 0 20px 42px rgba(0,0,0,0.48);
+  filter:contrast(1.08) saturate(1.08);
+}
+
+.cosmetic-id.rarity-prohibido .cosmetic-art-code{
+  color:#e6fffb;
+  text-shadow:2px 0 rgba(34,211,238,0.22), -2px 0 rgba(127,29,29,0.34), 0 10px 24px rgba(0,0,0,0.68);
+}
+
+.cosmetic-id.rarity-raro.id-pulse-1 .cosmetic-art-mark,
+.cosmetic-id.rarity-raro.id-pulse-3 .cosmetic-art-mark,
+.cosmetic-id.rarity-epico.id-pulse-0 .cosmetic-art-mark,
+.cosmetic-id.rarity-epico.id-pulse-2 .cosmetic-art-mark,
+.cosmetic-id.rarity-legendario.id-pulse-4 .cosmetic-art-mark,
+.cosmetic-id.rarity-legendario.id-pulse-6 .cosmetic-art-mark,
+.cosmetic-id.rarity-mitico.id-pulse-0 .cosmetic-art-mark,
+.cosmetic-id.rarity-mitico.id-pulse-2 .cosmetic-art-mark,
+.cosmetic-id.rarity-prohibido.id-pulse-1 .cosmetic-art-mark,
+.cosmetic-id.rarity-prohibido.id-pulse-3 .cosmetic-art-mark{
+  animation:idLineDrift 8.5s linear infinite;
+}
+
+.cosmetic-id.rarity-raro.id-pulse-0 .cosmetic-art,
+.cosmetic-id.rarity-raro.id-pulse-2 .cosmetic-art,
+.cosmetic-id.rarity-epico.id-pulse-1 .cosmetic-art,
+.cosmetic-id.rarity-epico.id-pulse-3 .cosmetic-art,
+.cosmetic-id.rarity-legendario.id-pulse-5 .cosmetic-art,
+.cosmetic-id.rarity-legendario.id-pulse-7 .cosmetic-art,
+.cosmetic-id.rarity-mitico.id-pulse-4 .cosmetic-art,
+.cosmetic-id.rarity-mitico.id-pulse-6 .cosmetic-art,
+.cosmetic-id.rarity-prohibido.id-pulse-5 .cosmetic-art,
+.cosmetic-id.rarity-prohibido.id-pulse-7 .cosmetic-art{
+  animation:idSoftPulse 6.8s ease-in-out infinite;
 }
 
 .cosmetic-marco .cosmetic-preview{
@@ -1452,12 +1881,6 @@ h1{
 .fondo-reliquia-7 .cosmetic-art::before{ clip-path:polygon(8% 8%, 92% 8%, 92% 32%, 100% 32%, 100% 68%, 92% 68%, 92% 92%, 8% 92%, 8% 68%, 0 68%, 0 32%, 8% 32%); }
 .fondo-reliquia-8 .cosmetic-art::before{ clip-path:polygon(0 50%, 18% 32%, 18% 0, 82% 0, 82% 32%, 100% 50%, 82% 68%, 82% 100%, 18% 100%, 18% 68%); }
 
-.cosmetic-id.rarity-raro .cosmetic-art{ box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), 0 0 26px rgba(56,189,248,0.22); }
-.cosmetic-id.rarity-epico .cosmetic-art{ clip-path:polygon(4% 0, 96% 0, 100% 18%, 92% 100%, 8% 100%, 0 18%); box-shadow:0 0 32px rgba(168,85,247,0.25); }
-.cosmetic-id.rarity-legendario .cosmetic-art{ border-color:rgba(250,204,21,0.42); box-shadow:0 0 34px rgba(250,204,21,0.22), inset 0 0 24px rgba(250,204,21,0.08); }
-.cosmetic-id.rarity-mitico .cosmetic-art{ border-color:rgba(45,212,191,0.38); box-shadow:0 0 36px rgba(45,212,191,0.2), 0 0 24px rgba(168,85,247,0.16); }
-.cosmetic-id.rarity-prohibido .cosmetic-art{ border-color:rgba(34,197,94,0.22); filter:contrast(1.08); }
-
 .cosmetic-marco.rarity-raro .cosmetic-art::before{ border-color:hsl(var(--marco-accent, 188) 92% 62% / 0.56); }
 .cosmetic-marco.rarity-epico .cosmetic-art::before{ border-width:2px; border-color:hsl(var(--marco-accent, 292) 88% 64% / 0.58); }
 .cosmetic-marco.rarity-legendario .cosmetic-art::before{ border-color:hsl(var(--marco-accent, 42) 96% 68% / 0.72); box-shadow:0 0 34px hsl(var(--marco-accent, 42) 96% 60% / 0.18), inset 0 0 24px hsl(var(--marco-accent, 42) 96% 68% / 0.1); }
@@ -1669,6 +2092,17 @@ h1{
   100%{ background-position:34px 0, 0 26px; opacity:0.68; }
 }
 
+@keyframes idLineDrift{
+  0%{ background-position:0 0, 0 0; opacity:0.62; }
+  50%{ opacity:0.88; }
+  100%{ background-position:28px 0, 0 22px; opacity:0.62; }
+}
+
+@keyframes idSoftPulse{
+  0%, 100%{ filter:saturate(1) brightness(1); }
+  50%{ filter:saturate(1.08) brightness(1.06); }
+}
+
 @keyframes marcoSoftPulse{
   0%, 100%{ box-shadow:inset 0 0 18px hsl(var(--marco-accent, 188) 82% 58% / 0.06), 0 0 16px hsl(var(--marco-accent, 188) 90% 58% / 0.08), 0 16px 32px rgba(0,0,0,0.3); }
   50%{ box-shadow:inset 0 0 22px hsl(var(--marco-accent, 188) 82% 58% / 0.12), 0 0 24px hsl(var(--marco-accent, 188) 90% 58% / 0.16), 0 18px 36px rgba(0,0,0,0.32); }
@@ -1687,6 +2121,7 @@ h1{
 @media (prefers-reduced-motion: reduce){
   .store-cosmetic,
   .store-cosmetic .cosmetic-art-mark,
+  .store-cosmetic .cosmetic-art,
   .store-cosmetic .cosmetic-art::before,
   .store-cosmetic.rarity-legendario{
     animation:none !important;
@@ -2137,6 +2572,29 @@ h1{
     grid-template-columns:1fr;
   }
 
+  .cosmetic-id .cosmetic-preview{
+    min-height:112px;
+    background:
+      linear-gradient(var(--id-angle, 135deg), hsl(var(--id-hue, 212) 28% var(--id-luz, 18%) / 0.18), transparent 48%),
+      linear-gradient(145deg, rgba(3,7,18,0.86), rgba(15,23,42,0.8));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -16px 28px rgba(0,0,0,0.28);
+  }
+
+  .cosmetic-id .cosmetic-art{
+    max-width:94%;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -12px 22px rgba(0,0,0,0.22), 0 10px 20px rgba(0,0,0,0.24);
+  }
+
+  .cosmetic-id .cosmetic-preview::before,
+  .cosmetic-id .cosmetic-art::after{
+    opacity:0.46;
+  }
+
+  .cosmetic-id .cosmetic-art,
+  .cosmetic-id .cosmetic-art-mark{
+    animation:none !important;
+  }
+
   .rarity-tabs{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
@@ -2180,6 +2638,30 @@ h1{
 
   .cosmetic-marco .cosmetic-art::before{
     box-shadow:inset 0 0 12px rgba(255,255,255,0.04), 0 10px 22px rgba(0,0,0,0.24);
+  }
+
+  .cosmetic-id .cosmetic-preview{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -16px 28px rgba(0,0,0,0.28);
+  }
+
+  .cosmetic-id .cosmetic-art,
+  .cosmetic-id.rarity-raro .cosmetic-art,
+  .cosmetic-id.rarity-epico .cosmetic-art,
+  .cosmetic-id.rarity-legendario .cosmetic-art,
+  .cosmetic-id.rarity-mitico .cosmetic-art,
+  .cosmetic-id.rarity-prohibido .cosmetic-art{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -12px 22px rgba(0,0,0,0.22), 0 10px 20px rgba(0,0,0,0.24);
+  }
+
+  .cosmetic-id .cosmetic-preview::before,
+  .cosmetic-id .cosmetic-art::after,
+  .cosmetic-id .cosmetic-art-mark{
+    opacity:0.52;
+  }
+
+  .cosmetic-id .cosmetic-art,
+  .cosmetic-id .cosmetic-art-mark{
+    animation:none;
   }
 
   .cosmetic-marco.rarity-raro .cosmetic-art-mark,
