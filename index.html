@@ -777,47 +777,182 @@ h1{
 }
 
 .store-cosmetic{
-  min-height:238px;
+  isolation:isolate;
+  min-height:282px;
   align-items:stretch;
   flex-direction:column;
+  padding:14px;
 }
 
 .cosmetic-preview{
   position:relative;
   z-index:1;
-  min-height:76px;
+  min-height:132px;
   display:grid;
   place-items:center;
-  border-radius:16px;
+  border-radius:8px;
   overflow:hidden;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.08), transparent),
+    linear-gradient(135deg, rgba(255,255,255,0.08), transparent 44%),
     rgba(15,23,42,0.74);
-  border:1px solid rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -22px 44px rgba(0,0,0,0.26);
 }
 
 .cosmetic-preview::before{
   content:"";
   position:absolute;
-  inset:16px -20%;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-  transform:rotate(-8deg);
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(115deg, transparent 18%, rgba(255,255,255,0.16) 48%, transparent 64%),
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,0.12), transparent 28%);
+  opacity:0.54;
+  transform:translateX(-18%);
+  transition:transform 0.55s ease, opacity 0.35s ease;
 }
 
-.cosmetic-preview span{
+.cosmetic-preview::after{
+  content:"";
+  position:absolute;
+  inset:10px;
+  pointer-events:none;
+  border:1px solid rgba(255,255,255,0.08);
+  clip-path:polygon(0 0, 28% 0, 34% 10px, 66% 10px, 72% 0, 100% 0, 100% 100%, 72% 100%, 66% calc(100% - 10px), 34% calc(100% - 10px), 28% 100%, 0 100%);
+  opacity:0.78;
+}
+
+.store-cosmetic:hover .cosmetic-preview::before{
+  opacity:0.82;
+  transform:translateX(18%);
+}
+
+.cosmetic-art{
   position:relative;
   z-index:1;
+  width:min(176px, 84%);
+  min-height:88px;
+  display:grid;
+  place-items:center;
+}
+
+.cosmetic-art-code{
+  position:relative;
+  z-index:2;
   color:rgba(255,255,255,0.88);
-  font-size:28px;
+  font-size:30px;
   font-weight:1000;
+  letter-spacing:0.08em;
+  text-shadow:0 8px 22px rgba(0,0,0,0.45);
+}
+
+.cosmetic-art-mark{
+  position:absolute;
+  inset:12px;
+  opacity:0.82;
+  pointer-events:none;
+}
+
+.cosmetic-fondo .cosmetic-preview{
+  min-height:148px;
+}
+
+.cosmetic-fondo .cosmetic-art{
+  width:100%;
+  min-height:106px;
+}
+
+.cosmetic-fondo .cosmetic-art-mark{
+  inset:8px 12px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.18), transparent 24%),
+    conic-gradient(from 130deg, transparent, rgba(255,255,255,0.2), transparent, rgba(255,255,255,0.1), transparent);
+  filter:blur(0.2px);
+}
+
+.cosmetic-id .cosmetic-preview{
+  min-height:126px;
+}
+
+.cosmetic-id .cosmetic-art{
+  width:min(210px, 92%);
+  min-height:78px;
+  border:1px solid rgba(255,255,255,0.14);
+  clip-path:polygon(8% 0, 92% 0, 100% 28%, 94% 100%, 6% 100%, 0 28%);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.08), transparent 26%, rgba(255,255,255,0.1) 50%, transparent 76%),
+    rgba(2,6,23,0.34);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 34px rgba(0,0,0,0.28);
+}
+
+.cosmetic-id .cosmetic-art::before{
+  content:"";
+  position:absolute;
+  left:12px;
+  top:50%;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.18);
+  transform:translateY(-50%);
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.22), rgba(15,23,42,0.24) 54%, rgba(0,0,0,0.36));
+}
+
+.cosmetic-id .cosmetic-art-code{
+  justify-self:end;
+  padding-right:18px;
+  font-size:24px;
+}
+
+.cosmetic-id .cosmetic-art-mark{
+  inset:auto 18px 14px 72px;
+  height:2px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.62), transparent);
+}
+
+.cosmetic-marco .cosmetic-preview{
+  min-height:144px;
+}
+
+.cosmetic-marco .cosmetic-art{
+  width:138px;
+  min-height:94px;
+}
+
+.cosmetic-marco .cosmetic-art::before,
+.cosmetic-marco .cosmetic-art::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border:2px solid rgba(255,255,255,0.18);
+  clip-path:polygon(10% 0, 90% 0, 100% 18%, 100% 82%, 90% 100%, 10% 100%, 0 82%, 0 18%);
+  box-shadow:inset 0 0 20px rgba(255,255,255,0.08), 0 12px 34px rgba(0,0,0,0.28);
+}
+
+.cosmetic-marco .cosmetic-art::after{
+  inset:12px;
+  opacity:0.64;
+}
+
+.cosmetic-marco .cosmetic-art-code{
+  font-size:24px;
+}
+
+.cosmetic-marco .cosmetic-art-mark{
+  inset:-5px;
+  background:
+    linear-gradient(90deg, transparent 8%, rgba(255,255,255,0.26) 8% 12%, transparent 12% 88%, rgba(255,255,255,0.26) 88% 92%, transparent 92%),
+    linear-gradient(0deg, transparent 8%, rgba(255,255,255,0.2) 8% 12%, transparent 12% 88%, rgba(255,255,255,0.2) 88% 92%, transparent 92%);
+  clip-path:polygon(10% 0, 90% 0, 100% 18%, 100% 82%, 90% 100%, 10% 100%, 0 82%, 0 18%);
 }
 
 .cosmetic-footer{
   position:relative;
   z-index:1;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display:grid;
+  grid-template-columns:auto minmax(0, 1fr);
+  align-items:end;
   gap:10px;
   margin-top:auto;
 }
@@ -834,16 +969,168 @@ h1{
   text-transform:uppercase;
 }
 
-.rarity-normal{ border-color:rgba(148,163,184,0.24); }
-.rarity-raro{ border-color:rgba(56,189,248,0.42); background:rgba(14,165,233,0.09); }
-.rarity-epico{ border-color:rgba(168,85,247,0.46); background:rgba(124,58,237,0.1); }
-.rarity-legendario{ border-color:rgba(250,204,21,0.52); background:rgba(217,119,6,0.12); animation:legendaryPulse 3.6s ease-in-out infinite; }
-.rarity-mitico{ border-color:rgba(244,63,94,0.56); background:linear-gradient(135deg, rgba(244,63,94,0.14), rgba(20,184,166,0.1)); }
-.rarity-prohibido{ border-color:rgba(15,23,42,0.9); background:linear-gradient(135deg, rgba(0,0,0,0.72), rgba(88,28,135,0.18)); box-shadow:0 0 32px rgba(0,0,0,0.48), inset 0 0 28px rgba(244,63,94,0.08); }
+.cosmetic-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  min-width:0;
+}
+
+.cosmetic-actions button{
+  width:100%;
+  min-width:0;
+  padding-left:10px;
+  padding-right:10px;
+}
+
+.store-cosmetic.rarity-mitico .store-badge,
+.store-cosmetic.rarity-prohibido .store-badge{
+  border-color:rgba(255,255,255,0.26);
+  box-shadow:0 10px 26px rgba(0,0,0,0.34), 0 0 22px rgba(45,212,191,0.12);
+}
+
+.store-cosmetic.rarity-prohibido .store-badge{
+  background:linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,83,45,0.62), rgba(88,28,135,0.48));
+}
+
+.store-cosmetic.rarity-normal{
+  border-color:rgba(148,163,184,0.26);
+  background:
+    linear-gradient(135deg, rgba(148,163,184,0.08), transparent 34%),
+    linear-gradient(145deg, rgba(15,23,42,0.92), rgba(3,7,18,0.96));
+}
+
+.store-cosmetic.rarity-normal .cosmetic-preview{
+  background:
+    linear-gradient(135deg, rgba(148,163,184,0.12), transparent 42%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 12px),
+    rgba(15,23,42,0.76);
+}
+
+.store-cosmetic.rarity-raro{
+  border-color:rgba(56,189,248,0.46);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(56,189,248,0.16), transparent 36%),
+    linear-gradient(145deg, rgba(8,47,73,0.84), rgba(3,7,18,0.94));
+}
+
+.store-cosmetic.rarity-raro .cosmetic-preview{
+  background:
+    linear-gradient(120deg, rgba(34,211,238,0.18), transparent 36%),
+    repeating-linear-gradient(90deg, rgba(125,211,252,0.08) 0 1px, transparent 1px 14px),
+    rgba(8,47,73,0.58);
+}
+
+.store-cosmetic.rarity-raro .cosmetic-art-mark{
+  box-shadow:0 0 30px rgba(56,189,248,0.26);
+}
+
+.store-cosmetic.rarity-epico{
+  border-color:rgba(168,85,247,0.52);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(168,85,247,0.2), transparent 34%),
+    radial-gradient(circle at 12% 92%, rgba(244,114,182,0.12), transparent 34%),
+    linear-gradient(145deg, rgba(46,16,101,0.82), rgba(3,7,18,0.94));
+}
+
+.store-cosmetic.rarity-epico .cosmetic-preview{
+  background:
+    radial-gradient(circle at 70% 24%, rgba(216,180,254,0.22), transparent 26%),
+    linear-gradient(145deg, rgba(88,28,135,0.56), rgba(3,7,18,0.7));
+}
+
+.store-cosmetic.rarity-legendario{
+  border-color:rgba(250,204,21,0.58);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(250,204,21,0.2), transparent 34%),
+    linear-gradient(145deg, rgba(82,45,6,0.9), rgba(3,7,18,0.95));
+  animation:legendaryPulse 4.8s ease-in-out infinite;
+}
+
+.store-cosmetic.rarity-legendario .cosmetic-preview{
+  background:
+    linear-gradient(135deg, rgba(253,224,71,0.18), transparent 42%),
+    repeating-linear-gradient(45deg, rgba(250,204,21,0.08) 0 2px, transparent 2px 18px),
+    rgba(69,26,3,0.64);
+}
+
+.store-cosmetic.rarity-mitico{
+  border-color:rgba(45,212,191,0.52);
+  background:
+    radial-gradient(circle at 20% 10%, rgba(45,212,191,0.18), transparent 32%),
+    radial-gradient(circle at 86% 18%, rgba(244,114,182,0.18), transparent 30%),
+    linear-gradient(145deg, rgba(19,78,74,0.72), rgba(24,24,72,0.74), rgba(3,7,18,0.96));
+}
+
+.store-cosmetic.rarity-mitico .cosmetic-preview{
+  background:
+    conic-gradient(from 210deg at 50% 50%, rgba(45,212,191,0.18), rgba(168,85,247,0.16), rgba(244,114,182,0.16), rgba(45,212,191,0.18)),
+    rgba(8,13,35,0.72);
+}
+
+.store-cosmetic.rarity-prohibido{
+  border-color:rgba(51,65,85,0.9);
+  background:
+    linear-gradient(96deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 44%),
+    radial-gradient(circle at 76% 18%, rgba(22,163,74,0.12), transparent 32%),
+    radial-gradient(circle at 18% 92%, rgba(88,28,135,0.18), transparent 36%),
+    linear-gradient(145deg, rgba(0,0,0,0.78), rgba(15,23,42,0.98));
+  box-shadow:0 24px 58px rgba(0,0,0,0.46), inset 0 0 28px rgba(15,23,42,0.42);
+}
+
+.store-cosmetic.rarity-prohibido .cosmetic-preview{
+  background:
+    linear-gradient(91deg, transparent 0 18%, rgba(255,255,255,0.08) 18% 19%, transparent 19% 58%, rgba(34,197,94,0.08) 58% 59%, transparent 59%),
+    radial-gradient(circle at 48% 42%, rgba(0,0,0,0.18), rgba(0,0,0,0.74) 62%),
+    rgba(3,7,18,0.9);
+}
+
+.store-cosmetic.rarity-prohibido .cosmetic-art-code{
+  color:#d1fae5;
+  text-shadow:2px 0 rgba(34,197,94,0.32), -2px 0 rgba(168,85,247,0.22), 0 10px 24px rgba(0,0,0,0.6);
+}
+
+.cosmetic-fondo.rarity-normal .cosmetic-art-mark{ border-radius:42% 58% 48% 52%; opacity:0.42; }
+.cosmetic-fondo.rarity-raro .cosmetic-art-mark{ background:linear-gradient(135deg, transparent, rgba(56,189,248,0.38), transparent), repeating-linear-gradient(90deg, rgba(125,211,252,0.18) 0 1px, transparent 1px 10px); border-radius:0; }
+.cosmetic-fondo.rarity-epico .cosmetic-art-mark{ background:radial-gradient(circle at 62% 30%, rgba(216,180,254,0.38), transparent 28%), radial-gradient(circle at 32% 72%, rgba(168,85,247,0.3), transparent 30%); filter:blur(1px); }
+.cosmetic-fondo.rarity-legendario .cosmetic-art-mark{ background:conic-gradient(from 80deg, transparent, rgba(250,204,21,0.42), transparent, rgba(253,186,116,0.24), transparent); border-radius:50%; }
+.cosmetic-fondo.rarity-mitico .cosmetic-art-mark{ background:conic-gradient(from 0deg, rgba(45,212,191,0.22), rgba(168,85,247,0.28), rgba(244,114,182,0.2), rgba(45,212,191,0.22)); border-radius:45% 55% 50% 50%; animation:cosmicDrift 8s linear infinite; }
+.cosmetic-fondo.rarity-prohibido .cosmetic-art-mark{ background:linear-gradient(90deg, transparent 0 28%, rgba(34,197,94,0.22) 28% 30%, transparent 30% 62%, rgba(88,28,135,0.22) 62% 64%, transparent 64%), radial-gradient(circle, rgba(0,0,0,0.4), transparent 58%); border-radius:8px; }
+
+.cosmetic-id.rarity-raro .cosmetic-art{ box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), 0 0 26px rgba(56,189,248,0.22); }
+.cosmetic-id.rarity-epico .cosmetic-art{ clip-path:polygon(4% 0, 96% 0, 100% 18%, 92% 100%, 8% 100%, 0 18%); box-shadow:0 0 32px rgba(168,85,247,0.25); }
+.cosmetic-id.rarity-legendario .cosmetic-art{ border-color:rgba(250,204,21,0.42); box-shadow:0 0 34px rgba(250,204,21,0.22), inset 0 0 24px rgba(250,204,21,0.08); }
+.cosmetic-id.rarity-mitico .cosmetic-art{ border-color:rgba(45,212,191,0.38); box-shadow:0 0 36px rgba(45,212,191,0.2), 0 0 24px rgba(168,85,247,0.16); }
+.cosmetic-id.rarity-prohibido .cosmetic-art{ border-color:rgba(34,197,94,0.22); filter:contrast(1.08); }
+
+.cosmetic-marco.rarity-raro .cosmetic-art::before{ border-color:rgba(56,189,248,0.48); }
+.cosmetic-marco.rarity-epico .cosmetic-art::before{ border-width:3px; border-color:rgba(168,85,247,0.56); }
+.cosmetic-marco.rarity-legendario .cosmetic-art::before{ border-color:rgba(250,204,21,0.66); box-shadow:0 0 34px rgba(250,204,21,0.22), inset 0 0 24px rgba(250,204,21,0.12); }
+.cosmetic-marco.rarity-mitico .cosmetic-art::before{ border-color:rgba(45,212,191,0.48); box-shadow:0 0 34px rgba(45,212,191,0.2), 0 0 22px rgba(244,114,182,0.14); }
+.cosmetic-marco.rarity-prohibido .cosmetic-art::before{ border-color:rgba(34,197,94,0.28); box-shadow:0 0 34px rgba(0,0,0,0.42), inset 0 0 28px rgba(0,0,0,0.38); }
+
+.store-cosmetic.rarity-normal .store-main-btn{ border-color:rgba(148,163,184,0.28) !important; background:linear-gradient(135deg, rgba(71,85,105,0.72), rgba(15,23,42,0.82)) !important; }
+.store-cosmetic.rarity-raro .store-main-btn{ border-color:rgba(56,189,248,0.46) !important; background:linear-gradient(135deg, rgba(14,165,233,0.62), rgba(8,47,73,0.78)) !important; }
+.store-cosmetic.rarity-epico .store-main-btn{ border-color:rgba(168,85,247,0.54) !important; background:linear-gradient(135deg, rgba(126,34,206,0.72), rgba(88,28,135,0.82)) !important; }
+.store-cosmetic.rarity-legendario .store-main-btn{ border-color:rgba(250,204,21,0.62) !important; background:linear-gradient(135deg, rgba(202,138,4,0.78), rgba(120,53,15,0.86)) !important; }
+.store-cosmetic.rarity-mitico .store-main-btn{ border-color:rgba(45,212,191,0.48) !important; background:linear-gradient(135deg, rgba(13,148,136,0.68), rgba(126,34,206,0.58)) !important; }
+.store-cosmetic.rarity-prohibido .store-main-btn{ border-color:rgba(34,197,94,0.32) !important; background:linear-gradient(135deg, rgba(0,0,0,0.82), rgba(20,83,45,0.42), rgba(88,28,135,0.34)) !important; }
 
 @keyframes legendaryPulse{
   0%, 100%{ box-shadow:0 18px 42px rgba(0,0,0,0.28), 0 0 18px rgba(250,204,21,0.08); }
   50%{ box-shadow:0 22px 52px rgba(0,0,0,0.32), 0 0 30px rgba(250,204,21,0.18); }
+}
+
+@keyframes cosmicDrift{
+  to{ transform:rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .store-cosmetic,
+  .store-cosmetic .cosmetic-art-mark,
+  .store-cosmetic.rarity-legendario{
+    animation:none !important;
+  }
 }
 
 .ranking-modal.abierto{
@@ -1271,6 +1558,14 @@ h1{
   }
 
   .store-actions-inline{
+    width:100%;
+  }
+
+  .cosmetic-footer{
+    grid-template-columns:1fr;
+  }
+
+  .cosmetic-actions{
     width:100%;
   }
 

@@ -41,15 +41,42 @@ const TEMAS_VISUALES = [
 ]
 
 const RAREZAS_PREMIUM = [
-  { nombre: "Normal", precio: 500, clase: "normal" },
-  { nombre: "Raro", precio: 1600, clase: "raro" },
-  { nombre: "Epico", etiqueta: "Epico", precio: 3200, clase: "epico" },
-  { nombre: "Legendario", precio: 6200, clase: "legendario" },
-  { nombre: "Mitico", etiqueta: "Mitico", precio: 11000, clase: "mitico" },
-  { nombre: "Prohibido", precio: 18000, clase: "prohibido" },
+  { nombre: "Normal", precio: 2000, clase: "normal" },
+  { nombre: "Raro", precio: 5000, clase: "raro" },
+  { nombre: "Epico", etiqueta: "Epico", precio: 12000, clase: "epico" },
+  { nombre: "Legendario", precio: 30000, clase: "legendario" },
+  { nombre: "Mitico", etiqueta: "Mitico", precio: 70000, clase: "mitico" },
+  { nombre: "Prohibido", precio: 180000, clase: "prohibido" },
 ]
 
 export const ORDEN_RAREZAS_TIENDA = RAREZAS_PREMIUM.map((rareza) => rareza.nombre)
+
+const PRECIOS_COSMETICOS = {
+  fondo: {
+    Normal: { monedas: 2500, real: "$0.99", etiqueta: "Popular" },
+    Raro: { monedas: 6000, real: "$1.99", etiqueta: "Recomendado" },
+    Epico: { monedas: 14000, real: "$4.99", etiqueta: "Premium" },
+    Legendario: { monedas: 35000, real: "$9.99", etiqueta: "Exclusivo" },
+    Mitico: { monedas: 80000, real: "$19.99", etiqueta: "Ultra raro" },
+    Prohibido: { monedas: 200000, real: "$39.99", etiqueta: "Limitado" },
+  },
+  id: {
+    Normal: { monedas: 2000, real: "$0.79", etiqueta: "Popular" },
+    Raro: { monedas: 5000, real: "$1.79", etiqueta: "Recomendado" },
+    Epico: { monedas: 12000, real: "$4.49", etiqueta: "Premium" },
+    Legendario: { monedas: 30000, real: "$8.99", etiqueta: "Exclusivo" },
+    Mitico: { monedas: 70000, real: "$17.99", etiqueta: "Ultra raro" },
+    Prohibido: { monedas: 180000, real: "$34.99", etiqueta: "Limitado" },
+  },
+  marco: {
+    Normal: { monedas: 2000, real: "$0.79", etiqueta: "Popular" },
+    Raro: { monedas: 5000, real: "$1.79", etiqueta: "Recomendado" },
+    Epico: { monedas: 12000, real: "$4.49", etiqueta: "Premium" },
+    Legendario: { monedas: 30000, real: "$8.99", etiqueta: "Exclusivo" },
+    Mitico: { monedas: 70000, real: "$17.99", etiqueta: "Ultra raro" },
+    Prohibido: { monedas: 180000, real: "$34.99", etiqueta: "Limitado" },
+  },
+}
 
 const NUCLEOS_NOMBRE = [
   "Fragmento de Nyx", "Corona del Vacio", "Ecos de Helion", "Ojo Carmesi", "Trono Astral",
@@ -288,6 +315,7 @@ function generarCosmeticos(tipo, cantidad) {
     const base = NUCLEOS_NOMBRE[(index + offsetTipo) % NUCLEOS_NOMBRE.length]
     const forma = FORMAS_NOMBRE[(index * 7 + offsetTipo) % FORMAS_NOMBRE.length]
     const nombre = forma.replace("{base}", base)
+    const precio = precioCosmetico(tipo, rareza.nombre)
     return {
       id: `${tipo}_${String(numero).padStart(3, "0")}`,
       tipo,
@@ -295,7 +323,9 @@ function generarCosmeticos(tipo, cantidad) {
       nombre,
       descripcion: DESCRIPCIONES_LORE[(index * 5 + tipo.length) % DESCRIPCIONES_LORE.length],
       rareza: rareza.nombre,
-      precio: rareza.precio + intensidad * 75,
+      precio: precio.monedas,
+      precioReal: precio.real,
+      etiqueta: precio.etiqueta,
       diseno: {
         tema: TEMAS_VISUALES[index % TEMAS_VISUALES.length],
         brillo: intensidad,
@@ -303,6 +333,14 @@ function generarCosmeticos(tipo, cantidad) {
       },
     }
   })
+}
+
+function precioCosmetico(tipo, rareza) {
+  return PRECIOS_COSMETICOS[tipo]?.[rareza] || {
+    monedas: RAREZAS_PREMIUM.find((item) => item.nombre === rareza)?.precio || 2000,
+    real: "$0.79",
+    etiqueta: "Popular",
+  }
 }
 
 function rarezaCompatibleSupabase(rareza) {

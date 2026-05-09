@@ -187,9 +187,13 @@ function renderRarezaCosmeticos(itemsCategoria, rareza) {
 
 function renderCosmetico(item) {
   return `
-    <article class="store-item store-cosmetic rarity-${rarezaClase(item.rareza)}">
-      <div class="cosmetic-preview">
-        <span>${escapeHtml(siglaCategoria(item.tipo))}</span>
+    <article class="store-item store-cosmetic cosmetic-${escapeHtml(item.tipo)} rarity-${rarezaClase(item.rareza)}">
+      ${item.etiqueta ? `<span class="store-badge">${escapeHtml(item.etiqueta)}</span>` : ""}
+      <div class="cosmetic-preview" aria-hidden="true">
+        <div class="cosmetic-art">
+          <span class="cosmetic-art-code">${escapeHtml(siglaCategoria(item.tipo))}</span>
+          <span class="cosmetic-art-mark"></span>
+        </div>
       </div>
       <div class="store-copy">
         <span class="store-kicker">${escapeHtml(item.categoria)}</span>
@@ -200,7 +204,10 @@ function renderCosmetico(item) {
       </div>
       <div class="cosmetic-footer">
         <span class="rarity-tag">${escapeHtml(rarezaEtiqueta(item.rareza))}</span>
-        <button type="button" data-buy-cosmetic="${item.id}">Comprar</button>
+        <div class="cosmetic-actions">
+          <button class="store-soft-btn" type="button" data-buy-cosmetic="${item.id}">Monedas</button>
+          <button class="store-main-btn" type="button" data-real-buy="cosmetic:${item.id}">${escapeHtml(item.precioReal || "$0.79")}</button>
+        </div>
       </div>
     </article>
   `
