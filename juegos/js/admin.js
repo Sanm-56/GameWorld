@@ -24,6 +24,8 @@ let claveAdminSesion = ""
 let bonusesTemporada = {}
 let temporadaActiva = null
 let formularioTemporadaInicializado = false
+let miniTorneosAdminRequestId = 0
+const miniTorneosAdminAccionesPendientes = new Set()
 
 function escapeJsString(valor){
 return cleanText(valor)
@@ -106,6 +108,20 @@ if(!claveAdminSesion) return { ok: false, error: new Error("Sin clave admin en s
 const { data, error } = await supabase.rpc(nombre, { p_clave: claveAdminSesion, ...args })
 if(error) return { ok: false, error }
 return { ok: data !== false, data }
+}
+
+function normalizarRespuestaRpc(data){
+if(data === true) return { ok: true }
+if(data && typeof data === "object") return data
+return { ok: data !== false }
+}
+
+async function ejecutarRpcAdminObjeto(nombre, args = {}){
+if(!claveAdminSesion) return { ok: false, error: new Error("Sin clave admin en sesion") }
+const { data, error } = await supabase.rpc(nombre, { p_clave: claveAdminSesion, ...args })
+if(error) return { ok: false, error }
+const resultado = normalizarRespuestaRpc(data)
+return { ok: resultado.ok !== false, data: resultado }
 }
 
 // =============================
@@ -424,6 +440,7 @@ async function cargarMiniTorneosAdmin(){
 const list = document.getElementById("miniTorneosAdminList")
 if(!list) return
 
+const requestId = ++miniTorneosAdminRequestId
 list.innerHTML = '<div class="export-note">Cargando mini torneos activos...</div>'
 
 const { data, error } = await supabase
@@ -432,6 +449,8 @@ const { data, error } = await supabase
 .neq("estado", "finalizado")
 .order("created_at", { ascending: false })
 .limit(30)
+
+if(requestId !== miniTorneosAdminRequestId) return
 
 if(error){
 console.warn("No se pudieron cargar mini torneos", error)
@@ -445,10 +464,13 @@ return
 }
 
 const playersByRoom = await cargarJugadoresMiniTorneos(data.map((room) => room.id))
+if(requestId !== miniTorneosAdminRequestId) return
 
 list.innerHTML = data.map((room) => {
 const jugadores = playersByRoom.get(room.id) || []
 const creado = room.created_at ? new Date(room.created_at).toLocaleString("es-CO") : "-"
+const estaProcesandoLimpiar = miniTorneosAdminAccionesPendientes.has(`finalizar:${room.id}`)
+const estaProcesandoBorrar = miniTorneosAdminAccionesPendientes.has(`borrar:${room.id}`)
 return `
 <div class="mini-admin-row">
   <div>
@@ -457,8 +479,8 @@ return `
     <p class="mini-admin-players">${jugadores.length ? escapeHtml(jugadores.join(", ")) : "Sin jugadores registrados"}</p>
   </div>
   <div class="mini-admin-actions">
-    <button class="ghost" onclick="finalizarMiniTorneoAdmin(${Number(room.id)})">Limpiar de activos</button>
-    <button class="danger" onclick="borrarMiniTorneoAdmin(${Number(room.id)})">Borrar definitivo</button>
+    <button class="ghost" onclick="finalizarMiniTorneoAdmin(${Number(room.id)})" ${estaProcesandoLimpiar || estaProcesandoBorrar ? "disabled" : ""}>${estaProcesandoLimpiar ? "Limpiando..." : "Limpiar de activos"}</button>
+    <button class="danger" onclick="borrarMiniTorneoAdmin(${Number(room.id)})" ${estaProcesandoLimpiar || estaProcesandoBorrar ? "disabled" : ""}>${estaProcesandoBorrar ? "Borrando..." : "Borrar definitivo"}</button>
   </div>
 </div>
 `
@@ -491,57 +513,152 @@ return grouped
 
 async function finalizarMiniTorneoAdmin(id){
 if(!id) return
+const accion = `finalizar:${id}`
+if(miniTorneosAdminAccionesPendientes.has(accion) || miniTorneosAdminAccionesPendientes.has(`borrar:${id}`)) return
 if(!await confirmAction("Esto marcara solo este mini torneo como finalizado para sacarlo de activos. No toca torneos normales ni rankings. Continuar?", { title: "Limpiar mini torneo" })) return
 
-const { error } = await supabase
-.from("salas")
-.update({ estado: "finalizado", fecha_fin: new Date().toISOString() })
-.eq("id", id)
+miniTorneosAdminAccionesPendientes.add(accion)
+await cargarMiniTorneosAdmin()
 
-if(error){
-console.warn("No se pudo finalizar mini torneo", error)
-safeAlert(errorMessage(error, "No se pudo limpiar el mini torneo."))
-return
-}
+try{
+const rpc = await ejecutarRpcAdminObjeto("admin_finalizar_mini_torneo", { p_sala_id: id })
+let error = rpc.ok ? null : rpc.error
 
-safeAlert("Mini torneo limpiado de activos.")
-cargarMiniTorneosAdmin()
-}
+if(!rpc.ok && rpc.data?.mensaje) throw new Error(rpc.data.mensaje)
 
-async function borrarMiniTorneoAdmin(id){
-if(!id) return
-const confirmacion = await promptAction("Borrado definitivo del mini torneo #" + id + ". Escribe BORRAR para confirmar.", { title: "Borrar mini torneo", danger: true })
-if(confirmacion !== "BORRAR") return
-
-await supabase
-.from("sala_jugadores")
-.delete()
-.eq("sala_id", id)
-
-const { error } = await supabase
-.from("salas")
-.delete()
-.eq("id", id)
-
-if(error){
-console.warn("No se pudo borrar definitivamente; se intentara limpiar de activos", error)
+if(!rpc.ok){
 const fallback = await supabase
 .from("salas")
 .update({ estado: "finalizado", fecha_fin: new Date().toISOString() })
 .eq("id", id)
-
-if(fallback.error){
-safeAlert(errorMessage(fallback.error, "No se pudo borrar ni finalizar el mini torneo."))
-return
+error = fallback.error
 }
 
-safeAlert("No hubo permiso para borrar definitivamente, pero quedo limpiado de activos.")
-cargarMiniTorneosAdmin()
+if(error) throw error
+
+const verificacion = await verificarMiniTorneoFueraDeActivos(id)
+if(!verificacion.ok) throw new Error(verificacion.mensaje)
+
+safeAlert("Mini torneo limpiado de activos.")
+}catch(error){
+console.warn("No se pudo finalizar mini torneo", error)
+safeAlert(errorMessage(error, "No se pudo limpiar el mini torneo."))
+}finally{
+miniTorneosAdminAccionesPendientes.delete(accion)
+await cargarMiniTorneosAdmin()
+}
+}
+
+async function borrarMiniTorneoAdmin(id){
+if(!id) return
+const accion = `borrar:${id}`
+if(miniTorneosAdminAccionesPendientes.has(accion) || miniTorneosAdminAccionesPendientes.has(`finalizar:${id}`)) return
+const confirmacion = await promptAction("Borrado definitivo del mini torneo #" + id + ". Escribe BORRAR para confirmar.", { title: "Borrar mini torneo", danger: true })
+if(confirmacion !== "BORRAR") return
+
+miniTorneosAdminAccionesPendientes.add(accion)
+await cargarMiniTorneosAdmin()
+
+try{
+const rpc = await ejecutarRpcAdminObjeto("admin_borrar_mini_torneo", { p_sala_id: id })
+if(rpc.ok){
+const verificacionRpc = await verificarMiniTorneoBorrado(id)
+if(!verificacionRpc.ok) throw new Error(verificacionRpc.mensaje)
+safeAlert("Mini torneo borrado definitivamente.")
 return
 }
+if(rpc.data?.mensaje) throw new Error(rpc.data.mensaje)
+if(rpc.error) console.warn("RPC de borrado de mini torneo no disponible o fallo; usando flujo directo", rpc.error)
+
+const resultados = await supabase
+.from("solitario_resultados")
+.delete()
+.eq("sala_id", id)
+if(resultados.error) throw resultados.error
+
+const jugadores = await supabase
+.from("sala_jugadores")
+.delete()
+.eq("sala_id", id)
+if(jugadores.error) throw jugadores.error
+
+const sala = await supabase
+.from("salas")
+.delete()
+.eq("id", id)
+if(sala.error) throw sala.error
+
+const verificacion = await verificarMiniTorneoBorrado(id)
+if(!verificacion.ok) throw new Error(verificacion.mensaje)
 
 safeAlert("Mini torneo borrado definitivamente.")
-cargarMiniTorneosAdmin()
+}catch(error){
+console.warn("No se pudo borrar definitivamente; se intentara limpiar de activos", error)
+const fallbackRpc = await ejecutarRpcAdminObjeto("admin_finalizar_mini_torneo", { p_sala_id: id })
+let fallbackError = fallbackRpc.ok ? null : fallbackRpc.error
+
+if(!fallbackRpc.ok && fallbackRpc.data?.mensaje){
+fallbackError = new Error(fallbackRpc.data.mensaje)
+}else if(!fallbackRpc.ok){
+const fallback = await supabase
+.from("salas")
+.update({ estado: "finalizado", fecha_fin: new Date().toISOString() })
+.eq("id", id)
+fallbackError = fallback.error
+}
+
+if(fallbackError){
+safeAlert(errorMessage(fallbackError, "No se pudo borrar ni finalizar el mini torneo."))
+}else{
+safeAlert("No hubo permiso para borrar definitivamente, pero quedo limpiado de activos.")
+}
+}finally{
+miniTorneosAdminAccionesPendientes.delete(accion)
+await cargarMiniTorneosAdmin()
+}
+}
+
+async function verificarMiniTorneoFueraDeActivos(id){
+const { data, error } = await supabase
+.from("salas")
+.select("id,estado")
+.eq("id", id)
+.maybeSingle()
+
+if(error) return { ok: false, mensaje: errorMessage(error, "No se pudo verificar el mini torneo.") }
+if(!data) return { ok: true }
+if(data.estado === "finalizado") return { ok: true }
+return { ok: false, mensaje: "La base de datos no confirmo que el mini torneo quedara fuera de activos." }
+}
+
+async function verificarMiniTorneoBorrado(id){
+const sala = await supabase
+.from("salas")
+.select("id")
+.eq("id", id)
+.maybeSingle()
+
+if(sala.error) return { ok: false, mensaje: errorMessage(sala.error, "No se pudo verificar el borrado de la sala.") }
+if(sala.data) return { ok: false, mensaje: "La sala sigue existiendo despues del borrado." }
+
+const jugadores = await supabase
+.from("sala_jugadores")
+.select("id")
+.eq("sala_id", id)
+.limit(1)
+
+if(jugadores.error) return { ok: false, mensaje: errorMessage(jugadores.error, "No se pudo verificar el borrado de jugadores.") }
+if(jugadores.data?.length) return { ok: false, mensaje: "Quedaron jugadores asociados al mini torneo." }
+
+const resultados = await supabase
+.from("solitario_resultados")
+.select("id")
+.eq("sala_id", id)
+.limit(1)
+
+if(resultados.error) return { ok: false, mensaje: errorMessage(resultados.error, "No se pudo verificar el borrado de resultados.") }
+if(resultados.data?.length) return { ok: false, mensaje: "Quedaron resultados asociados al mini torneo." }
+return { ok: true }
 }
 
 // =============================

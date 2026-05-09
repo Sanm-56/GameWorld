@@ -86,30 +86,38 @@ async function renderTienda() {
   await actualizarBoosterActivo()
 
   boosterList.innerHTML = BOOSTERS_XP.map((booster) => `
-    <article class="store-item booster-card booster-x${booster.multiplicador}">
-      <div class="booster-sigil">x${booster.multiplicador}</div>
+    <article class="store-item booster-card booster-tier-${tierBooster(booster)} ${boosterDestacado(booster) ? "featured" : ""}">
+      ${booster.etiqueta ? `<span class="store-badge">${escapeHtml(booster.etiqueta)}</span>` : ""}
+      <div class="booster-sigil">
+        <span>x${formatearMultiplicador(booster.multiplicador)}</span>
+        <small>XP</small>
+      </div>
       <div class="store-copy">
-        <span class="store-kicker">Potenciador temporal</span>
+        <span class="store-kicker">${escapeHtml(booster.rareza || "Potenciador")}</span>
         <strong>${escapeHtml(booster.nombre)}</strong>
         <small>${duracionLabel(booster.duracionMs)} de progreso acelerado</small>
         <span class="store-price">${booster.precio.toLocaleString("es-CO")} monedas</span>
       </div>
       <div class="store-actions-inline">
-        <button type="button" data-buy-booster="${booster.id}">Monedas</button>
-        <button type="button" data-real-buy="booster:${booster.id}">${booster.precioReal}</button>
+        <button class="store-soft-btn" type="button" data-buy-booster="${booster.id}">Monedas</button>
+        <button class="store-main-btn" type="button" data-real-buy="booster:${booster.id}">${booster.precioReal}</button>
       </div>
     </article>
   `).join("")
 
   coinList.innerHTML = PAQUETES_MONEDAS.map((paquete) => `
-    <article class="store-item coin-card${paquete.cantidad >= 10000 ? " popular" : ""}">
-      <div class="coin-orb">${paquete.cantidad >= 25000 ? "MAX" : paquete.cantidad >= 10000 ? "TOP" : "$"}</div>
-      <div class="store-copy">
-        <span class="store-kicker">${paquete.cantidad >= 10000 ? "Pack destacado" : "Pack de monedas"}</span>
-        <strong>${paquete.cantidad.toLocaleString("es-CO")} monedas</strong>
-        <small>Preparado para compra futura con dinero real</small>
+    <article class="store-item coin-card${paqueteDestacado(paquete) ? " popular" : ""}">
+      ${paquete.etiqueta ? `<span class="store-badge">${escapeHtml(paquete.etiqueta)}</span>` : ""}
+      <div class="coin-orb">
+        <span>${paquete.cantidad >= 100000 ? "MAX" : paquete.cantidad >= 40000 ? "VIP" : paquete.cantidad >= 12000 ? "PRO" : "$"}</span>
       </div>
-      <button type="button" data-real-buy="coins:${paquete.id}">${paquete.precioReal}</button>
+      <div class="store-copy">
+        <span class="store-kicker">${paqueteDestacado(paquete) ? "Pack destacado" : "Pack de monedas"}</span>
+        <strong>${paquete.cantidad.toLocaleString("es-CO")} monedas</strong>
+        ${paquete.bonus ? `<small class="coin-bonus">+${paquete.bonus.toLocaleString("es-CO")} gratis</small>` : "<small>Entrega base para compras futuras</small>"}
+        ${paquete.regalo ? `<small class="coin-gift">${escapeHtml(paquete.regalo)}</small>` : ""}
+      </div>
+      <button class="store-main-btn" type="button" data-real-buy="coins:${paquete.id}">${paquete.precioReal}</button>
     </article>
   `).join("")
 
@@ -204,6 +212,31 @@ function siglaCategoria(tipo) {
   return "ID"
 }
 
+function tierBooster(booster) {
+  const valor = Number(booster.multiplicador || 1)
+  if (valor >= 8) return "supreme"
+  if (valor >= 6) return "legendary"
+  if (valor >= 5) return "mythic"
+  if (valor >= 4) return "legendary"
+  if (valor >= 3) return "epic"
+  if (valor >= 2.5) return "elite"
+  if (valor >= 2) return "competitive"
+  return "starter"
+}
+
+function boosterDestacado(booster) {
+  return Number(booster.multiplicador || 1) >= 4 || ["Mejor valor", "Premium", "Maximo poder"].includes(booster.etiqueta)
+}
+
+function paqueteDestacado(paquete) {
+  return Number(paquete.cantidad || 0) >= 12000 || Number(paquete.bonus || 0) > 0
+}
+
+function formatearMultiplicador(valor) {
+  const numero = Number(valor || 1)
+  return Number.isInteger(numero) ? String(numero) : numero.toFixed(1)
+}
+
 async function comprarConMonedas(tipo, id) {
   const usuario = usuarioActual()
   if (!usuario) {
@@ -241,11 +274,13 @@ async function actualizarBoosterActivo() {
   const usuario = usuarioActual()
   const activo = await obtenerBoosterActivo(usuario)
   activeEl.textContent = activo
-    ? `Activo: x${Number(activo.multiplicador).toFixed(0)} - termina en ${tiempoRestante(activo.fecha_fin)}`
+    ? `Activo: x${formatearMultiplicador(activo.multiplicador)} - termina en ${tiempoRestante(activo.fecha_fin)}`
     : "Sin booster activo"
 }
 
 function duracionLabel(ms) {
+  const horas = Math.round(ms / 3600000)
+  if (horas < 24) return `${horas} horas`
   const dias = Math.round(ms / 86400000)
   if (dias >= 1) return dias === 1 ? "24 horas" : `${dias} dias`
   return "Temporal"

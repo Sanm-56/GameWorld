@@ -172,13 +172,40 @@ export async function registrarPuntosMiniTorneo(supabase, juego, puntos) {
 
   if (!salaId || !usuario) return
 
-  await supabase
+  const sala = await supabase
+    .from("salas")
+    .select("id,estado,juego")
+    .eq("id", salaId)
+    .maybeSingle()
+
+  if (sala.error) {
+    console.warn(`[Solitario] No se pudo validar mini torneo para ${juego}.`, sala.error)
+    return
+  }
+
+  if (!sala.data || sala.data.estado === "finalizado" || sala.data.juego !== juego) {
+    limpiarContextoMiniTorneo()
+    return
+  }
+
+  const jugadores = await supabase
     .from("sala_jugadores")
     .update({ puntos: puntosSeguros, usuario })
     .eq("sala_id", salaId)
     .eq("usuario_id", usuario)
+    .select("id")
 
-  await supabase
+  if (jugadores.error) {
+    console.warn(`[Solitario] No se pudieron registrar puntos del mini torneo para ${juego}.`, jugadores.error)
+    return
+  }
+
+  if (!jugadores.data?.length) {
+    console.warn(`[Solitario] El jugador no estaba asociado a la sala ${salaId}; no se registran puntos huerfanos.`)
+    return
+  }
+
+  const resultado = await supabase
     .from("solitario_resultados")
     .insert([{
       usuario_id: usuario,
@@ -187,7 +214,12 @@ export async function registrarPuntosMiniTorneo(supabase, juego, puntos) {
       victoria: false,
       sala_id: salaId,
       origen: "sala",
+      juego,
     }])
+
+  if (resultado.error) {
+    console.warn(`[Solitario] No se pudo guardar resultado de mini torneo para ${juego}.`, resultado.error)
+  }
 }
 
 function leerContextoNivel() {
@@ -237,4 +269,12 @@ function limpiarContextoNivel() {
     localStorage.removeItem("solitario_origen")
     localStorage.removeItem("solitario_juego")
   }
+}
+
+function limpiarContextoMiniTorneo() {
+  localStorage.removeItem("solitario_sala_id")
+  localStorage.removeItem("solitario_sala_codigo")
+  localStorage.removeItem("solitario_juego")
+  localStorage.removeItem("solitario_origen")
+  localStorage.removeItem("solitario_game_launch")
 }

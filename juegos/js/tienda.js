@@ -1,16 +1,29 @@
 import { supabase } from "./supabase.js"
 
 export const BOOSTERS_XP = [
-  { id: "xp2_24h", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 24 * 60 * 60 * 1000, precio: 1200, precioReal: "$1.99" },
-  { id: "xp2_3d", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 3 * 24 * 60 * 60 * 1000, precio: 2800, precioReal: "$3.99" },
-  { id: "xp4_30d", nombre: "Booster XP x4", multiplicador: 4, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 15000, precioReal: "$14.99" },
+  { id: "xp15_6h", nombre: "Booster XP x1.5", multiplicador: 1.5, duracionMs: 6 * 60 * 60 * 1000, precio: 400, precioReal: "$0.49", rareza: "Inicial", etiqueta: "Oferta" },
+  { id: "xp2_24h", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 24 * 60 * 60 * 1000, precio: 1200, precioReal: "$1.99", rareza: "Competitivo", etiqueta: "Popular" },
+  { id: "xp2_3d", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 3 * 24 * 60 * 60 * 1000, precio: 2800, precioReal: "$3.99", rareza: "Competitivo", etiqueta: "Recomendado" },
+  { id: "xp25_7d", nombre: "Booster XP x2.5", multiplicador: 2.5, duracionMs: 7 * 24 * 60 * 60 * 1000, precio: 5500, precioReal: "$6.99", rareza: "Elite", etiqueta: "Mejor valor" },
+  { id: "xp3_7d", nombre: "Booster XP x3", multiplicador: 3, duracionMs: 7 * 24 * 60 * 60 * 1000, precio: 8000, precioReal: "$9.99", rareza: "Elite", etiqueta: "Popular" },
+  { id: "xp3_15d", nombre: "Booster XP x3", multiplicador: 3, duracionMs: 15 * 24 * 60 * 60 * 1000, precio: 14000, precioReal: "$14.99", rareza: "Epico", etiqueta: "Recomendado" },
+  { id: "xp4_30d", nombre: "Booster XP x4", multiplicador: 4, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 22000, precioReal: "$19.99", rareza: "Legendario", etiqueta: "Mejor valor" },
+  { id: "xp5_30d", nombre: "Booster XP x5", multiplicador: 5, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 35000, precioReal: "$29.99", rareza: "Mitico", etiqueta: "Oferta" },
+  { id: "xp6_45d", nombre: "Booster Legendario x6", multiplicador: 6, duracionMs: 45 * 24 * 60 * 60 * 1000, precio: 55000, precioReal: "$39.99", rareza: "Legendario", etiqueta: "Premium" },
+  { id: "xp8_60d", nombre: "Booster Supremo x8", multiplicador: 8, duracionMs: 60 * 24 * 60 * 60 * 1000, precio: 95000, precioReal: "$59.99", rareza: "Supremo", etiqueta: "Maximo poder" },
 ]
 
 export const PAQUETES_MONEDAS = [
   { id: "coins_1000", cantidad: 1000, precioReal: "$0.99" },
+  { id: "coins_2500", cantidad: 2500, precioReal: "$1.99" },
   { id: "coins_5000", cantidad: 5000, precioReal: "$3.99" },
-  { id: "coins_10000", cantidad: 10000, precioReal: "$6.99" },
-  { id: "coins_25000", cantidad: 25000, precioReal: "$14.99" },
+  { id: "coins_8000", cantidad: 8000, precioReal: "$5.99", etiqueta: "Popular" },
+  { id: "coins_12000", cantidad: 12000, precioReal: "$8.99", etiqueta: "Recomendado" },
+  { id: "coins_18000", cantidad: 18000, precioReal: "$12.99" },
+  { id: "coins_25000", cantidad: 25000, precioReal: "$16.99", etiqueta: "Competitivo" },
+  { id: "coins_40000", cantidad: 40000, bonus: 5000, precioReal: "$24.99", etiqueta: "Mejor valor" },
+  { id: "coins_65000", cantidad: 65000, bonus: 10000, precioReal: "$39.99", etiqueta: "Oferta" },
+  { id: "coins_100000", cantidad: 100000, bonus: 20000, regalo: "Booster XP x2 gratis", precioReal: "$59.99", etiqueta: "Premium" },
 ]
 
 const RAREZAS = [

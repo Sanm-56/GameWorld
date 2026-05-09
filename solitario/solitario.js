@@ -41,6 +41,8 @@ const state = {
   rankingGame: "todos",
   playersChannel: null,
   playersPoll: null,
+  activeRoomsRequestId: 0,
+  startingRoom: false,
 }
 
 const els = {
@@ -655,11 +657,26 @@ function subscribeRoom(roomId) {
 
 async function refreshRoom() {
   if (!state.activeRoom) return
-  const { data } = await supabase.from("salas").select("*").eq("id", state.activeRoom.id).maybeSingle()
+  const { data, error } = await supabase.from("salas").select("*").eq("id", state.activeRoom.id).maybeSingle()
+  if (error) {
+    setText(els.roomStatus, "No se pudo sincronizar la sala.")
+    return
+  }
+  if (!data) {
+    clearActiveRoomState("Este mini torneo ya no existe.")
+    return
+  }
   if (data) {
     const wasWaiting = state.activeRoom.estado !== "en_juego"
     state.activeRoom = data
     renderRoom(data)
+    if (data.estado === "finalizado") {
+      clearMiniTournamentContext()
+      stopRoomSync()
+      setText(els.roomStatus, "Este mini torneo fue finalizado.")
+      loadActiveRooms()
+      return
+    }
     if (wasWaiting && data.estado === "en_juego") redirectToActiveGame()
   }
 }
@@ -691,11 +708,26 @@ async function updateRoomState(estado) {
   const payload = { estado }
   if (estado === "en_juego") payload.inicio_torneo = new Date().toISOString()
   if (estado === "finalizado") payload.fecha_fin = new Date().toISOString()
-  const { error } = await supabase.from("salas").update(payload).eq("id", state.activeRoom.id)
+  let query = supabase
+    .from("salas")
+    .update(payload)
+    .eq("id", state.activeRoom.id)
+
+  if (estado === "en_juego") query = query.eq("estado", "esperando")
+  if (estado === "finalizado") query = query.neq("estado", "finalizado")
+
+  const { data, error } = await query.select().maybeSingle()
   if (error) {
     setText(els.roomStatus, "No se pudo actualizar la sala. Revisa que solitario-mini-torneos.sql este aplicado.")
     return false
   }
+  if (!data) {
+    await refreshRoom()
+    setText(els.roomStatus, "La sala ya habia cambiado de estado. Se sincronizo la vista.")
+    return false
+  }
+  state.activeRoom = data
+  renderRoom(data)
   return true
 }
 
@@ -737,10 +769,11 @@ async function addRoomPoints() {
 
 async function finishRoom() {
   if (!state.activeRoom) return
+  const room = state.activeRoom
   const { data } = await supabase
     .from("sala_jugadores")
     .select("usuario_id,usuario,puntos")
-    .eq("sala_id", state.activeRoom.id)
+    .eq("sala_id", room.id)
     .order("puntos", { ascending: false })
 
   const winnerId = data?.[0]?.usuario_id
@@ -753,9 +786,9 @@ async function finishRoom() {
       usuario: player.usuario || player.usuario_id,
       puntos: player.puntos,
       victoria: player.usuario_id === winnerId,
-      sala_id: state.activeRoom.id,
+      sala_id: room.id,
       origen: "sala",
-      juego: state.activeRoom.juego,
+      juego: room.juego,
     })))
   }
 
@@ -767,21 +800,30 @@ async function finishRoom() {
 // existente /juegos/{juego}/index.html.
 async function startRoom() {
   if (!state.activeRoom) return
+  if (state.startingRoom) return
   if (!isValidGame(state.activeRoom.juego)) {
     setText(els.roomStatus, "Este torneo no tiene un juego valido.")
     return
   }
 
+  state.startingRoom = true
+  els.startRoomBtn.disabled = true
+  setText(els.roomStatus, "Iniciando mini torneo...")
+  try {
   const updated = await updateRoomState("en_juego")
   if (!updated) return
-  await refreshRoom()
   redirectToActiveGame()
+  } finally {
+    state.startingRoom = false
+    if (state.activeRoom?.estado === "esperando") renderRoom(state.activeRoom)
+  }
 }
 
 // Carga salas activas y permite unirse desde tarjetas, respetando el limite de
 // jugadores antes de hacer upsert en sala_jugadores.
 async function loadActiveRooms() {
   if (!els.activeRoomsList) return
+  const requestId = ++state.activeRoomsRequestId
 
   const { data, error } = await supabase
     .from("salas")
@@ -789,6 +831,8 @@ async function loadActiveRooms() {
     .neq("estado", "finalizado")
     .order("created_at", { ascending: false })
     .limit(12)
+
+  if (requestId !== state.activeRoomsRequestId) return
 
   if (error) {
     els.activeRoomsList.innerHTML = '<div class="status">No se pudieron cargar torneos activos.</div>'
@@ -804,9 +848,11 @@ async function loadActiveRooms() {
     id: room.id,
     count: await countPlayers(room.id),
   })))
+  if (requestId !== state.activeRoomsRequestId) return
   const countByRoom = new Map(counts.map((item) => [item.id, item.count]))
 
   const playersByRoom = await loadPlayersPreview(data.map((room) => room.id))
+  if (requestId !== state.activeRoomsRequestId) return
 
   els.activeRoomsList.innerHTML = data.map((room) => {
     const players = countByRoom.get(room.id) || 0
@@ -888,6 +934,27 @@ function redirectToActiveGame() {
   localStorage.setItem("solitario_origen", "sala")
   markSolitarioGameLaunch(state.activeRoom.juego, "sala")
   goToGame(state.activeRoom.juego, "sala")
+}
+
+function stopRoomSync() {
+  if (state.playersPoll) {
+    clearInterval(state.playersPoll)
+    state.playersPoll = null
+  }
+  if (state.playersChannel) {
+    supabase.removeChannel(state.playersChannel)
+    state.playersChannel = null
+  }
+}
+
+function clearActiveRoomState(message = "") {
+  stopRoomSync()
+  state.activeRoom = null
+  clearMiniTournamentContext()
+  if (els.roomDetail) els.roomDetail.hidden = true
+  if (els.playersList) els.playersList.innerHTML = ""
+  if (message) setText(els.roomStatus, message)
+  loadActiveRooms()
 }
 
 function goToGame(game, origin) {
