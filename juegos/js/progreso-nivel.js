@@ -1,6 +1,7 @@
 import { supabase } from './supabase.js'
 import { obtenerBonusTemporada } from './experiencia-temporada.js'
 import { obtenerBonusUsuario } from './tienda.js'
+import { obtenerBonusRangoActivo } from './rango-bonus.js'
 
 export const NIVEL_MAXIMO = 3000
 export const NIVEL_ESCALADO_AVANZADO = 1416
@@ -343,7 +344,8 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
     ? Number(bonusXPAplicado)
     : juego ? await obtenerBonusTemporada(juego) : 1
   const bonusUsuario = await obtenerBonusUsuario(usuario)
-  const xp = Math.max(1, Math.round(xpBase * multiplicadorOrigen * bonusTemporada * bonusUsuario))
+  const bonusRango = obtenerBonusRangoActivo(usuario)
+  const xp = Math.max(1, Math.round(xpBase * multiplicadorOrigen * bonusTemporada * bonusUsuario * bonusRango.multiplicadorExp))
   if (!xp) return null
 
   const key = accionKey || `${accion}:${Date.now()}:${Math.random().toString(16).slice(2)}`
@@ -399,6 +401,9 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
         multiplicadorOrigen,
         bonusTemporada,
         bonusUsuario,
+        bonusRango: bonusRango.multiplicadorExp,
+        bonusRangoPorcentaje: bonusRango.exp,
+        rangoActivo: bonusRango.titulo,
       },
     })
 
@@ -415,6 +420,7 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
     xpBase,
     bonusTemporada,
     bonusUsuario,
+    bonusRango: bonusRango.multiplicadorExp,
     multiplicadorOrigen,
     nivelAnterior: progresoAnterior.nivel,
     nivelActual: calculado.nivel,

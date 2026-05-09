@@ -2876,7 +2876,7 @@ body.sudoku-screen-shake{
 
 .next-rank-panel{
   display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
+  grid-template-columns:repeat(5, minmax(0, 1fr));
   gap:10px;
 }
 
@@ -2893,12 +2893,75 @@ body.sudoku-screen-shake{
 }
 
 .next-rank-panel small,
-.rank-node-requirement{
+.rank-node-requirement,
+.rank-node-bonus{
   display:block;
   color:var(--muted);
   font-size:0.72rem;
   font-weight:800;
   letter-spacing:0;
+}
+
+.rank-bonus-pill::before{
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.28), transparent 22%),
+    linear-gradient(135deg, var(--rank-accent), var(--rank-primary));
+}
+
+.rank-bonus-panel{
+  display:grid;
+  grid-template-columns:minmax(180px, 0.7fr) minmax(0, 1.3fr);
+  gap:12px;
+  align-items:center;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(var(--rank-rgb),0.24);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(var(--rank-rgb),0.14), transparent 30%),
+    linear-gradient(135deg, rgba(var(--rank-rgb),0.11), rgba(2,6,23,0.52));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.rank-bonus-panel small,
+.rank-bonus-panel span{
+  display:block;
+}
+
+.rank-bonus-panel small{
+  color:#94a3b8;
+  font-size:0.72rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+.rank-bonus-panel span{
+  margin-top:4px;
+  color:var(--rank-title);
+  font-weight:900;
+}
+
+.rank-bonus-track{
+  height:12px;
+  border-radius:999px;
+  padding:2px;
+  background:rgba(2,6,23,0.72);
+  border:1px solid rgba(var(--rank-rgb),0.2);
+  overflow:hidden;
+}
+
+.rank-bonus-track span{
+  width:0%;
+  height:100%;
+  margin:0;
+  border-radius:inherit;
+  background:linear-gradient(90deg, var(--rank-secondary), var(--rank-primary), var(--rank-accent));
+  box-shadow:0 0 18px var(--rank-glow-soft);
+  transition:width 0.45s ease;
+}
+
+.rank-node-bonus{
+  color:color-mix(in srgb, var(--node-primary) 78%, white 12%);
 }
 
 .rank-path{
@@ -5605,6 +5668,10 @@ body.sudoku-screen-shake{
     grid-template-columns:1fr;
   }
 
+  .rank-bonus-panel{
+    grid-template-columns:1fr;
+  }
+
   .chat-toolbar,
   .chat-panel-head,
   .chat-thread-head,
@@ -5715,6 +5782,16 @@ body.sudoku-screen-shake{
     border-radius:12px;
     overflow-wrap:anywhere;
     min-height:64px;
+    box-shadow:0 12px 22px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .rank-bonus-panel{
+    padding:12px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .rank-bonus-track span{
+    box-shadow:none;
   }
 
   .profile-eyebrow{
@@ -6136,6 +6213,8 @@ body.sudoku-screen-shake{
         <div class="pill" id="pillPartidas"><span><span class="pill-label">Partidas</span><span class="pill-value">0</span></span></div>
         <div class="pill" id="pillMedallas"><span><span class="pill-label">Medallas</span><span class="pill-value">0</span></span></div>
         <div class="pill" id="pillNivel"><span><span class="pill-label">Nivel</span><span class="pill-value">1</span></span></div>
+        <div class="pill rank-bonus-pill" id="pillBonusExp"><span><span class="pill-label">Bonus EXP</span><span class="pill-value">+0%</span></span></div>
+        <div class="pill rank-bonus-pill" id="pillBonusMonedas"><span><span class="pill-label">Bonus monedas</span><span class="pill-value">+0%</span></span></div>
       </div>
     </div>
     <div class="card season-pass">
@@ -6161,12 +6240,29 @@ body.sudoku-screen-shake{
           <span id="rangoEquipadoTexto">Equipado: Novato</span>
         </div>
         <div>
+          <small>Bonus EXP</small>
+          <span id="rangoBonusExp">+0%</span>
+        </div>
+        <div>
+          <small>Bonus monedas</small>
+          <span id="rangoBonusMonedas">+0%</span>
+        </div>
+        <div>
           <small>Proximo rango</small>
           <span id="proximoRangoNombre">Amateur</span>
         </div>
         <div>
           <small id="proximoRangoXp">XP necesaria: 0 XP</small>
           <span id="proximoRangoFaltante">Te faltan: 0 XP</span>
+        </div>
+      </div>
+      <div class="rank-bonus-panel">
+        <div>
+          <small>Escalado del rango activo</small>
+          <span id="rangoBonusCategoria">Base - Novato</span>
+        </div>
+        <div class="rank-bonus-track" aria-label="Progreso de bonus por rango">
+          <span id="rangoBonusBarra"></span>
         </div>
       </div>
       <div class="rank-path">

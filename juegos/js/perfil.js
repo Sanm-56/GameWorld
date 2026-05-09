@@ -18,6 +18,11 @@ import {
   registrarXpPorLogros,
 } from './progreso-nivel.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js'
+import {
+  calcularBonusRango,
+  guardarRangoEquipado as guardarRangoEquipadoBonus,
+  leerRangoEquipado as leerRangoEquipadoBonus,
+} from './rango-bonus.js'
 
 const usuario = localStorage.getItem('usuario')
 instalarEstilosPersonalizacion()
@@ -46,6 +51,8 @@ const pillUsuarioEl = document.getElementById('pillUsuario')
 const pillPartidasEl = document.getElementById('pillPartidas')
 const pillMedallasEl = document.getElementById('pillMedallas')
 const pillNivelEl = document.getElementById('pillNivel')
+const pillBonusExpEl = document.getElementById('pillBonusExp')
+const pillBonusMonedasEl = document.getElementById('pillBonusMonedas')
 const statJuegosEl = document.getElementById('statJuegos')
 const statOrosEl = document.getElementById('statOros')
 const statPodiosEl = document.getElementById('statPodios')
@@ -71,6 +78,10 @@ const rangoRutaListEl = document.getElementById('rangoRutaList')
 const rangoProgresoTextoEl = document.getElementById('rangoProgresoTexto')
 const perfilHeroEl = document.querySelector('.hero.profile-card')
 const rangoEquipadoTextoEl = document.getElementById('rangoEquipadoTexto')
+const rangoBonusExpEl = document.getElementById('rangoBonusExp')
+const rangoBonusMonedasEl = document.getElementById('rangoBonusMonedas')
+const rangoBonusCategoriaEl = document.getElementById('rangoBonusCategoria')
+const rangoBonusBarraEl = document.getElementById('rangoBonusBarra')
 const proximoRangoNombreEl = document.getElementById('proximoRangoNombre')
 const proximoRangoXpEl = document.getElementById('proximoRangoXp')
 const proximoRangoFaltanteEl = document.getElementById('proximoRangoFaltante')
@@ -94,7 +105,6 @@ const chatConfirmTitleEl = document.getElementById('chatConfirmTitle')
 const chatConfirmMessageEl = document.getElementById('chatConfirmMessage')
 const chatConfirmCancelEl = document.getElementById('chatConfirmCancel')
 const chatConfirmAcceptEl = document.getElementById('chatConfirmAccept')
-const RANGO_EQUIPADO_KEY = 'perfil_rango_equipado_usuario'
 const CHAT_GLOBAL_TABLA = 'chat_global'
 const CHAT_PRIVADO_TABLA = 'chat_privado'
 const CHAT_LIMITE = 60
@@ -375,24 +385,14 @@ function formatearNumero(valor) {
   return new Intl.NumberFormat('es-CO').format(Math.max(0, Math.trunc(Number(valor) || 0)))
 }
 
-function leerObjetoLocal(key) {
-  try {
-    return JSON.parse(localStorage.getItem(key) || '{}')
-  } catch (error) {
-    return {}
-  }
-}
-
 function leerRangoEquipado(usuarioId) {
   if (!usuarioId) return 'Novato'
-  return leerObjetoLocal(RANGO_EQUIPADO_KEY)[usuarioId] || 'Novato'
+  return leerRangoEquipadoBonus(usuarioId).titulo || 'Novato'
 }
 
-function guardarRangoEquipado(usuarioId, titulo) {
+function guardarRangoEquipado(usuarioId, rango) {
   if (!usuarioId) return
-  const datos = leerObjetoLocal(RANGO_EQUIPADO_KEY)
-  datos[usuarioId] = titulo || 'Novato'
-  localStorage.setItem(RANGO_EQUIPADO_KEY, JSON.stringify(datos))
+  guardarRangoEquipadoBonus(usuarioId, rango)
 }
 
 function rangoEstaDesbloqueado(rango, nivel) {
@@ -404,6 +404,7 @@ function aplicarRangoEquipado(titulo) {
   if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = rangoEquipadoActual
   if (rangoEquipadoTextoEl) rangoEquipadoTextoEl.innerText = `Equipado: ${rangoEquipadoActual}`
   aplicarVisualRangoActual(rangoEquipadoActual)
+  actualizarBonusRangoPerfil()
 }
 
 function hashTextoVisual(valor) {
@@ -496,6 +497,32 @@ function renderPill(el, label, value) {
   `
 }
 
+function crearRangoGuardable(rango, rangos) {
+  const lista = Array.isArray(rangos) && rangos.length ? rangos : obtenerRangosDesdeNivel(1)
+  const index = Math.max(0, lista.findIndex((item) => normalizarTextoVisual(item.titulo) === normalizarTextoVisual(rango?.titulo)))
+  return {
+    titulo: rango?.titulo || 'Novato',
+    desde: rango?.desde || 1,
+    hasta: rango?.hasta || rango?.desde || 25,
+    indice: index,
+    totalRangos: lista.length || 1,
+  }
+}
+
+function actualizarBonusRangoPerfil(rango = null, rangos = null) {
+  const lista = Array.isArray(rangos) && rangos.length ? rangos : obtenerRangosDesdeNivel(1)
+  const base = rango || lista.find((item) => normalizarTextoVisual(item.titulo) === normalizarTextoVisual(rangoEquipadoActual)) || lista[0]
+  const bonus = calcularBonusRango(crearRangoGuardable(base, lista), lista.length)
+  const progresoBonus = Math.round((bonus.progreso || 0) * 100)
+
+  renderPill(pillBonusExpEl, 'Bonus EXP', bonus.expTexto)
+  renderPill(pillBonusMonedasEl, 'Bonus monedas', bonus.monedasTexto)
+  if (rangoBonusExpEl) rangoBonusExpEl.innerText = bonus.expTexto
+  if (rangoBonusMonedasEl) rangoBonusMonedasEl.innerText = bonus.monedasTexto
+  if (rangoBonusCategoriaEl) rangoBonusCategoriaEl.innerText = `${bonus.etiqueta} - ${bonus.titulo}`
+  if (rangoBonusBarraEl) rangoBonusBarraEl.style.width = `${progresoBonus}%`
+}
+
 function obtenerRangoVisual(nivelActual) {
   const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
   const titulo = obtenerTituloNivel(nivel)
@@ -536,6 +563,7 @@ function renderRutaRangos(progreso) {
     const estado = equipado ? 'Equipado' : esActual ? 'Rango actual' : desbloqueado ? 'Desbloqueado' : 'Bloqueado'
     const clase = `${esActual ? 'current' : ''} ${desbloqueado ? 'unlocked' : 'locked'} ${equipado ? 'equipped' : ''}`.trim()
     const visual = obtenerVisualRango(rango.titulo)
+    const bonus = calcularBonusRango(crearRangoGuardable(rango, rangos), rangos.length)
     const rangoTexto = rango.desde === rango.hasta
       ? `Nivel ${rango.desde}`
       : `Nivel ${rango.desde}-${rango.hasta}`
@@ -553,6 +581,7 @@ function renderRutaRangos(progreso) {
         </div>
         <span class="rank-node-name">${escaparHtml(rango.titulo)}</span>
         <span class="rank-node-requirement">Requiere ${formatearNumero(xpRequeridaParaRango(rango))} XP</span>
+        <span class="rank-node-bonus">EXP ${bonus.expTexto} · Monedas ${bonus.monedasTexto}</span>
         <span class="rank-node-progress"><span style="width:${progresoRango.porcentaje}%"></span></span>
         <span class="rank-node-state">${estado}</span>
         ${boton}
@@ -589,13 +618,16 @@ function instalarEventosRangos() {
       if (!usuario || !progresoNivelActual) return
       const action = button.dataset.rankAction
       const titulo = action === 'unequip' ? 'Novato' : button.dataset.rankTitle
+      const rangosTodos = obtenerRangosDesdeNivel(1)
       const rango = obtenerRangosHastaNivel(progresoNivelActual.nivel)
         .find((item) => normalizarTextoVisual(item.titulo) === normalizarTextoVisual(titulo))
 
       if (action === 'equip' && !rangoEstaDesbloqueado(rango, progresoNivelActual.nivel)) return
 
-      guardarRangoEquipado(usuario, titulo)
-      aplicarRangoEquipado(titulo)
+      const rangoFinal = rango || rangosTodos[0]
+      guardarRangoEquipado(usuario, crearRangoGuardable(rangoFinal, rangosTodos))
+      aplicarRangoEquipado(rangoFinal.titulo)
+      actualizarBonusRangoPerfil(rangoFinal, rangosTodos)
       renderRutaRangos(progresoNivelActual)
     })
   })
@@ -4585,6 +4617,7 @@ async function renderProgresoNivel() {
     xpNivelDetalleEl.innerText = '0 / 100 XP'
     xpRestanteEl.innerText = 'Faltan 100 XP'
     renderPill(pillNivelEl, 'Nivel', '1')
+    actualizarBonusRangoPerfil()
     if (perfilTituloRangoEl) perfilTituloRangoEl.innerText = 'Sin rango'
     aplicarVisualRangoActual('Novato')
     recompensaSiguienteEl.innerText = 'Inicia sesion para ver recompensas.'
@@ -4597,6 +4630,7 @@ async function renderProgresoNivel() {
   progresoNivelActual = progreso
   const tituloNivel = obtenerTituloNivel(progreso.nivel)
   const rangoActual = obtenerRangoNivel(progreso.nivel)
+  const rangosTodos = obtenerRangosDesdeNivel(1)
   const rangosDesbloqueados = obtenerRangosHastaNivel(progreso.nivel)
   const rangoGuardado = leerRangoEquipado(usuario)
   const rangoGuardadoDesbloqueado = rangosDesbloqueados.some((rango) => normalizarTextoVisual(rango.titulo) === normalizarTextoVisual(rangoGuardado))
@@ -4614,6 +4648,9 @@ async function renderProgresoNivel() {
   barraNivelEl.style.width = `${progreso.porcentaje}%`
   renderPill(pillNivelEl, 'Nivel / rango', `${progreso.nivel} - ${tituloNivel}`)
   aplicarRangoEquipado(tituloEquipado)
+  const rangoEquipado = rangosTodos.find((rango) => normalizarTextoVisual(rango.titulo) === normalizarTextoVisual(tituloEquipado)) || rangosTodos[0]
+  guardarRangoEquipado(usuario, crearRangoGuardable(rangoEquipado, rangosTodos))
+  actualizarBonusRangoPerfil(rangoEquipado, rangosTodos)
   renderRutaRangos(progreso)
 
   if (progreso.nivel >= NIVEL_MAXIMO) {

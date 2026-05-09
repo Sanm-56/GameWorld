@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js"
+import { aplicarBonusMonedas, obtenerBonusRangoActivo } from "./rango-bonus.js"
 
 export const BOOSTERS_XP = [
   { id: "xp15_6h", nombre: "Booster XP x1.5", multiplicador: 1.5, duracionMs: 6 * 60 * 60 * 1000, precio: 400, precioReal: "$0.49", rareza: "Inicial", etiqueta: "Oferta" },
@@ -304,17 +305,22 @@ export function registrarMonedasPorActividad(usuario, { juego, origen = "torneo"
   if (!usuario) return 0
   const recompensa = calcularRecompensaMonedas({ origen, posicion, resultadoNivel })
   if (!recompensa.total) return obtenerMonedas(usuario)
+  const bonusRango = obtenerBonusRangoActivo(usuario)
+  const recompensaConRango = aplicarBonusMonedas(recompensa.total, bonusRango)
   const key = accionKey || `${recompensa.origen}:${juego || "actividad"}:${Date.now()}`
   const historial = leerObjeto(MONEDAS_HISTORIAL_KEY)
   const movimientos = Array.isArray(historial[usuario]) ? historial[usuario] : []
   if (movimientos.some((movimiento) => movimiento.key === key)) return obtenerMonedas(usuario)
-  return sumarMonedas(usuario, recompensa.total, {
+  return sumarMonedas(usuario, recompensaConRango.total, {
     key,
     juego,
     origen: recompensa.origen,
     posicion,
     recompensaBase: recompensa.base,
     bonusPosicion: recompensa.bonus,
+    bonusRango: recompensaConRango.bonusRango,
+    bonusRangoPorcentaje: bonusRango.monedas,
+    rangoActivo: bonusRango.titulo,
     motivo: recompensa.origen === "nivel" ? "nivel_completado" : `${recompensa.origen}_completado`,
     nivel: resultadoNivel?.level?.id || null,
   })
