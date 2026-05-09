@@ -214,12 +214,27 @@ function renderCosmetico(item) {
 }
 
 function clasesVisualesCosmetico(item) {
+  const marco = item.diseno?.marco
+  if (item.tipo === "marco" && marco) {
+    return ` marco-struct-${marco.estructura} marco-corner-${marco.esquina} marco-border-${marco.borde} marco-line-${marco.linea} marco-panel-${marco.panel} marco-texture-${marco.textura} marco-cut-${marco.corte} marco-pulse-${marco.pulso} marco-glyph-${marco.glifo} marco-aura-${marco.aura} marco-relic-${marco.reliquia} marco-anomaly-${marco.anomalia}`
+  }
   const fondo = item.diseno?.fondo
   if (item.tipo !== "fondo" || !fondo) return ""
   return ` fondo-layout-${fondo.layout} fondo-textura-${fondo.textura} fondo-simbolo-${fondo.simbolo} fondo-panel-${fondo.panel} fondo-energia-${fondo.energia} fondo-fractura-${fondo.fractura} fondo-reliquia-${fondo.reliquia}`
 }
 
 function estiloVisualCosmetico(item) {
+  const marco = item.diseno?.marco
+  if (item.tipo === "marco" && marco) {
+    const estilo = [
+      `--marco-hue:${Number(marco.hue || 204)}`,
+      `--marco-accent:${Number(marco.accent || 190)}`,
+      `--marco-luz:${Number(marco.luz || 24)}%`,
+      `--marco-depth:${Number(marco.profundidad || 36)}%`,
+      `--marco-angle:${Number((marco.estructura * 23 + marco.linea * 17) % 360)}deg`,
+    ].join(";")
+    return ` style="${estilo}"`
+  }
   const fondo = item.diseno?.fondo
   if (item.tipo !== "fondo" || !fondo) return ""
   const estilo = [

@@ -1,5 +1,10 @@
 import { supabase } from './supabase.js'
 import {
+  RECOMPENSAS_MONEDAS,
+  obtenerHistorialMonedas,
+  obtenerMonedas,
+} from './tienda.js'
+import {
   NIVEL_MAXIMO,
   calcularProgresoHaciaRango,
   obtenerProgresoNivel,
@@ -51,6 +56,9 @@ const logrosTituloJuegoEl = document.getElementById('logrosTituloJuego')
 const logrosContadorEl = document.getElementById('logrosContador')
 const logrosListEl = document.getElementById('logrosList')
 const historialListEl = document.getElementById('historialList')
+const rewardCoinsEl = document.getElementById('rewardCoins')
+const rewardSummaryEl = document.getElementById('rewardSummary')
+const rewardRecentEl = document.getElementById('rewardRecent')
 const nivelActualEl = document.getElementById('nivelActual')
 const xpActualEl = document.getElementById('xpActual')
 const porcentajeNivelEl = document.getElementById('porcentajeNivel')
@@ -814,6 +822,7 @@ async function cargarPerfil() {
     estadisticasLogros = {}
     renderLogrosJuegos()
     renderLogros()
+    renderPanelMonedas()
     historialListEl.innerHTML = '<div class="empty">No hay historial disponible.</div>'
     return
   }
@@ -882,9 +891,83 @@ async function cargarPerfil() {
   }
   renderLogrosJuegos()
   renderLogros()
+  renderPanelMonedas()
   renderHistorial(resultados)
   await sincronizarXpDeLogros()
   await renderProgresoNivel()
+}
+
+function renderPanelMonedas() {
+  if (!rewardCoinsEl || !rewardSummaryEl || !rewardRecentEl) return
+
+  if (!usuario) {
+    rewardCoinsEl.innerText = '0'
+    rewardSummaryEl.innerHTML = '<div class="coin-empty">Inicia sesion para ver tus monedas.</div>'
+    rewardRecentEl.innerHTML = '<div class="coin-empty">Sin movimientos disponibles.</div>'
+    return
+  }
+
+  const saldo = obtenerMonedas(usuario)
+  const historial = obtenerHistorialMonedas(usuario)
+  rewardCoinsEl.innerText = saldo.toLocaleString('es-CO')
+
+  rewardSummaryEl.innerHTML = [
+    { icon: 'TR', title: 'Torneo completado', value: `+${RECOMPENSAS_MONEDAS.torneo}`, detail: 'Base por participar y terminar' },
+    { icon: 'MT', title: 'Minitorneo completado', value: `+${RECOMPENSAS_MONEDAS.minitorneo}`, detail: 'Base por sala finalizada' },
+    { icon: 'NV', title: 'Nivel completado', value: `+${RECOMPENSAS_MONEDAS.nivel}`, detail: 'Solo primera finalizacion' },
+  ].map((item) => `
+    <div class="coin-rule-card">
+      <span class="coin-rule-icon">${item.icon}</span>
+      <div>
+        <strong>${item.title}</strong>
+        <small>${item.detail}</small>
+      </div>
+      <b>${item.value}</b>
+    </div>
+  `).join('')
+
+  const bonus = [
+    { pos: '1', value: RECOMPENSAS_MONEDAS.posicion[1], label: 'Campeon' },
+    { pos: '2', value: RECOMPENSAS_MONEDAS.posicion[2], label: 'Finalista' },
+    { pos: '3', value: RECOMPENSAS_MONEDAS.posicion[3], label: 'Podio' },
+  ].map((item) => `
+    <div class="coin-bonus-pill">
+      <span>#${item.pos}</span>
+      <strong>+${item.value}</strong>
+      <small>${item.label}</small>
+    </div>
+  `).join('')
+
+  const recientes = historial
+    .filter((movimiento) => Number(movimiento.cantidad || 0) > 0)
+    .slice(0, 3)
+
+  rewardRecentEl.innerHTML = `
+    <div class="coin-bonus-grid">${bonus}</div>
+    ${recientes.length ? recientes.map((movimiento) => `
+      <div class="coin-recent-row">
+        <span>+${Number(movimiento.cantidad || 0).toLocaleString('es-CO')}</span>
+        <div>
+          <strong>${etiquetaMovimientoMonedas(movimiento)}</strong>
+          <small>${fechaMovimientoMonedas(movimiento.fecha)}</small>
+        </div>
+      </div>
+    `).join('') : '<div class="coin-empty">Aun no hay recompensas cobradas.</div>'}
+  `
+}
+
+function etiquetaMovimientoMonedas(movimiento) {
+  const detalle = movimiento?.detalle || {}
+  if (detalle.motivo === 'nivel_completado') return `Nivel ${detalle.nivel || ''} completado`.trim()
+  if (detalle.motivo === 'minitorneo_completado') return `Minitorneo${detalle.bonusPosicion ? ` + bonus #${detalle.posicion}` : ''}`
+  if (detalle.motivo === 'torneo_completado') return `Torneo${detalle.bonusPosicion ? ` + bonus #${detalle.posicion}` : ''}`
+  return 'Recompensa ganada'
+}
+
+function fechaMovimientoMonedas(fecha) {
+  const date = Date.parse(fecha)
+  if (!Number.isFinite(date)) return 'Movimiento reciente'
+  return new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(date))
 }
 
 function renderMedallas(resultados) {

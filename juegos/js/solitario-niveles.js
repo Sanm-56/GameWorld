@@ -163,12 +163,14 @@ export async function reportLevelResult(supabase, { usuario, juego, valor, modo,
 
   const result = normalizeResult({ juego, valor, modo, posicion, invalido })
   const completed = checkMission(level, result)
+  const previousProgress = getLevelProgress(usuario)
+  const wasCompleted = previousProgress.done.includes(level.id)
   const progress = updateLocalProgress(usuario, level, result, completed)
 
   await saveProgressToSupabase(supabase, usuario, level, result, completed)
   await saveLevelResultToRanking(supabase, usuario, level, result, completed)
 
-  return { completed, level, progress, result }
+  return { completed, newlyCompleted: completed && !wasCompleted, level, progress, result }
 }
 
 function normalizeResult({ juego, valor, modo, posicion, invalido }) {

@@ -37,15 +37,28 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     temporada_id: snapshotBonusXP?.temporadaId || null,
   }
 
-  let { error } = await supabase
+  let { data: partidaGuardada, error } = await supabase
     .from("partidas")
     .insert(payloadConSnapshot)
+    .select("id")
+    .maybeSingle()
 
-  if (error && esErrorColumnasSnapshot(error)) {
+  if (error && esErrorColumnasInsert(error)) {
     const fallback = await supabase
       .from("partidas")
       .insert(payload)
+      .select("id")
+      .maybeSingle()
+    partidaGuardada = fallback.data
     error = fallback.error
+
+    if (error && esErrorColumnasInsert(error)) {
+      const fallbackSinId = await supabase
+        .from("partidas")
+        .insert(payload)
+      partidaGuardada = null
+      error = fallbackSinId.error
+    }
   }
 
   if (error) {
@@ -64,17 +77,23 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
   registrarMonedasPorActividad(usuario, {
     juego,
     origen: origenExperiencia,
-    accionKey: `partida:${usuario}:${juego}:${origenExperiencia}:${Date.now()}`,
+    posicion,
+    resultadoNivel,
+    accionKey: partidaGuardada?.id
+      ? `monedas:partida:${partidaGuardada.id}`
+      : `monedas:partida:${usuario}:${juego}:${origenExperiencia}:${modo}:${numero}`,
   })
 
   limpiarSnapshotBonusXP(juego)
 }
 
-function esErrorColumnasSnapshot(error) {
+function esErrorColumnasInsert(error) {
   const mensaje = String(error?.message || "")
   return error?.code === "42703"
     || mensaje.includes("bonus_xp_aplicado")
     || mensaje.includes("temporada_id")
+    || mensaje.includes("column \"id\"")
+    || mensaje.includes("Could not find the 'id'")
     || mensaje.includes("Could not find")
 }
 

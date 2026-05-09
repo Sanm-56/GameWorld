@@ -123,7 +123,16 @@ const BOOSTER_LOCAL_KEY = "tienda_boosters_usuario"
 const COSMETICOS_LOCAL_KEY = "tienda_cosmeticos_usuario"
 const MONEDAS_LOCAL_KEY = "monedas_usuario_saldos"
 const MONEDAS_HISTORIAL_KEY = "monedas_usuario_historial"
-const MONEDAS_POR_ACTIVIDAD = 100
+export const RECOMPENSAS_MONEDAS = {
+  torneo: 300,
+  minitorneo: 150,
+  nivel: 150,
+  posicion: {
+    1: 200,
+    2: 100,
+    3: 50,
+  },
+}
 
 export async function obtenerBonusUsuario(usuario) {
   const activo = await obtenerBoosterActivo(usuario)
@@ -270,17 +279,44 @@ export function descontarMonedas(usuario, costo, detalle = {}) {
   return true
 }
 
-export function registrarMonedasPorActividad(usuario, { juego, origen = "torneo", accionKey = null } = {}) {
+export function obtenerHistorialMonedas(usuario) {
+  if (!usuario) return []
+  const movimientos = leerObjeto(MONEDAS_HISTORIAL_KEY)[usuario]
+  return Array.isArray(movimientos) ? movimientos : []
+}
+
+export function calcularRecompensaMonedas({ origen = "torneo", posicion = null, resultadoNivel = null } = {}) {
+  const origenNormalizado = origen === "solitario" ? "nivel" : origen
+  const esNivel = origenNormalizado === "nivel"
+  const base = esNivel
+    ? resultadoNivel?.newlyCompleted ? RECOMPENSAS_MONEDAS.nivel : 0
+    : origenNormalizado === "minitorneo" ? RECOMPENSAS_MONEDAS.minitorneo : RECOMPENSAS_MONEDAS.torneo
+  const bonus = esNivel ? 0 : RECOMPENSAS_MONEDAS.posicion[Number(posicion)] || 0
+  return {
+    base,
+    bonus,
+    total: base + bonus,
+    origen: origenNormalizado,
+  }
+}
+
+export function registrarMonedasPorActividad(usuario, { juego, origen = "torneo", posicion = null, resultadoNivel = null, accionKey = null } = {}) {
   if (!usuario) return 0
-  const key = accionKey || `${origen}:${juego || "actividad"}:${Date.now()}`
+  const recompensa = calcularRecompensaMonedas({ origen, posicion, resultadoNivel })
+  if (!recompensa.total) return obtenerMonedas(usuario)
+  const key = accionKey || `${recompensa.origen}:${juego || "actividad"}:${Date.now()}`
   const historial = leerObjeto(MONEDAS_HISTORIAL_KEY)
   const movimientos = Array.isArray(historial[usuario]) ? historial[usuario] : []
   if (movimientos.some((movimiento) => movimiento.key === key)) return obtenerMonedas(usuario)
-  return sumarMonedas(usuario, MONEDAS_POR_ACTIVIDAD, {
+  return sumarMonedas(usuario, recompensa.total, {
     key,
     juego,
-    origen,
-    motivo: "actividad_completada",
+    origen: recompensa.origen,
+    posicion,
+    recompensaBase: recompensa.base,
+    bonusPosicion: recompensa.bonus,
+    motivo: recompensa.origen === "nivel" ? "nivel_completado" : `${recompensa.origen}_completado`,
+    nivel: resultadoNivel?.level?.id || null,
   })
 }
 
@@ -336,6 +372,39 @@ function crearDisenoCosmetico(tipo, rareza, index, intensidad) {
     tema: TEMAS_VISUALES[index % TEMAS_VISUALES.length],
     brillo: intensidad,
     patron: ["lineas", "pulso", "anillo", "fragmentos", "halo"][index % 5],
+  }
+
+  if (tipo === "marco") {
+    const perfilesMarco = {
+      Normal: { hues: [204, 212, 198, 188, 220], accents: [190, 202, 184, 196, 210], luz: 18, luzVar: 16, profundidad: 30, profVar: 18, pulso: false },
+      Raro: { hues: [192, 184, 174, 166, 202], accents: [188, 178, 160, 196, 172], luz: 38, luzVar: 24, profundidad: 48, profVar: 24, pulso: true },
+      Epico: { hues: [268, 276, 286, 252, 296], accents: [292, 264, 318, 238, 284], luz: 42, luzVar: 26, profundidad: 58, profVar: 24, pulso: true },
+      Legendario: { hues: [42, 36, 28, 4, 218], accents: [48, 38, 12, 0, 210], luz: 52, luzVar: 28, profundidad: 66, profVar: 22, pulso: true },
+      Mitico: { hues: [194, 178, 268, 154, 210], accents: [184, 166, 286, 142, 224], luz: 48, luzVar: 28, profundidad: 70, profVar: 24, pulso: true },
+      Prohibido: { hues: [270, 292, 352, 196, 0], accents: [188, 336, 0, 214, 286], luz: 34, luzVar: 26, profundidad: 78, profVar: 18, pulso: true },
+    }
+    const perfil = perfilesMarco[rareza] || perfilesMarco.Normal
+    return {
+      ...base,
+      marco: {
+        estructura: index % 16,
+        esquina: (index * 5 + 2) % 14,
+        borde: (index * 7 + 3) % 12,
+        linea: (index * 11 + 1) % 12,
+        panel: (index * 13 + 4) % 10,
+        textura: (index * 17 + 6) % 10,
+        luz: perfil.luz + ((index * 7) % perfil.luzVar),
+        profundidad: perfil.profundidad + ((index * 11) % perfil.profVar),
+        hue: perfil.hues[index % perfil.hues.length] + ((index * 3) % 10),
+        accent: perfil.accents[index % perfil.accents.length] + ((index * 5) % 16),
+        corte: (index * 19 + 5) % 12,
+        pulso: perfil.pulso ? (index * 23 + intensidad) % 8 : -1,
+        glifo: (index * 29 + 7) % 12,
+        aura: (index * 31 + 3) % 10,
+        reliquia: (index * 37 + 9) % 12,
+        anomalia: (index * 41 + intensidad) % 10,
+      },
+    }
   }
 
   if (tipo !== "fondo") return base
