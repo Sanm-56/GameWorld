@@ -26,6 +26,7 @@ import {
   resumenEventoMonedas,
   tiempoRestanteEventoMonedas,
 } from "./bonus-monedas-evento.js"
+import { COSMETICOS, ORDEN_RAREZAS_TIENDA, rarezaEtiqueta, tiempoRestante } from "./tienda.js"
 
 const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch"])
 const NUMCATCH_DEFAULT_COND = "multiplos_3"
@@ -46,6 +47,23 @@ let formularioMonedasInicializado = false
 let canalBonusMonedas = null
 let miniTorneosAdminRequestId = 0
 const miniTorneosAdminAccionesPendientes = new Set()
+let rewardUserSeleccionado = null
+let rewardAmountSeleccionado = 100
+let rewardHistoryChannel = null
+const REWARD_AMOUNT_PRESETS = {
+  monedas: [100, 1000, 10000, 100000, 1000000],
+  experiencia: [100, 1000, 10000, 100000, 1000000, 10000000],
+}
+const REWARD_TYPES = {
+  monedas: "Monedas",
+  experiencia: "Experiencia",
+  booster_xp: "Booster XP",
+  booster_monedas: "Booster monedas",
+  fondo: "Fondo",
+  id: "ID",
+  marco: "Marco",
+  especial: "Recompensa especial/evento",
+}
 
 function escapeJsString(valor){
 return cleanText(valor)
@@ -165,6 +183,8 @@ cargarVistaAdmin()
 cargarBonusTemporadaAdmin()
 cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
+cargarHistorialRegalosAdmin()
+escucharHistorialRegalosAdmin()
 verEstado()
 return
 }
@@ -191,6 +211,8 @@ cargarVistaAdmin()
 cargarBonusTemporadaAdmin()
 cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
+cargarHistorialRegalosAdmin()
+escucharHistorialRegalosAdmin()
 verEstado()
 
 }else{
@@ -1599,6 +1621,258 @@ cargarVistaAdmin()
 // =============================
 // 👁️ ESTADO EN VIVO
 // =============================
+function inicializarCentroRecompensasAdmin(){
+rellenarMontosRapidosAdmin()
+rellenarBoostersAdmin()
+rellenarCosmeticosAdmin()
+actualizarControlesRecompensaAdmin()
+actualizarResumenRegaloAdmin()
+}
+
+function rellenarMontosRapidosAdmin(){
+const tipo = document.getElementById("rewardTypeSelect")?.value || "monedas"
+const contenedor = document.getElementById("rewardQuickAmounts")
+if(!contenedor) return
+const presets = REWARD_AMOUNT_PRESETS[tipo] || REWARD_AMOUNT_PRESETS.monedas
+if(!presets.includes(rewardAmountSeleccionado)) rewardAmountSeleccionado = presets[0]
+contenedor.innerHTML = presets.map((cantidad) => `
+  <button type="button" class="${cantidad === rewardAmountSeleccionado ? "active" : ""}" data-reward-amount="${cantidad}">${formatearNumeroAdmin(cantidad)}</button>
+`).join("")
+contenedor.querySelectorAll("[data-reward-amount]").forEach((button) => {
+button.addEventListener("click", () => {
+rewardAmountSeleccionado = Number(button.dataset.rewardAmount || 0)
+const custom = document.getElementById("rewardCustomAmount")
+if(custom) custom.value = ""
+rellenarMontosRapidosAdmin()
+actualizarResumenRegaloAdmin()
+})
+})
+}
+
+function rellenarBoostersAdmin(){
+const select = document.getElementById("rewardBoosterMultiplier")
+if(select && !select.options.length){
+select.innerHTML = Array.from({ length: 24 }, (_, index) => {
+const valor = (12 + index) / 10
+return `<option value="${valor.toFixed(1)}">x${valor.toFixed(1)}</option>`
+}).join("")
+select.value = "1.5"
+}
+}
+
+function rellenarCosmeticosAdmin(){
+const rarezaSelect = document.getElementById("rewardCosmeticRarity")
+if(rarezaSelect && !rarezaSelect.options.length){
+rarezaSelect.innerHTML = ORDEN_RAREZAS_TIENDA.map((rareza) => `<option value="${escapeHtml(rareza)}">${escapeHtml(rarezaEtiqueta(rareza))}</option>`).join("")
+}
+actualizarCosmeticosPorTipoAdmin()
+}
+
+function actualizarCosmeticosPorTipoAdmin(){
+const tipo = document.getElementById("rewardTypeSelect")?.value || "fondo"
+const rareza = document.getElementById("rewardCosmeticRarity")?.value || "Normal"
+const select = document.getElementById("rewardCosmeticSelect")
+if(!select) return
+const cosmeticos = COSMETICOS.filter((item) => item.tipo === tipo && item.rareza === rareza)
+select.innerHTML = cosmeticos.length
+? cosmeticos.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.nombre)}</option>`).join("")
+: '<option value="">Sin cosmeticos disponibles</option>'
+}
+
+async function buscarUsuariosRegaloAdmin(){
+const query = cleanText(document.getElementById("rewardUserSearch")?.value || "", "").trim()
+const lista = document.getElementById("rewardUserResults")
+if(!lista) return
+if(query.length < 2){
+lista.innerHTML = '<div class="export-note">Escribe al menos 2 caracteres.</div>'
+return
+}
+lista.innerHTML = '<div class="export-note">Buscando usuarios...</div>'
+const { data, error } = await supabase
+.from("usuarios")
+.select("usuario")
+.ilike("usuario", `%${query}%`)
+.order("usuario", { ascending: true })
+.limit(12)
+
+if(error){
+lista.innerHTML = '<div class="export-note">No se pudieron buscar usuarios.</div>'
+return
+}
+if(!data?.length){
+lista.innerHTML = '<div class="export-note">No existe un usuario con ese nombre.</div>'
+return
+}
+lista.innerHTML = data.map((row) => `
+  <button type="button" class="reward-user-option${row.usuario === rewardUserSeleccionado ? " active" : ""}" data-reward-user="${escapeHtml(row.usuario)}">
+    <strong>${escapeHtml(row.usuario)}</strong>
+    <span>Usuario registrado</span>
+  </button>
+`).join("")
+lista.querySelectorAll("[data-reward-user]").forEach((button) => {
+button.addEventListener("click", () => {
+rewardUserSeleccionado = button.dataset.rewardUser || ""
+buscarUsuariosRegaloAdmin()
+actualizarResumenRegaloAdmin()
+})
+})
+}
+
+function actualizarControlesRecompensaAdmin(){
+const tipo = document.getElementById("rewardTypeSelect")?.value || "monedas"
+const esMonto = tipo === "monedas" || tipo === "experiencia"
+const esBooster = tipo === "booster_xp" || tipo === "booster_monedas"
+const esCosmetico = ["fondo", "id", "marco"].includes(tipo)
+const esEspecial = tipo === "especial"
+const amount = document.getElementById("rewardAmountControls")
+const booster = document.getElementById("rewardBoosterControls")
+const cosmetic = document.getElementById("rewardCosmeticControls")
+const special = document.getElementById("rewardSpecialControls")
+if(amount) amount.hidden = !esMonto
+if(booster) booster.hidden = !esBooster
+if(cosmetic) cosmetic.hidden = !esCosmetico
+if(special) special.hidden = !esEspecial
+rellenarMontosRapidosAdmin()
+if(esCosmetico) actualizarCosmeticosPorTipoAdmin()
+actualizarResumenRegaloAdmin()
+}
+
+function obtenerPayloadRegaloAdmin(){
+const tipo = document.getElementById("rewardTypeSelect")?.value || "monedas"
+const custom = Number(document.getElementById("rewardCustomAmount")?.value || 0)
+const cantidad = Math.trunc(custom > 0 ? custom : rewardAmountSeleccionado)
+const multiplicador = Number(document.getElementById("rewardBoosterMultiplier")?.value || 1.5)
+const duracionTipo = document.getElementById("rewardBoosterDurationType")?.value || "horas"
+const duracionCantidad = Math.trunc(Number(document.getElementById("rewardBoosterDurationAmount")?.value || 1))
+const cosmeticoId = document.getElementById("rewardCosmeticSelect")?.value || ""
+const cosmetico = COSMETICOS.find((item) => item.id === cosmeticoId)
+const especialNombre = cleanText(document.getElementById("rewardSpecialName")?.value || "Recompensa especial", "Recompensa especial")
+const especialDetalle = cleanText(document.getElementById("rewardSpecialDetail")?.value || "", "")
+return { tipo, usuario: rewardUserSeleccionado, cantidad, multiplicador, duracionTipo, duracionCantidad, cosmetico, especialNombre, especialDetalle }
+}
+
+function validarPayloadRegaloAdmin(payload){
+if(!payload.usuario) return "Selecciona un usuario existente."
+if(!REWARD_TYPES[payload.tipo]) return "Tipo de recompensa invalido."
+if(["monedas", "experiencia"].includes(payload.tipo) && (!Number.isFinite(payload.cantidad) || payload.cantidad <= 0 || payload.cantidad > 10000000)) return "La cantidad debe estar entre 1 y 10,000,000."
+if(["booster_xp", "booster_monedas"].includes(payload.tipo)){
+if(payload.multiplicador < 1.2 || payload.multiplicador > 3.5) return "El multiplicador debe estar entre x1.2 y x3.5."
+if(!["horas", "dias"].includes(payload.duracionTipo) || payload.duracionCantidad < 1 || payload.duracionCantidad > 365) return "La duracion debe ser valida."
+}
+if(["fondo", "id", "marco"].includes(payload.tipo) && (!payload.cosmetico || payload.cosmetico.tipo !== payload.tipo)) return "Selecciona un cosmetico valido."
+if(payload.tipo === "especial" && !payload.especialNombre) return "Escribe un nombre para la recompensa especial."
+return ""
+}
+
+function resumenPayloadRegaloAdmin(payload){
+if(!payload.usuario) return "Selecciona usuario y recompensa."
+if(payload.tipo === "monedas") return `${payload.usuario} recibira ${formatearNumeroAdmin(payload.cantidad)} monedas.`
+if(payload.tipo === "experiencia") return `${payload.usuario} recibira ${formatearNumeroAdmin(payload.cantidad)} XP y se recalcularan niveles, rangos y desbloqueos.`
+if(payload.tipo === "booster_xp" || payload.tipo === "booster_monedas"){
+const ms = payload.duracionCantidad * (payload.duracionTipo === "dias" ? 86400000 : 3600000)
+return `${payload.usuario} recibira ${REWARD_TYPES[payload.tipo]} x${payload.multiplicador.toFixed(1)} por ${tiempoRestante(new Date(Date.now() + ms).toISOString())}.`
+}
+if(["fondo", "id", "marco"].includes(payload.tipo)) return `${payload.usuario} recibira ${payload.cosmetico?.nombre || "cosmetico"} permanentemente.`
+return `${payload.usuario} recibira ${payload.especialNombre}.`
+}
+
+function actualizarResumenRegaloAdmin(){
+const box = document.getElementById("rewardSummaryBox")
+if(!box) return
+const payload = obtenerPayloadRegaloAdmin()
+const error = validarPayloadRegaloAdmin(payload)
+setCleanText(box, error || resumenPayloadRegaloAdmin(payload))
+}
+
+async function confirmarRegaloAdmin(){
+const payload = obtenerPayloadRegaloAdmin()
+const error = validarPayloadRegaloAdmin(payload)
+if(error){
+safeAlert(error)
+return
+}
+const ok = await confirmAction(resumenPayloadRegaloAdmin(payload), { title: "Confirmar recompensa", acceptText: "Enviar", cancelText: "Cancelar", danger: false })
+if(!ok) return
+const rpc = await ejecutarRpcAdminObjeto("admin_otorgar_recompensa", {
+p_usuario: payload.usuario,
+p_tipo: payload.tipo,
+p_cantidad: ["monedas", "experiencia"].includes(payload.tipo) ? payload.cantidad : null,
+p_multiplicador: ["booster_xp", "booster_monedas"].includes(payload.tipo) ? payload.multiplicador : null,
+p_duracion_tipo: payload.duracionTipo,
+p_duracion_cantidad: ["booster_xp", "booster_monedas"].includes(payload.tipo) ? payload.duracionCantidad : null,
+p_item_id: payload.cosmetico?.id || null,
+p_item_tipo: payload.cosmetico?.tipo || null,
+p_item_rareza: payload.cosmetico?.rareza || null,
+p_item_nombre: payload.tipo === "especial" ? payload.especialNombre : (payload.cosmetico?.nombre || null),
+p_detalle: { nombre: payload.especialNombre, detalle: payload.especialDetalle, cosmetico: payload.cosmetico ? { id: payload.cosmetico.id, nombre: payload.cosmetico.nombre, tipo: payload.cosmetico.tipo, rareza: payload.cosmetico.rareza } : null },
+})
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo enviar la recompensa."))
+return
+}
+safeAlert("Recompensa enviada correctamente.")
+await cargarHistorialRegalosAdmin()
+}
+
+function limpiarRegaloAdmin(){
+rewardUserSeleccionado = null
+rewardAmountSeleccionado = 100
+const search = document.getElementById("rewardUserSearch")
+const custom = document.getElementById("rewardCustomAmount")
+if(search) search.value = ""
+if(custom) custom.value = ""
+inicializarCentroRecompensasAdmin()
+const lista = document.getElementById("rewardUserResults")
+if(lista) lista.innerHTML = '<div class="export-note">Busca un usuario para seleccionarlo.</div>'
+}
+
+async function cargarHistorialRegalosAdmin(){
+const list = document.getElementById("rewardHistoryList")
+if(!list) return
+list.innerHTML = '<div class="export-note">Cargando historial...</div>'
+const { data, error } = await supabase
+.from("admin_recompensas_historial")
+.select("usuario_id,tipo,cantidad,multiplicador,item_nombre,admin_id,created_at")
+.order("created_at", { ascending: false })
+.limit(18)
+
+if(error){
+list.innerHTML = '<div class="export-note">No se pudo cargar el historial. Ejecuta la migracion SQL si falta la tabla.</div>'
+return
+}
+if(!data?.length){
+list.innerHTML = '<div class="export-note">Aun no hay recompensas enviadas.</div>'
+return
+}
+list.innerHTML = data.map((row) => {
+const principal = row.tipo === "monedas" || row.tipo === "experiencia"
+? `${formatearNumeroAdmin(row.cantidad)} ${row.tipo === "monedas" ? "monedas" : "XP"}`
+: row.tipo?.startsWith("booster")
+? `${REWARD_TYPES[row.tipo] || row.tipo} x${Number(row.multiplicador || 1).toFixed(1)}`
+: row.item_nombre || REWARD_TYPES[row.tipo] || row.tipo
+return `
+  <div class="reward-history-row">
+    <strong>${escapeHtml(row.usuario_id)} - ${escapeHtml(principal)}</strong>
+    <span>${escapeHtml(row.admin_id || "admin")} | ${new Date(row.created_at).toLocaleString("es-CO")}</span>
+  </div>
+`
+}).join("")
+}
+
+function escucharHistorialRegalosAdmin(){
+if(rewardHistoryChannel) return
+rewardHistoryChannel = supabase
+.channel("admin-recompensas-historial")
+.on("postgres_changes", { event: "*", schema: "public", table: "admin_recompensas_historial" }, () => {
+cargarHistorialRegalosAdmin()
+})
+.subscribe()
+}
+
+function formatearNumeroAdmin(valor){
+return Math.trunc(Number(valor) || 0).toLocaleString("es-CO")
+}
+
 async function verEstado(){
 
 let { data } = await supabase
@@ -1644,6 +1918,9 @@ window.exportarHistorialPartidas = exportarHistorialPartidas
 window.cargarMiniTorneosAdmin = cargarMiniTorneosAdmin
 window.finalizarMiniTorneoAdmin = finalizarMiniTorneoAdmin
 window.borrarMiniTorneoAdmin = borrarMiniTorneoAdmin
+window.confirmarRegaloAdmin = confirmarRegaloAdmin
+window.limpiarRegaloAdmin = limpiarRegaloAdmin
+window.cargarHistorialRegalosAdmin = cargarHistorialRegalosAdmin
 
 function syncNumcatchUI(){
   const juego = document.getElementById("juegoSelect")?.value
@@ -1688,6 +1965,28 @@ document.getElementById('bonusMonedasMultiplicadorSelect')?.addEventListener('ch
   formularioMonedasInicializado = true
 })
 
+document.getElementById('rewardUserSearch')?.addEventListener('input', () => {
+buscarUsuariosRegaloAdmin()
+actualizarResumenRegaloAdmin()
+})
+
+document.getElementById('rewardTypeSelect')?.addEventListener('change', () => {
+actualizarControlesRecompensaAdmin()
+})
+
+document.getElementById('rewardCustomAmount')?.addEventListener('input', actualizarResumenRegaloAdmin)
+document.getElementById('rewardBoosterMultiplier')?.addEventListener('change', actualizarResumenRegaloAdmin)
+document.getElementById('rewardBoosterDurationType')?.addEventListener('change', actualizarResumenRegaloAdmin)
+document.getElementById('rewardBoosterDurationAmount')?.addEventListener('input', actualizarResumenRegaloAdmin)
+document.getElementById('rewardCosmeticRarity')?.addEventListener('change', () => {
+actualizarCosmeticosPorTipoAdmin()
+actualizarResumenRegaloAdmin()
+})
+document.getElementById('rewardCosmeticSelect')?.addEventListener('change', actualizarResumenRegaloAdmin)
+document.getElementById('rewardSpecialName')?.addEventListener('input', actualizarResumenRegaloAdmin)
+document.getElementById('rewardSpecialDetail')?.addEventListener('input', actualizarResumenRegaloAdmin)
+
 syncNumcatchUI()
+inicializarCentroRecompensasAdmin()
 rellenarSelectorBonus()
 rellenarSelectorBonusMonedas()

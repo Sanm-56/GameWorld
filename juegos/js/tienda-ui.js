@@ -7,6 +7,7 @@ import {
   comprarBoosterMonedas,
   comprarCosmetico,
   descontarMonedas,
+  iniciarSincronizacionRecompensasUsuario,
   obtenerBoosterActivo,
   obtenerBoosterMonedasActivo,
   obtenerMonedas,
@@ -42,6 +43,12 @@ function usuarioActual() {
 
 function initStore() {
   if (!modal || !boosterList || !coinBoosterList || !coinList || !cosmeticsList) return
+  const usuario = usuarioActual()
+  if (usuario) {
+    iniciarSincronizacionRecompensasUsuario(usuario, async () => {
+      if (modal.classList.contains("abierto")) await renderTienda()
+    })
+  }
 
   openButtons.forEach((button) => button.addEventListener("click", abrirTienda))
   closeButtons.forEach((button) => button.addEventListener("click", cerrarTienda))
@@ -50,6 +57,10 @@ function initStore() {
   })
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal.classList.contains("abierto")) cerrarTienda()
+  })
+  window.addEventListener("monedas:actualizadas", () => {
+    const usuarioActivo = usuarioActual()
+    if (coinsEl && usuarioActivo) coinsEl.textContent = `${obtenerMonedas(usuarioActivo)} monedas`
   })
   storeTabs.forEach((button) => {
     button.addEventListener("click", () => activarStoreTab(button.dataset.storeTab || "boosters-xp"))

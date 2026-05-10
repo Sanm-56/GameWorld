@@ -445,7 +445,7 @@ export async function registrarXp({
     .from('progreso_nivel')
     .upsert({
       usuario_id: usuario,
-      xp: nuevoXp,
+      xp: progresoFinal.xp,
       nivel: calculado.nivel,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'usuario_id' })

@@ -139,6 +139,7 @@ const COIN_BOOSTER_LOCAL_KEY = "tienda_coin_boosters_usuario"
 const COSMETICOS_LOCAL_KEY = "tienda_cosmeticos_usuario"
 const MONEDAS_LOCAL_KEY = "monedas_usuario_saldos"
 const MONEDAS_HISTORIAL_KEY = "monedas_usuario_historial"
+const canalesRecompensasUsuario = new Map()
 export const RECOMPENSAS_MONEDAS = {
   torneo: 300,
   minitorneo: 150,
@@ -184,7 +185,7 @@ async function obtenerBoosterTemporalActivo(usuario, catalogo, localKey) {
     return local
   }
 
-  return (data || []).find((row) => idsValidos.has(row.booster_id)) || local
+  return (data || []).find((row) => idsValidos.has(row.booster_id) || esBoosterAdminValido(row, catalogo)) || local
 }
 
 export async function comprarBooster(usuario, boosterId) {
@@ -301,15 +302,63 @@ export function sumarMonedas(usuario, cantidad, detalle = {}) {
   const nuevoSaldo = obtenerMonedas(usuario) + monto
   guardarMonedas(usuario, nuevoSaldo)
   guardarMovimientoMonedas(usuario, "ganancia", monto, detalle)
+  guardarMonedasRemotas(usuario, nuevoSaldo)
   return nuevoSaldo
 }
 
 export function descontarMonedas(usuario, costo, detalle = {}) {
   const monedas = obtenerMonedas(usuario)
   if (monedas < costo) return false
-  guardarMonedas(usuario, monedas - costo)
+  const nuevoSaldo = monedas - costo
+  guardarMonedas(usuario, nuevoSaldo)
   guardarMovimientoMonedas(usuario, "compra", -Math.max(0, Number(costo) || 0), detalle)
+  guardarMonedasRemotas(usuario, nuevoSaldo)
   return true
+}
+
+export async function sincronizarMonedasUsuario(usuario) {
+  if (!usuario) return obtenerMonedas(usuario)
+  const { data, error } = await supabase
+    .from("usuario_monedas")
+    .select("saldo")
+    .eq("usuario_id", usuario)
+    .maybeSingle()
+
+  if (error && error.code !== "PGRST116") {
+    console.warn("No se pudo sincronizar monedas remotas", error)
+    return obtenerMonedas(usuario)
+  }
+
+  if (data) {
+    guardarMonedas(usuario, data.saldo)
+    emitirCambioMonedas(usuario)
+  } else {
+    guardarMonedasRemotas(usuario, obtenerMonedas(usuario))
+  }
+  return obtenerMonedas(usuario)
+}
+
+export function iniciarSincronizacionRecompensasUsuario(usuario, onChange = null) {
+  if (!usuario || canalesRecompensasUsuario.has(usuario)) return null
+
+  const canal = supabase
+    .channel(`recompensas-usuario-${usuario}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "usuario_monedas", filter: `usuario_id=eq.${usuario}` }, async (payload) => {
+      if (payload.new?.saldo !== undefined) guardarMonedas(usuario, payload.new.saldo)
+      emitirCambioMonedas(usuario)
+      if (typeof onChange === "function") onChange({ tipo: "monedas", payload })
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "usuario_boosters", filter: `usuario_id=eq.${usuario}` }, (payload) => {
+      if (typeof onChange === "function") onChange({ tipo: "booster", payload })
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "usuario_cosmeticos", filter: `usuario_id=eq.${usuario}` }, (payload) => {
+      if (typeof onChange === "function") onChange({ tipo: "cosmetico", payload })
+    })
+    .subscribe()
+
+  canalesRecompensasUsuario.set(usuario, canal)
+  sincronizarMonedasUsuario(usuario)
+  return canal
 }
 
 export function obtenerHistorialMonedas(usuario) {
@@ -702,6 +751,20 @@ function guardarMonedas(usuario, cantidad) {
   localStorage.setItem(MONEDAS_LOCAL_KEY, JSON.stringify(actuales))
 }
 
+function guardarMonedasRemotas(usuario, saldo) {
+  if (!usuario) return
+  supabase
+    .from("usuario_monedas")
+    .upsert({
+      usuario_id: usuario,
+      saldo: Math.max(0, Math.trunc(Number(saldo) || 0)),
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "usuario_id" })
+    .then(({ error }) => {
+      if (error && error.code !== "42501") console.warn("No se pudo guardar saldo remoto", error)
+    })
+}
+
 function guardarMovimientoMonedas(usuario, tipo, cantidad, detalle) {
   const historial = leerObjeto(MONEDAS_HISTORIAL_KEY)
   const movimientos = Array.isArray(historial[usuario]) ? historial[usuario] : []
@@ -728,6 +791,21 @@ function guardarBoosterLocal(usuario, booster, key = BOOSTER_LOCAL_KEY) {
   const actuales = leerObjeto(key)
   actuales[usuario] = booster
   localStorage.setItem(key, JSON.stringify(actuales))
+}
+
+function esBoosterAdminValido(row, catalogo) {
+  const id = String(row?.booster_id || "")
+  const multiplicador = Number(row?.multiplicador || 1)
+  const esXp = catalogo === BOOSTERS_XP && id.startsWith("admin_xp_")
+  const esMonedas = catalogo === BOOSTERS_MONEDAS && id.startsWith("admin_coins_")
+  return (esXp || esMonedas) && multiplicador >= 1.2 && multiplicador <= 3.5
+}
+
+function emitirCambioMonedas(usuario) {
+  if (typeof window === "undefined") return
+  window.dispatchEvent(new CustomEvent("monedas:actualizadas", {
+    detail: { usuario, saldo: obtenerMonedas(usuario) },
+  }))
 }
 
 function leerCosmeticoLocal(usuario) {

@@ -1,8 +1,10 @@
 import { supabase } from './supabase.js'
 import {
   RECOMPENSAS_MONEDAS,
+  iniciarSincronizacionRecompensasUsuario,
   obtenerHistorialMonedas,
   obtenerMonedas,
+  sincronizarMonedasUsuario,
 } from './tienda.js'
 import {
   NIVEL_MAXIMO,
@@ -865,6 +867,7 @@ async function cargarPerfil() {
   if (perfilAvatarEl) perfilAvatarEl.innerText = inicialesUsuario(usuario)
   renderPill(pillUsuarioEl, 'ID', usuario)
   aplicarPersonalizacionUsuario(document.querySelector('.hero.profile-card'), usuario)
+  await sincronizarMonedasUsuario(usuario)
 
   const { data: userData } = await supabase
     .from('usuarios')
@@ -5280,6 +5283,12 @@ window.cerrarSesion = async function () {
 
 cargarPerfil()
 instalarChatSocial()
+
+if (usuario) {
+  iniciarSincronizacionRecompensasUsuario(usuario, () => {
+    renderPanelMonedas()
+  })
+}
 
 supabase
   .channel('perfil-progreso-nivel')

@@ -642,6 +642,129 @@ th:last-child{
   font-size:13px;
 }
 
+.reward-admin-panel{
+  grid-column:1 / -1;
+  display:grid;
+  gap:16px;
+  border-color:rgba(34,197,94,0.22);
+  background:
+    linear-gradient(135deg, rgba(20,83,45,0.16), rgba(15,23,42,0.88)),
+    rgba(15,23,42,0.86);
+}
+
+.reward-admin-grid{
+  display:grid;
+  grid-template-columns:minmax(240px, 0.9fr) minmax(0, 1.3fr) minmax(260px, 0.8fr);
+  gap:14px;
+  align-items:start;
+}
+
+.reward-admin-block{
+  min-width:0;
+  display:grid;
+  gap:10px;
+  padding:14px;
+  border:1px solid rgba(148,163,184,0.14);
+  border-radius:14px;
+  background:rgba(2,6,23,0.34);
+}
+
+.reward-admin-block h4{
+  margin:0;
+  font-size:14px;
+  color:#dcfce7;
+  letter-spacing:0;
+}
+
+.reward-admin-block label{
+  display:grid;
+  gap:6px;
+  color:#cbd5e1;
+  font-size:13px;
+  font-weight:800;
+}
+
+.reward-user-results,
+.reward-history-list{
+  display:grid;
+  gap:8px;
+  max-height:260px;
+  overflow:auto;
+  padding-right:3px;
+}
+
+.reward-user-option,
+.reward-history-row{
+  width:100%;
+  display:grid;
+  gap:3px;
+  min-height:auto;
+  padding:10px 11px;
+  border:1px solid rgba(148,163,184,0.14);
+  border-radius:10px;
+  text-align:left;
+  color:#e5e7eb;
+  background:rgba(15,23,42,0.72);
+  box-shadow:none;
+}
+
+.reward-user-option:hover{
+  background:rgba(30,41,59,0.86);
+}
+
+.reward-user-option.active{
+  border-color:rgba(34,197,94,0.5);
+  background:rgba(20,83,45,0.38);
+}
+
+.reward-user-option span,
+.reward-history-row span{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+  overflow-wrap:anywhere;
+}
+
+.reward-quick-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:8px;
+}
+
+.reward-quick-grid button{
+  min-height:38px;
+  padding:9px 8px;
+  border-radius:9px;
+  font-size:13px;
+  background:rgba(15,23,42,0.72);
+  border:1px solid rgba(148,163,184,0.16);
+  box-shadow:none;
+}
+
+.reward-quick-grid button.active{
+  border-color:rgba(34,197,94,0.55);
+  background:linear-gradient(135deg, rgba(21,128,61,0.9), rgba(34,197,94,0.68));
+}
+
+.reward-summary-box{
+  display:grid;
+  gap:8px;
+  padding:13px;
+  border:1px solid rgba(34,197,94,0.2);
+  border-radius:12px;
+  background:rgba(2,6,23,0.44);
+  color:#bbf7d0;
+  font-weight:800;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+
+.reward-admin-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
 @media (max-width:900px){
   body{ padding:16px; }
 
@@ -681,6 +804,15 @@ th:last-child{
     grid-template-columns:1fr 1fr;
   }
 
+  .reward-admin-grid{
+    grid-template-columns:1fr;
+  }
+
+  .reward-admin-actions,
+  .reward-quick-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
   .season-countdown{
     text-align:left;
     white-space:normal;
@@ -714,7 +846,10 @@ th:last-child{
   .reset-actions,
   .season-form-grid,
   .season-controls,
-  .coin-controls{
+  .coin-controls,
+  .reward-admin-grid,
+  .reward-admin-actions,
+  .reward-quick-grid{
     display:grid;
     grid-template-columns:1fr;
   }
@@ -846,6 +981,107 @@ th:last-child{
       <div class="mini-admin-list" id="miniTorneosAdminList">
         <div class="export-note">Inicia sesion para cargar mini torneos.</div>
       </div>
+    </div>
+
+    <div class="section reward-admin-panel" id="adminRewardsPanel">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Regalos seguros</span>
+          <h3>Centro de recompensas admin</h3>
+        </div>
+        <button class="ghost" onclick="cargarHistorialRegalosAdmin()">Actualizar historial</button>
+      </div>
+
+      <div class="reward-admin-grid">
+        <div class="reward-admin-block">
+          <h4>Usuario destino</h4>
+          <label>
+            Buscar por nombre
+            <input id="rewardUserSearch" type="search" placeholder="Escribe el apodo exacto o parcial" autocomplete="off">
+          </label>
+          <div class="reward-user-results" id="rewardUserResults">
+            <div class="export-note">Busca un usuario para seleccionarlo.</div>
+          </div>
+        </div>
+
+        <div class="reward-admin-block">
+          <h4>Recompensa</h4>
+          <label>
+            Tipo
+            <select id="rewardTypeSelect">
+              <option value="monedas">Monedas</option>
+              <option value="experiencia">Experiencia</option>
+              <option value="booster_xp">Booster XP</option>
+              <option value="booster_monedas">Booster monedas</option>
+              <option value="fondo">Fondo</option>
+              <option value="id">ID</option>
+              <option value="marco">Marco</option>
+              <option value="especial">Recompensa especial/evento</option>
+            </select>
+          </label>
+
+          <div id="rewardAmountControls">
+            <div class="reward-quick-grid" id="rewardQuickAmounts"></div>
+            <label>
+              Cantidad personalizada
+              <input id="rewardCustomAmount" type="number" min="1" step="1" placeholder="Cantidad">
+            </label>
+          </div>
+
+          <div id="rewardBoosterControls" hidden>
+            <label>
+              Multiplicador
+              <select id="rewardBoosterMultiplier"></select>
+            </label>
+            <label>
+              Tipo duracion
+              <select id="rewardBoosterDurationType">
+                <option value="horas">Horas</option>
+                <option value="dias">Dias</option>
+              </select>
+            </label>
+            <label>
+              Cantidad
+              <input id="rewardBoosterDurationAmount" type="number" min="1" max="365" step="1" value="2">
+            </label>
+          </div>
+
+          <div id="rewardCosmeticControls" hidden>
+            <label>
+              Rareza
+              <select id="rewardCosmeticRarity"></select>
+            </label>
+            <label>
+              Cosmetico
+              <select id="rewardCosmeticSelect"></select>
+            </label>
+          </div>
+
+          <div id="rewardSpecialControls" hidden>
+            <label>
+              Nombre de recompensa
+              <input id="rewardSpecialName" type="text" maxlength="80" placeholder="Ej: Cofre de evento">
+            </label>
+            <label>
+              Detalle interno
+              <input id="rewardSpecialDetail" type="text" maxlength="180" placeholder="Motivo o evento">
+            </label>
+          </div>
+        </div>
+
+        <div class="reward-admin-block">
+          <h4>Revision</h4>
+          <div class="reward-summary-box" id="rewardSummaryBox">Selecciona usuario y recompensa.</div>
+          <div class="reward-admin-actions">
+            <button class="success" onclick="confirmarRegaloAdmin()">Enviar regalo</button>
+            <button class="ghost" onclick="limpiarRegaloAdmin()">Limpiar</button>
+          </div>
+          <div class="reward-history-list" id="rewardHistoryList">
+            <div class="export-note">El historial aparecera despues de iniciar sesion.</div>
+          </div>
+        </div>
+      </div>
+      <p class="export-note">Las entregas se validan por RPC con clave admin, quedan auditadas y usan las tablas actuales de XP, boosters y cosmeticos.</p>
     </div>
 
     <div class="section wide season-bonus-card">
