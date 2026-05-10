@@ -6,10 +6,11 @@ import { obtenerBonusRangoActivo } from './rango-bonus.js'
 export const NIVEL_MAXIMO = 3000
 export const NIVEL_ESCALADO_AVANZADO = 1416
 export const MULTIPLICADOR_XP_AVANZADO = 5
+export const MULTIPLICADOR_XP_BASE_TORNEO = 8
 
 const XP_ACCIONES = {
-  partida_completada: 125,
-  torneo_participacion: 250,
+  partida_completada: aplicarMultiplicadorXpBaseTorneo(125),
+  torneo_participacion: aplicarMultiplicadorXpBaseTorneo(250),
   logro_desbloqueado: 400,
 }
 
@@ -243,15 +244,19 @@ export function calcularProgresoHaciaRango(progreso, rango) {
 export function calcularXpRanking(posicion) {
   const pos = Number(posicion)
   if (!Number.isFinite(pos) || pos <= 0) return 0
-  if (pos === 1) return 750
-  if (pos <= 3) return 550
-  if (pos <= 10) return 375
-  if (pos <= 25) return 225
-  return 125
+  if (pos === 1) return aplicarMultiplicadorXpBaseTorneo(750)
+  if (pos <= 3) return aplicarMultiplicadorXpBaseTorneo(550)
+  if (pos <= 10) return aplicarMultiplicadorXpBaseTorneo(375)
+  if (pos <= 25) return aplicarMultiplicadorXpBaseTorneo(225)
+  return aplicarMultiplicadorXpBaseTorneo(125)
 }
 
 export function multiplicadorOrigenExperiencia(origen = 'torneo') {
   return origen === 'minitorneo' || origen === 'solitario' ? 0.5 : 1
+}
+
+function aplicarMultiplicadorXpBaseTorneo(valor) {
+  return Math.round((Number(valor) || 0) * MULTIPLICADOR_XP_BASE_TORNEO)
 }
 
 export function crearRecompensaFallback(nivel) {
