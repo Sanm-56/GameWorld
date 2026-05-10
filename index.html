@@ -388,6 +388,35 @@ h1{
   line-height:1.35;
 }
 
+.coin-season-event{
+  border-color:rgba(34,197,94,0.34);
+  color:#dcfce7;
+  background:
+    linear-gradient(135deg, rgba(20,83,45,0.9), rgba(15,23,42,0.9) 48%, rgba(8,47,73,0.72)),
+    rgba(15,23,42,0.94);
+}
+
+.coin-season-event::before{
+  background:
+    linear-gradient(90deg, rgba(34,197,94,0.16), transparent 28%, rgba(56,189,248,0.1)),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 16px);
+}
+
+.coin-season-event::after{
+  content:"MC";
+  border-color:rgba(134,239,172,0.34);
+  color:#bbf7d0;
+  box-shadow:inset 0 0 24px rgba(34,197,94,0.12);
+}
+
+.coin-season-event strong{
+  color:#bbf7d0;
+}
+
+.coin-season-event span{
+  color:#bae6fd;
+}
+
 @media (max-width:560px){
   .season-event{
     align-items:flex-start;
@@ -2931,6 +2960,7 @@ h1{
         <button class="boton whatsapp-link" type="button" onclick="abrirWhatsapp()">WhatsApp</button>
       </div>
       <div class="season-event" id="seasonEvent" aria-live="polite"></div>
+      <div class="season-event coin-season-event" id="coinSeasonEvent" aria-live="polite"></div>
     </section>
 
     <section class="menu" aria-label="Juegos disponibles">

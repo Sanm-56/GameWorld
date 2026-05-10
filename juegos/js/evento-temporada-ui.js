@@ -1,8 +1,12 @@
 import { formatearMultiplicador, obtenerJuegoDestacadoTemporada, temporadaTieneBonusActivo, tiempoRestanteTemporada } from "./experiencia-temporada.js"
+import { eventoEstaActivo, obtenerEventoMonedasActual, resumenEventoMonedas } from "./bonus-monedas-evento.js"
 
 const banner = document.getElementById("seasonEvent")
+const coinBanner = document.getElementById("coinSeasonEvent")
 let temporadaMostrada = null
 let seasonEventTimer = null
+let eventoMonedasMostrado = null
+let coinEventTimer = null
 
 async function initSeasonEvent() {
   if (!banner) return
@@ -54,3 +58,51 @@ function reiniciarSeasonEventTimer(activo) {
 }
 
 initSeasonEvent()
+initCoinSeasonEvent()
+
+async function initCoinSeasonEvent() {
+  if (!coinBanner) return
+
+  const evento = await obtenerEventoMonedasActual()
+  eventoMonedasMostrado = evento
+  if (!eventoEstaActivo(evento)) {
+    coinBanner.style.display = "none"
+    reiniciarCoinEventTimer(false)
+    return
+  }
+
+  coinBanner.style.display = "flex"
+  renderCoinSeasonEvent()
+  reiniciarCoinEventTimer(true)
+}
+
+function renderCoinSeasonEvent() {
+  if (!coinBanner) return
+  const evento = eventoMonedasMostrado
+  if (!eventoEstaActivo(evento)) {
+    coinBanner.style.display = "none"
+    return
+  }
+
+  const resumen = resumenEventoMonedas(evento)
+  coinBanner.innerHTML = `
+    <strong>BONUS DE MONEDAS ACTIVO</strong>
+    <span>${resumen.juegoTexto} da ${resumen.multiplicadorTexto} monedas | Finaliza en ${resumen.restanteTexto}</span>
+  `
+}
+
+function reiniciarCoinEventTimer(activo) {
+  if (coinEventTimer) {
+    clearInterval(coinEventTimer)
+    coinEventTimer = null
+  }
+  if (!activo) return
+
+  coinEventTimer = setInterval(async () => {
+    if (!eventoEstaActivo(eventoMonedasMostrado)) {
+      await initCoinSeasonEvent()
+      return
+    }
+    renderCoinSeasonEvent()
+  }, 30000)
+}
