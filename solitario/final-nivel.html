@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultado de nivel | Solitario</title>
+  <link rel="stylesheet" href="solitario.css">
+</head>
+<body>
+  <main class="solo-final-shell">
+    <section class="solo-final-card" id="finalCard">
+      <div class="solo-final-hero">
+        <p class="eyebrow" id="finalEyebrow">Solitario</p>
+        <h1 id="finalTitle">Resultado del nivel</h1>
+        <p id="finalMessage" class="muted">Cargando resultado...</p>
+      </div>
+
+      <div class="solo-final-grid">
+        <article class="solo-final-mission">
+          <span>Mision</span>
+          <strong id="missionText">-</strong>
+          <p id="failureText" class="muted"></p>
+        </article>
+        <article class="solo-final-stat">
+          <span>Nivel</span>
+          <strong id="levelValue">-</strong>
+        </article>
+        <article class="solo-final-stat">
+          <span>Puntos</span>
+          <strong id="scoreValue">0</strong>
+        </article>
+        <article class="solo-final-stat">
+          <span>Tiempo</span>
+          <strong id="timeValue">-</strong>
+        </article>
+        <article class="solo-final-stat">
+          <span>Monedas</span>
+          <strong id="coinsValue">0</strong>
+        </article>
+        <article class="solo-final-stat">
+          <span>EXP</span>
+          <strong id="xpValue">0</strong>
+        </article>
+      </div>
+
+      <div class="solo-progress-list" id="progressList"></div>
+
+      <div class="solo-final-actions">
+        <button type="button" id="nextLevelBtn">Siguiente nivel</button>
+        <button class="ghost-button" type="button" id="retryBtn">Reintentar</button>
+        <button class="ghost-button" type="button" id="mapBtn">Volver al mapa</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="final-nivel.js"></script>
+</body>
+</html>

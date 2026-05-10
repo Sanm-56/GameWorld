@@ -1,7 +1,9 @@
 import { supabase } from '../../js/supabase.js'
-import { volverDesdeFinal } from '../../js/mini-torneo.js'
+import { redirigirFinalNivelSolitario, volverDesdeFinal } from '../../js/mini-torneo.js'
 import { cleanText, escapeHtml, setCleanText } from '../../js/mensajes.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from '../../js/personalizacion-visual.js'
+
+if (redirigirFinalNivelSolitario()) await new Promise(() => {})
 
 const resultadoFinal = document.getElementById('resultadoFinal')
 const podioDiv = document.getElementById('podio')

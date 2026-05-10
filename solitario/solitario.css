@@ -182,19 +182,85 @@ p {
 }
 
 .level-map {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(10, minmax(86px, 1fr));
+  gap: 12px;
+  max-height: min(62vh, 620px);
+  overflow: auto;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 24px;
+  background:
+    linear-gradient(90deg, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(250, 204, 21, 0.06) 1px, transparent 1px),
+    rgba(2, 6, 23, 0.24);
+  background-size: 72px 72px;
+}
+
+.level-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   margin-bottom: 16px;
 }
 
-.level-node {
-  min-height: 118px;
-  border: 1px solid var(--solo-border);
+.level-overview article {
+  border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 18px;
   padding: 14px;
-  text-align: left;
-  background: var(--solo-panel-strong);
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.level-overview span,
+.solo-final-stat span,
+.solo-final-mission span {
+  display: block;
+  color: var(--solo-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.level-overview strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 22px;
+}
+
+.level-node {
+  position: relative;
+  min-height: 112px;
+  border: 1px solid var(--solo-border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), transparent 34%),
+    var(--solo-panel-strong);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.level-node::after {
+  content: "";
+  position: absolute;
+  left: calc(100% - 2px);
+  top: 50%;
+  width: 16px;
+  height: 2px;
+  background: rgba(56, 189, 248, 0.18);
+}
+
+.level-node:nth-child(10n)::after {
+  display: none;
+}
+
+.level-node:hover:not(:disabled),
+.level-node.selected {
+  transform: translateY(-2px);
+  border-color: rgba(250, 204, 21, 0.58);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28), 0 0 22px rgba(250, 204, 21, 0.08);
 }
 
 .level-node.unlocked {
@@ -203,7 +269,9 @@ p {
 
 .level-node.done {
   border-color: rgba(52, 211, 153, 0.55);
-  background: rgba(22, 101, 52, 0.28);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(52, 211, 153, 0.2), transparent 38%),
+    rgba(22, 101, 52, 0.28);
 }
 
 .level-node.locked {
@@ -213,18 +281,52 @@ p {
 
 .level-number {
   display: block;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 900;
+}
+
+.level-node > strong,
+.level-node > span:not(.level-number):not(.level-state) {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.level-node > strong {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.level-node > span:not(.level-number):not(.level-state) {
+  color: var(--solo-muted);
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .level-state {
   display: inline-flex;
-  width: max-content;
-  margin-top: 10px;
+  max-width: 100%;
+  margin-top: 9px;
   border-radius: 999px;
   padding: 5px 9px;
   color: #dbeafe;
   background: rgba(56, 189, 248, 0.12);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.level-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0 10px;
+}
+
+.level-tags span {
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: #dbeafe;
+  background: rgba(14, 116, 144, 0.18);
   font-size: 12px;
   font-weight: 900;
 }
@@ -484,6 +586,26 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .level-map {
+    grid-template-columns: repeat(4, minmax(74px, 1fr));
+    max-height: 58vh;
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .level-node {
+    min-height: 100px;
+    padding: 10px 8px;
+  }
+
+  .level-node::after {
+    display: none;
+  }
+
+  .level-overview {
+    grid-template-columns: 1fr;
+  }
+
   .tabs {
     grid-template-columns: 1fr;
   }
@@ -494,5 +616,130 @@ p {
 
   .user-pill {
     width: max-content;
+  }
+}
+
+@media (max-width: 480px) {
+  .solitario-shell {
+    width: min(100% - 20px, 1180px);
+    padding: 18px 0;
+  }
+
+  .level-map {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .level-number {
+    font-size: 22px;
+  }
+}
+
+.solo-final-shell {
+  width: min(1040px, calc(100% - 28px));
+  min-height: 100vh;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 28px 0;
+}
+
+.solo-final-card {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 24px;
+  padding: clamp(18px, 3vw, 30px);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(56, 189, 248, 0.18), transparent 32%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.92));
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+}
+
+.solo-final-card.completed {
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+.solo-final-card.invalid {
+  border-color: rgba(251, 113, 133, 0.46);
+}
+
+.solo-final-hero h1 {
+  margin-bottom: 10px;
+  font-size: clamp(34px, 6vw, 72px);
+  line-height: 0.95;
+}
+
+.solo-final-grid {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.solo-final-mission,
+.solo-final-stat,
+.solo-progress-row {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.solo-final-mission {
+  grid-row: span 2;
+}
+
+.solo-final-stat strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 28px;
+}
+
+.solo-progress-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.solo-progress-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.solo-progress-row span {
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: #020617;
+  background: var(--solo-danger);
+  font-size: 11px;
+  font-weight: 1000;
+}
+
+.solo-progress-row.ok span {
+  background: var(--solo-good);
+}
+
+.solo-final-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 840px) {
+  .solo-final-grid,
+  .solo-progress-list {
+    grid-template-columns: 1fr;
+  }
+
+  .solo-final-mission {
+    grid-row: auto;
+  }
+
+  .solo-final-actions {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 }

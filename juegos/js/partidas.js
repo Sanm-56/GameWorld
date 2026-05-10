@@ -1,8 +1,8 @@
 import { supabase } from "./supabase.js"
 import { registrarXpPorPartida } from "./progreso-nivel.js"
-import { reportLevelResult } from "./solitario-niveles.js"
+import { reportLevelResult, saveLastLevelResult } from "./solitario-niveles.js"
 import { obtenerOrigenExperiencia } from "./mini-torneo.js"
-import { registrarMonedasPorActividad } from "./tienda.js"
+import { obtenerMonedas, registrarMonedasPorActividad } from "./tienda.js"
 import { limpiarSnapshotBonusXP, obtenerSnapshotBonusXP } from "./experiencia-temporada.js"
 
 const FALLBACK_TABLES = {
@@ -13,7 +13,10 @@ const FALLBACK_TABLES = {
 
 export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo, invalido = false }) {
   if (!usuario || !juego) return
-  if (invalido) return
+  if (invalido) {
+    await reportLevelResult(supabase, { usuario, juego, valor, modo, invalido, motivo: "Descalificado por actividad sospechosa." })
+    return
+  }
 
   const numero = Number(valor || 0)
   const posicion = await obtenerPosicion(usuario, juego, modo)
@@ -66,7 +69,7 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     return
   }
 
-  await registrarXpPorPartida({
+  const xpResultados = await registrarXpPorPartida({
     usuario,
     juego,
     posicion,
@@ -74,7 +77,8 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     bonusXPAplicado: snapshotBonusXP?.bonusXPAplicado,
   })
 
-  await registrarMonedasPorActividad(usuario, {
+  const monedasAntes = obtenerMonedas(usuario)
+  const saldoMonedas = await registrarMonedasPorActividad(usuario, {
     juego,
     origen: origenExperiencia,
     posicion,
@@ -83,6 +87,13 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
       ? `monedas:partida:${partidaGuardada.id}`
       : `monedas:partida:${usuario}:${juego}:${origenExperiencia}:${modo}:${numero}`,
   })
+  if (resultadoNivel) {
+    saveLastLevelResult({
+      xpGanada: xpResultados.filter(Boolean).reduce((total, item) => total + Number(item.xpGanado || 0), 0),
+      monedasGanadas: Math.max(0, Number(saldoMonedas || 0) - monedasAntes),
+      monedasSaldo: saldoMonedas,
+    })
+  }
 
   limpiarSnapshotBonusXP(juego)
 }

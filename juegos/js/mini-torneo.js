@@ -11,11 +11,18 @@ export function esMiniTorneo(juego) {
 
 const DURACION_JUEGO_MS = 10 * 60 * 1000
 
-function esNivelSolitario(juego) {
+export function esNivelSolitario(juego) {
   const context = leerContextoNivel()
   return localStorage.getItem("solitario_origen") === "nivel"
     && context
     && context.game === juego
+}
+
+export function redirigirFinalNivelSolitario() {
+  const juego = localStorage.getItem("juego_actual") || localStorage.getItem("solitario_juego")
+  if (!esNivelSolitario(juego)) return false
+  window.location.replace("../../solitario/final-nivel.html")
+  return true
 }
 
 export function obtenerOrigenExperiencia(juego) {

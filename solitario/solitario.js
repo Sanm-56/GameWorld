@@ -53,7 +53,11 @@ const els = {
   authStatus: document.getElementById("authStatus"),
   levelMap: document.getElementById("levelMap"),
   levelTitle: document.getElementById("levelTitle"),
+  levelTags: document.getElementById("levelTags"),
   levelDescription: document.getElementById("levelDescription"),
+  levelProgressText: document.getElementById("levelProgressText"),
+  levelUnlockedText: document.getElementById("levelUnlockedText"),
+  levelChapterText: document.getElementById("levelChapterText"),
   lastScore: document.getElementById("lastScore"),
   playLevelBtn: document.getElementById("playLevelBtn"),
   resetProgressBtn: document.getElementById("resetProgressBtn"),
@@ -416,15 +420,24 @@ function saveProgress(progress) {
 
 function renderLevels() {
   const progress = getProgress()
+  const selectedFromFinal = Number(localStorage.getItem("solitario_selected_level") || 0)
+  if (selectedFromFinal) {
+    state.selectedLevel = Math.min(Math.max(1, selectedFromFinal), progress.unlocked)
+    localStorage.removeItem("solitario_selected_level")
+  }
+  if (els.levelProgressText) els.levelProgressText.textContent = `${progress.done.length} / ${LEVELS.length}`
+  if (els.levelUnlockedText) els.levelUnlockedText.textContent = `Nivel ${Math.min(progress.unlocked, LEVELS.length)}`
+  if (els.levelChapterText) els.levelChapterText.textContent = `Capitulo ${Math.max(1, Math.ceil(Math.min(progress.unlocked, LEVELS.length) / 50))}`
+
   els.levelMap.innerHTML = LEVELS.map((level) => {
     const done = progress.done.includes(level.id)
     const unlocked = isLevelUnlocked(level, progress)
     const className = done ? "done" : unlocked ? "unlocked" : "locked"
     return `
-      <button class="level-node ${className}" type="button" data-level="${level.id}" ${unlocked ? "" : "disabled"}>
+      <button class="level-node ${className}" type="button" data-level="${level.id}" data-game="${level.game}" data-difficulty="${level.difficulty}" ${unlocked ? "" : "disabled"}>
         <span class="level-number">${level.id}</span>
-        <strong>${level.title}</strong>
-        <span>${getGameLabel(level.game)}</span>
+        <strong>${getGameLabel(level.game)}</strong>
+        <span>${level.mission.category}</span>
         <span class="level-state">${done ? "Completado" : unlocked ? "Disponible" : "Bloqueado"}</span>
       </button>
     `
@@ -442,9 +455,19 @@ function selectLevel(levelId) {
   const level = LEVELS.find((item) => item.id === levelId) || LEVELS[0]
   const progress = getProgress()
   const best = progress.bestByLevel?.[String(level.id)] || 0
+  els.levelMap.querySelectorAll("[data-level]").forEach((button) => {
+    button.classList.toggle("selected", Number(button.dataset.level) === level.id)
+  })
   state.selectedGame = level.game
   updateMiniTournamentGamePicker()
   els.levelTitle.textContent = level.title
+  if (els.levelTags) {
+    els.levelTags.innerHTML = `
+      <span>${getGameLabel(level.game)}</span>
+      <span>${level.mission.category}</span>
+      <span>${level.difficulty}</span>
+    `
+  }
   els.levelDescription.textContent = missionLabel(level)
   els.lastScore.textContent = String(best)
   els.playLevelBtn.textContent = `Jugar ${getGameLabel(level.game)}`

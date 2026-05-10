@@ -53,11 +53,26 @@
             </div>
             <button class="ghost-button" type="button" id="resetProgressBtn">Reiniciar progreso</button>
           </div>
+          <div class="level-overview">
+            <article>
+              <span>Progreso</span>
+              <strong id="levelProgressText">0 / 500</strong>
+            </article>
+            <article>
+              <span>Desbloqueado</span>
+              <strong id="levelUnlockedText">Nivel 1</strong>
+            </article>
+            <article>
+              <span>Ruta</span>
+              <strong id="levelChapterText">Capitulo 1</strong>
+            </article>
+          </div>
           <div class="level-map" id="levelMap"></div>
           <article class="play-panel" id="playPanel">
             <div>
               <p class="eyebrow">Reto actual</p>
               <h3 id="levelTitle">Nivel 1</h3>
+              <div class="level-tags" id="levelTags"></div>
               <p id="levelDescription" class="muted">Completa el reto para desbloquear el siguiente nivel.</p>
             </div>
             <div class="score-box">
