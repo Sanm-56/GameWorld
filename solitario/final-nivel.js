@@ -98,7 +98,7 @@ function render(summary) {
   els.score.textContent = String(result.score || 0)
   els.time.textContent = result.time ? formatTime(result.time) : result.elapsed ? formatTime(result.elapsed) : "-"
   els.coins.textContent = String(summary.monedasGanadas || 0)
-  els.xp.textContent = String(summary.xpGanada || 0)
+  els.xp.textContent = formatearXpResumen(summary)
   els.progress.innerHTML = progressItems.map((item) => `
     <div class="solo-progress-row ${item.ok ? "ok" : "bad"}">
       <span>${item.ok ? "OK" : "NO"}</span>
@@ -107,6 +107,7 @@ function render(summary) {
   `).join("")
   els.next.disabled = !completed || level.id >= LEVELS.length
   els.next.textContent = level.id >= LEVELS.length ? "Mapa completado" : "Siguiente nivel"
+  if (summary.recompensasXp?.length) lanzarReaccionRecompensa(summary.recompensasXp)
 }
 
 function retry(summary) {
@@ -147,6 +148,30 @@ function formatTime(seconds) {
   const min = Math.floor(Number(seconds || 0) / 60)
   const sec = Number(seconds || 0) % 60
   return `${min}:${sec < 10 ? "0" : ""}${sec}`
+}
+
+function formatearXpResumen(summary) {
+  const xpBase = Number(summary?.xpGanada || 0)
+  const bonus = (summary?.recompensasXp || []).reduce((total, item) => total + Number(item.xp || 0), 0)
+  if (!bonus) return String(xpBase)
+  return `${formatNumber(xpBase + bonus)} (+${formatNumber(bonus)} bonus)`
+}
+
+function lanzarReaccionRecompensa(recompensas) {
+  if (document.querySelector(".xp-reward-burst")) return
+  const total = recompensas.reduce((sum, item) => sum + Number(item.xp || 0), 0)
+  const burst = document.createElement("div")
+  burst.className = "xp-reward-burst"
+  burst.innerHTML = `
+    <span>Recompensa desbloqueada</span>
+    <strong>+${formatNumber(total)} XP</strong>
+  `
+  document.body.appendChild(burst)
+  setTimeout(() => burst.remove(), 3200)
+}
+
+function formatNumber(value) {
+  return Math.max(0, Number(value) || 0).toLocaleString("es-CO")
 }
 
 function escapeHtml(value) {

@@ -76,6 +76,9 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     origen: origenExperiencia,
     bonusXPAplicado: snapshotBonusXP?.bonusXPAplicado,
   })
+  const recompensasXp = xpResultados
+    .filter(Boolean)
+    .flatMap((item) => item.recompensas || [])
 
   const monedasAntes = obtenerMonedas(usuario)
   const saldoMonedas = await registrarMonedasPorActividad(usuario, {
@@ -90,6 +93,7 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
   if (resultadoNivel) {
     saveLastLevelResult({
       xpGanada: xpResultados.filter(Boolean).reduce((total, item) => total + Number(item.xpGanado || 0), 0),
+      recompensasXp,
       monedasGanadas: Math.max(0, Number(saldoMonedas || 0) - monedasAntes),
       monedasSaldo: saldoMonedas,
     })

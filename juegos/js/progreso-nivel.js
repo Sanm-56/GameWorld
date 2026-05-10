@@ -6,12 +6,31 @@ import { obtenerBonusRangoActivo } from './rango-bonus.js'
 export const NIVEL_MAXIMO = 3000
 export const NIVEL_ESCALADO_AVANZADO = 1416
 export const MULTIPLICADOR_XP_AVANZADO = 5
-export const MULTIPLICADOR_XP_BASE_TORNEO = 8
+export const MULTIPLICADOR_XP_BASE_TORNEO = 144
+export const MULTIPLICADOR_XP_BASE_ANTERIOR_TORNEO = 8
+export const MULTIPLICADOR_XP_REBALANCE = 18
 
 const XP_ACCIONES = {
   partida_completada: aplicarMultiplicadorXpBaseTorneo(125),
   torneo_participacion: aplicarMultiplicadorXpBaseTorneo(250),
-  logro_desbloqueado: 400,
+}
+
+const XP_RECOMPENSA_LOGRO_POR_RAREZA = {
+  common: 100000,
+  comun: 100000,
+  normal: 100000,
+  rare: 1000000,
+  raro: 1000000,
+  epic: 3500000,
+  epico: 3500000,
+  legendary: 12000000,
+  legendario: 12000000,
+  mythic: 35000000,
+  mitico: 35000000,
+  mythical: 35000000,
+  forbidden: 65000000,
+  prohibido: 65000000,
+  supremo: 65000000,
 }
 
 const TITULOS_NIVEL = [
@@ -208,6 +227,13 @@ export function obtenerRangoNivel(nivelActual = 1) {
   return TITULOS_NIVEL.find((rango) => nivel >= rango.desde && nivel <= rango.hasta) || TITULOS_NIVEL[TITULOS_NIVEL.length - 1]
 }
 
+export function obtenerIndiceRango(rangoObjetivo) {
+  if (!rangoObjetivo) return 0
+  const titulo = String(rangoObjetivo.titulo || rangoObjetivo || '').trim()
+  const index = TITULOS_NIVEL.findIndex((rango) => rango.titulo === titulo)
+  return Math.max(0, index)
+}
+
 export function obtenerRangosHastaNivel(nivelActual = 1) {
   const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
   return TITULOS_NIVEL.filter((rango) => rango.desde <= nivel)
@@ -249,6 +275,38 @@ export function calcularXpRanking(posicion) {
   if (pos <= 10) return aplicarMultiplicadorXpBaseTorneo(375)
   if (pos <= 25) return aplicarMultiplicadorXpBaseTorneo(225)
   return aplicarMultiplicadorXpBaseTorneo(125)
+}
+
+export function calcularRecompensaSubidaNivel(nivelActual = 1) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  return Math.min(2000000000, Math.round(10000 + Math.pow(nivel, 1.38) * 1800))
+}
+
+export function calcularRecompensaRango(rangoObjetivo) {
+  const rango = rangoObjetivo?.desde ? rangoObjetivo : obtenerRangoNivel(Number(rangoObjetivo) || 1)
+  const indice = obtenerIndiceRango(rango)
+  if (indice <= 0) return 250000
+  return Math.min(2000000000, Math.round(1000000 * Math.pow(1 + indice / 10, 2.2)))
+}
+
+export function normalizarRarezaLogro(rareza = 'common') {
+  const texto = String(rareza || 'common')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+  if (['comun', 'common', 'normal'].includes(texto)) return 'common'
+  if (['raro', 'rare'].includes(texto)) return 'rare'
+  if (['epico', 'epic'].includes(texto)) return 'epic'
+  if (['legendario', 'legendary'].includes(texto)) return 'legendary'
+  if (['mitico', 'mythic', 'mythical'].includes(texto)) return 'mythic'
+  if (['prohibido', 'forbidden', 'supremo'].includes(texto)) return 'forbidden'
+  return 'common'
+}
+
+export function calcularRecompensaLogro(rareza = 'common') {
+  const normalizada = normalizarRarezaLogro(rareza)
+  return XP_RECOMPENSA_LOGRO_POR_RAREZA[normalizada] || XP_RECOMPENSA_LOGRO_POR_RAREZA.common
 }
 
 export function multiplicadorOrigenExperiencia(origen = 'torneo') {
@@ -338,44 +396,50 @@ export async function obtenerRecompensasHastaNivel(nivel) {
   return data || []
 }
 
-export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, accionKey = null, juego = null, origen = 'torneo', bonusXPAplicado = null }) {
+export async function registrarXp({
+  usuario,
+  accion,
+  xpGanado,
+  detalle = {},
+  accionKey = null,
+  juego = null,
+  origen = 'torneo',
+  bonusXPAplicado = null,
+  aplicarMultiplicadores = true,
+  generarRecompensasProgresion = true,
+}) {
   if (!usuario) return null
 
   const xpBase = Math.max(0, Number(xpGanado) || 0)
   if (!xpBase) return null
 
-  const multiplicadorOrigen = multiplicadorOrigenExperiencia(origen)
-  const bonusTemporada = Number.isFinite(Number(bonusXPAplicado))
-    ? Number(bonusXPAplicado)
-    : juego ? await obtenerBonusTemporada(juego) : 1
-  const bonusUsuario = await obtenerBonusUsuario(usuario)
-  const bonusRango = obtenerBonusRangoActivo(usuario)
+  const multiplicadorOrigen = aplicarMultiplicadores ? multiplicadorOrigenExperiencia(origen) : 1
+  const bonusTemporada = aplicarMultiplicadores
+    ? Number.isFinite(Number(bonusXPAplicado))
+      ? Number(bonusXPAplicado)
+      : juego ? await obtenerBonusTemporada(juego) : 1
+    : 1
+  const bonusUsuario = aplicarMultiplicadores ? await obtenerBonusUsuario(usuario) : 1
+  const bonusRango = aplicarMultiplicadores ? obtenerBonusRangoActivo(usuario) : { multiplicadorExp: 1, exp: 0, titulo: null }
   const xp = Math.max(1, Math.round(xpBase * multiplicadorOrigen * bonusTemporada * bonusUsuario * bonusRango.multiplicadorExp))
   if (!xp) return null
 
   const key = accionKey || `${accion}:${Date.now()}:${Math.random().toString(16).slice(2)}`
 
-  const { data: existente } = await supabase
-    .from('historial_xp')
-    .select('id')
-    .eq('usuario_id', usuario)
-    .eq('accion_key', key)
-    .maybeSingle()
-
-  if (existente) return null
+  if (await existeRegistroXp(usuario, key)) return null
 
   const progresoAnterior = await obtenerProgresoNivel(usuario)
-  let nuevoNivel = progresoAnterior.nivel
-  let nuevoXp = progresoAnterior.xp + xp
-  while (nuevoNivel < NIVEL_MAXIMO) {
-    const requisitoNivel = xpNecesarioParaNivel(nuevoNivel)
-    if (nuevoXp < requisitoNivel) break
-    nuevoXp -= requisitoNivel
-    nuevoNivel += 1
-  }
-  if (nuevoNivel >= NIVEL_MAXIMO) nuevoXp = 0
-  const subioNivel = nuevoNivel > progresoAnterior.nivel
-  const calculado = calcularProgresoNivelActual(nuevoNivel, nuevoXp)
+  const progresoConXp = aplicarXpAProgreso(progresoAnterior, xp)
+  const eventosRecompensa = generarRecompensasProgresion
+    ? await calcularEventosRecompensaProgresion(usuario, progresoAnterior.nivel, progresoConXp)
+    : []
+  const xpRecompensas = eventosRecompensa.reduce((total, evento) => total + evento.xp, 0)
+  const progresoFinal = xpRecompensas
+    ? aplicarXpAProgreso(progresoConXp, xpRecompensas)
+    : progresoConXp
+
+  const subioNivel = progresoFinal.nivel > progresoAnterior.nivel
+  const calculado = calcularProgresoNivelActual(progresoFinal.nivel, progresoFinal.xp)
 
   const { error: progresoError } = await supabase
     .from('progreso_nivel')
@@ -401,6 +465,7 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
       detalle: {
         ...detalle,
         xpBase,
+        xpRecompensas,
         juego,
         origen,
         multiplicadorOrigen,
@@ -416,6 +481,8 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
     console.warn('No se pudo registrar historial de XP', historialError)
   }
 
+  await registrarHistorialRecompensas(usuario, eventosRecompensa)
+
   if (subioNivel) {
     await desbloquearRecompensas(usuario, progresoAnterior.nivel + 1, calculado.nivel)
   }
@@ -430,6 +497,8 @@ export async function registrarXp({ usuario, accion, xpGanado, detalle = {}, acc
     nivelAnterior: progresoAnterior.nivel,
     nivelActual: calculado.nivel,
     subioNivel,
+    xpRecompensas,
+    recompensas: eventosRecompensa,
   }
 }
 
@@ -488,16 +557,105 @@ export async function registrarXpPorLogros(usuario, logros, origen = 'perfil') {
   const resultados = []
 
   for (const logro of desbloqueados) {
+    const rareza = normalizarRarezaLogro(logro.rareza || logro.rarity || 'common')
     resultados.push(await registrarXp({
       usuario,
       accion: 'logro_desbloqueado',
-      xpGanado: XP_ACCIONES.logro_desbloqueado,
-      detalle: { origen, titulo: logro.title },
+      xpGanado: calcularRecompensaLogro(rareza),
+      detalle: { origen, titulo: logro.title, rareza },
       accionKey: `logro:${origen}:${logro.title}:${logro.howTo || ''}`,
+      origen: 'recompensa',
+      aplicarMultiplicadores: false,
     }))
   }
 
   return resultados
+}
+
+function aplicarXpAProgreso(progreso, xpGanado) {
+  let nuevoNivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(progreso?.nivel) || 1)))
+  let nuevoXp = Math.max(0, Number(progreso?.xp) || 0) + Math.max(0, Number(xpGanado) || 0)
+
+  while (nuevoNivel < NIVEL_MAXIMO) {
+    const requisitoNivel = xpNecesarioParaNivel(nuevoNivel)
+    if (nuevoXp < requisitoNivel) break
+    nuevoXp -= requisitoNivel
+    nuevoNivel += 1
+  }
+
+  if (nuevoNivel >= NIVEL_MAXIMO) nuevoXp = 0
+  return { nivel: nuevoNivel, xp: nuevoXp }
+}
+
+async function calcularEventosRecompensaProgresion(usuario, nivelAnterior, progresoNuevo, ignorarKeys = new Set()) {
+  const eventos = []
+  const desde = Math.max(1, Math.trunc(Number(nivelAnterior) || 1) + 1)
+  const hasta = Math.min(NIVEL_MAXIMO, Math.trunc(Number(progresoNuevo?.nivel) || 1))
+  if (hasta < desde) return eventos
+
+  for (let nivel = desde; nivel <= hasta; nivel += 1) {
+    const levelKey = `recompensa:nivel:${nivel}`
+    if (!ignorarKeys.has(levelKey) && !(await existeRegistroXp(usuario, levelKey))) {
+      eventos.push({
+        key: levelKey,
+        accion: 'recompensa_nivel',
+        xp: calcularRecompensaSubidaNivel(nivel),
+        detalle: { nivel, motivo: 'subida_nivel' },
+      })
+    }
+
+    const rango = TITULOS_NIVEL.find((item) => item.desde === nivel)
+    const rankKey = rango ? `recompensa:rango:${rango.titulo}:${rango.desde}` : null
+    if (rango && !ignorarKeys.has(rankKey) && !(await existeRegistroXp(usuario, rankKey))) {
+      eventos.push({
+        key: rankKey,
+        accion: 'recompensa_rango',
+        xp: calcularRecompensaRango(rango),
+        detalle: {
+          nivel,
+          rango: rango.titulo,
+          indiceRango: obtenerIndiceRango(rango),
+          motivo: 'rango_desbloqueado',
+        },
+      })
+    }
+  }
+
+  return eventos
+}
+
+async function existeRegistroXp(usuario, key) {
+  if (!usuario || !key) return false
+  const { data } = await supabase
+    .from('historial_xp')
+    .select('id')
+    .eq('usuario_id', usuario)
+    .eq('accion_key', key)
+    .maybeSingle()
+  return Boolean(data)
+}
+
+async function registrarHistorialRecompensas(usuario, eventos) {
+  if (!usuario || !eventos.length) return
+  const filas = eventos.map((evento) => ({
+    usuario_id: usuario,
+    accion: evento.accion,
+    accion_key: evento.key,
+    xp_ganado: evento.xp,
+    detalle: {
+      ...evento.detalle,
+      aplicaMultiplicadores: false,
+      origen: 'recompensa',
+    },
+  }))
+
+  const { error } = await supabase
+    .from('historial_xp')
+    .upsert(filas, { onConflict: 'usuario_id,accion_key' })
+
+  if (error) {
+    console.warn('No se pudo registrar historial de recompensas de XP', error)
+  }
 }
 
 async function desbloquearRecompensas(usuario, desdeNivel, hastaNivel) {

@@ -987,6 +987,49 @@ p {
   justify-content: flex-end;
 }
 
+.xp-reward-burst {
+  position: fixed;
+  left: 50%;
+  top: 18px;
+  z-index: 50;
+  display: grid;
+  gap: 4px;
+  min-width: min(320px, calc(100vw - 32px));
+  padding: 14px 18px;
+  border: 1px solid rgba(250, 204, 21, 0.48);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.94);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28), 0 0 28px rgba(250, 204, 21, 0.18);
+  color: #f8fafc;
+  text-align: center;
+  transform: translateX(-50%);
+  animation: xpRewardPop 3.2s ease forwards;
+}
+
+.xp-reward-burst span {
+  color: #fde68a;
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.xp-reward-burst strong {
+  font-size: clamp(1.1rem, 3vw, 1.55rem);
+}
+
+@keyframes xpRewardPop {
+  0% { opacity: 0; transform: translate(-50%, -16px) scale(0.96); }
+  12% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  82% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -10px) scale(0.98); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xp-reward-burst {
+    animation: none;
+  }
+}
+
 @media (max-width: 840px) {
   .solo-final-grid,
   .solo-progress-list {

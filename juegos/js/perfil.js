@@ -15,6 +15,8 @@ import {
   obtenerRangosHastaNivel,
   obtenerTituloNivel,
   xpRequeridaParaRango,
+  calcularRecompensaRango,
+  calcularRecompensaSubidaNivel,
   registrarXpPorLogros,
 } from './progreso-nivel.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js'
@@ -4603,9 +4605,23 @@ async function sincronizarXpDeLogros() {
 
   for (const game of GAMES) {
     const resultado = resultadosPerfil.find((item) => item.juego === game.key)
-    const logros = crearLogrosDeJuego(game, resultado)
+    const logros = crearLogrosDeJuego(game, resultado).map((achievement) => ({
+      ...achievement,
+      rareza: obtenerRarezaLogro(game.key, achievement),
+    }))
     await registrarXpPorLogros(usuario, logros, game.key)
   }
+}
+
+function obtenerRarezaLogro(gameKey, achievement) {
+  const stats = estadisticasLogros[gameKey] || {}
+  if (gameKey === 'sudoku') return obtenerRarezaSudoku(obtenerProgresoSudoku(achievement, stats), achievement)
+  if (gameKey === 'memoria') return obtenerRarezaMemoria(obtenerProgresoMemoria(achievement, stats), achievement)
+  if (gameKey === 'matematicas') return obtenerRarezaMatematicas(obtenerProgresoMatematicas(achievement, stats), achievement)
+  if (gameKey === 'flashmind') return obtenerRarezaArcana(obtenerProgresoFlashmind(achievement, stats), achievement)
+  if (gameKey === 'numcatch') return obtenerRarezaArcana(obtenerProgresoNumcatch(achievement, stats), achievement)
+  if (gameKey === 'ajedrez' || gameKey === 'domino' || gameKey === 'damas') return obtenerRarezaTablero(obtenerProgresoTablero(achievement, stats, gameKey), achievement)
+  return 'common'
 }
 
 async function renderProgresoNivel() {
@@ -4666,9 +4682,14 @@ async function renderProgresoNivel() {
     if (proximoRangoNombreEl) proximoRangoNombreEl.innerText = siguienteRango?.titulo || rangoActual.titulo
     if (proximoRangoXpEl) proximoRangoXpEl.innerText = `XP necesaria: ${formatearNumero(siguienteRango ? xpRequeridaParaRango(siguienteRango) : progreso.xpSiguiente)} XP`
     if (proximoRangoFaltanteEl) proximoRangoFaltanteEl.innerText = `Te faltan: ${formatearNumero(progresoSiguienteRango?.faltante || progreso.xpParaSiguiente)} XP`
+    const bonusNivel = calcularRecompensaSubidaNivel(siguienteNivel)
+    const bonusRango = siguienteRango?.desde === siguienteNivel ? calcularRecompensaRango(siguienteRango) : 0
+    const detalleBonus = bonusRango
+      ? ` | Bonus: ${formatearNumero(bonusNivel)} XP + rango ${formatearNumero(bonusRango)} XP`
+      : ` | Bonus: ${formatearNumero(bonusNivel)} XP`
     recompensaSiguienteEl.innerText = recompensa
-      ? `Nivel ${recompensa.nivel}: ${formatearTipoRecompensa(recompensa.tipo)} - ${recompensa.valor}`
-      : `Nivel ${siguienteNivel}: recompensa pendiente`
+      ? `Nivel ${recompensa.nivel}: ${formatearTipoRecompensa(recompensa.tipo)} - ${recompensa.valor}${detalleBonus}`
+      : `Nivel ${siguienteNivel}: bonus ${formatearNumero(bonusNivel)} XP`
   }
 
   await renderRankingNivel()
