@@ -184,19 +184,31 @@ p {
 .level-map {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(10, minmax(86px, 1fr));
-  gap: 12px;
+  gap: 18px;
   max-height: min(62vh, 620px);
   overflow: auto;
-  padding: 10px;
+  padding: clamp(12px, 2vw, 18px);
   margin-bottom: 16px;
   border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 24px;
+  border-radius: 28px;
   background:
-    linear-gradient(90deg, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(250, 204, 21, 0.06) 1px, transparent 1px),
-    rgba(2, 6, 23, 0.24);
-  background-size: 72px 72px;
+    radial-gradient(circle at 12% 4%, rgba(56, 189, 248, 0.16), transparent 26%),
+    radial-gradient(circle at 92% 14%, rgba(250, 204, 21, 0.11), transparent 24%),
+    linear-gradient(140deg, rgba(8, 13, 28, 0.94), rgba(2, 6, 23, 0.78));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 24px 70px rgba(0, 0, 0, 0.28);
+  scrollbar-color: rgba(56, 189, 248, 0.42) rgba(15, 23, 42, 0.7);
+  contain: layout paint style;
+}
+
+.level-map::before {
+  content: "";
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 1px;
+  margin-bottom: -1px;
+  background: linear-gradient(90deg, transparent, rgba(250, 204, 21, 0.45), transparent);
+  pointer-events: none;
 }
 
 .level-overview {
@@ -208,9 +220,11 @@ p {
 
 .level-overview article {
   border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 18px;
+  border-radius: 16px;
   padding: 14px;
-  background: rgba(15, 23, 42, 0.68);
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(8, 47, 73, 0.36)),
+    rgba(15, 23, 42, 0.68);
 }
 
 .level-overview span,
@@ -229,74 +243,263 @@ p {
   font-size: 22px;
 }
 
+.level-chapter {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 22px;
+  padding: clamp(14px, 2vw, 22px);
+  background: rgba(15, 23, 42, 0.74);
+  background:
+    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--chapter-accent) 22%, transparent), transparent 34%),
+    radial-gradient(circle at 92% 28%, color-mix(in srgb, var(--chapter-glow) 13%, transparent), transparent 28%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.84), rgba(2, 6, 23, 0.58));
+  content-visibility: auto;
+  contain: layout paint style;
+  contain-intrinsic-size: 520px;
+}
+
+.level-chapter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(180deg, black, transparent 92%);
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.level-chapter.current {
+  border-color: rgba(56, 189, 248, 0.42);
+  border-color: color-mix(in srgb, var(--chapter-accent) 42%, rgba(148, 163, 184, 0.2));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--chapter-accent) 12%, transparent);
+}
+
+.level-chapter.distant {
+  opacity: 0.82;
+}
+
+.chapter-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: clamp(16px, 2.4vw, 24px);
+}
+
+.chapter-kicker,
+.chapter-head p {
+  color: var(--solo-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.chapter-head h3 {
+  margin: 4px 0 6px;
+  font-size: clamp(22px, 3vw, 36px);
+  line-height: 1.02;
+}
+
+.chapter-head p {
+  margin-bottom: 0;
+  text-transform: none;
+}
+
+.chapter-sigil {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 58px;
+  height: 58px;
+  border: 1px solid color-mix(in srgb, var(--chapter-glow) 42%, rgba(255, 255, 255, 0.12));
+  border-radius: 18px;
+  color: var(--chapter-glow);
+  background: rgba(2, 6, 23, 0.42);
+  box-shadow: inset 0 0 22px color-mix(in srgb, var(--chapter-glow) 15%, transparent);
+  font-weight: 1000;
+}
+
+.chapter-route {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(96px, 1fr));
+  grid-auto-rows: minmax(132px, auto);
+  gap: clamp(16px, 2vw, 24px) clamp(18px, 2.8vw, 34px);
+}
+
+.chapter-route::before {
+  content: "";
+  position: absolute;
+  inset: 54px 7% 54px;
+  border-radius: 42px;
+  background:
+    linear-gradient(90deg, transparent 0 8%, color-mix(in srgb, var(--chapter-accent) 38%, transparent) 8% 92%, transparent 92% 100%),
+    repeating-linear-gradient(180deg, transparent 0 124px, color-mix(in srgb, var(--chapter-glow) 26%, transparent) 124px 128px, transparent 128px 248px);
+  opacity: 0.45;
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--chapter-accent) 18%, transparent));
+  pointer-events: none;
+}
+
 .level-node {
   position: relative;
-  min-height: 112px;
+  grid-column: var(--route-col);
+  grid-row: var(--route-row);
+  min-height: 132px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
   border: 1px solid var(--solo-border);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 18px;
+  padding: 13px 10px 12px;
   text-align: center;
+  isolation: isolate;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), transparent 34%),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.12), transparent 45%),
     var(--solo-panel-strong);
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.26);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  contain: layout paint style;
+}
+
+.level-node::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 50%;
+  width: calc(100% + clamp(18px, 2.8vw, 34px));
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--chapter-accent) 42%, transparent), color-mix(in srgb, var(--chapter-glow) 32%, transparent));
+  opacity: 0.36;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.level-node.row-turn::before,
+.level-node.chapter-end::before {
+  display: none;
 }
 
 .level-node::after {
   content: "";
   position: absolute;
-  left: calc(100% - 2px);
-  top: 50%;
-  width: 16px;
-  height: 2px;
-  background: rgba(56, 189, 248, 0.18);
-}
-
-.level-node:nth-child(10n)::after {
-  display: none;
+  inset: 8px;
+  z-index: 0;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  pointer-events: none;
 }
 
 .level-node:hover:not(:disabled),
 .level-node.selected {
   transform: translateY(-2px);
   border-color: rgba(250, 204, 21, 0.58);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28), 0 0 22px rgba(250, 204, 21, 0.08);
+  border-color: color-mix(in srgb, var(--chapter-glow) 64%, rgba(250, 204, 21, 0.2));
+  box-shadow: 0 22px 42px rgba(0, 0, 0, 0.34), 0 0 24px color-mix(in srgb, var(--chapter-glow) 14%, transparent);
 }
 
 .level-node.unlocked {
   border-color: rgba(56, 189, 248, 0.5);
+  border-color: color-mix(in srgb, var(--chapter-accent) 58%, rgba(56, 189, 248, 0.26));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 34%),
+    rgba(8, 47, 73, 0.62);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 34%),
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--chapter-accent) 23%, transparent), transparent 44%),
+    rgba(8, 47, 73, 0.62);
 }
 
 .level-node.done {
-  border-color: rgba(52, 211, 153, 0.55);
+  border-color: rgba(52, 211, 153, 0.66);
   background:
-    radial-gradient(circle at 50% 0%, rgba(52, 211, 153, 0.2), transparent 38%),
-    rgba(22, 101, 52, 0.28);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), transparent 34%),
+    radial-gradient(circle at 50% 0%, rgba(52, 211, 153, 0.26), transparent 44%),
+    rgba(20, 83, 45, 0.48);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.26), 0 0 18px rgba(52, 211, 153, 0.09);
 }
 
 .level-node.locked {
   color: var(--solo-muted);
-  filter: grayscale(0.7);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 32%),
+    rgba(15, 23, 42, 0.62);
+  filter: grayscale(0.45);
+}
+
+.level-aura {
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 24%, rgba(56, 189, 248, 0.18), transparent 58%);
+  background: radial-gradient(circle at 50% 24%, color-mix(in srgb, var(--chapter-accent) 20%, transparent), transparent 58%);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.level-node > * {
+  position: relative;
+  z-index: 1;
+}
+
+.level-node.unlocked .level-aura,
+.level-node.selected .level-aura {
+  opacity: 1;
+}
+
+.level-node.done .level-aura {
+  background: radial-gradient(circle at 50% 24%, rgba(52, 211, 153, 0.22), transparent 58%);
+  opacity: 1;
+}
+
+.level-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #dbeafe;
+  background: rgba(2, 6, 23, 0.38);
+  font-size: 11px;
+  font-weight: 1000;
+}
+
+.level-node.milestone .level-icon {
+  color: #020617;
+  background: linear-gradient(135deg, var(--chapter-glow), var(--chapter-accent));
 }
 
 .level-number {
   display: block;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 900;
+  line-height: 1;
 }
 
 .level-node > strong,
-.level-node > span:not(.level-number):not(.level-state) {
+.level-mission {
   display: block;
   overflow-wrap: anywhere;
 }
 
 .level-node > strong {
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 13px;
 }
 
-.level-node > span:not(.level-number):not(.level-state) {
+.level-mission {
   color: var(--solo-muted);
   font-size: 11px;
   font-weight: 800;
@@ -307,10 +510,10 @@ p {
   max-width: 100%;
   margin-top: 9px;
   border-radius: 999px;
-  padding: 5px 9px;
+  padding: 5px 8px;
   color: #dbeafe;
   background: rgba(56, 189, 248, 0.12);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
 }
 
@@ -587,19 +790,54 @@ p {
   }
 
   .level-map {
-    grid-template-columns: repeat(4, minmax(74px, 1fr));
     max-height: 58vh;
     gap: 10px;
     padding: 8px;
   }
 
+  .level-chapter {
+    border-radius: 18px;
+    padding: 14px;
+    contain-intrinsic-size: 780px;
+  }
+
+  .chapter-head {
+    align-items: center;
+  }
+
+  .chapter-head h3 {
+    font-size: 24px;
+  }
+
+  .chapter-sigil {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+
+  .chapter-route {
+    grid-template-columns: repeat(4, minmax(74px, 1fr));
+    grid-auto-rows: minmax(112px, auto);
+    gap: 12px;
+  }
+
+  .chapter-route::before,
+  .level-node::before {
+    display: none;
+  }
+
   .level-node {
+    grid-column: auto;
+    grid-row: auto;
+    order: var(--route-order);
     min-height: 100px;
     padding: 10px 8px;
+    border-radius: 14px;
   }
 
   .level-node::after {
-    display: none;
+    inset: 6px;
+    border-radius: 10px;
   }
 
   .level-overview {
@@ -625,12 +863,33 @@ p {
     padding: 18px 0;
   }
 
-  .level-map {
+  .chapter-route {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .chapter-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+  }
+
+  .chapter-head h3 {
+    font-size: 21px;
+  }
+
+  .level-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
   }
 
   .level-number {
     font-size: 22px;
+  }
+
+  .level-node > strong,
+  .level-mission,
+  .level-state {
+    font-size: 10px;
   }
 }
 

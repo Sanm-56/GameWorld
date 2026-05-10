@@ -33,6 +33,30 @@ const RANKING_GAME_OPTIONS = [
   })),
 ]
 
+const CHAPTER_THEMES = [
+  { name: "La aventura de Vox'r", terrain: "Nebula inicial", accent: "#38bdf8", glow: "#facc15" },
+  { name: "El Reino Fragmentado", terrain: "Islas rotas", accent: "#a78bfa", glow: "#38bdf8" },
+  { name: "Ecos del Vacio", terrain: "Orbitas oscuras", accent: "#22d3ee", glow: "#818cf8" },
+  { name: "Las Ruinas de Astralion", terrain: "Templos perdidos", accent: "#f59e0b", glow: "#34d399" },
+  { name: "La Corona de Ether", terrain: "Fortalezas altas", accent: "#34d399", glow: "#facc15" },
+  { name: "El Eclipse Carmesi", terrain: "Frontera roja", accent: "#fb7185", glow: "#f59e0b" },
+  { name: "Los Jardines de Obsidiana", terrain: "Bosque astral", accent: "#2dd4bf", glow: "#a78bfa" },
+  { name: "La Puerta del Infinito", terrain: "Arco final", accent: "#60a5fa", glow: "#f472b6" },
+  { name: "El Trono de Umbra", terrain: "Ciudadela oscura", accent: "#c084fc", glow: "#22d3ee" },
+  { name: "La Ultima Constelacion", terrain: "Cima estelar", accent: "#facc15", glow: "#38bdf8" },
+]
+
+const GAME_NODE_ICONS = {
+  ajedrez: "AJ",
+  damas: "DA",
+  domino: "DO",
+  flashmind: "FM",
+  matematicas: "MA",
+  memoria: "ME",
+  numcatch: "NC",
+  sudoku: "SU",
+}
+
 const state = {
   user: null,
   selectedLevel: 1,
@@ -427,19 +451,30 @@ function renderLevels() {
   }
   if (els.levelProgressText) els.levelProgressText.textContent = `${progress.done.length} / ${LEVELS.length}`
   if (els.levelUnlockedText) els.levelUnlockedText.textContent = `Nivel ${Math.min(progress.unlocked, LEVELS.length)}`
-  if (els.levelChapterText) els.levelChapterText.textContent = `Capitulo ${Math.max(1, Math.ceil(Math.min(progress.unlocked, LEVELS.length) / 50))}`
+  const activeChapter = Math.max(1, Math.ceil(Math.min(progress.unlocked, LEVELS.length) / 50))
+  const activeTheme = chapterTheme(activeChapter)
+  if (els.levelChapterText) els.levelChapterText.textContent = `Capitulo ${activeChapter} - ${activeTheme.name}`
 
-  els.levelMap.innerHTML = LEVELS.map((level) => {
-    const done = progress.done.includes(level.id)
-    const unlocked = isLevelUnlocked(level, progress)
-    const className = done ? "done" : unlocked ? "unlocked" : "locked"
+  const chapters = groupLevelsByChapter()
+  els.levelMap.innerHTML = chapters.map(([chapter, levels]) => {
+    const theme = chapterTheme(chapter)
+    const doneInChapter = levels.filter((level) => progress.done.includes(level.id)).length
+    const chapterClass = chapter === activeChapter ? "current" : chapter < activeChapter ? "cleared" : "distant"
+
     return `
-      <button class="level-node ${className}" type="button" data-level="${level.id}" data-game="${level.game}" data-difficulty="${level.difficulty}" ${unlocked ? "" : "disabled"}>
-        <span class="level-number">${level.id}</span>
-        <strong>${getGameLabel(level.game)}</strong>
-        <span>${level.mission.category}</span>
-        <span class="level-state">${done ? "Completado" : unlocked ? "Disponible" : "Bloqueado"}</span>
-      </button>
+      <section class="level-chapter ${chapterClass}" style="--chapter-accent:${theme.accent};--chapter-glow:${theme.glow};" data-chapter="${chapter}">
+        <header class="chapter-head">
+          <div>
+            <span class="chapter-kicker">Capitulo ${chapter}</span>
+            <h3>${escapeHtml(theme.name)}</h3>
+            <p>${escapeHtml(theme.terrain)} - ${doneInChapter}/${levels.length} misiones</p>
+          </div>
+          <span class="chapter-sigil" aria-hidden="true">${String(chapter).padStart(2, "0")}</span>
+        </header>
+        <div class="chapter-route">
+          ${levels.map((level) => renderLevelNode(level, progress)).join("")}
+        </div>
+      </section>
     `
   }).join("")
 
@@ -471,6 +506,53 @@ function selectLevel(levelId) {
   els.levelDescription.textContent = missionLabel(level)
   els.lastScore.textContent = String(best)
   els.playLevelBtn.textContent = `Jugar ${getGameLabel(level.game)}`
+}
+
+function groupLevelsByChapter() {
+  const grouped = new Map()
+  LEVELS.forEach((level) => {
+    const items = grouped.get(level.chapter) || []
+    items.push(level)
+    grouped.set(level.chapter, items)
+  })
+  return [...grouped.entries()]
+}
+
+function chapterTheme(chapter) {
+  return CHAPTER_THEMES[(chapter - 1) % CHAPTER_THEMES.length]
+}
+
+function renderLevelNode(level, progress) {
+  const done = progress.done.includes(level.id)
+  const unlocked = isLevelUnlocked(level, progress)
+  const className = done ? "done" : unlocked ? "unlocked" : "locked"
+  const rowIndex = Math.floor(((level.id - 1) % 50) / 5)
+  const stepIndex = (level.id - 1) % 5
+  const routeIndex = rowIndex % 2 === 0 ? stepIndex : 4 - stepIndex
+  const milestone = level.id % 10 === 0 ? " milestone" : ""
+  const turn = stepIndex === 4 ? " row-turn" : ""
+  const last = level.id % 50 === 0 ? " chapter-end" : ""
+  const stateText = done ? "Completado" : unlocked ? "Disponible" : "Bloqueado"
+
+  return `
+    <button
+      class="level-node ${className}${milestone}${turn}${last}"
+      type="button"
+      data-level="${level.id}"
+      data-game="${level.game}"
+      data-difficulty="${level.difficulty}"
+      style="--route-col:${routeIndex + 1};--route-row:${rowIndex + 1};--route-order:${(level.id - 1) % 50};"
+      aria-label="Nivel ${level.id}, ${escapeHtml(getGameLabel(level.game))}, ${stateText}"
+      ${unlocked ? "" : "disabled"}
+    >
+      <span class="level-aura" aria-hidden="true"></span>
+      <span class="level-icon" aria-hidden="true">${GAME_NODE_ICONS[level.game] || "LV"}</span>
+      <span class="level-number">${level.id}</span>
+      <strong>${escapeHtml(getGameLabel(level.game))}</strong>
+      <span class="level-mission">${escapeHtml(level.mission.category)}</span>
+      <span class="level-state">${stateText}</span>
+    </button>
+  `
 }
 
 async function playSelectedLevel() {
