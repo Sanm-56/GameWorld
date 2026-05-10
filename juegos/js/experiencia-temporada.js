@@ -20,6 +20,8 @@ const SNAPSHOT_KEY = "bonus_xp_partida_snapshot"
 const SEASON_STORAGE_KEY = "temporada_activa"
 const DEFAULT_BONUS = 1
 const SNAPSHOT_TTL_MS = 3 * 60 * 60 * 1000
+export const TIPOS_DURACION_TEMPORADA = ["horas", "dias"]
+export const ESTADOS_TEMPORADA = ["preparacion", "activa", "revision", "finalizada"]
 const DEFAULT_TEMPORADA = {
   id: "temporada-actual",
   numero: 1,
@@ -30,6 +32,11 @@ const DEFAULT_TEMPORADA = {
   activa: true,
   fechaInicio: null,
   fechaFin: null,
+  duracionTipo: "dias",
+  duracionCantidad: 30,
+  nombreIndice: 0,
+  nombres: [],
+  autoRotacion: true,
   visual: {},
   fuente: "local",
 }
@@ -45,7 +52,8 @@ export function formatearMultiplicador(valor) {
 
 export function normalizarEstadoTemporada(estado, activa = true) {
   const limpio = String(estado || "").toLowerCase().trim()
-  if (["activa", "preparacion", "finalizada", "pausada"].includes(limpio)) return limpio
+  if (limpio === "pausada") return "revision"
+  if (ESTADOS_TEMPORADA.includes(limpio)) return limpio
   return activa ? "activa" : "finalizada"
 }
 
@@ -64,6 +72,11 @@ export function normalizarTemporada(row = null, fallback = DEFAULT_TEMPORADA) {
     activa,
     fechaInicio: row.fecha_inicio ?? row.fechaInicio ?? base.fechaInicio,
     fechaFin: row.fecha_fin ?? row.fechaFin ?? base.fechaFin,
+    duracionTipo: normalizarTipoDuracion(row.duracion_tipo ?? row.duracionTipo ?? base.duracionTipo),
+    duracionCantidad: normalizarCantidadDuracion(row.duracion_cantidad ?? row.duracionCantidad ?? base.duracionCantidad),
+    nombreIndice: normalizarIndiceNombre(row.nombre_indice ?? row.nombreIndice ?? base.nombreIndice),
+    nombres: normalizarNombresTemporada(row.nombres_temporada ?? row.nombres ?? base.nombres),
+    autoRotacion: row.auto_rotacion !== undefined ? !!row.auto_rotacion : row.autoRotacion !== undefined ? !!row.autoRotacion : base.autoRotacion !== false,
     visual: normalizarVisual(row.visual_config ?? row.visual ?? base.visual),
     fuente: row.fuente || base.fuente || "local",
   }
@@ -72,13 +85,26 @@ export function normalizarTemporada(row = null, fallback = DEFAULT_TEMPORADA) {
 export async function obtenerTemporadaActiva() {
   const fallback = leerTemporadaLocal()
 
-  const { data, error } = await supabase
+  await avanzarTemporadaSiVencida()
+
+  let { data, error } = await supabase
     .from("temporadas")
-    .select("id,numero,nombre,estado,bonus_juego,bonus_xp,activa,fecha_inicio,fecha_fin,visual_config")
+    .select("id,numero,nombre,estado,bonus_juego,bonus_xp,activa,fecha_inicio,fecha_fin,duracion_tipo,duracion_cantidad,nombre_indice,nombres_temporada,auto_rotacion,visual_config")
     .eq("activa", true)
     .order("fecha_inicio", { ascending: false })
     .limit(1)
     .maybeSingle()
+
+  if (!error && !data) {
+    const latest = await supabase
+      .from("temporadas")
+      .select("id,numero,nombre,estado,bonus_juego,bonus_xp,activa,fecha_inicio,fecha_fin,duracion_tipo,duracion_cantidad,nombre_indice,nombres_temporada,auto_rotacion,visual_config")
+      .order("fecha_inicio", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    data = latest.data
+    error = latest.error
+  }
 
   if (error) {
     console.warn("No se pudo cargar temporada activa; usando compatibilidad legacy", error)
@@ -104,7 +130,7 @@ export async function obtenerBonusTemporada(juego) {
   if (!juego) return DEFAULT_BONUS
 
   const temporada = await obtenerTemporadaActiva()
-  if (temporada?.estado === "activa" && temporada.bonusJuego === juego) {
+  if (temporadaTieneBonusActivo(temporada) && temporada.bonusJuego === juego) {
     return normalizarBonus(temporada.bonusXP)
   }
   if (temporada?.fuente === "temporadas") return DEFAULT_BONUS
@@ -135,7 +161,7 @@ export async function crearSnapshotBonusXP(juego, origen = "torneo") {
     temporadaNombre: temporada.nombre,
     juego,
     origen,
-    bonusXPAplicado: temporada.estado === "activa" && temporada.bonusJuego === juego
+    bonusXPAplicado: temporadaTieneBonusActivo(temporada) && temporada.bonusJuego === juego
       ? normalizarBonus(temporada.bonusXP)
       : normalizarBonus(bonus),
     createdAt: new Date().toISOString(),
@@ -160,7 +186,7 @@ export function limpiarSnapshotBonusXP(juego = null) {
 export async function obtenerBonusesTemporada() {
   const local = leerBonusesLocales()
   const temporada = await obtenerTemporadaActiva()
-  if (temporada?.bonusJuego) {
+  if (temporadaTieneBonusActivo(temporada) && temporada?.bonusJuego) {
     local[temporada.bonusJuego] = normalizarBonus(temporada.bonusXP)
   }
 
@@ -177,7 +203,7 @@ export async function obtenerBonusesTemporada() {
   ;(data || []).forEach((row) => {
     merged[row.juego] = normalizarBonus(row.multiplicador)
   })
-  if (temporada?.bonusJuego) {
+  if (temporadaTieneBonusActivo(temporada) && temporada?.bonusJuego) {
     merged[temporada.bonusJuego] = normalizarBonus(temporada.bonusXP)
   }
   return merged
@@ -217,7 +243,12 @@ export async function guardarTemporadaActiva(temporada) {
     bonus_xp: limpia.bonusXP,
     activa: limpia.estado === "activa",
     fecha_inicio: limpia.fechaInicio || new Date().toISOString(),
-    fecha_fin: limpia.fechaFin || null,
+    fecha_fin: limpia.fechaFin || calcularFechaFin(limpia.fechaInicio || new Date().toISOString(), limpia.duracionTipo, limpia.duracionCantidad),
+    duracion_tipo: limpia.duracionTipo,
+    duracion_cantidad: limpia.duracionCantidad,
+    nombre_indice: limpia.nombreIndice,
+    nombres_temporada: limpia.nombres,
+    auto_rotacion: limpia.autoRotacion,
     visual_config: limpia.visual || {},
   }
 
@@ -231,6 +262,85 @@ export async function guardarTemporadaActiva(temporada) {
   }
 
   return { ok: true, temporada: limpia }
+}
+
+export async function avanzarTemporadaSiVencida() {
+  const { error } = await supabase.rpc("avanzar_temporada_si_vencida")
+  if (error && error.code !== "PGRST202" && error.code !== "42883") {
+    console.warn("No se pudo verificar rotacion automatica de temporada", error)
+  }
+}
+
+export function construirTemporadaAdmin({
+  id,
+  numero,
+  nombre,
+  estado,
+  bonusJuego,
+  bonusXP,
+  fechaInicio = null,
+  fechaFin = null,
+  duracionTipo = "dias",
+  duracionCantidad = 30,
+  nombreIndice = 0,
+  nombres = [],
+  autoRotacion = true,
+  visual = {},
+} = {}) {
+  const inicio = fechaInicio || new Date().toISOString()
+  const tipo = normalizarTipoDuracion(duracionTipo)
+  const cantidad = normalizarCantidadDuracion(duracionCantidad)
+  const estadoLimpio = normalizarEstadoTemporada(estado, false)
+  return normalizarTemporada({
+    id,
+    numero,
+    nombre,
+    estado: estadoLimpio,
+    bonusJuego,
+    bonusXP,
+    activa: estadoLimpio === "activa",
+    fechaInicio: inicio,
+    fechaFin: fechaFin || (estadoLimpio === "activa" ? calcularFechaFin(inicio, tipo, cantidad) : null),
+    duracionTipo: tipo,
+    duracionCantidad: cantidad,
+    nombreIndice,
+    nombres,
+    autoRotacion,
+    visual,
+  })
+}
+
+export function calcularFechaFin(fechaInicio, tipoDuracion = "dias", cantidad = 30) {
+  const inicioMs = Date.parse(fechaInicio || new Date().toISOString())
+  const base = Number.isFinite(inicioMs) ? inicioMs : Date.now()
+  const factor = normalizarTipoDuracion(tipoDuracion) === "horas" ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+  return new Date(base + normalizarCantidadDuracion(cantidad) * factor).toISOString()
+}
+
+export function temporadaTieneBonusActivo(temporada) {
+  if (!temporada || normalizarEstadoTemporada(temporada.estado, temporada.activa) !== "activa") return false
+  const finMs = Date.parse(temporada.fechaFin)
+  return !Number.isFinite(finMs) || finMs > Date.now()
+}
+
+export function tiempoRestanteTemporada(temporada) {
+  const finMs = Date.parse(temporada?.fechaFin)
+  if (!Number.isFinite(finMs)) return "Sin limite"
+  const restante = finMs - Date.now()
+  if (restante <= 0) return "Finalizando"
+  return formatearDuracionRestante(restante)
+}
+
+export function formatearDuracionRestante(ms) {
+  const totalMinutos = Math.max(0, Math.ceil(ms / 60000))
+  const dias = Math.floor(totalMinutos / 1440)
+  const horas = Math.floor((totalMinutos % 1440) / 60)
+  const minutos = totalMinutos % 60
+  const partes = []
+  if (dias) partes.push(`${dias}d`)
+  if (horas || dias) partes.push(`${horas}h`)
+  partes.push(`${minutos}m`)
+  return partes.join(" ")
 }
 
 export async function obtenerJuegoDestacadoTemporada() {
@@ -262,6 +372,28 @@ function normalizarNumeroTemporada(valor) {
 function normalizarJuegoTemporada(juego) {
   const key = String(juego || "").trim().toLowerCase()
   return JUEGOS_TEMPORADA.some((item) => item.key === key) ? key : DEFAULT_TEMPORADA.bonusJuego
+}
+
+function normalizarTipoDuracion(valor) {
+  const tipo = String(valor || "").toLowerCase().trim()
+  return TIPOS_DURACION_TEMPORADA.includes(tipo) ? tipo : DEFAULT_TEMPORADA.duracionTipo
+}
+
+function normalizarCantidadDuracion(valor) {
+  const numero = Math.trunc(Number(valor))
+  if (!Number.isFinite(numero) || numero < 1) return DEFAULT_TEMPORADA.duracionCantidad
+  return Math.min(3650, numero)
+}
+
+function normalizarIndiceNombre(valor) {
+  const numero = Math.trunc(Number(valor))
+  if (!Number.isFinite(numero) || numero < 0) return 0
+  return numero
+}
+
+function normalizarNombresTemporada(valor) {
+  if (!Array.isArray(valor)) return []
+  return [...new Set(valor.map((item) => String(item || "").trim()).filter(Boolean))].slice(0, 500)
 }
 
 function normalizarVisual(valor) {

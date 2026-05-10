@@ -3,6 +3,8 @@ import { cleanText, confirmAction, errorMessage, escapeHtml, promptAction, safeA
 import {
   BONUS_TEMPORADA_VALORES,
   JUEGOS_TEMPORADA,
+  calcularFechaFin,
+  construirTemporadaAdmin,
   etiquetaJuego,
   formatearMultiplicador,
   guardarBonusTemporada,
@@ -11,6 +13,8 @@ import {
   obtenerBonusesTemporada,
   obtenerJuegoDestacadoTemporada,
   obtenerTemporadaActiva,
+  temporadaTieneBonusActivo,
+  tiempoRestanteTemporada,
 } from "./experiencia-temporada.js"
 import {
   BONUS_MONEDAS_VALORES,
@@ -34,6 +38,8 @@ let claveAdminSesion = ""
 let bonusesTemporada = {}
 let temporadaActiva = null
 let formularioTemporadaInicializado = false
+let temporadaTimer = null
+let canalTemporadas = null
 let eventoMonedasActivo = null
 let bonusMonedasTimer = null
 let formularioMonedasInicializado = false
@@ -999,6 +1005,7 @@ bonusesTemporada = await obtenerBonusesTemporada()
 temporadaActiva = await obtenerTemporadaActiva()
 rellenarSelectorBonus()
 actualizarVistaBonusAdmin()
+instalarRealtimeTemporadas()
 }
 
 function rellenarSelectorBonus(){
@@ -1019,9 +1026,9 @@ select.innerHTML = BONUS_TEMPORADA_VALORES
 const estadoSelect = document.getElementById("temporadaEstadoSelect")
 if(estadoSelect && !estadoSelect.options.length){
 estadoSelect.innerHTML = [
-["activa", "Activa"],
 ["preparacion", "Preparacion"],
-["pausada", "Pausada"],
+["activa", "Activa"],
+["revision", "Revision"],
 ["finalizada", "Finalizada"],
 ].map(([value, label]) => `<option value="${value}">${label}</option>`).join("")
 }
@@ -1050,6 +1057,8 @@ const estadoEl = document.getElementById("bonusEstado")
 const numeroInput = document.getElementById("temporadaNumero")
 const nombreInput = document.getElementById("temporadaNombre")
 const estadoSelect = document.getElementById("temporadaEstadoSelect")
+const duracionTipoSelect = document.getElementById("temporadaDuracionTipo")
+const duracionCantidadInput = document.getElementById("temporadaDuracionCantidad")
 const tituloEl = document.getElementById("temporadaTituloActual")
 const subtituloEl = document.getElementById("temporadaSubtituloActual")
 const destacado = await obtenerJuegoDestacadoTemporada()
@@ -1058,17 +1067,21 @@ if(select) select.value = bonus.toFixed(1)
 if(!formularioTemporadaInicializado && numeroInput) numeroInput.value = temporada?.numero || 1
 if(!formularioTemporadaInicializado && nombreInput) nombreInput.value = temporada?.nombre || "Temporada actual"
 if(!formularioTemporadaInicializado && estadoSelect) estadoSelect.value = normalizarEstadoTemporada(temporada?.estado, temporada?.activa)
+if(!formularioTemporadaInicializado && duracionTipoSelect) duracionTipoSelect.value = temporada?.duracionTipo || "dias"
+if(!formularioTemporadaInicializado && duracionCantidadInput) duracionCantidadInput.value = temporada?.duracionCantidad || 30
 formularioTemporadaInicializado = true
 if(tituloEl) setCleanText(tituloEl, `Temporada ${temporada?.numero || 1}`)
 if(subtituloEl) setCleanText(subtituloEl, temporada?.nombre || "Temporada actual")
 if(juegoEl) setCleanText(juegoEl, "Juego con bonus: " + etiquetaJuego(juego))
 if(actualEl) setCleanText(actualEl, formatearMultiplicador(bonus))
 if(estadoEl){
-const esDestacado = destacado?.key === juego && Number(destacado?.bonus || 1) > 1
+const esDestacado = destacado?.key === juego && Number(destacado?.bonus || 1) > 1 && temporadaTieneBonusActivo(temporada)
 const estadoTexto = normalizarEstadoTemporada(temporada?.estado, temporada?.activa)
 setCleanText(estadoEl, esDestacado ? `Temporada ${estadoTexto} - juego destacado` : `Temporada ${estadoTexto} - bonus base`)
 estadoEl.classList.toggle("highlight", esDestacado)
 }
+actualizarCountdownTemporada()
+reiniciarTimerTemporada()
 }
 
 async function guardarBonusTemporadaAdmin(){
@@ -1081,19 +1094,28 @@ const valor = document.getElementById("bonusTemporadaSelect")?.value || "1.0"
 const numero = Number(document.getElementById("temporadaNumero")?.value || 1)
 const nombre = document.getElementById("temporadaNombre")?.value || "Temporada actual"
 const estado = normalizarEstadoTemporada(document.getElementById("temporadaEstadoSelect")?.value || "activa")
+const duracionTipo = document.getElementById("temporadaDuracionTipo")?.value || "dias"
+const duracionCantidad = Math.max(1, Math.trunc(Number(document.getElementById("temporadaDuracionCantidad")?.value || 30)))
 const id = temporadaActiva?.id || `temporada-${Math.max(1, Math.trunc(numero || 1))}`
-const payloadTemporada = {
+const nombres = obtenerNombresTemporadaConfigurados()
+const nombreIndice = Math.max(0, nombres.findIndex((item) => item === cleanText(nombre, "").trim()))
+const fechaInicio = estado === "activa" ? new Date().toISOString() : (temporadaActiva?.fechaInicio || new Date().toISOString())
+const payloadTemporada = construirTemporadaAdmin({
 id,
 numero,
 nombre,
 estado,
 bonusJuego: juego,
 bonusXP: Number(valor),
-activa: estado === "activa",
-fechaInicio: temporadaActiva?.fechaInicio || new Date().toISOString(),
-fechaFin: estado === "finalizada" ? (temporadaActiva?.fechaFin || new Date().toISOString()) : null,
+fechaInicio,
+fechaFin: estado === "activa" ? calcularFechaFin(fechaInicio, duracionTipo, duracionCantidad) : estado === "finalizada" ? (temporadaActiva?.fechaFin || new Date().toISOString()) : null,
+duracionTipo,
+duracionCantidad,
+nombreIndice: nombreIndice >= 0 ? nombreIndice : (temporadaActiva?.nombreIndice || 0),
+nombres,
+autoRotacion: true,
 visual: temporadaActiva?.visual || {},
-}
+})
 
 const rpcTemporada = await ejecutarRpcAdmin("admin_guardar_temporada_activa", {
 p_id: payloadTemporada.id,
@@ -1102,6 +1124,13 @@ p_nombre: payloadTemporada.nombre,
 p_juego: juego,
 p_multiplicador: Number(valor),
 p_estado: payloadTemporada.estado,
+p_fecha_inicio: payloadTemporada.fechaInicio,
+p_fecha_fin: payloadTemporada.fechaFin,
+p_duracion_tipo: payloadTemporada.duracionTipo,
+p_duracion_cantidad: payloadTemporada.duracionCantidad,
+p_nombre_indice: payloadTemporada.nombreIndice,
+p_nombres_temporada: payloadTemporada.nombres,
+p_auto_rotacion: payloadTemporada.autoRotacion,
 })
 if(rpcTemporada.ok){
 temporadaActiva = payloadTemporada
@@ -1123,6 +1152,118 @@ await actualizarVistaBonusAdmin()
 safeAlert(resultado.ok
 ? "Temporada guardada: " + cleanText(payloadTemporada.nombre)
 : "Temporada guardada localmente. Ejecuta el SQL actualizado para persistencia global.")
+}
+
+function obtenerNombresTemporadaConfigurados(){
+const opciones = [...document.querySelectorAll("#temporadaNombresSugeridos option")]
+const nombres = opciones.map((option) => cleanText(option.value, "").trim()).filter(Boolean)
+const nombreManual = cleanText(document.getElementById("temporadaNombre")?.value || "", "").trim()
+if(nombreManual && !nombres.includes(nombreManual)) nombres.unshift(nombreManual)
+return [...new Set(nombres)]
+}
+
+function actualizarCountdownTemporada(){
+const countdownEl = document.getElementById("temporadaCountdown")
+if(!countdownEl) return
+const estado = normalizarEstadoTemporada(temporadaActiva?.estado, temporadaActiva?.activa)
+if(estado === "activa"){
+setCleanText(countdownEl, "Finaliza en " + tiempoRestanteTemporada(temporadaActiva))
+countdownEl.classList.toggle("highlight", temporadaTieneBonusActivo(temporadaActiva))
+return
+}
+const textos = {
+preparacion: "En preparacion - bonus inactivo",
+revision: "En revision - bonus inactivo",
+finalizada: "Temporada finalizada",
+}
+setCleanText(countdownEl, textos[estado] || "Bonus inactivo")
+countdownEl.classList.remove("highlight")
+}
+
+function reiniciarTimerTemporada(){
+if(temporadaTimer){
+clearInterval(temporadaTimer)
+temporadaTimer = null
+}
+if(normalizarEstadoTemporada(temporadaActiva?.estado, temporadaActiva?.activa) !== "activa") return
+
+temporadaTimer = setInterval(async () => {
+actualizarCountdownTemporada()
+if(!temporadaTieneBonusActivo(temporadaActiva)){
+clearInterval(temporadaTimer)
+temporadaTimer = null
+temporadaActiva = await obtenerTemporadaActiva()
+formularioTemporadaInicializado = false
+actualizarVistaBonusAdmin()
+}
+}, 1000)
+}
+
+function instalarRealtimeTemporadas(){
+if(canalTemporadas) return
+canalTemporadas = supabase
+.channel("temporadas-admin")
+.on("postgres_changes", { event: "*", schema: "public", table: "temporadas" }, async () => {
+temporadaActiva = await obtenerTemporadaActiva()
+bonusesTemporada = await obtenerBonusesTemporada()
+formularioTemporadaInicializado = false
+actualizarVistaBonusAdmin()
+})
+.subscribe()
+}
+
+async function reiniciarSecuenciaTemporadasAdmin(){
+const confirmacion = await promptAction("Esto reiniciara solo la secuencia automatica de temporadas a Temporada 1 y al primer nombre guardado. No borra rankings ni historial. Escribe REINICIAR para confirmar.", { title: "Reiniciar temporadas", danger: true })
+if(confirmacion !== "REINICIAR") return
+
+const nombres = obtenerNombresTemporadaConfigurados()
+const primerNombre = nombres[0] || "Temporada actual"
+const juego = obtenerJuegoBonusSeleccionado()
+const multiplicador = Number(document.getElementById("bonusTemporadaSelect")?.value || temporadaActiva?.bonusXP || 1)
+const duracionTipo = document.getElementById("temporadaDuracionTipo")?.value || temporadaActiva?.duracionTipo || "dias"
+const duracionCantidad = Math.max(1, Math.trunc(Number(document.getElementById("temporadaDuracionCantidad")?.value || temporadaActiva?.duracionCantidad || 30)))
+
+const rpc = await ejecutarRpcAdmin("admin_reiniciar_temporadas", {
+p_nombre: primerNombre,
+p_juego: juego,
+p_multiplicador: multiplicador,
+p_duracion_tipo: duracionTipo,
+p_duracion_cantidad: duracionCantidad,
+p_nombres_temporada: nombres,
+})
+
+if(rpc.ok){
+temporadaActiva = await obtenerTemporadaActiva()
+formularioTemporadaInicializado = false
+await actualizarVistaBonusAdmin()
+safeAlert("Secuencia de temporadas reiniciada.")
+return
+}
+
+const inicio = new Date().toISOString()
+const temporada = construirTemporadaAdmin({
+id: "temporada-1",
+numero: 1,
+nombre: primerNombre,
+estado: "activa",
+bonusJuego: juego,
+bonusXP: multiplicador,
+fechaInicio: inicio,
+fechaFin: calcularFechaFin(inicio, duracionTipo, duracionCantidad),
+duracionTipo,
+duracionCantidad,
+nombreIndice: 0,
+nombres,
+autoRotacion: true,
+visual: {},
+})
+const resultado = await guardarTemporadaActiva(temporada)
+temporadaActiva = resultado.temporada || temporada
+formularioTemporadaInicializado = false
+await actualizarVistaBonusAdmin()
+safeAlert(resultado.ok
+? "Secuencia de temporadas reiniciada."
+: "Secuencia reiniciada localmente. Ejecuta el SQL actualizado para reinicio global.")
 }
 
 async function cargarEventoMonedasAdmin(){
@@ -1478,6 +1619,7 @@ window.resetTotal = resetTotal
 window.verEstado = verEstado
 window.guardarBonusTemporadaAdmin = guardarBonusTemporadaAdmin
 window.guardarTemporadaAdmin = guardarTemporadaAdmin
+window.reiniciarSecuenciaTemporadasAdmin = reiniciarSecuenciaTemporadasAdmin
 window.guardarEventoMonedasAdmin = guardarEventoMonedasAdmin
 window.desactivarEventoMonedasAdmin = desactivarEventoMonedasAdmin
 window.exportarRankingActual = exportarRankingActual
@@ -1509,6 +1651,16 @@ document.getElementById('bonusTemporadaSelect')?.addEventListener('change', () =
 })
 
 document.getElementById('temporadaEstadoSelect')?.addEventListener('change', () => {
+  actualizarVistaBonusAdmin()
+})
+
+document.getElementById('temporadaDuracionTipo')?.addEventListener('change', () => {
+  formularioTemporadaInicializado = true
+  actualizarVistaBonusAdmin()
+})
+
+document.getElementById('temporadaDuracionCantidad')?.addEventListener('input', () => {
+  formularioTemporadaInicializado = true
   actualizarVistaBonusAdmin()
 })
 

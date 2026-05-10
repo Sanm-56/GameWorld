@@ -391,7 +391,7 @@ select{
 
 .season-controls{
   display:grid;
-  grid-template-columns:repeat(3, minmax(160px, 1fr)) auto;
+  grid-template-columns:repeat(5, minmax(130px, 1fr)) auto auto;
   gap:12px;
   align-items:end;
 }
@@ -420,6 +420,17 @@ select{
 
 .bonus-state.highlight{
   color:#fb923c;
+}
+
+.season-countdown{
+  color:#bae6fd;
+  font-weight:900;
+  text-align:right;
+  white-space:nowrap;
+}
+
+.season-countdown.highlight{
+  color:#86efac;
 }
 
 .coin-bonus-card .season-kicker{
@@ -668,6 +679,11 @@ th:last-child{
   .season-controls,
   .coin-controls{
     grid-template-columns:1fr 1fr;
+  }
+
+  .season-countdown{
+    text-align:left;
+    white-space:normal;
   }
 
   .coin-current{
@@ -1069,12 +1085,25 @@ th:last-child{
           Estado
           <select id="temporadaEstadoSelect" aria-label="Estado de temporada"></select>
         </label>
+        <label>
+          Tipo duracion
+          <select id="temporadaDuracionTipo" aria-label="Tipo de duracion de temporada">
+            <option value="horas">Horas</option>
+            <option value="dias">Dias</option>
+          </select>
+        </label>
+        <label>
+          Cantidad
+          <input id="temporadaDuracionCantidad" type="number" min="1" max="3650" step="1" value="30" aria-label="Cantidad de duracion de temporada">
+        </label>
         <button class="success" onclick="guardarTemporadaAdmin()">Guardar temporada</button>
+        <button class="ghost" onclick="reiniciarSecuenciaTemporadasAdmin()">Reiniciar temporadas</button>
       </div>
 
       <div class="bonus-current">
         <span id="bonusJuegoActual">Juego con bonus: Sudoku</span>
         <strong id="bonusActual">x1.0</strong>
+        <span id="temporadaCountdown" class="season-countdown">Sin limite</span>
         <span id="bonusEstado" class="bonus-state">Temporada activa - bonus base</span>
       </div>
 

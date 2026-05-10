@@ -11,6 +11,11 @@ create table if not exists public.temporadas (
   activa boolean not null default false,
   fecha_inicio timestamptz not null default now(),
   fecha_fin timestamptz,
+  duracion_tipo text not null default 'dias',
+  duracion_cantidad integer not null default 30,
+  nombre_indice integer not null default 0,
+  nombres_temporada jsonb not null default '[]'::jsonb,
+  auto_rotacion boolean not null default true,
   visual_config jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
@@ -31,11 +36,43 @@ alter table public.temporadas
 add column if not exists visual_config jsonb not null default '{}'::jsonb;
 
 alter table public.temporadas
+add column if not exists duracion_tipo text not null default 'dias';
+
+alter table public.temporadas
+add column if not exists duracion_cantidad integer not null default 30;
+
+alter table public.temporadas
+add column if not exists nombre_indice integer not null default 0;
+
+alter table public.temporadas
+add column if not exists nombres_temporada jsonb not null default '[]'::jsonb;
+
+alter table public.temporadas
+add column if not exists auto_rotacion boolean not null default true;
+
+alter table public.temporadas
 drop constraint if exists temporadas_estado_check;
+
+update public.temporadas
+set estado = 'revision'
+where estado = 'pausada';
+
+update public.temporadas
+set estado = case when activa then 'activa' else 'finalizada' end
+where estado not in ('activa', 'preparacion', 'revision', 'finalizada');
 
 alter table public.temporadas
 add constraint temporadas_estado_check
-check (estado in ('activa', 'preparacion', 'pausada', 'finalizada'));
+check (estado in ('activa', 'preparacion', 'revision', 'finalizada'));
+
+alter table public.temporadas
+drop constraint if exists temporadas_duracion_tipo_check;
+
+alter table public.temporadas
+drop constraint if exists temporadas_duracion_cantidad_check;
+
+alter table public.temporadas
+drop constraint if exists temporadas_nombres_temporada_check;
 
 alter table public.temporadas
 drop constraint if exists temporadas_bonus_juego_check;
@@ -69,10 +106,37 @@ set
   estado = case when activa then 'activa' else coalesce(nullif(estado, ''), 'finalizada') end,
   bonus_juego = coalesce(bonus_juego, 'sudoku'),
   bonus_xp = coalesce(bonus_xp, 1.0),
+  fecha_fin = case
+    when activa and fecha_fin is null then now() + interval '30 days'
+    else fecha_fin
+  end,
+  duracion_tipo = coalesce(nullif(duracion_tipo, ''), 'dias'),
+  duracion_cantidad = greatest(1, least(3650, coalesce(duracion_cantidad, 30))),
+  nombre_indice = greatest(0, coalesce(nombre_indice, 0)),
+  nombres_temporada = coalesce(nombres_temporada, '[]'::jsonb),
+  auto_rotacion = coalesce(auto_rotacion, true),
   visual_config = coalesce(visual_config, '{}'::jsonb)
 where id = 'temporada-actual'
    or numero is null
    or bonus_juego is null;
+
+update public.temporadas
+set
+  duracion_tipo = case when duracion_tipo in ('horas', 'dias') then duracion_tipo else 'dias' end,
+  duracion_cantidad = greatest(1, least(3650, coalesce(duracion_cantidad, 30))),
+  nombres_temporada = case when jsonb_typeof(nombres_temporada) = 'array' then nombres_temporada else '[]'::jsonb end;
+
+alter table public.temporadas
+add constraint temporadas_duracion_tipo_check
+check (duracion_tipo in ('horas', 'dias'));
+
+alter table public.temporadas
+add constraint temporadas_duracion_cantidad_check
+check (duracion_cantidad between 1 and 3650);
+
+alter table public.temporadas
+add constraint temporadas_nombres_temporada_check
+check (jsonb_typeof(nombres_temporada) = 'array');
 
 insert into public.temporadas (
   id,
@@ -83,6 +147,12 @@ insert into public.temporadas (
   bonus_xp,
   activa,
   fecha_inicio,
+  fecha_fin,
+  duracion_tipo,
+  duracion_cantidad,
+  nombre_indice,
+  nombres_temporada,
+  auto_rotacion,
   visual_config
 )
 values (
@@ -94,6 +164,12 @@ values (
   1.0,
   true,
   now(),
+  now() + interval '30 days',
+  'dias',
+  30,
+  0,
+  '[]'::jsonb,
+  true,
   '{}'::jsonb
 )
 on conflict (id) do update set
@@ -101,6 +177,12 @@ on conflict (id) do update set
   estado = case when public.temporadas.activa then 'activa' else public.temporadas.estado end,
   bonus_juego = coalesce(public.temporadas.bonus_juego, excluded.bonus_juego),
   bonus_xp = coalesce(public.temporadas.bonus_xp, excluded.bonus_xp),
+  fecha_fin = coalesce(public.temporadas.fecha_fin, excluded.fecha_fin),
+  duracion_tipo = coalesce(public.temporadas.duracion_tipo, excluded.duracion_tipo),
+  duracion_cantidad = coalesce(public.temporadas.duracion_cantidad, excluded.duracion_cantidad),
+  nombre_indice = coalesce(public.temporadas.nombre_indice, excluded.nombre_indice),
+  nombres_temporada = coalesce(public.temporadas.nombres_temporada, excluded.nombres_temporada),
+  auto_rotacion = coalesce(public.temporadas.auto_rotacion, excluded.auto_rotacion),
   visual_config = coalesce(public.temporadas.visual_config, excluded.visual_config);
 
 alter table public.partidas
@@ -303,6 +385,8 @@ as $$
   ), 1.0)::numeric;
 $$;
 
+drop function if exists public.admin_guardar_temporada_activa(text, text, integer, text, text, numeric, text);
+
 create or replace function public.admin_guardar_temporada_activa(
   p_clave text,
   p_id text,
@@ -310,7 +394,14 @@ create or replace function public.admin_guardar_temporada_activa(
   p_nombre text,
   p_juego text,
   p_multiplicador numeric,
-  p_estado text default 'activa'
+  p_estado text default 'activa',
+  p_fecha_inicio timestamptz default null,
+  p_fecha_fin timestamptz default null,
+  p_duracion_tipo text default 'dias',
+  p_duracion_cantidad integer default 30,
+  p_nombre_indice integer default 0,
+  p_nombres_temporada jsonb default '[]'::jsonb,
+  p_auto_rotacion boolean default true
 )
 returns boolean
 language plpgsql
@@ -319,6 +410,10 @@ set search_path = public
 as $$
 declare
   estado_limpio text := coalesce(nullif(lower(btrim(p_estado)), ''), 'activa');
+  tipo_limpio text := coalesce(nullif(lower(btrim(p_duracion_tipo)), ''), 'dias');
+  cantidad_limpia integer := greatest(1, least(3650, coalesce(p_duracion_cantidad, 30)));
+  inicio_limpio timestamptz := coalesce(p_fecha_inicio, now());
+  fin_limpio timestamptz := p_fecha_fin;
   multiplicador_limpio numeric(3,1);
   id_limpio text := coalesce(nullif(btrim(p_id), ''), 'temporada-' || greatest(coalesce(p_numero, 1), 1)::text);
 begin
@@ -326,7 +421,15 @@ begin
     return false;
   end if;
 
-  if estado_limpio not in ('activa', 'preparacion', 'pausada', 'finalizada') then
+  if estado_limpio = 'pausada' then
+    estado_limpio := 'revision';
+  end if;
+
+  if estado_limpio not in ('activa', 'preparacion', 'revision', 'finalizada') then
+    return false;
+  end if;
+
+  if tipo_limpio not in ('horas', 'dias') then
     return false;
   end if;
 
@@ -344,6 +447,13 @@ begin
   end if;
 
   multiplicador_limpio := round(greatest(1.0, least(3.5, coalesce(p_multiplicador, 1.0)))::numeric, 1);
+
+  if estado_limpio = 'activa' and (fin_limpio is null or fin_limpio <= inicio_limpio) then
+    fin_limpio := case
+      when tipo_limpio = 'horas' then inicio_limpio + (cantidad_limpia::text || ' hours')::interval
+      else inicio_limpio + (cantidad_limpia::text || ' days')::interval
+    end;
+  end if;
 
   if estado_limpio = 'activa' then
     update public.temporadas
@@ -364,6 +474,11 @@ begin
     activa,
     fecha_inicio,
     fecha_fin,
+    duracion_tipo,
+    duracion_cantidad,
+    nombre_indice,
+    nombres_temporada,
+    auto_rotacion,
     visual_config
   )
   values (
@@ -374,8 +489,13 @@ begin
     p_juego,
     multiplicador_limpio,
     estado_limpio = 'activa',
-    now(),
-    case when estado_limpio = 'finalizada' then now() else null end,
+    inicio_limpio,
+    case when estado_limpio = 'finalizada' then coalesce(fin_limpio, now()) else fin_limpio end,
+    tipo_limpio,
+    cantidad_limpia,
+    greatest(0, coalesce(p_nombre_indice, 0)),
+    coalesce(p_nombres_temporada, '[]'::jsonb),
+    coalesce(p_auto_rotacion, true),
     '{}'::jsonb
   )
   on conflict (id) do update set
@@ -385,7 +505,204 @@ begin
     bonus_juego = excluded.bonus_juego,
     bonus_xp = excluded.bonus_xp,
     activa = excluded.activa,
-    fecha_fin = excluded.fecha_fin;
+    fecha_inicio = excluded.fecha_inicio,
+    fecha_fin = excluded.fecha_fin,
+    duracion_tipo = excluded.duracion_tipo,
+    duracion_cantidad = excluded.duracion_cantidad,
+    nombre_indice = excluded.nombre_indice,
+    nombres_temporada = excluded.nombres_temporada,
+    auto_rotacion = excluded.auto_rotacion;
+
+  insert into public.bonus_temporada (juego, multiplicador, updated_at)
+  values (p_juego, multiplicador_limpio, now())
+  on conflict (juego) do update set
+    multiplicador = excluded.multiplicador,
+    updated_at = excluded.updated_at;
+
+  return true;
+end;
+$$;
+
+create or replace function public.avanzar_temporada_si_vencida()
+returns public.temporadas
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  actual public.temporadas%rowtype;
+  siguiente_numero integer;
+  cantidad_nombres integer;
+  siguiente_indice integer;
+  siguiente_nombre text;
+  siguiente_fin timestamptz;
+  siguiente_id text;
+begin
+  select *
+  into actual
+  from public.temporadas
+  where activa = true
+  order by fecha_inicio desc
+  limit 1
+  for update;
+
+  if not found then
+    return null;
+  end if;
+
+  if actual.estado <> 'activa'
+     or actual.auto_rotacion is not true
+     or actual.fecha_fin is null
+     or actual.fecha_fin > now() then
+    return actual;
+  end if;
+
+  update public.temporadas
+  set activa = false,
+      estado = 'finalizada',
+      fecha_fin = coalesce(fecha_fin, now())
+  where id = actual.id;
+
+  siguiente_numero := greatest(coalesce(actual.numero, 1), 1) + 1;
+  cantidad_nombres := jsonb_array_length(coalesce(actual.nombres_temporada, '[]'::jsonb));
+  siguiente_indice := case when cantidad_nombres > 0 then (coalesce(actual.nombre_indice, 0) + 1) % cantidad_nombres else 0 end;
+  siguiente_nombre := case
+    when cantidad_nombres > 0 then actual.nombres_temporada ->> siguiente_indice
+    else 'Temporada ' || siguiente_numero::text
+  end;
+  siguiente_fin := case
+    when actual.duracion_tipo = 'horas' then now() + (actual.duracion_cantidad::text || ' hours')::interval
+    else now() + (actual.duracion_cantidad::text || ' days')::interval
+  end;
+  siguiente_id := 'temporada-' || siguiente_numero::text || '-' || floor(extract(epoch from clock_timestamp()))::text;
+
+  insert into public.temporadas (
+    id,
+    numero,
+    nombre,
+    estado,
+    bonus_juego,
+    bonus_xp,
+    activa,
+    fecha_inicio,
+    fecha_fin,
+    duracion_tipo,
+    duracion_cantidad,
+    nombre_indice,
+    nombres_temporada,
+    auto_rotacion,
+    visual_config
+  )
+  values (
+    siguiente_id,
+    siguiente_numero,
+    coalesce(nullif(btrim(siguiente_nombre), ''), 'Temporada ' || siguiente_numero::text),
+    'activa',
+    actual.bonus_juego,
+    actual.bonus_xp,
+    true,
+    now(),
+    siguiente_fin,
+    actual.duracion_tipo,
+    actual.duracion_cantidad,
+    siguiente_indice,
+    coalesce(actual.nombres_temporada, '[]'::jsonb),
+    true,
+    coalesce(actual.visual_config, '{}'::jsonb)
+  )
+  returning * into actual;
+
+  return actual;
+end;
+$$;
+
+create or replace function public.admin_reiniciar_temporadas(
+  p_clave text,
+  p_nombre text,
+  p_juego text,
+  p_multiplicador numeric,
+  p_duracion_tipo text default 'dias',
+  p_duracion_cantidad integer default 30,
+  p_nombres_temporada jsonb default '[]'::jsonb
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  tipo_limpio text := coalesce(nullif(lower(btrim(p_duracion_tipo)), ''), 'dias');
+  cantidad_limpia integer := greatest(1, least(3650, coalesce(p_duracion_cantidad, 30)));
+  multiplicador_limpio numeric(3,1);
+  fin_limpio timestamptz;
+  id_limpio text := 'temporada-1-' || floor(extract(epoch from clock_timestamp()))::text;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  if tipo_limpio not in ('horas', 'dias') then
+    return false;
+  end if;
+
+  if p_juego not in (
+    'sudoku',
+    'memoria',
+    'matematicas',
+    'flashmind',
+    'numcatch',
+    'ajedrez',
+    'domino',
+    'damas'
+  ) then
+    return false;
+  end if;
+
+  multiplicador_limpio := round(greatest(1.0, least(3.5, coalesce(p_multiplicador, 1.0)))::numeric, 1);
+  fin_limpio := case
+    when tipo_limpio = 'horas' then now() + (cantidad_limpia::text || ' hours')::interval
+    else now() + (cantidad_limpia::text || ' days')::interval
+  end;
+
+  update public.temporadas
+  set activa = false,
+      estado = case when estado = 'activa' then 'finalizada' else estado end,
+      fecha_fin = coalesce(fecha_fin, now());
+
+  insert into public.temporadas (
+    id,
+    numero,
+    nombre,
+    estado,
+    bonus_juego,
+    bonus_xp,
+    activa,
+    fecha_inicio,
+    fecha_fin,
+    duracion_tipo,
+    duracion_cantidad,
+    nombre_indice,
+    nombres_temporada,
+    auto_rotacion,
+    visual_config
+  )
+  values (
+    id_limpio,
+    1,
+    coalesce(nullif(btrim(p_nombre), ''), 'Temporada 1'),
+    'activa',
+    p_juego,
+    multiplicador_limpio,
+    true,
+    now(),
+    fin_limpio,
+    tipo_limpio,
+    cantidad_limpia,
+    0,
+    coalesce(p_nombres_temporada, '[]'::jsonb),
+    true,
+    '{}'::jsonb
+  );
 
   insert into public.bonus_temporada (juego, multiplicador, updated_at)
   values (p_juego, multiplicador_limpio, now())
@@ -454,7 +771,9 @@ using (true);
 
 revoke insert, update, delete on table public.temporadas from anon, authenticated;
 grant select on table public.temporadas to anon, authenticated;
-grant execute on function public.admin_guardar_temporada_activa(text, text, integer, text, text, numeric, text) to anon, authenticated;
+grant execute on function public.admin_guardar_temporada_activa(text, text, integer, text, text, numeric, text, timestamptz, timestamptz, text, integer, integer, jsonb, boolean) to anon, authenticated;
+grant execute on function public.avanzar_temporada_si_vencida() to anon, authenticated;
+grant execute on function public.admin_reiniciar_temporadas(text, text, text, numeric, text, integer, jsonb) to anon, authenticated;
 
 drop policy if exists bonus_temporada_anon_select on public.bonus_temporada;
 drop policy if exists bonus_temporada_anon_insert on public.bonus_temporada;
