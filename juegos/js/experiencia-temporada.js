@@ -61,12 +61,14 @@ export function normalizarTemporada(row = null, fallback = DEFAULT_TEMPORADA) {
   const base = fallback || DEFAULT_TEMPORADA
   if (!row) return { ...base }
 
-  const activa = row.activa !== undefined ? !!row.activa : normalizarEstadoTemporada(row.estado) === "activa"
+  let estadoNormalizado = normalizarEstadoTemporada(row.estado, row.activa !== false)
+  if (row.activa === false && estadoNormalizado === "activa") estadoNormalizado = "finalizada"
+  const activa = estadoNormalizado === "activa" && row.activa !== false
   return {
     id: row.id || base.id,
     numero: normalizarNumeroTemporada(row.numero ?? row.numero_temporada ?? base.numero),
     nombre: String(row.nombre || base.nombre).trim() || base.nombre,
-    estado: normalizarEstadoTemporada(row.estado, activa),
+    estado: estadoNormalizado,
     bonusJuego: normalizarJuegoTemporada(row.bonus_juego ?? row.bonusJuego ?? base.bonusJuego),
     bonusXP: normalizarBonus(row.bonus_xp ?? row.bonusXP ?? base.bonusXP),
     activa,
@@ -241,7 +243,7 @@ export async function guardarTemporadaActiva(temporada) {
     estado: limpia.estado,
     bonus_juego: limpia.bonusJuego,
     bonus_xp: limpia.bonusXP,
-    activa: limpia.estado === "activa",
+    activa: temporadaTieneBonusActivo(limpia),
     fecha_inicio: limpia.fechaInicio || new Date().toISOString(),
     fecha_fin: limpia.fechaFin || calcularFechaFin(limpia.fechaInicio || new Date().toISOString(), limpia.duracionTipo, limpia.duracionCantidad),
     duracion_tipo: limpia.duracionTipo,
@@ -318,7 +320,7 @@ export function calcularFechaFin(fechaInicio, tipoDuracion = "dias", cantidad = 
 }
 
 export function temporadaTieneBonusActivo(temporada) {
-  if (!temporada || normalizarEstadoTemporada(temporada.estado, temporada.activa) !== "activa") return false
+  if (!temporada || normalizarEstadoTemporada(temporada.estado, temporada.activa) !== "activa" || temporada.activa === false) return false
   const finMs = Date.parse(temporada.fechaFin)
   return !Number.isFinite(finMs) || finMs > Date.now()
 }

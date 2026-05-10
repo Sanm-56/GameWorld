@@ -126,6 +126,25 @@ set
   duracion_cantidad = greatest(1, least(3650, coalesce(duracion_cantidad, 30))),
   nombres_temporada = case when jsonb_typeof(nombres_temporada) = 'array' then nombres_temporada else '[]'::jsonb end;
 
+with temporadas_activas_ordenadas as (
+  select
+    id,
+    row_number() over (order by fecha_inicio desc, created_at desc, id desc) as orden_activa
+  from public.temporadas
+  where activa = true
+)
+update public.temporadas t
+set activa = false,
+    estado = case when t.estado = 'activa' then 'finalizada' else t.estado end,
+    fecha_fin = coalesce(t.fecha_fin, now())
+from temporadas_activas_ordenadas ordenadas
+where t.id = ordenadas.id
+  and ordenadas.orden_activa > 1;
+
+create unique index if not exists temporadas_unica_activa_idx
+on public.temporadas (activa)
+where activa = true;
+
 alter table public.temporadas
 add constraint temporadas_duracion_tipo_check
 check (duracion_tipo in ('horas', 'dias'));
@@ -421,6 +440,8 @@ begin
     return false;
   end if;
 
+  perform pg_advisory_xact_lock(hashtext('temporadas-admin-write'));
+
   if estado_limpio = 'pausada' then
     estado_limpio := 'revision';
   end if;
@@ -538,6 +559,8 @@ declare
   siguiente_fin timestamptz;
   siguiente_id text;
 begin
+  perform pg_advisory_xact_lock(hashtext('temporadas-auto-rotation'));
+
   select *
   into actual
   from public.temporadas
@@ -549,6 +572,13 @@ begin
   if not found then
     return null;
   end if;
+
+  update public.temporadas
+  set activa = false,
+      estado = case when estado = 'activa' then 'finalizada' else estado end,
+      fecha_fin = coalesce(fecha_fin, now())
+  where id <> actual.id
+    and activa = true;
 
   if actual.estado <> 'activa'
      or actual.auto_rotacion is not true
@@ -612,6 +642,13 @@ begin
   )
   returning * into actual;
 
+  update public.temporadas
+  set activa = false,
+      estado = case when estado = 'activa' then 'finalizada' else estado end,
+      fecha_fin = coalesce(fecha_fin, now())
+  where id <> actual.id
+    and activa = true;
+
   return actual;
 end;
 $$;
@@ -640,6 +677,8 @@ begin
   if not public.validar_admin_torneo(p_clave) then
     return false;
   end if;
+
+  perform pg_advisory_xact_lock(hashtext('temporadas-admin-write'));
 
   if tipo_limpio not in ('horas', 'dias') then
     return false;

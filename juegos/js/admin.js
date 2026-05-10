@@ -1099,7 +1099,23 @@ const duracionCantidad = Math.max(1, Math.trunc(Number(document.getElementById("
 const id = temporadaActiva?.id || `temporada-${Math.max(1, Math.trunc(numero || 1))}`
 const nombres = obtenerNombresTemporadaConfigurados()
 const nombreIndice = Math.max(0, nombres.findIndex((item) => item === cleanText(nombre, "").trim()))
-const fechaInicio = estado === "activa" ? new Date().toISOString() : (temporadaActiva?.fechaInicio || new Date().toISOString())
+const estadoAnterior = normalizarEstadoTemporada(temporadaActiva?.estado, temporadaActiva?.activa)
+const ahora = new Date().toISOString()
+const activandoTemporada = estado === "activa" && estadoAnterior !== "activa"
+const fechaInicio = estado === "activa"
+? (activandoTemporada ? ahora : (temporadaActiva?.fechaInicio || ahora))
+: (temporadaActiva?.fechaInicio || ahora)
+const conservarFinActivo = estado === "activa"
+&& !activandoTemporada
+&& temporadaActiva?.fechaFin
+&& Date.parse(temporadaActiva.fechaFin) > Date.now()
+&& temporadaActiva?.duracionTipo === duracionTipo
+&& Number(temporadaActiva?.duracionCantidad || 0) === duracionCantidad
+const fechaFin = estado === "activa"
+? (conservarFinActivo ? temporadaActiva.fechaFin : calcularFechaFin(fechaInicio, duracionTipo, duracionCantidad))
+: estado === "finalizada"
+  ? (temporadaActiva?.fechaFin || ahora)
+  : null
 const payloadTemporada = construirTemporadaAdmin({
 id,
 numero,
@@ -1108,7 +1124,7 @@ estado,
 bonusJuego: juego,
 bonusXP: Number(valor),
 fechaInicio,
-fechaFin: estado === "activa" ? calcularFechaFin(fechaInicio, duracionTipo, duracionCantidad) : estado === "finalizada" ? (temporadaActiva?.fechaFin || new Date().toISOString()) : null,
+fechaFin,
 duracionTipo,
 duracionCantidad,
 nombreIndice: nombreIndice >= 0 ? nombreIndice : (temporadaActiva?.nombreIndice || 0),
@@ -1194,7 +1210,7 @@ clearInterval(temporadaTimer)
 temporadaTimer = null
 temporadaActiva = await obtenerTemporadaActiva()
 formularioTemporadaInicializado = false
-actualizarVistaBonusAdmin()
+await actualizarVistaBonusAdmin()
 }
 }, 1000)
 }
