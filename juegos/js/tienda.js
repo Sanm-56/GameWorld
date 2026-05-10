@@ -1,5 +1,6 @@
 import { supabase } from "./supabase.js"
 import { aplicarBonusMonedas, obtenerBonusRangoActivo } from "./rango-bonus.js"
+import { obtenerBonusMonedasEvento } from "./bonus-monedas-evento.js"
 
 export const BOOSTERS_XP = [
   { id: "xp15_6h", nombre: "Booster XP x1.5", multiplicador: 1.5, duracionMs: 6 * 60 * 60 * 1000, precio: 400, precioReal: "$0.49", rareza: "Inicial", etiqueta: "Oferta" },
@@ -58,9 +59,9 @@ const RAREZAS_PREMIUM = [
   { nombre: "Normal", precio: 2000, clase: "normal" },
   { nombre: "Raro", precio: 5000, clase: "raro" },
   { nombre: "Epico", etiqueta: "Epico", precio: 12000, clase: "epico" },
-  { nombre: "Legendario", precio: 30000, clase: "legendario" },
-  { nombre: "Mitico", etiqueta: "Mitico", precio: 70000, clase: "mitico" },
-  { nombre: "Prohibido", precio: 180000, clase: "prohibido" },
+  { nombre: "Legendario", precio: 240000, clase: "legendario" },
+  { nombre: "Mitico", etiqueta: "Mitico", precio: 560000, clase: "mitico" },
+  { nombre: "Prohibido", precio: 1440000, clase: "prohibido" },
 ]
 
 export const ORDEN_RAREZAS_TIENDA = RAREZAS_PREMIUM.map((rareza) => rareza.nombre)
@@ -70,25 +71,25 @@ const PRECIOS_COSMETICOS = {
     Normal: { monedas: 2500, real: "$0.99", etiqueta: "Popular" },
     Raro: { monedas: 6000, real: "$1.99", etiqueta: "Recomendado" },
     Epico: { monedas: 14000, real: "$4.99", etiqueta: "Premium" },
-    Legendario: { monedas: 35000, real: "$9.99", etiqueta: "Exclusivo" },
-    Mitico: { monedas: 80000, real: "$19.99", etiqueta: "Ultra raro" },
-    Prohibido: { monedas: 200000, real: "$39.99", etiqueta: "Limitado" },
+    Legendario: { monedas: 280000, real: "$79.92", etiqueta: "Exclusivo" },
+    Mitico: { monedas: 640000, real: "$159.92", etiqueta: "Ultra raro" },
+    Prohibido: { monedas: 1600000, real: "$319.92", etiqueta: "Limitado" },
   },
   id: {
     Normal: { monedas: 2000, real: "$0.79", etiqueta: "Popular" },
     Raro: { monedas: 5000, real: "$1.79", etiqueta: "Recomendado" },
     Epico: { monedas: 12000, real: "$4.49", etiqueta: "Premium" },
-    Legendario: { monedas: 30000, real: "$8.99", etiqueta: "Exclusivo" },
-    Mitico: { monedas: 70000, real: "$17.99", etiqueta: "Ultra raro" },
-    Prohibido: { monedas: 180000, real: "$34.99", etiqueta: "Limitado" },
+    Legendario: { monedas: 240000, real: "$71.92", etiqueta: "Exclusivo" },
+    Mitico: { monedas: 560000, real: "$143.92", etiqueta: "Ultra raro" },
+    Prohibido: { monedas: 1440000, real: "$279.92", etiqueta: "Limitado" },
   },
   marco: {
     Normal: { monedas: 2000, real: "$0.79", etiqueta: "Popular" },
     Raro: { monedas: 5000, real: "$1.79", etiqueta: "Recomendado" },
     Epico: { monedas: 12000, real: "$4.49", etiqueta: "Premium" },
-    Legendario: { monedas: 30000, real: "$8.99", etiqueta: "Exclusivo" },
-    Mitico: { monedas: 70000, real: "$17.99", etiqueta: "Ultra raro" },
-    Prohibido: { monedas: 180000, real: "$34.99", etiqueta: "Limitado" },
+    Legendario: { monedas: 240000, real: "$71.92", etiqueta: "Exclusivo" },
+    Mitico: { monedas: 560000, real: "$143.92", etiqueta: "Ultra raro" },
+    Prohibido: { monedas: 1440000, real: "$279.92", etiqueta: "Limitado" },
   },
 }
 
@@ -340,11 +341,13 @@ export async function registrarMonedasPorActividad(usuario, { juego, origen = "t
   const recompensaConRango = aplicarBonusMonedas(recompensa.total, bonusRango)
   const boosterMonedas = await obtenerBoosterMonedasActivo(usuario)
   const recompensaConBooster = aplicarBoosterMonedas(recompensaConRango.total, boosterMonedas)
+  const bonusEventoMonedas = await obtenerBonusMonedasEvento(juego)
+  const recompensaConEvento = aplicarBoosterMonedas(recompensaConBooster.total, { multiplicador: bonusEventoMonedas })
   const key = accionKey || `${recompensa.origen}:${juego || "actividad"}:${Date.now()}`
   const historial = leerObjeto(MONEDAS_HISTORIAL_KEY)
   const movimientos = Array.isArray(historial[usuario]) ? historial[usuario] : []
   if (movimientos.some((movimiento) => movimiento.key === key)) return obtenerMonedas(usuario)
-  return sumarMonedas(usuario, recompensaConBooster.total, {
+  return sumarMonedas(usuario, recompensaConEvento.total, {
     key,
     juego,
     origen: recompensa.origen,
@@ -355,6 +358,8 @@ export async function registrarMonedasPorActividad(usuario, { juego, origen = "t
     bonusRangoPorcentaje: bonusRango.monedas,
     boosterMonedas: boosterMonedas?.multiplicador || 1,
     bonusBoosterMonedas: recompensaConBooster.bonusBooster,
+    eventoMonedas: bonusEventoMonedas,
+    bonusEventoMonedas: recompensaConEvento.bonusBooster,
     boosterMonedasId: boosterMonedas?.booster_id || null,
     rangoActivo: bonusRango.titulo,
     motivo: recompensa.origen === "nivel" ? "nivel_completado" : `${recompensa.origen}_completado`,

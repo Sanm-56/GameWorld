@@ -271,7 +271,7 @@ select{
   line-height:1.4;
 }
 
-.section:not(.season-bonus-card) .export-note{
+.section:not(.season-bonus-card):not(.coin-bonus-card) .export-note{
   padding:10px 12px;
   border:1px solid rgba(148,163,184,0.1);
   border-radius:12px;
@@ -303,6 +303,38 @@ select{
 }
 
 .season-bonus-card > *{
+  position:relative;
+  z-index:1;
+}
+
+.coin-bonus-card{
+  display:grid;
+  gap:16px;
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(250,204,21,0.28);
+  background:
+    radial-gradient(circle at 84% 8%, rgba(250,204,21,0.24), transparent 30%),
+    radial-gradient(circle at 16% 22%, rgba(245,158,11,0.16), transparent 28%),
+    linear-gradient(135deg, rgba(69,26,3,0.72), rgba(15,23,42,0.92) 52%, rgba(113,63,18,0.42)),
+    rgba(15,23,42,0.92);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,0.3),
+    0 0 28px rgba(250,204,21,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.coin-bonus-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg, transparent, rgba(253,224,71,0.08), transparent),
+    radial-gradient(circle at 78% 16%, rgba(251,191,36,0.2), transparent 30%);
+}
+
+.coin-bonus-card > *{
   position:relative;
   z-index:1;
 }
@@ -390,6 +422,60 @@ select{
   color:#fb923c;
 }
 
+.coin-bonus-card .season-kicker{
+  color:#fde68a;
+}
+
+.coin-bonus-card .season-subtitle{
+  color:#fbbf24;
+}
+
+.coin-bonus-card .season-pill{
+  border-color:rgba(250,204,21,0.38);
+  color:#fef3c7;
+  box-shadow:0 0 24px rgba(250,204,21,0.14);
+}
+
+.coin-controls{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(140px, 1fr)) auto auto;
+  gap:12px;
+  align-items:end;
+}
+
+.coin-current{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto minmax(180px, 0.8fr);
+  gap:12px;
+  align-items:center;
+  padding:16px;
+  border:1px solid rgba(250,204,21,0.22);
+  border-radius:12px;
+  background:rgba(2,6,23,0.42);
+}
+
+.coin-current strong{
+  font-size:28px;
+  color:#fde68a;
+  text-shadow:0 0 18px rgba(250,204,21,0.36);
+}
+
+.coin-countdown{
+  color:#fef3c7;
+  font-weight:900;
+  text-align:right;
+}
+
+.coin-state{
+  grid-column:1 / -1;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.coin-state.highlight{
+  color:#facc15;
+}
+
 .season-bonus-card label{
   display:grid;
   gap:6px;
@@ -403,6 +489,22 @@ select{
   width:100%;
   min-width:0;
   border-color:rgba(125,211,252,0.22);
+  background:rgba(2,6,23,0.74);
+}
+
+.coin-bonus-card label{
+  display:grid;
+  gap:6px;
+  color:#f8fafc;
+  font-size:13px;
+  font-weight:800;
+}
+
+.coin-bonus-card input,
+.coin-bonus-card select{
+  width:100%;
+  min-width:0;
+  border-color:rgba(250,204,21,0.24);
   background:rgba(2,6,23,0.74);
 }
 
@@ -557,13 +659,24 @@ th:last-child{
   }
 
   .season-header,
-  .bonus-current{
+  .bonus-current,
+  .coin-current{
     flex-direction:column;
     align-items:stretch;
   }
 
-  .season-controls{
+  .season-controls,
+  .coin-controls{
     grid-template-columns:1fr 1fr;
+  }
+
+  .coin-current{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+
+  .coin-countdown{
+    text-align:left;
   }
 
   .status-card{
@@ -584,7 +697,8 @@ th:last-child{
   .button-grid,
   .reset-actions,
   .season-form-grid,
-  .season-controls{
+  .season-controls,
+  .coin-controls{
     display:grid;
     grid-template-columns:1fr;
   }
@@ -965,6 +1079,50 @@ th:last-child{
       </div>
 
       <p class="export-note">La temporada no depende del torneo. Al iniciar partida, nivel o minitorneo, el bonus queda congelado y se usa hasta terminar.</p>
+    </div>
+
+    <div class="section wide coin-bonus-card">
+      <div class="season-header">
+        <div>
+          <span class="season-kicker">Evento economico</span>
+          <h3 class="season-title">Bonus de monedas</h3>
+          <p class="season-subtitle" id="bonusMonedasSubtitulo">Multiplicador temporal para recompensas de monedas.</p>
+        </div>
+        <span class="season-pill">Coin Event</span>
+      </div>
+
+      <div class="coin-controls">
+        <label>
+          Juego con bonus de monedas
+          <select id="bonusMonedasJuegoSelect" aria-label="Juego con bonus de monedas"></select>
+        </label>
+        <label>
+          Multiplicador monedas
+          <select id="bonusMonedasMultiplicadorSelect" aria-label="Multiplicador de monedas"></select>
+        </label>
+        <label>
+          Tipo duracion
+          <select id="bonusMonedasTipoDuracion" aria-label="Tipo de duracion del bonus de monedas">
+            <option value="horas">Horas</option>
+            <option value="dias">Dias</option>
+          </select>
+        </label>
+        <label>
+          Cantidad
+          <input id="bonusMonedasCantidad" type="number" min="1" max="720" step="1" value="3" aria-label="Cantidad de duracion del bonus de monedas">
+        </label>
+        <button class="success" onclick="guardarEventoMonedasAdmin()">Activar evento</button>
+        <button class="ghost" onclick="desactivarEventoMonedasAdmin()">Desactivar</button>
+      </div>
+
+      <div class="coin-current">
+        <span id="bonusMonedasJuegoActual">Juego con bonus: Sudoku</span>
+        <strong id="bonusMonedasActual">x1.0</strong>
+        <span id="bonusMonedasCountdown" class="coin-countdown">Sin evento activo</span>
+        <span id="bonusMonedasEstado" class="coin-state">Bonus monedas inactivo</span>
+      </div>
+
+      <p class="export-note">El evento de monedas se aplica una sola vez al cálculo final de monedas. No reemplaza boosters personales ni bonus por rango.</p>
     </div>
 
     <div class="section wide">

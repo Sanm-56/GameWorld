@@ -139,6 +139,29 @@ values
   ('damas', 1.0)
 on conflict (juego) do nothing;
 
+create table if not exists public.bonus_monedas_evento (
+  id text primary key default 'evento-monedas-actual',
+  juego text not null check (juego in (
+    'sudoku',
+    'memoria',
+    'matematicas',
+    'flashmind',
+    'numcatch',
+    'ajedrez',
+    'domino',
+    'damas'
+  )),
+  multiplicador numeric(3,1) not null default 1.0 check (multiplicador between 1.0 and 3.5),
+  fecha_inicio timestamptz not null default now(),
+  fecha_fin timestamptz,
+  activo boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.bonus_monedas_evento (id, juego, multiplicador, activo)
+values ('evento-monedas-actual', 'sudoku', 1.0, false)
+on conflict (id) do nothing;
+
 create or replace function public.admin_guardar_bonus_temporada(
   p_clave text,
   p_juego text,
@@ -184,6 +207,100 @@ begin
 
   return true;
 end;
+$$;
+
+create or replace function public.admin_guardar_bonus_monedas_evento(
+  p_clave text,
+  p_juego text,
+  p_multiplicador numeric,
+  p_fecha_inicio timestamptz,
+  p_fecha_fin timestamptz,
+  p_activo boolean default true
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  multiplicador_limpio numeric(3,1);
+  inicio_limpio timestamptz := coalesce(p_fecha_inicio, now());
+  fin_limpio timestamptz := p_fecha_fin;
+  activo_limpio boolean := coalesce(p_activo, true);
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return false;
+  end if;
+
+  if p_juego not in (
+    'sudoku',
+    'memoria',
+    'matematicas',
+    'flashmind',
+    'numcatch',
+    'ajedrez',
+    'domino',
+    'damas'
+  ) then
+    return false;
+  end if;
+
+  multiplicador_limpio := round(greatest(1.0, least(3.5, coalesce(p_multiplicador, 1.0)))::numeric, 1);
+
+  if activo_limpio then
+    if fin_limpio is null or fin_limpio <= inicio_limpio then
+      return false;
+    end if;
+  else
+    multiplicador_limpio := 1.0;
+    fin_limpio := coalesce(fin_limpio, now());
+  end if;
+
+  insert into public.bonus_monedas_evento (
+    id,
+    juego,
+    multiplicador,
+    fecha_inicio,
+    fecha_fin,
+    activo,
+    updated_at
+  )
+  values (
+    'evento-monedas-actual',
+    p_juego,
+    multiplicador_limpio,
+    inicio_limpio,
+    fin_limpio,
+    activo_limpio and fin_limpio > now() and multiplicador_limpio > 1.0,
+    now()
+  )
+  on conflict (id) do update set
+    juego = excluded.juego,
+    multiplicador = excluded.multiplicador,
+    fecha_inicio = excluded.fecha_inicio,
+    fecha_fin = excluded.fecha_fin,
+    activo = excluded.activo,
+    updated_at = excluded.updated_at;
+
+  return true;
+end;
+$$;
+
+create or replace function public.obtener_bonus_monedas_evento(p_juego text)
+returns numeric
+language sql
+stable
+as $$
+  select coalesce((
+    select multiplicador
+    from public.bonus_monedas_evento
+    where id = 'evento-monedas-actual'
+      and juego = p_juego
+      and activo = true
+      and fecha_fin > now()
+      and multiplicador > 1.0
+    limit 1
+  ), 1.0)::numeric;
 $$;
 
 create or replace function public.admin_guardar_temporada_activa(
@@ -323,6 +440,7 @@ on public.usuario_cosmeticos (usuario_id, equipado, created_at desc);
 
 alter table public.temporadas enable row level security;
 alter table public.bonus_temporada enable row level security;
+alter table public.bonus_monedas_evento enable row level security;
 alter table public.usuario_boosters enable row level security;
 alter table public.usuario_cosmeticos enable row level security;
 
@@ -352,6 +470,22 @@ using (true);
 revoke insert, update, delete on table public.bonus_temporada from anon, authenticated;
 grant select on table public.bonus_temporada to anon, authenticated;
 grant execute on function public.admin_guardar_bonus_temporada(text, text, numeric) to anon, authenticated;
+
+drop policy if exists bonus_monedas_evento_anon_select on public.bonus_monedas_evento;
+drop policy if exists bonus_monedas_evento_anon_insert on public.bonus_monedas_evento;
+drop policy if exists bonus_monedas_evento_anon_update on public.bonus_monedas_evento;
+drop policy if exists bonus_monedas_evento_anon_delete on public.bonus_monedas_evento;
+
+create policy bonus_monedas_evento_anon_select
+on public.bonus_monedas_evento
+for select
+to anon, authenticated
+using (true);
+
+revoke insert, update, delete on table public.bonus_monedas_evento from anon, authenticated;
+grant select on table public.bonus_monedas_evento to anon, authenticated;
+grant execute on function public.admin_guardar_bonus_monedas_evento(text, text, numeric, timestamptz, timestamptz, boolean) to anon, authenticated;
+grant execute on function public.obtener_bonus_monedas_evento(text) to anon, authenticated;
 
 drop policy if exists usuario_boosters_anon_select on public.usuario_boosters;
 drop policy if exists usuario_boosters_anon_insert on public.usuario_boosters;

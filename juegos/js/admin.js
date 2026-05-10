@@ -12,6 +12,16 @@ import {
   obtenerJuegoDestacadoTemporada,
   obtenerTemporadaActiva,
 } from "./experiencia-temporada.js"
+import {
+  BONUS_MONEDAS_VALORES,
+  construirEventoMonedas,
+  desactivarEventoMonedas,
+  eventoEstaActivo,
+  guardarEventoMonedas,
+  obtenerEventoMonedasActual,
+  resumenEventoMonedas,
+  tiempoRestanteEventoMonedas,
+} from "./bonus-monedas-evento.js"
 
 const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch"])
 const NUMCATCH_DEFAULT_COND = "multiplos_3"
@@ -24,6 +34,10 @@ let claveAdminSesion = ""
 let bonusesTemporada = {}
 let temporadaActiva = null
 let formularioTemporadaInicializado = false
+let eventoMonedasActivo = null
+let bonusMonedasTimer = null
+let formularioMonedasInicializado = false
+let canalBonusMonedas = null
 let miniTorneosAdminRequestId = 0
 const miniTorneosAdminAccionesPendientes = new Set()
 
@@ -143,6 +157,7 @@ document.getElementById("panelAdmin").style.display = "block"
 cargarRanking()
 cargarVistaAdmin()
 cargarBonusTemporadaAdmin()
+cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
 verEstado()
 return
@@ -168,6 +183,7 @@ document.getElementById("panelAdmin").style.display = "block"
 cargarRanking()
 cargarVistaAdmin()
 cargarBonusTemporadaAdmin()
+cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
 verEstado()
 
@@ -1109,6 +1125,147 @@ safeAlert(resultado.ok
 : "Temporada guardada localmente. Ejecuta el SQL actualizado para persistencia global.")
 }
 
+async function cargarEventoMonedasAdmin(){
+rellenarSelectorBonusMonedas()
+eventoMonedasActivo = await obtenerEventoMonedasActual()
+formularioMonedasInicializado = false
+actualizarVistaBonusMonedasAdmin()
+instalarRealtimeBonusMonedas()
+}
+
+function rellenarSelectorBonusMonedas(){
+const juegoSelect = document.getElementById("bonusMonedasJuegoSelect")
+if(juegoSelect && !juegoSelect.options.length){
+juegoSelect.innerHTML = JUEGOS_TEMPORADA
+.map((juego) => `<option value="${juego.key}">${juego.label}</option>`)
+.join("")
+}
+
+const multiplicadorSelect = document.getElementById("bonusMonedasMultiplicadorSelect")
+if(multiplicadorSelect && !multiplicadorSelect.options.length){
+multiplicadorSelect.innerHTML = BONUS_MONEDAS_VALORES
+.map((valor) => `<option value="${valor.toFixed(1)}">${formatearMultiplicador(valor)}</option>`)
+.join("")
+}
+}
+
+function actualizarVistaBonusMonedasAdmin(){
+const evento = eventoMonedasActivo || desactivarEventoMonedas()
+const resumen = resumenEventoMonedas(evento)
+const juegoSelect = document.getElementById("bonusMonedasJuegoSelect")
+const multiplicadorSelect = document.getElementById("bonusMonedasMultiplicadorSelect")
+const juegoActualEl = document.getElementById("bonusMonedasJuegoActual")
+const actualEl = document.getElementById("bonusMonedasActual")
+const countdownEl = document.getElementById("bonusMonedasCountdown")
+const estadoEl = document.getElementById("bonusMonedasEstado")
+const subtituloEl = document.getElementById("bonusMonedasSubtitulo")
+
+if(!formularioMonedasInicializado){
+if(juegoSelect) juegoSelect.value = evento.juego || "sudoku"
+if(multiplicadorSelect) multiplicadorSelect.value = Number(eventoEstaActivo(evento) ? evento.multiplicador : 1.5).toFixed(1)
+formularioMonedasInicializado = true
+}
+
+if(juegoActualEl) setCleanText(juegoActualEl, "Juego con bonus: " + resumen.juegoTexto)
+if(actualEl) setCleanText(actualEl, resumen.multiplicadorTexto)
+if(countdownEl) setCleanText(countdownEl, resumen.activo ? "Finaliza en " + tiempoRestanteEventoMonedas(evento) : "Sin evento activo")
+if(estadoEl){
+setCleanText(estadoEl, resumen.activo ? "Evento activo - bonus aplicado a monedas" : "Bonus monedas inactivo")
+estadoEl.classList.toggle("highlight", resumen.activo)
+}
+if(subtituloEl){
+setCleanText(subtituloEl, resumen.activo
+? `${resumen.juegoTexto} con ${resumen.multiplicadorTexto} monedas.`
+: "Multiplicador temporal para recompensas de monedas.")
+}
+
+reiniciarTimerBonusMonedas()
+}
+
+function reiniciarTimerBonusMonedas(){
+if(bonusMonedasTimer){
+clearInterval(bonusMonedasTimer)
+bonusMonedasTimer = null
+}
+if(!eventoEstaActivo(eventoMonedasActivo)) return
+
+bonusMonedasTimer = setInterval(() => {
+if(!eventoEstaActivo(eventoMonedasActivo)){
+clearInterval(bonusMonedasTimer)
+bonusMonedasTimer = null
+eventoMonedasActivo = desactivarEventoMonedas(eventoMonedasActivo)
+actualizarVistaBonusMonedasAdmin()
+return
+}
+const countdownEl = document.getElementById("bonusMonedasCountdown")
+if(countdownEl) setCleanText(countdownEl, "Finaliza en " + tiempoRestanteEventoMonedas(eventoMonedasActivo))
+}, 30000)
+}
+
+async function guardarEventoMonedasAdmin(){
+const juego = document.getElementById("bonusMonedasJuegoSelect")?.value || "sudoku"
+const multiplicador = Number(document.getElementById("bonusMonedasMultiplicadorSelect")?.value || 1.5)
+const tipoDuracion = document.getElementById("bonusMonedasTipoDuracion")?.value || "horas"
+const cantidad = Math.max(1, Math.trunc(Number(document.getElementById("bonusMonedasCantidad")?.value || 1)))
+const evento = construirEventoMonedas({ juego, multiplicador, tipoDuracion, cantidad })
+
+const rpc = await ejecutarRpcAdmin("admin_guardar_bonus_monedas_evento", {
+p_juego: evento.juego,
+p_multiplicador: evento.multiplicador,
+p_fecha_inicio: evento.fechaInicio,
+p_fecha_fin: evento.fechaFin,
+p_activo: true,
+})
+
+if(rpc.ok){
+eventoMonedasActivo = evento
+formularioMonedasInicializado = false
+actualizarVistaBonusMonedasAdmin()
+safeAlert("Evento de monedas activado: " + etiquetaJuego(evento.juego) + " " + formatearMultiplicador(evento.multiplicador))
+return
+}
+
+const resultado = await guardarEventoMonedas(evento)
+eventoMonedasActivo = resultado.evento || evento
+formularioMonedasInicializado = false
+actualizarVistaBonusMonedasAdmin()
+safeAlert(resultado.ok
+? "Evento de monedas activado."
+: "Evento guardado localmente. Ejecuta el SQL actualizado para persistencia global.")
+}
+
+async function desactivarEventoMonedasAdmin(){
+const evento = desactivarEventoMonedas(eventoMonedasActivo)
+const rpc = await ejecutarRpcAdmin("admin_guardar_bonus_monedas_evento", {
+p_juego: evento.juego,
+p_multiplicador: 1,
+p_fecha_inicio: evento.fechaInicio || new Date().toISOString(),
+p_fecha_fin: evento.fechaFin,
+p_activo: false,
+})
+
+if(!rpc.ok){
+await guardarEventoMonedas(evento)
+}
+
+eventoMonedasActivo = evento
+formularioMonedasInicializado = false
+actualizarVistaBonusMonedasAdmin()
+safeAlert("Evento de monedas desactivado.")
+}
+
+function instalarRealtimeBonusMonedas(){
+if(canalBonusMonedas) return
+canalBonusMonedas = supabase
+.channel("bonus-monedas-evento-admin")
+.on("postgres_changes", { event: "*", schema: "public", table: "bonus_monedas_evento" }, async () => {
+eventoMonedasActivo = await obtenerEventoMonedasActual()
+formularioMonedasInicializado = false
+actualizarVistaBonusMonedasAdmin()
+})
+.subscribe()
+}
+
 function inicioDeSemanaISO(){
 const hoy = new Date()
 const dia = hoy.getDay() || 7
@@ -1321,6 +1478,8 @@ window.resetTotal = resetTotal
 window.verEstado = verEstado
 window.guardarBonusTemporadaAdmin = guardarBonusTemporadaAdmin
 window.guardarTemporadaAdmin = guardarTemporadaAdmin
+window.guardarEventoMonedasAdmin = guardarEventoMonedasAdmin
+window.desactivarEventoMonedasAdmin = desactivarEventoMonedasAdmin
 window.exportarRankingActual = exportarRankingActual
 window.exportarTablasRanking = exportarTablasRanking
 window.exportarHistorialPartidas = exportarHistorialPartidas
@@ -1353,5 +1512,14 @@ document.getElementById('temporadaEstadoSelect')?.addEventListener('change', () 
   actualizarVistaBonusAdmin()
 })
 
+document.getElementById('bonusMonedasJuegoSelect')?.addEventListener('change', () => {
+  formularioMonedasInicializado = true
+})
+
+document.getElementById('bonusMonedasMultiplicadorSelect')?.addEventListener('change', () => {
+  formularioMonedasInicializado = true
+})
+
 syncNumcatchUI()
 rellenarSelectorBonus()
+rellenarSelectorBonusMonedas()
