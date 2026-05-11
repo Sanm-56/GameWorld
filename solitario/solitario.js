@@ -27,6 +27,22 @@ const MINI_TOURNAMENT_GAMES = [
   { key: "sudoku", label: "Sudoku" },
 ]
 
+const GAME_NODE_ICONS = {
+  ajedrez: "AJ",
+  damas: "DA",
+  domino: "DO",
+  flashmind: "FM",
+  matematicas: "MA",
+  memoria: "ME",
+  numcatch: "NC",
+  cricketarcade: "CR",
+  esquivaobstaculos: "EO",
+  torreinfinita: "TI",
+  subelamontana: "SM",
+  basketballarcade: "BA",
+  sudoku: "SU",
+}
+
 const RANKING_GAME_OPTIONS = [
   { key: "todos", label: "Mini torneos", detail: "Solo salas competitivas", icon: "MT" },
   { key: "nivel", label: "Todos los niveles", detail: "Solo modo individual", icon: "LV" },
@@ -56,22 +72,6 @@ const CHAPTER_THEMES = [
   { name: "El Trono de Umbra", terrain: "Ciudadela oscura", accent: "#c084fc", glow: "#22d3ee" },
   { name: "La Ultima Constelacion", terrain: "Cima estelar", accent: "#facc15", glow: "#38bdf8" },
 ]
-
-const GAME_NODE_ICONS = {
-  ajedrez: "AJ",
-  damas: "DA",
-  domino: "DO",
-  flashmind: "FM",
-  matematicas: "MA",
-  memoria: "ME",
-  numcatch: "NC",
-  cricketarcade: "CR",
-  esquivaobstaculos: "EO",
-  torreinfinita: "TI",
-  subelamontana: "SM",
-  basketballarcade: "BA",
-  sudoku: "SU",
-}
 
 const state = {
   user: null,
