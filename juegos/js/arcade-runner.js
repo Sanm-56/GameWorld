@@ -44,6 +44,7 @@ document.documentElement.style.setProperty("--secondary", config.secondary)
 els.title.textContent = config.label
 els.desc.textContent = config.description
 els.user.textContent = usuario || "Jugador"
+document.querySelector(".top")?.setAttribute("data-mark", config.icon || "AR")
 
 let score = 0
 let level = 1

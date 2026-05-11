@@ -24,6 +24,8 @@ const els = {
   time: document.getElementById("timeValue"),
   coins: document.getElementById("coinsValue"),
   xp: document.getElementById("xpValue"),
+  record: document.getElementById("recordValue"),
+  delta: document.getElementById("deltaValue"),
   progress: document.getElementById("progressList"),
   next: document.getElementById("nextLevelBtn"),
   retry: document.getElementById("retryBtn"),
@@ -99,6 +101,8 @@ function render(summary) {
   els.time.textContent = result.time ? formatTime(result.time) : result.elapsed ? formatTime(result.elapsed) : "-"
   els.coins.textContent = String(summary.monedasGanadas || 0)
   els.xp.textContent = formatearXpResumen(summary)
+  els.record.textContent = summary.personalRecord ? "Nuevo record" : String(summary.newBest || summary.previousBest || 0)
+  els.delta.textContent = formatDelta(summary, result, completed)
   els.progress.innerHTML = progressItems.map((item) => `
     <div class="solo-progress-row ${item.ok ? "ok" : "bad"}">
       <span>${item.ok ? "OK" : "NO"}</span>
@@ -108,6 +112,7 @@ function render(summary) {
   els.next.disabled = !completed || level.id >= LEVELS.length
   els.next.textContent = level.id >= LEVELS.length ? "Mapa completado" : "Siguiente nivel"
   if (summary.recompensasXp?.length) lanzarReaccionRecompensa(summary.recompensasXp)
+  if (completed || summary.personalRecord) lanzarPulsoFinal(completed ? "victoria" : "record")
 }
 
 function retry(summary) {
@@ -158,6 +163,28 @@ function formatearXpResumen(summary) {
   const bonus = (summary?.recompensasXp || []).reduce((total, item) => total + Number(item.xp || 0), 0)
   if (!bonus) return String(xpBase)
   return `${formatNumber(xpBase + bonus)} (+${formatNumber(bonus)} bonus)`
+}
+
+function formatDelta(summary, result, completed) {
+  if (result.invalid) return "Sin progreso"
+  const failed = (summary.progressItems || []).find((item) => !item.ok)
+  if (completed) {
+    if (summary.personalRecord) return `+${Math.max(0, Number(summary.newBest || 0) - Number(summary.previousBest || 0))} pts`
+    return "Objetivo cumplido"
+  }
+  if (failed?.missing) return failed.missing
+  const scoreTarget = summary.level?.mission?.conditions?.find((condition) => condition.type === "score")?.target
+  if (scoreTarget) return `Te faltaron ${Math.max(0, scoreTarget - Number(result.score || 0))} puntos`
+  return "Intenta de nuevo"
+}
+
+function lanzarPulsoFinal(tipo) {
+  if (document.querySelector(".solo-final-pulse")) return
+  const pulse = document.createElement("div")
+  pulse.className = `solo-final-pulse ${tipo}`
+  pulse.textContent = tipo === "victoria" ? "Ganaste" : "Nuevo record"
+  document.body.appendChild(pulse)
+  setTimeout(() => pulse.remove(), 2600)
 }
 
 function lanzarReaccionRecompensa(recompensas) {

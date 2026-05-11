@@ -292,13 +292,18 @@ export async function reportLevelResult(supabase, { usuario, juego, valor, modo,
   const completed = checkMission(level, result)
   const previousProgress = getLevelProgress(usuario)
   const wasCompleted = previousProgress.done.includes(level.id)
+  const previousBest = Number(previousProgress.bestByLevel[String(level.id)] || 0)
   const progress = updateLocalProgress(usuario, level, result, completed)
+  const newBest = Number(progress.bestByLevel[String(level.id)] || 0)
   const summary = {
     usuario,
     level,
     result,
     completed,
     newlyCompleted: completed && !wasCompleted,
+    previousBest,
+    newBest,
+    personalRecord: newBest > previousBest,
     progress,
     missionText: missionLabel(level),
     progressItems: missionProgress(level, result),

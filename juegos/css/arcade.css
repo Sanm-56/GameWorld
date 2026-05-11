@@ -24,6 +24,17 @@ body{
   justify-content:center;
   padding:16px;
 }
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:linear-gradient(180deg,black,transparent 82%);
+}
 .shell{
   width:min(1080px,100%);
   display:grid;
@@ -37,12 +48,27 @@ body{
 }
 .top{
   grid-column:1/-1;
-  border-radius:18px;
-  padding:16px;
+  position:relative;
+  overflow:hidden;
+  border-radius:22px;
+  padding:18px;
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:12px;
+  background:
+    radial-gradient(circle at 4% 0,color-mix(in srgb,var(--accent) 26%,transparent),transparent 34%),
+    linear-gradient(135deg,rgba(15,23,42,.94),rgba(2,6,23,.72));
+}
+.top::after{
+  content:attr(data-mark);
+  position:absolute;
+  right:18px;
+  bottom:-30px;
+  color:rgba(255,255,255,.035);
+  font-size:120px;
+  font-weight:1000;
+  line-height:1;
 }
 h1{margin:0 0 4px;font-size:clamp(24px,4vw,38px);letter-spacing:0}
 p{margin:0;color:var(--muted);line-height:1.45}
@@ -60,21 +86,56 @@ p{margin:0;color:var(--muted);line-height:1.45}
   position:relative;
   overflow:hidden;
   min-height:520px;
-  border-radius:18px;
+  border-radius:22px;
   background:
+    radial-gradient(circle at 50% 10%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 32%),
     linear-gradient(180deg,rgba(255,255,255,.04),transparent),
     repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 76px),
     rgba(2,6,23,.42);
   touch-action:manipulation;
 }
-.side{
+.stage::before{
+  content:"";
+  position:absolute;
+  inset:12px;
+  border:1px solid color-mix(in srgb,var(--accent) 28%,transparent);
   border-radius:18px;
-  padding:14px;
+  pointer-events:none;
+}
+.stage::after{
+  content:"";
+  position:absolute;
+  inset:auto 10% 10% 10%;
+  height:22%;
+  border-radius:50%;
+  background:radial-gradient(ellipse,color-mix(in srgb,var(--secondary) 18%,transparent),transparent 68%);
+  filter:blur(10px);
+  pointer-events:none;
+}
+.side{
+  border-radius:22px;
+  padding:16px;
   display:flex;
   flex-direction:column;
   gap:10px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.055),transparent 26%),
+    rgba(15,23,42,.78);
 }
-.stat{display:flex;justify-content:space-between;gap:10px}
+.stat{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  position:relative;
+  overflow:hidden;
+}
+.stat::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:4px;
+  background:linear-gradient(var(--accent),var(--secondary));
+}
 .action{
   width:100%;
   min-height:56px;
@@ -86,7 +147,10 @@ p{margin:0;color:var(--muted);line-height:1.45}
   color:#020617;
   background:linear-gradient(135deg,var(--accent),var(--secondary));
   box-shadow:0 16px 28px color-mix(in srgb,var(--accent) 25%,transparent);
+  transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
 }
+.action:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.action:active{transform:translateY(1px) scale(.99)}
 .status{
   min-height:74px;
   border:1px solid var(--line);
@@ -94,6 +158,7 @@ p{margin:0;color:var(--muted);line-height:1.45}
   padding:12px;
   color:var(--muted);
   background:rgba(2,6,23,.36);
+  line-height:1.45;
 }
 .actor,.ball{
   position:absolute;
@@ -102,6 +167,7 @@ p{margin:0;color:var(--muted);line-height:1.45}
   border-radius:999px;
   background:linear-gradient(135deg,var(--accent),#fff);
   box-shadow:0 12px 26px rgba(0,0,0,.32);
+  z-index:3;
 }
 .target{
   position:absolute;
@@ -161,8 +227,23 @@ p{margin:0;color:var(--muted);line-height:1.45}
 .final-page{align-items:flex-start;padding-top:24px}
 .final-card{
   width:min(980px,100%);
-  border-radius:20px;
-  padding:22px;
+  position:relative;
+  overflow:hidden;
+  border-radius:24px;
+  padding:24px;
+  background:
+    radial-gradient(circle at 18% 0,color-mix(in srgb,var(--accent) 25%,transparent),transparent 32%),
+    radial-gradient(circle at 92% 18%,color-mix(in srgb,var(--secondary) 18%,transparent),transparent 28%),
+    linear-gradient(145deg,rgba(15,23,42,.94),rgba(2,6,23,.86));
+}
+.final-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent 0 38%,rgba(255,255,255,.08) 48%,transparent 58% 100%);
+  transform:translateX(-80%);
+  animation:finalSheen 4.8s ease-in-out infinite;
+  pointer-events:none;
 }
 .summary-grid,.final-layout{
   display:grid;
@@ -173,9 +254,11 @@ p{margin:0;color:var(--muted);line-height:1.45}
 .final-layout{grid-template-columns:1fr 1fr}
 .summary-item,.podium-card,.ranking-row,.empty{
   border:1px solid var(--line);
-  border-radius:12px;
-  padding:12px;
-  background:rgba(2,6,23,.32);
+  border-radius:16px;
+  padding:13px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.055),transparent 32%),
+    rgba(2,6,23,.34);
 }
 .summary-item span{display:block;color:var(--muted);font-size:13px}
 .summary-item strong{font-size:22px}
@@ -214,7 +297,46 @@ input{
   background:var(--secondary);
   animation:fall 2.4s ease-in forwards;
 }
+body[data-game="cricketarcade"] .stage{
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px),
+    radial-gradient(circle at 50% 10%,rgba(250,204,21,.12),transparent 28%),
+    linear-gradient(180deg,#0f3f2a,#071f18);
+  background-size:64px 64px,auto,auto;
+}
+body[data-game="basketballarcade"] .stage{
+  background:
+    repeating-linear-gradient(0deg,rgba(251,146,60,.10) 0 8px,transparent 8px 16px),
+    radial-gradient(circle at 78% 18%,rgba(34,211,238,.18),transparent 26%),
+    linear-gradient(160deg,#2b1208,#101827);
+}
+body[data-game="torreinfinita"] .stage{
+  background:
+    linear-gradient(90deg,rgba(167,139,250,.13) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(52,211,153,.08),transparent),
+    #070b18;
+  background-size:54px 54px,auto,auto;
+}
+body[data-game="esquivaobstaculos"] .stage{
+  background:
+    repeating-linear-gradient(90deg,rgba(56,189,248,.10) 0 4px,transparent 4px 28px),
+    radial-gradient(circle at 50% 0,rgba(251,113,133,.16),transparent 30%),
+    #07111f;
+}
+body[data-game="subelamontana"] .stage{
+  background:
+    radial-gradient(circle at 50% 100%,rgba(245,158,11,.20),transparent 34%),
+    linear-gradient(180deg,#0b1931,#1f2937 62%,#2b1809);
+}
+@keyframes finalSheen{
+  0%,60%{transform:translateX(-80%)}
+  100%{transform:translateX(80%)}
+}
 @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.1}}
+@media (prefers-reduced-motion:reduce){
+  .final-card::before{animation:none}
+  .action{transition:none}
+}
 @media (max-width:820px){
   body{align-items:flex-start;padding:10px}
   .shell,.final-layout{grid-template-columns:1fr}

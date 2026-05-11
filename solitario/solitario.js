@@ -28,13 +28,19 @@ const MINI_TOURNAMENT_GAMES = [
 ]
 
 const RANKING_GAME_OPTIONS = [
-  { key: "todos", label: "Todos los juegos", detail: "Vista completa", icon: "ALL" },
-  { key: "nivel", label: "Mapa de niveles", detail: "Modo individual", icon: "LV" },
+  { key: "todos", label: "Mini torneos", detail: "Solo salas competitivas", icon: "MT" },
+  { key: "nivel", label: "Todos los niveles", detail: "Solo modo individual", icon: "LV" },
   ...MINI_TOURNAMENT_GAMES.map((game) => ({
     key: game.key,
     label: game.label,
     detail: "Mini torneo",
     icon: game.label.slice(0, 2).toUpperCase(),
+  })),
+  ...MINI_TOURNAMENT_GAMES.map((game) => ({
+    key: `nivel:${game.key}`,
+    label: `${game.label} niveles`,
+    detail: "Ranking individual",
+    icon: GAME_NODE_ICONS[game.key] || game.label.slice(0, 2).toUpperCase(),
   })),
 ]
 
@@ -187,9 +193,17 @@ function injectMiniTournamentStyles() {
   const style = document.createElement("style")
   style.dataset.miniTournamentStyle = "true"
   style.textContent = `
-    .game-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-    .game-option{border:1px solid rgba(148,163,184,.16);background:rgba(15,23,42,.72);padding:10px;border-radius:14px}
-    .game-option.active{border-color:rgba(250,204,21,.5);background:rgba(250,204,21,.16)}
+    .game-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .game-option{position:relative;overflow:hidden;min-height:76px;border:1px solid rgba(148,163,184,.16);background:linear-gradient(145deg,rgba(15,23,42,.86),rgba(2,6,23,.58));padding:12px;border-radius:16px;text-align:left;box-shadow:0 14px 30px rgba(0,0,0,.18);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+    .game-option::before{content:"";position:absolute;inset:auto -24px -32px auto;width:92px;height:92px;border-radius:999px;background:rgba(255,255,255,.08)}
+    .game-option::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(135deg,black,transparent 78%);pointer-events:none}
+    .game-option:hover{transform:translateY(-2px);border-color:rgba(56,189,248,.46);box-shadow:0 18px 36px rgba(0,0,0,.24)}
+    .game-option.active{border-color:rgba(250,204,21,.62);background:linear-gradient(135deg,rgba(250,204,21,.22),rgba(56,189,248,.12));box-shadow:0 18px 40px rgba(250,204,21,.10)}
+    .game-option[data-game="cricketarcade"]{background:linear-gradient(135deg,rgba(21,128,61,.78),rgba(250,204,21,.22))}
+    .game-option[data-game="esquivaobstaculos"]{background:linear-gradient(135deg,rgba(2,132,199,.78),rgba(225,29,72,.20))}
+    .game-option[data-game="torreinfinita"]{background:linear-gradient(135deg,rgba(124,58,237,.76),rgba(16,185,129,.18))}
+    .game-option[data-game="subelamontana"]{background:linear-gradient(135deg,rgba(217,119,6,.74),rgba(37,99,235,.20))}
+    .game-option[data-game="basketballarcade"]{background:linear-gradient(135deg,rgba(234,88,12,.76),rgba(6,182,212,.20))}
     .code-row{display:grid;grid-template-columns:1fr auto;gap:8px}
     .active-rooms{margin-bottom:16px}
     .active-room-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:12px;background:rgba(15,23,42,.64)}
@@ -1170,12 +1184,16 @@ async function loadRankings() {
   
   let query = supabase
     .from("solitario_resultados")
-    .select("usuario_id,usuario,puntos,victoria,created_at,juego,origen")
+    .select("usuario_id,usuario,puntos,victoria,created_at,juego,origen,sala_id")
 
   if (state.rankingGame === "nivel") {
     query = query.eq("origen", "nivel")
+  } else if (state.rankingGame.startsWith("nivel:")) {
+    query = query.eq("origen", "nivel").eq("juego", state.rankingGame.replace("nivel:", ""))
   } else if (state.rankingGame !== "todos") {
-    query = query.eq("juego", state.rankingGame)
+    query = query.eq("origen", "sala").eq("juego", state.rankingGame)
+  } else {
+    query = query.eq("origen", "sala")
   }
   const { data, error } = await query
 
@@ -1185,10 +1203,32 @@ async function loadRankings() {
     return
   }
 
-  renderRanking(els.globalRanking, buildRanking(data || [], "global"))
-  renderRanking(els.weeklyRanking, buildRanking(data || [], "weekly"))
-  renderRanking(els.winsRanking, buildRanking(data || [], "wins"))
+  const rows = normalizeRankingRows(data || [])
+  renderRanking(els.globalRanking, buildRanking(rows, "global"))
+  renderRanking(els.weeklyRanking, buildRanking(rows, "weekly"))
+  renderRanking(els.winsRanking, buildRanking(rows, "wins"))
   setText(els.rankingStatus, "Rankings actualizados.")
+}
+
+function normalizeRankingRows(rows) {
+  const uniqueRooms = new Map()
+  const normalized = []
+
+  rows.forEach((row) => {
+    if (row.origen !== "sala" || !row.sala_id) {
+      normalized.push(row)
+      return
+    }
+
+    const key = `${row.sala_id}:${row.juego}:${row.usuario_id || row.usuario}`
+    const current = uniqueRooms.get(key)
+    if (!current || Number(row.puntos || 0) > Number(current.puntos || 0)) {
+      uniqueRooms.set(key, row)
+    }
+  })
+
+  normalized.push(...uniqueRooms.values())
+  return normalized
 }
 
 function buildRanking(rows, type) {

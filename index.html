@@ -227,6 +227,56 @@ h1{
 .subelamontana{background:linear-gradient(135deg,#d97706,#2563eb);}
 .basketballarcade{background:linear-gradient(135deg,#ea580c,#06b6d4);}
 
+.boton.cricketarcade,
+.boton.esquivaobstaculos,
+.boton.torreinfinita,
+.boton.subelamontana,
+.boton.basketballarcade{
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 84% 14%, rgba(255,255,255,0.20), transparent 22%),
+    linear-gradient(135deg, var(--card-a), var(--card-b));
+}
+
+.boton.cricketarcade{--card-a:#15803d;--card-b:#facc15;}
+.boton.esquivaobstaculos{--card-a:#0284c7;--card-b:#e11d48;}
+.boton.torreinfinita{--card-a:#7c3aed;--card-b:#10b981;}
+.boton.subelamontana{--card-a:#d97706;--card-b:#2563eb;}
+.boton.basketballarcade{--card-a:#ea580c;--card-b:#06b6d4;}
+
+.boton.cricketarcade::after,
+.boton.esquivaobstaculos::after,
+.boton.torreinfinita::after,
+.boton.subelamontana::after,
+.boton.basketballarcade::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size:34px 34px;
+  mask-image:linear-gradient(135deg, black, transparent 76%);
+}
+
+.arcade-meta{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.arcade-meta span{
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:999px;
+  padding:5px 8px;
+  background:rgba(2,6,23,0.20);
+  color:rgba(255,255,255,0.88);
+  font-size:11px;
+  font-weight:900;
+}
+
 .acciones{
   display:flex;
   flex-direction:column;
@@ -3014,26 +3064,31 @@ h1{
         <span class="emoji">CR</span>
         <span class="titulo">Cricket Arcade</span>
         <span class="detalle">Golpea en el momento exacto y encadena tiros perfectos.</span>
+        <span class="arcade-meta"><span>Rapido</span><span>Precision</span><span>3 min</span></span>
       </button>
       <button class="boton esquivaobstaculos" onclick="irArcade('esquivaobstaculos')">
         <span class="emoji">EO</span>
         <span class="titulo">Esquiva Obstaculos</span>
         <span class="detalle">Cambia de carril, sobrevive y suma puntos por reflejos.</span>
+        <span class="arcade-meta"><span>Neon</span><span>Reflejos</span><span>Progresivo</span></span>
       </button>
       <button class="boton torreinfinita" onclick="irArcade('torreinfinita')">
         <span class="emoji">TI</span>
         <span class="titulo">Torre Infinita</span>
         <span class="detalle">Apila bloques con precision y manten viva la torre.</span>
+        <span class="arcade-meta"><span>Timing</span><span>Combo</span><span>Record</span></span>
       </button>
       <button class="boton subelamontana" onclick="irArcade('subelamontana')">
         <span class="emoji">SM</span>
         <span class="titulo">Sube la Montana</span>
         <span class="detalle">Salta plataformas y escala con dificultad progresiva.</span>
+        <span class="arcade-meta"><span>Aventura</span><span>Saltos</span><span>Ritmo</span></span>
       </button>
       <button class="boton basketballarcade" onclick="irArcade('basketballarcade')">
         <span class="emoji">BA</span>
         <span class="titulo">Basketball Arcade</span>
         <span class="detalle">Lanza con ritmo arcade y busca la racha perfecta.</span>
+        <span class="arcade-meta"><span>Retro</span><span>Rachas</span><span>Puntos</span></span>
       </button>
     </section>
   </main>
