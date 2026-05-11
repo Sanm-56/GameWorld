@@ -87,6 +87,11 @@ check (
     'matematicas',
     'flashmind',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -220,6 +225,11 @@ create table if not exists public.bonus_temporada (
     'matematicas',
     'flashmind',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -228,6 +238,27 @@ create table if not exists public.bonus_temporada (
   updated_at timestamptz not null default now()
 );
 
+alter table public.bonus_temporada
+drop constraint if exists bonus_temporada_juego_check;
+
+alter table public.bonus_temporada
+add constraint bonus_temporada_juego_check
+check (juego in (
+  'sudoku',
+  'memoria',
+  'matematicas',
+  'flashmind',
+  'numcatch',
+  'cricketarcade',
+  'esquivaobstaculos',
+  'torreinfinita',
+  'subelamontana',
+  'basketballarcade',
+  'ajedrez',
+  'domino',
+  'damas'
+));
+
 insert into public.bonus_temporada (juego, multiplicador)
 values
   ('sudoku', 1.0),
@@ -235,6 +266,11 @@ values
   ('matematicas', 1.0),
   ('flashmind', 1.0),
   ('numcatch', 1.0),
+  ('cricketarcade', 1.0),
+  ('esquivaobstaculos', 1.0),
+  ('torreinfinita', 1.0),
+  ('subelamontana', 1.0),
+  ('basketballarcade', 1.0),
   ('ajedrez', 1.0),
   ('domino', 1.0),
   ('damas', 1.0)
@@ -248,6 +284,11 @@ create table if not exists public.bonus_monedas_evento (
     'matematicas',
     'flashmind',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -258,6 +299,27 @@ create table if not exists public.bonus_monedas_evento (
   activo boolean not null default false,
   updated_at timestamptz not null default now()
 );
+
+alter table public.bonus_monedas_evento
+drop constraint if exists bonus_monedas_evento_juego_check;
+
+alter table public.bonus_monedas_evento
+add constraint bonus_monedas_evento_juego_check
+check (juego in (
+  'sudoku',
+  'memoria',
+  'matematicas',
+  'flashmind',
+  'numcatch',
+  'cricketarcade',
+  'esquivaobstaculos',
+  'torreinfinita',
+  'subelamontana',
+  'basketballarcade',
+  'ajedrez',
+  'domino',
+  'damas'
+));
 
 insert into public.bonus_monedas_evento (id, juego, multiplicador, activo)
 values ('evento-monedas-actual', 'sudoku', 1.0, false)
@@ -286,6 +348,11 @@ begin
     'matematicas',
     'flashmind',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -339,6 +406,11 @@ begin
     'matematicas',
     'flashmind',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -460,6 +532,11 @@ begin
     'matematicas',
     'flashmind',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -690,6 +767,11 @@ begin
     'matematicas',
     'flashmind',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'

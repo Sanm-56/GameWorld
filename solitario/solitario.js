@@ -19,6 +19,11 @@ const MINI_TOURNAMENT_GAMES = [
   { key: "matematicas", label: "Matematicas" },
   { key: "memoria", label: "Memoria" },
   { key: "numcatch", label: "NumCatch" },
+  { key: "cricketarcade", label: "Cricket Arcade" },
+  { key: "esquivaobstaculos", label: "Esquiva Obstaculos" },
+  { key: "torreinfinita", label: "Torre Infinita" },
+  { key: "subelamontana", label: "Sube la Montana" },
+  { key: "basketballarcade", label: "Basketball Arcade" },
   { key: "sudoku", label: "Sudoku" },
 ]
 
@@ -54,6 +59,11 @@ const GAME_NODE_ICONS = {
   matematicas: "MA",
   memoria: "ME",
   numcatch: "NC",
+  cricketarcade: "CR",
+  esquivaobstaculos: "EO",
+  torreinfinita: "TI",
+  subelamontana: "SM",
+  basketballarcade: "BA",
   sudoku: "SU",
 }
 
@@ -1091,6 +1101,11 @@ function clearGameLaunchState(game) {
     matematicas: ["mate_activo"],
     memoria: ["memoria_activo"],
     sudoku: ["sudoku_activo"],
+    cricketarcade: ["cricketarcade_activo"],
+    esquivaobstaculos: ["esquivaobstaculos_activo"],
+    torreinfinita: ["torreinfinita_activo"],
+    subelamontana: ["subelamontana_activo"],
+    basketballarcade: ["basketballarcade_activo"],
   }
 
   const resultKeys = [
@@ -1104,6 +1119,21 @@ function clearGameLaunchState(game) {
     "dominoEstadisticasPendientes",
     "flashmind_puntos",
     "numcatch_puntos",
+    "cricketarcade_puntos",
+    "esquivaobstaculos_puntos",
+    "torreinfinita_puntos",
+    "subelamontana_puntos",
+    "basketballarcade_puntos",
+    "cricketarcade_elapsed",
+    "esquivaobstaculos_elapsed",
+    "torreinfinita_elapsed",
+    "subelamontana_elapsed",
+    "basketballarcade_elapsed",
+    "cricketarcade_combo",
+    "esquivaobstaculos_combo",
+    "torreinfinita_combo",
+    "subelamontana_combo",
+    "basketballarcade_combo",
   ]
 
   ;(lockKeys[game] || []).forEach((key) => localStorage.removeItem(key))

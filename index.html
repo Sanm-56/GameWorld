@@ -221,6 +221,12 @@ h1{
   background:linear-gradient(135deg, #16a34a, #22c55e);
 }
 
+.cricketarcade{background:linear-gradient(135deg,#15803d,#facc15);}
+.esquivaobstaculos{background:linear-gradient(135deg,#0284c7,#e11d48);}
+.torreinfinita{background:linear-gradient(135deg,#7c3aed,#10b981);}
+.subelamontana{background:linear-gradient(135deg,#d97706,#2563eb);}
+.basketballarcade{background:linear-gradient(135deg,#ea580c,#06b6d4);}
+
 .acciones{
   display:flex;
   flex-direction:column;
@@ -3004,6 +3010,31 @@ h1{
         <span class="titulo">NumCatch</span>
         <span class="detalle">Atrapa solo los números que cumplan la condición del juego.</span>
       </button>
+      <button class="boton cricketarcade" onclick="irArcade('cricketarcade')">
+        <span class="emoji">CR</span>
+        <span class="titulo">Cricket Arcade</span>
+        <span class="detalle">Golpea en el momento exacto y encadena tiros perfectos.</span>
+      </button>
+      <button class="boton esquivaobstaculos" onclick="irArcade('esquivaobstaculos')">
+        <span class="emoji">EO</span>
+        <span class="titulo">Esquiva Obstaculos</span>
+        <span class="detalle">Cambia de carril, sobrevive y suma puntos por reflejos.</span>
+      </button>
+      <button class="boton torreinfinita" onclick="irArcade('torreinfinita')">
+        <span class="emoji">TI</span>
+        <span class="titulo">Torre Infinita</span>
+        <span class="detalle">Apila bloques con precision y manten viva la torre.</span>
+      </button>
+      <button class="boton subelamontana" onclick="irArcade('subelamontana')">
+        <span class="emoji">SM</span>
+        <span class="titulo">Sube la Montana</span>
+        <span class="detalle">Salta plataformas y escala con dificultad progresiva.</span>
+      </button>
+      <button class="boton basketballarcade" onclick="irArcade('basketballarcade')">
+        <span class="emoji">BA</span>
+        <span class="titulo">Basketball Arcade</span>
+        <span class="detalle">Lanza con ritmo arcade y busca la racha perfecta.</span>
+      </button>
     </section>
   </main>
 </div>
@@ -3197,6 +3228,10 @@ function irFlashMind(){
 
 function irNumCatch(){
   window.location.href = 'juegos/numcatch/index.html'
+}
+
+function irArcade(juego){
+  window.location.href = 'juegos/' + juego + '/index.html'
 }
 
 function irPerfil(){

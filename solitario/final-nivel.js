@@ -137,6 +137,9 @@ function goMap(summary, next) {
 function inferValue(game) {
   if (game === "flashmind") return Number(localStorage.getItem("flashmind_puntos") || 0)
   if (game === "numcatch") return Number(localStorage.getItem("numcatch_puntos") || 0)
+  if (["cricketarcade", "esquivaobstaculos", "torreinfinita", "subelamontana", "basketballarcade"].includes(game)) {
+    return Number(localStorage.getItem(`${game}_puntos`) || 0)
+  }
   return 0
 }
 

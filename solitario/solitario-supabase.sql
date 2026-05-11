@@ -20,6 +20,11 @@ create table if not exists public.salas (
       'matematicas',
       'memoria',
       'numcatch',
+      'cricketarcade',
+      'esquivaobstaculos',
+      'torreinfinita',
+      'subelamontana',
+      'basketballarcade',
       'sudoku'
     )
   ),
@@ -113,6 +118,11 @@ check (
     'matematicas',
     'memoria',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'sudoku'
   )
 );

@@ -90,12 +90,22 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
       ? `monedas:partida:${partidaGuardada.id}`
       : `monedas:partida:${usuario}:${juego}:${origenExperiencia}:${modo}:${numero}`,
   })
+  const resumenRecompensas = {
+    juego,
+    origen: origenExperiencia,
+    xpGanada: xpResultados.filter(Boolean).reduce((total, item) => total + Number(item.xpGanado || 0), 0),
+    recompensasXp,
+    monedasGanadas: Math.max(0, Number(saldoMonedas || 0) - monedasAntes),
+    monedasSaldo: saldoMonedas,
+    updatedAt: new Date().toISOString(),
+  }
+  localStorage.setItem(`ultimo_resultado_${juego}`, JSON.stringify(resumenRecompensas))
   if (resultadoNivel) {
     saveLastLevelResult({
-      xpGanada: xpResultados.filter(Boolean).reduce((total, item) => total + Number(item.xpGanado || 0), 0),
-      recompensasXp,
-      monedasGanadas: Math.max(0, Number(saldoMonedas || 0) - monedasAntes),
-      monedasSaldo: saldoMonedas,
+      xpGanada: resumenRecompensas.xpGanada,
+      recompensasXp: resumenRecompensas.recompensasXp,
+      monedasGanadas: resumenRecompensas.monedasGanadas,
+      monedasSaldo: resumenRecompensas.monedasSaldo,
     })
   }
 

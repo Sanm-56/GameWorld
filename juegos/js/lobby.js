@@ -65,6 +65,10 @@ if(juego === "numcatch"){
 window.location.href = "numcatch.html"
 }
 
+if(["cricketarcade","esquivaobstaculos","torreinfinita","subelamontana","basketballarcade"].includes(juego)){
+window.location.href = juego + ".html"
+}
+
 if(juego === "ajedrez"){
 window.location.href = "ajedrez.html"
 }

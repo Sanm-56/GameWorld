@@ -21,6 +21,11 @@ check (
     'matematicas',
     'memoria',
     'numcatch',
+    'cricketarcade',
+    'esquivaobstaculos',
+    'torreinfinita',
+    'subelamontana',
+    'basketballarcade',
     'sudoku'
   )
 );
