@@ -16,16 +16,15 @@ import {
   obtenerRangosDesdeNivel,
   obtenerRangosHastaNivel,
   obtenerTituloNivel,
-  xpRequeridaParaRango,
-  calcularRecompensaRango,
-  calcularRecompensaSubidaNivel,
   registrarXpPorLogros,
 } from './progreso-nivel.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js'
 import {
   calcularBonusRango,
   guardarRangoEquipado as guardarRangoEquipadoBonus,
+  guardarRangoEquipadoRemoto as guardarRangoEquipadoRemotoBonus,
   leerRangoEquipado as leerRangoEquipadoBonus,
+  sincronizarRangoEquipado as sincronizarRangoEquipadoBonus,
 } from './rango-bonus.js'
 
 const usuario = localStorage.getItem('usuario')
@@ -402,6 +401,7 @@ function leerRangoEquipado(usuarioId) {
 function guardarRangoEquipado(usuarioId, rango) {
   if (!usuarioId) return
   guardarRangoEquipadoBonus(usuarioId, rango)
+  guardarRangoEquipadoRemotoBonus(usuarioId, rango)
 }
 
 function rangoEstaDesbloqueado(rango, nivel) {
@@ -589,7 +589,7 @@ function renderRutaRangos(progreso) {
           <span class="rank-node-level">${rangoTexto}</span>
         </div>
         <span class="rank-node-name">${escaparHtml(rango.titulo)}</span>
-        <span class="rank-node-requirement">Requiere ${formatearNumero(xpRequeridaParaRango(rango))} XP</span>
+        <span class="rank-node-requirement">${desbloqueado ? `Requisito: nivel ${rango.desde}` : `Faltan ${formatearNumero(progresoRango.faltante)} XP`}</span>
         <span class="rank-node-bonus">EXP ${bonus.expTexto} · Monedas ${bonus.monedasTexto}</span>
         <span class="rank-node-progress"><span style="width:${progresoRango.porcentaje}%"></span></span>
         <span class="rank-node-state">${estado}</span>
@@ -4655,6 +4655,7 @@ async function renderProgresoNivel() {
   const tituloNivel = obtenerTituloNivel(progreso.nivel)
   const rangoActual = obtenerRangoNivel(progreso.nivel)
   const rangosTodos = obtenerRangosDesdeNivel(1)
+  await sincronizarRangoEquipadoBonus(usuario, rangosTodos)
   const rangosDesbloqueados = obtenerRangosHastaNivel(progreso.nivel)
   const rangoGuardado = leerRangoEquipado(usuario)
   const rangoGuardadoDesbloqueado = rangosDesbloqueados.some((rango) => normalizarTextoVisual(rango.titulo) === normalizarTextoVisual(rangoGuardado))
@@ -4688,16 +4689,12 @@ async function renderProgresoNivel() {
     xpNivelDetalleEl.innerText = `${progreso.xpEnNivel} / ${progreso.xpSiguiente} XP`
     xpRestanteEl.innerText = `Faltan ${progreso.xpParaSiguiente} XP`
     if (proximoRangoNombreEl) proximoRangoNombreEl.innerText = siguienteRango?.titulo || rangoActual.titulo
-    if (proximoRangoXpEl) proximoRangoXpEl.innerText = `XP necesaria: ${formatearNumero(siguienteRango ? xpRequeridaParaRango(siguienteRango) : progreso.xpSiguiente)} XP`
+    if (proximoRangoXpEl) proximoRangoXpEl.innerText = `XP del tramo: ${formatearNumero(progresoSiguienteRango?.requerido || progreso.xpSiguiente)} XP`
     if (proximoRangoFaltanteEl) proximoRangoFaltanteEl.innerText = `Te faltan: ${formatearNumero(progresoSiguienteRango?.faltante || progreso.xpParaSiguiente)} XP`
-    const bonusNivel = calcularRecompensaSubidaNivel(siguienteNivel)
-    const bonusRango = siguienteRango?.desde === siguienteNivel ? calcularRecompensaRango(siguienteRango) : 0
-    const detalleBonus = bonusRango
-      ? ` | Bonus: ${formatearNumero(bonusNivel)} XP + rango ${formatearNumero(bonusRango)} XP`
-      : ` | Bonus: ${formatearNumero(bonusNivel)} XP`
+    const detalleDesbloqueo = siguienteRango?.desde === siguienteNivel ? ` | Desbloquea rango: ${siguienteRango.titulo}` : ''
     recompensaSiguienteEl.innerText = recompensa
-      ? `Nivel ${recompensa.nivel}: ${formatearTipoRecompensa(recompensa.tipo)} - ${recompensa.valor}${detalleBonus}`
-      : `Nivel ${siguienteNivel}: bonus ${formatearNumero(bonusNivel)} XP`
+      ? `Nivel ${recompensa.nivel}: ${formatearTipoRecompensa(recompensa.tipo)} - ${recompensa.valor}${detalleDesbloqueo}`
+      : `Nivel ${siguienteNivel}: recompensa de progreso${detalleDesbloqueo}`
   }
 
   await renderRankingNivel()

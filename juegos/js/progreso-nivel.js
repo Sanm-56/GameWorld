@@ -4,11 +4,13 @@ import { obtenerBonusUsuario } from './tienda.js'
 import { obtenerBonusRangoActivo } from './rango-bonus.js'
 
 export const NIVEL_MAXIMO = 3000
-export const NIVEL_ESCALADO_AVANZADO = 1416
-export const MULTIPLICADOR_XP_AVANZADO = 5
 export const MULTIPLICADOR_XP_BASE_TORNEO = 144
 export const MULTIPLICADOR_XP_BASE_ANTERIOR_TORNEO = 8
 export const MULTIPLICADOR_XP_REBALANCE = 18
+export const XP_CURVA_BASE = 220
+export const XP_CURVA_LINEAL = 18
+export const XP_CURVA_POTENCIA = 1.18
+export const XP_CURVA_FACTOR = 14
 
 const XP_ACCIONES = {
   partida_completada: aplicarMultiplicadorXpBaseTorneo(125),
@@ -163,8 +165,8 @@ export function obtenerTituloNivel(nivelActual = 1) {
 
 export function xpNecesarioParaNivel(nivel) {
   if (nivel >= NIVEL_MAXIMO) return 0
-  const base = (100 + Math.floor(Math.pow(nivel - 1, 1.45) * 35) + (nivel - 1) * 15) * 3
-  return nivel >= NIVEL_ESCALADO_AVANZADO ? base * MULTIPLICADOR_XP_AVANZADO : base
+  const nivelBase = Math.max(0, Math.trunc(Number(nivel) || 1) - 1)
+  return Math.round(XP_CURVA_BASE + (nivelBase * XP_CURVA_LINEAL) + (Math.pow(nivelBase, XP_CURVA_POTENCIA) * XP_CURVA_FACTOR))
 }
 
 export function xpAcumuladoParaNivel(nivel) {
@@ -433,10 +435,7 @@ export async function registrarXp({
   const eventosRecompensa = generarRecompensasProgresion
     ? await calcularEventosRecompensaProgresion(usuario, progresoAnterior.nivel, progresoConXp)
     : []
-  const xpRecompensas = eventosRecompensa.reduce((total, evento) => total + evento.xp, 0)
-  const progresoFinal = xpRecompensas
-    ? aplicarXpAProgreso(progresoConXp, xpRecompensas)
-    : progresoConXp
+  const progresoFinal = progresoConXp
 
   const subioNivel = progresoFinal.nivel > progresoAnterior.nivel
   const calculado = calcularProgresoNivelActual(progresoFinal.nivel, progresoFinal.xp)
@@ -465,7 +464,7 @@ export async function registrarXp({
       detalle: {
         ...detalle,
         xpBase,
-        xpRecompensas,
+        xpRecompensas: 0,
         juego,
         origen,
         multiplicadorOrigen,
@@ -497,7 +496,7 @@ export async function registrarXp({
     nivelAnterior: progresoAnterior.nivel,
     nivelActual: calculado.nivel,
     subioNivel,
-    xpRecompensas,
+    xpRecompensas: 0,
     recompensas: eventosRecompensa,
   }
 }
@@ -599,7 +598,7 @@ async function calcularEventosRecompensaProgresion(usuario, nivelAnterior, progr
       eventos.push({
         key: levelKey,
         accion: 'recompensa_nivel',
-        xp: calcularRecompensaSubidaNivel(nivel),
+        xp: 0,
         detalle: { nivel, motivo: 'subida_nivel' },
       })
     }
@@ -610,7 +609,7 @@ async function calcularEventosRecompensaProgresion(usuario, nivelAnterior, progr
       eventos.push({
         key: rankKey,
         accion: 'recompensa_rango',
-        xp: calcularRecompensaRango(rango),
+        xp: 0,
         detalle: {
           nivel,
           rango: rango.titulo,

@@ -1078,9 +1078,10 @@ immutable
 as $$
   select case
     when p_nivel >= 3000 then 0::bigint
-    else (
-      (100 + floor(power(greatest(p_nivel - 1, 0), 1.45) * 35)::bigint + ((p_nivel - 1) * 15)) * 3
-      * case when p_nivel >= 1416 then 5 else 1 end
+    else round(
+      220
+      + (greatest(p_nivel - 1, 0) * 18)
+      + (power(greatest(p_nivel - 1, 0), 1.18) * 14)
     )::bigint
   end;
 $$;
@@ -1119,14 +1120,6 @@ begin
     exit when xp_nuevo < requisito;
     xp_nuevo := xp_nuevo - requisito;
     nivel_nuevo := nivel_nuevo + 1;
-    if not exists (
-      select 1
-      from public.historial_xp
-      where usuario_id = p_usuario
-        and accion_key = 'recompensa:nivel:' || nivel_nuevo
-    ) then
-      xp_nuevo := xp_nuevo + least(2000000000, round(10000 + power(nivel_nuevo, 1.38) * 1800))::bigint;
-    end if;
   end loop;
 
   if nivel_nuevo >= 3000 then
@@ -1146,7 +1139,7 @@ begin
         p_usuario,
         'recompensa_nivel',
         'recompensa:nivel:' || nivel_iter,
-        least(2000000000, round(10000 + power(nivel_iter, 1.38) * 1800))::bigint,
+        0,
         jsonb_build_object('nivel', nivel_iter, 'motivo', 'subida_nivel', 'origen', 'admin')
       )
       on conflict (usuario_id, accion_key) do nothing;

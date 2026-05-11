@@ -245,6 +245,8 @@ export async function comprarCosmetico(usuario, cosmeticoId) {
 
   guardarCosmeticoLocal(usuario, payload)
 
+  await desactivarCosmeticosDelTipo(usuario, payload.tipo)
+
   const remoto = {
     usuario_id: payload.usuario_id,
     cosmetico_id: payload.cosmetico_id,
@@ -266,8 +268,47 @@ export async function comprarCosmetico(usuario, cosmeticoId) {
   return { ok: true, cosmetico: payload }
 }
 
-export async function obtenerCosmeticoEquipado(usuario) {
-  const local = leerCosmeticoLocal(usuario)
+export async function equiparCosmetico(usuario, cosmeticoId) {
+  const cosmetico = COSMETICOS.find((item) => item.id === cosmeticoId)
+  if (!usuario || !cosmetico) return { ok: false, error: "Cosmetico invalido" }
+
+  const payload = normalizarCosmeticoLocal({
+    usuario_id: usuario,
+    cosmetico_id: cosmetico.id,
+    tipo: cosmetico.tipo,
+    rareza: cosmetico.rareza,
+    equipado: true,
+    created_at: new Date().toISOString(),
+    nombre: cosmetico.nombre,
+    categoria: cosmetico.categoria,
+    diseno: cosmetico.diseno,
+    rareza_visual: cosmetico.rareza,
+  })
+
+  guardarCosmeticoLocal(usuario, payload)
+  await desactivarCosmeticosDelTipo(usuario, payload.tipo)
+
+  const { error } = await supabase
+    .from("usuario_cosmeticos")
+    .upsert({
+      usuario_id: usuario,
+      cosmetico_id: payload.cosmetico_id,
+      tipo: payload.tipo,
+      rareza: rarezaCompatibleSupabase(payload.rareza),
+      equipado: true,
+      created_at: payload.created_at,
+    }, { onConflict: "usuario_id,cosmetico_id" })
+
+  if (error) {
+    console.warn("No se pudo equipar cosmetico en Supabase", error)
+    return { ok: false, cosmetico: payload, error }
+  }
+
+  return { ok: true, cosmetico: payload }
+}
+
+export async function obtenerCosmeticoEquipado(usuario, tipoPreferido = "fondo") {
+  const local = leerCosmeticoLocal(usuario, tipoPreferido)
   if (!usuario) return local
 
   const { data, error } = await supabase
@@ -275,6 +316,7 @@ export async function obtenerCosmeticoEquipado(usuario) {
     .select("cosmetico_id,tipo,rareza,equipado")
     .eq("usuario_id", usuario)
     .eq("equipado", true)
+    .eq("tipo", tipoPreferido)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -284,7 +326,13 @@ export async function obtenerCosmeticoEquipado(usuario) {
     return local
   }
 
-  return local || data
+  if (data) {
+    const remoto = enriquecerCosmeticoRemoto(data)
+    guardarCosmeticoLocal(usuario, remoto)
+    return remoto
+  }
+
+  return local || await obtenerCualquierCosmeticoEquipado(usuario)
 }
 
 export function obtenerMonedas(usuario) {
@@ -745,6 +793,20 @@ function rarezaCompatibleSupabase(rareza) {
   return rareza
 }
 
+async function desactivarCosmeticosDelTipo(usuario, tipo) {
+  if (!usuario || !tipo) return
+  const { error } = await supabase
+    .from("usuario_cosmeticos")
+    .update({ equipado: false })
+    .eq("usuario_id", usuario)
+    .eq("tipo", tipo)
+    .eq("equipado", true)
+
+  if (error && error.code !== "42501") {
+    console.warn("No se pudieron desactivar cosmeticos previos", error)
+  }
+}
+
 function guardarMonedas(usuario, cantidad) {
   const actuales = leerObjeto(MONEDAS_LOCAL_KEY)
   actuales[usuario] = Math.max(0, Math.trunc(Number(cantidad) || 0))
@@ -808,14 +870,73 @@ function emitirCambioMonedas(usuario) {
   }))
 }
 
-function leerCosmeticoLocal(usuario) {
-  return leerObjeto(COSMETICOS_LOCAL_KEY)[usuario] || null
+async function obtenerCualquierCosmeticoEquipado(usuario) {
+  const { data, error } = await supabase
+    .from("usuario_cosmeticos")
+    .select("cosmetico_id,tipo,rareza,equipado")
+    .eq("usuario_id", usuario)
+    .eq("equipado", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error && error.code !== "PGRST116") {
+    console.warn("No se pudo cargar cosmetico equipado alternativo", error)
+    return leerCosmeticoLocal(usuario, null)
+  }
+
+  if (!data) return leerCosmeticoLocal(usuario, null)
+  const remoto = enriquecerCosmeticoRemoto(data)
+  guardarCosmeticoLocal(usuario, remoto)
+  return remoto
+}
+
+function enriquecerCosmeticoRemoto(row) {
+  const catalogo = COSMETICOS.find((item) => item.id === row?.cosmetico_id)
+  return normalizarCosmeticoLocal({
+    ...catalogo,
+    usuario_id: row?.usuario_id,
+    cosmetico_id: row?.cosmetico_id || catalogo?.id,
+    tipo: row?.tipo || catalogo?.tipo,
+    rareza: catalogo?.rareza || row?.rareza,
+    equipado: row?.equipado ?? true,
+    rareza_visual: catalogo?.rareza || row?.rareza,
+  })
+}
+
+function leerCosmeticoLocal(usuario, tipo = "fondo") {
+  const valor = leerObjeto(COSMETICOS_LOCAL_KEY)[usuario]
+  if (!valor) return null
+  if (valor.cosmetico_id) {
+    const normalizado = normalizarCosmeticoLocal(valor)
+    return !tipo || normalizado.tipo === tipo ? normalizado : null
+  }
+  if (tipo && valor[tipo]) return normalizarCosmeticoLocal(valor[tipo])
+  const primero = Object.values(valor).find((item) => item?.cosmetico_id)
+  return primero ? normalizarCosmeticoLocal(primero) : null
 }
 
 function guardarCosmeticoLocal(usuario, cosmetico) {
   const actuales = leerObjeto(COSMETICOS_LOCAL_KEY)
-  actuales[usuario] = cosmetico
+  const normalizado = normalizarCosmeticoLocal(cosmetico)
+  const previo = actuales[usuario]
+  const porTipo = previo && !previo.cosmetico_id && typeof previo === "object" ? previo : {}
+  porTipo[normalizado.tipo || "fondo"] = normalizado
+  actuales[usuario] = porTipo
   localStorage.setItem(COSMETICOS_LOCAL_KEY, JSON.stringify(actuales))
+}
+
+function normalizarCosmeticoLocal(cosmetico) {
+  const catalogo = COSMETICOS.find((item) => item.id === (cosmetico?.cosmetico_id || cosmetico?.id))
+  return {
+    ...catalogo,
+    ...cosmetico,
+    cosmetico_id: cosmetico?.cosmetico_id || catalogo?.id || "",
+    tipo: cosmetico?.tipo || catalogo?.tipo || "fondo",
+    rareza: cosmetico?.rareza_visual || catalogo?.rareza || cosmetico?.rareza || "Normal",
+    rareza_visual: cosmetico?.rareza_visual || catalogo?.rareza || cosmetico?.rareza || "Normal",
+    equipado: cosmetico?.equipado ?? true,
+  }
 }
 
 function leerObjeto(key) {

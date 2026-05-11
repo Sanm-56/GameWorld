@@ -1,4 +1,7 @@
+import { supabase } from './supabase.js'
+
 export const RANGO_EQUIPADO_KEY = 'perfil_rango_equipado_usuario'
+export const RANGO_EQUIPADO_REMOTO_PREFIX = 'rango:'
 
 export const RANGO_BONUS_ESCALADO = [
   { hasta: 0, monedas: 0, exp: 0, etiqueta: 'Base' },
@@ -30,6 +33,78 @@ export function guardarRangoEquipado(usuario, rango) {
   const datos = leerObjetoLocal(RANGO_EQUIPADO_KEY)
   datos[usuario] = normalizarRangoGuardado(rango)
   localStorage.setItem(RANGO_EQUIPADO_KEY, JSON.stringify(datos))
+}
+
+export async function guardarRangoEquipadoRemoto(usuario, rango) {
+  if (!usuario || !rango) return { ok: false, error: 'Rango invalido' }
+  const limpio = normalizarRangoGuardado(rango)
+  const cosmeticoId = `${RANGO_EQUIPADO_REMOTO_PREFIX}${slugRango(limpio.titulo)}`
+
+  const { error: updateError } = await supabase
+    .from('usuario_cosmeticos')
+    .update({ equipado: false })
+    .eq('usuario_id', usuario)
+    .eq('tipo', 'efecto')
+    .like('cosmetico_id', `${RANGO_EQUIPADO_REMOTO_PREFIX}%`)
+    .eq('equipado', true)
+
+  if (updateError && updateError.code !== '42501') {
+    console.warn('No se pudieron desactivar rangos remotos previos', updateError)
+  }
+
+  const { error } = await supabase
+    .from('usuario_cosmeticos')
+    .upsert({
+      usuario_id: usuario,
+      cosmetico_id: cosmeticoId,
+      tipo: 'efecto',
+      rareza: 'Normal',
+      equipado: true,
+      created_at: new Date().toISOString(),
+    }, { onConflict: 'usuario_id,cosmetico_id' })
+
+  if (error) {
+    console.warn('No se pudo guardar rango equipado remoto', error)
+    return { ok: false, error }
+  }
+
+  return { ok: true, rango: limpio }
+}
+
+export async function sincronizarRangoEquipado(usuario, rangos = []) {
+  const local = leerRangoEquipado(usuario)
+  if (!usuario) return local
+
+  const { data, error } = await supabase
+    .from('usuario_cosmeticos')
+    .select('cosmetico_id,equipado,created_at')
+    .eq('usuario_id', usuario)
+    .eq('tipo', 'efecto')
+    .eq('equipado', true)
+    .like('cosmetico_id', `${RANGO_EQUIPADO_REMOTO_PREFIX}%`)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error && error.code !== 'PGRST116') {
+    console.warn('No se pudo sincronizar rango equipado remoto', error)
+    return local
+  }
+
+  if (!data?.cosmetico_id) return local
+
+  const slug = data.cosmetico_id.replace(RANGO_EQUIPADO_REMOTO_PREFIX, '')
+  const remoto = (Array.isArray(rangos) ? rangos : [])
+    .find((rango) => slugRango(rango.titulo) === slug)
+
+  if (!remoto) return local
+  const guardable = normalizarRangoGuardado({
+    ...remoto,
+    indice: Math.max(0, rangos.findIndex((rango) => slugRango(rango.titulo) === slug)),
+    totalRangos: Math.max(1, rangos.length || 1),
+  })
+  guardarRangoEquipado(usuario, guardable)
+  return guardable
 }
 
 export function calcularBonusRango(rango, totalRangos = null) {
@@ -123,4 +198,13 @@ function leerObjetoLocal(key) {
   } catch {
     return {}
   }
+}
+
+function slugRango(titulo) {
+  return String(titulo || 'Novato')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'novato'
 }
