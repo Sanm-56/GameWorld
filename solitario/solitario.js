@@ -1177,12 +1177,12 @@ async function loadRankings() {
   setText(els.rankingStatus, "Cargando rankings...")
 
   if (state.rankingGame === "nivel") {
-    updateRankingColumnTitles(true)
+    updateRankingLayout(true)
     await loadLevelRankings()
     return
   }
 
-  updateRankingColumnTitles(false)
+  updateRankingLayout(false)
   
   let query = supabase
     .from("solitario_resultados")
@@ -1220,9 +1220,9 @@ async function loadLevelRankings() {
   }
 
   const rows = normalizeLevelRankingRows(data || [])
-  renderLevelRanking(els.globalRanking, buildLevelRanking(rows, "avance"))
-  renderLevelRanking(els.weeklyRanking, buildLevelRanking(rows, "semana"))
-  renderLevelRanking(els.winsRanking, buildLevelRanking(rows, "victorias"))
+  renderLevelRanking(els.globalRanking, buildLevelRanking(rows))
+  els.weeklyRanking.innerHTML = ""
+  els.winsRanking.innerHTML = ""
   setText(els.rankingStatus, "Ranking global del mapa actualizado.")
 }
 
@@ -1236,7 +1236,6 @@ function normalizeLevelRankingRows(rows) {
       completados: 0,
       puntos: 0,
       tiempo: 0,
-      estrellas: 0,
       victorias: 0,
       updatedAt: null,
     }
@@ -1253,7 +1252,6 @@ function normalizeLevelRankingRows(rows) {
     if (completed) {
       current.completados += 1
       current.victorias += 1
-      current.estrellas += estimateLevelStars(score, time)
     }
     if (updatedAt && (!current.updatedAt || updatedAt > current.updatedAt)) current.updatedAt = updatedAt
 
@@ -1263,24 +1261,12 @@ function normalizeLevelRankingRows(rows) {
   return [...grouped.values()]
 }
 
-function buildLevelRanking(rows, type) {
-  const weekStart = getWeekStart()
-  const filtered = type === "semana"
-    ? rows.filter((row) => row.updatedAt && row.updatedAt >= weekStart)
-    : rows
-
-  return filtered
+function buildLevelRanking(rows) {
+  return rows
     .sort((a, b) => {
-      if (type === "victorias") return b.victorias - a.victorias || b.maxNivel - a.maxNivel || b.puntos - a.puntos
       return b.maxNivel - a.maxNivel || b.completados - a.completados || b.puntos - a.puntos
     })
-    .slice(0, 15)
-}
-
-function estimateLevelStars(score, time) {
-  if (score >= 450 || (time > 0 && time <= 180)) return 3
-  if (score >= 250 || (time > 0 && time <= 360)) return 2
-  return 1
+    .slice(0, 20)
 }
 
 function normalizeRankingRows(rows) {
@@ -1337,34 +1323,30 @@ function renderRanking(target, rows) {
 function renderLevelRanking(target, rows) {
   target.innerHTML = rows.length ? rows.map((row, index) => `
     <div class="ranking-row level-ranking-row ${row.usuario === state.user.usuario ? "current" : ""}">
-      <span class="rank-pos">#${index + 1}</span>
-      <div>
+      <span class="rank-pos level-rank-pos">#${index + 1}</span>
+      <div class="level-rank-player">
         <strong>${escapeHtml(row.usuario)}</strong>
-        <small>Nivel max. ${row.maxNivel} - ${row.completados}/${LEVELS.length} completados</small>
+        <div class="level-rank-progress" aria-label="Progreso ${Math.min(100, Math.round((row.maxNivel / LEVELS.length) * 100))}%">
+          <span style="width:${Math.min(100, Math.round((row.maxNivel / LEVELS.length) * 100))}%"></span>
+        </div>
+        <small>${row.completados}/${LEVELS.length} niveles completados</small>
       </div>
-      <span>${row.puntos} pts - ${row.estrellas} est. - ${formatRankingTime(row.tiempo)}</span>
+      <span class="level-rank-level">Nivel ${row.maxNivel}</span>
     </div>
   `).join("") : '<div class="status">Todavia no hay progreso del mapa.</div>'
 }
 
-function updateRankingColumnTitles(isLevelRanking) {
+function updateRankingLayout(isLevelRanking) {
+  const rankingsView = document.getElementById("rankingsView")
+  rankingsView?.classList.toggle("level-ranking-mode", isLevelRanking)
   const titles = document.querySelectorAll("#rankingsView .ranking-columns .panel h3")
   const labels = isLevelRanking
-    ? ["Avance del mapa", "Actividad semanal", "Niveles completados"]
+    ? ["Ranking del mapa"]
     : ["Global", "Semanal", "Victorias"]
 
   titles.forEach((title, index) => {
     title.textContent = labels[index] || title.textContent
   })
-}
-
-function formatRankingTime(seconds) {
-  const total = Number(seconds || 0)
-  if (!total) return "sin tiempo"
-  const hours = Math.floor(total / 3600)
-  const minutes = Math.floor((total % 3600) / 60)
-  if (hours) return `${hours}h ${minutes}m`
-  return `${minutes}m`
 }
 
 function getWeekStart() {
