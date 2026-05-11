@@ -3303,6 +3303,43 @@ body.sudoku-screen-shake{
   opacity:0.7;
 }
 
+.rank-node-cosmetics{
+  display:grid;
+  gap:6px;
+  width:100%;
+}
+
+.rank-cosmetic-btn{
+  width:100%;
+  min-height:30px;
+  padding:6px 8px;
+  border-radius:10px;
+  border:1px solid rgba(var(--node-rgb),0.26);
+  background:rgba(15,23,42,0.56);
+  color:#e2e8f0;
+  font-size:0.68rem;
+  font-weight:900;
+  line-height:1.15;
+  cursor:pointer;
+  overflow-wrap:anywhere;
+}
+
+.rank-cosmetic-btn:hover:not(:disabled){
+  border-color:rgba(var(--node-rgb),0.48);
+  background:linear-gradient(135deg, rgba(var(--node-rgb),0.2), rgba(15,23,42,0.72));
+}
+
+.rank-cosmetic-btn:disabled{
+  cursor:not-allowed;
+  opacity:0.72;
+}
+
+.rank-cosmetic-more{
+  color:rgba(226,232,240,0.68);
+  font-size:0.68rem;
+  font-weight:800;
+}
+
 .rank-node-level{
   display:block;
   color:color-mix(in srgb, var(--node-primary) 82%, white);

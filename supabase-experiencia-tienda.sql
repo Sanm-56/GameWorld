@@ -1086,6 +1086,12 @@ as $$
   end;
 $$;
 
+alter table public.historial_xp
+drop constraint if exists historial_xp_xp_ganado_check;
+
+alter table public.historial_xp
+add constraint historial_xp_xp_ganado_check check (xp_ganado >= 0);
+
 create or replace function public.admin_recompensa_aplicar_xp(p_usuario text, p_xp bigint)
 returns jsonb
 language plpgsql
