@@ -44,19 +44,13 @@ const GAME_NODE_ICONS = {
 }
 
 const RANKING_GAME_OPTIONS = [
-  { key: "todos", label: "Mini torneos", detail: "Solo salas competitivas", icon: "MT" },
-  { key: "nivel", label: "Todos los niveles", detail: "Solo modo individual", icon: "LV" },
+  { key: "todos", label: "Mini torneos", detail: "Todas las salas competitivas", icon: "MT" },
+  { key: "nivel", label: "Mapa de niveles", detail: "Progreso global 1-500", icon: "LV" },
   ...MINI_TOURNAMENT_GAMES.map((game) => ({
     key: game.key,
-    label: game.label,
+    label: `${game.label} Mini torneo`,
     detail: "Mini torneo",
     icon: game.label.slice(0, 2).toUpperCase(),
-  })),
-  ...MINI_TOURNAMENT_GAMES.map((game) => ({
-    key: `nivel:${game.key}`,
-    label: `${game.label} niveles`,
-    detail: "Ranking individual",
-    icon: GAME_NODE_ICONS[game.key] || game.label.slice(0, 2).toUpperCase(),
   })),
 ]
 
@@ -1181,16 +1175,20 @@ async function registerResult({ points, victory, origin, roomId, game = "nivel" 
 async function loadRankings() {
   if (!state.user) return
   setText(els.rankingStatus, "Cargando rankings...")
+
+  if (state.rankingGame === "nivel") {
+    updateRankingColumnTitles(true)
+    await loadLevelRankings()
+    return
+  }
+
+  updateRankingColumnTitles(false)
   
   let query = supabase
     .from("solitario_resultados")
     .select("usuario_id,usuario,puntos,victoria,created_at,juego,origen,sala_id")
 
-  if (state.rankingGame === "nivel") {
-    query = query.eq("origen", "nivel")
-  } else if (state.rankingGame.startsWith("nivel:")) {
-    query = query.eq("origen", "nivel").eq("juego", state.rankingGame.replace("nivel:", ""))
-  } else if (state.rankingGame !== "todos") {
+  if (state.rankingGame !== "todos") {
     query = query.eq("origen", "sala").eq("juego", state.rankingGame)
   } else {
     query = query.eq("origen", "sala")
@@ -1208,6 +1206,81 @@ async function loadRankings() {
   renderRanking(els.weeklyRanking, buildRanking(rows, "weekly"))
   renderRanking(els.winsRanking, buildRanking(rows, "wins"))
   setText(els.rankingStatus, "Rankings actualizados.")
+}
+
+async function loadLevelRankings() {
+  const { data, error } = await supabase
+    .from("progreso_niveles")
+    .select("usuario_id,usuario,nivel,juego,completado,puntaje,tiempo,updated_at")
+
+  if (error) {
+    console.error("Error cargando ranking global de niveles", error)
+    setText(els.rankingStatus, `No se pudo cargar el ranking de niveles: ${errorMessage(error, "revisa la consola de Supabase.")}`)
+    return
+  }
+
+  const rows = normalizeLevelRankingRows(data || [])
+  renderLevelRanking(els.globalRanking, buildLevelRanking(rows, "avance"))
+  renderLevelRanking(els.weeklyRanking, buildLevelRanking(rows, "semana"))
+  renderLevelRanking(els.winsRanking, buildLevelRanking(rows, "victorias"))
+  setText(els.rankingStatus, "Ranking global del mapa actualizado.")
+}
+
+function normalizeLevelRankingRows(rows) {
+  const grouped = new Map()
+  rows.forEach((row) => {
+    const key = row.usuario_id || row.usuario
+    const current = grouped.get(key) || {
+      usuario: row.usuario || key || "Jugador",
+      maxNivel: 0,
+      completados: 0,
+      puntos: 0,
+      tiempo: 0,
+      estrellas: 0,
+      victorias: 0,
+      updatedAt: null,
+    }
+
+    const level = Number(row.nivel || 0)
+    const score = Number(row.puntaje || 0)
+    const time = Number(row.tiempo || 0)
+    const completed = Boolean(row.completado)
+    const updatedAt = row.updated_at ? new Date(row.updated_at) : null
+
+    current.maxNivel = Math.max(current.maxNivel, level)
+    current.puntos += score
+    current.tiempo += time
+    if (completed) {
+      current.completados += 1
+      current.victorias += 1
+      current.estrellas += estimateLevelStars(score, time)
+    }
+    if (updatedAt && (!current.updatedAt || updatedAt > current.updatedAt)) current.updatedAt = updatedAt
+
+    grouped.set(key, current)
+  })
+
+  return [...grouped.values()]
+}
+
+function buildLevelRanking(rows, type) {
+  const weekStart = getWeekStart()
+  const filtered = type === "semana"
+    ? rows.filter((row) => row.updatedAt && row.updatedAt >= weekStart)
+    : rows
+
+  return filtered
+    .sort((a, b) => {
+      if (type === "victorias") return b.victorias - a.victorias || b.maxNivel - a.maxNivel || b.puntos - a.puntos
+      return b.maxNivel - a.maxNivel || b.completados - a.completados || b.puntos - a.puntos
+    })
+    .slice(0, 15)
+}
+
+function estimateLevelStars(score, time) {
+  if (score >= 450 || (time > 0 && time <= 180)) return 3
+  if (score >= 250 || (time > 0 && time <= 360)) return 2
+  return 1
 }
 
 function normalizeRankingRows(rows) {
@@ -1259,6 +1332,39 @@ function renderRanking(target, rows) {
       <span>${row.puntos} pts - ${row.victorias} vict.</span>
     </div>
   `).join("") : '<div class="status">Todavia no hay resultados.</div>'
+}
+
+function renderLevelRanking(target, rows) {
+  target.innerHTML = rows.length ? rows.map((row, index) => `
+    <div class="ranking-row level-ranking-row ${row.usuario === state.user.usuario ? "current" : ""}">
+      <span class="rank-pos">#${index + 1}</span>
+      <div>
+        <strong>${escapeHtml(row.usuario)}</strong>
+        <small>Nivel max. ${row.maxNivel} - ${row.completados}/${LEVELS.length} completados</small>
+      </div>
+      <span>${row.puntos} pts - ${row.estrellas} est. - ${formatRankingTime(row.tiempo)}</span>
+    </div>
+  `).join("") : '<div class="status">Todavia no hay progreso del mapa.</div>'
+}
+
+function updateRankingColumnTitles(isLevelRanking) {
+  const titles = document.querySelectorAll("#rankingsView .ranking-columns .panel h3")
+  const labels = isLevelRanking
+    ? ["Avance del mapa", "Actividad semanal", "Niveles completados"]
+    : ["Global", "Semanal", "Victorias"]
+
+  titles.forEach((title, index) => {
+    title.textContent = labels[index] || title.textContent
+  })
+}
+
+function formatRankingTime(seconds) {
+  const total = Number(seconds || 0)
+  if (!total) return "sin tiempo"
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  if (hours) return `${hours}h ${minutes}m`
+  return `${minutes}m`
 }
 
 function getWeekStart() {
