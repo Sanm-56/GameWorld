@@ -73,6 +73,7 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     usuario,
     juego,
     posicion,
+    partidaId: partidaGuardada?.id || null,
     origen: origenExperiencia,
     bonusXPAplicado: snapshotBonusXP?.bonusXPAplicado,
   })

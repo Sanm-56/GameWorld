@@ -1121,12 +1121,13 @@ begin
   nivel_nuevo := nivel_anterior;
   xp_nuevo := greatest(coalesce(actual.xp, 0), 0) + greatest(coalesce(p_xp, 0), 0);
 
-  while nivel_nuevo < 3000 loop
+  if nivel_nuevo < 3000 then
     requisito := public.admin_recompensa_xp_requerido(nivel_nuevo);
-    exit when xp_nuevo < requisito;
-    xp_nuevo := xp_nuevo - requisito;
-    nivel_nuevo := nivel_nuevo + 1;
-  end loop;
+    if xp_nuevo >= requisito then
+      xp_nuevo := 0;
+      nivel_nuevo := nivel_nuevo + 1;
+    end if;
+  end if;
 
   if nivel_nuevo >= 3000 then
     xp_nuevo := 0;

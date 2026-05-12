@@ -643,8 +643,20 @@ create table if not exists public.temporadas (
 create extension if not exists pg_cron with schema extensions;
 
 insert into public.temporadas (id, nombre, fecha_inicio, fecha_fin, activa, created_at)
-select id, nombre, fecha_inicio, fecha_fin, activa, created_at
-from public.temporadas_nivel
+select
+  tn.id,
+  tn.nombre,
+  tn.fecha_inicio,
+  tn.fecha_fin,
+  tn.activa
+    and not exists (
+      select 1
+      from public.temporadas t
+      where t.activa = true
+        and t.id <> tn.id
+    ),
+  tn.created_at
+from public.temporadas_nivel tn
 on conflict (id) do update set
   nombre = excluded.nombre,
   fecha_inicio = excluded.fecha_inicio,
@@ -755,7 +767,11 @@ immutable
 as $$
   select case
     when nivel_actual >= 3000 then 0
-    else (100 + floor(power(greatest(nivel_actual - 1, 0), 1.45) * 35)::integer + ((nivel_actual - 1) * 15)) * 3
+    else round(
+      220
+      + (greatest(nivel_actual - 1, 0) * 18)
+      + (power(greatest(nivel_actual - 1, 0), 1.18) * 14)
+    )::integer
   end;
 $$;
 

@@ -206,9 +206,14 @@ export function calcularNivelPorXp(xpTotal = 0) {
 }
 
 export function calcularProgresoNivelActual(nivelActual = 1, xpNivelActual = 0) {
-  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
-  const xp = Math.max(0, Number(xpNivelActual) || 0)
-  const xpSiguiente = xpNecesarioParaNivel(nivel)
+  let nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  let xp = Math.max(0, Number(xpNivelActual) || 0)
+  let xpSiguiente = xpNecesarioParaNivel(nivel)
+  if (nivel < NIVEL_MAXIMO && xp >= xpSiguiente) {
+    nivel += 1
+    xp = 0
+    xpSiguiente = xpNecesarioParaNivel(nivel)
+  }
   const xpEnNivel = nivel >= NIVEL_MAXIMO ? 0 : Math.min(xp, xpSiguiente)
   const porcentaje = nivel >= NIVEL_MAXIMO
     ? 100
@@ -409,6 +414,7 @@ export async function registrarXp({
   bonusXPAplicado = null,
   aplicarMultiplicadores = true,
   generarRecompensasProgresion = true,
+  aplicarAProgreso = true,
 }) {
   if (!usuario) return null
 
@@ -428,17 +434,51 @@ export async function registrarXp({
 
   const key = accionKey || `${accion}:${Date.now()}:${Math.random().toString(16).slice(2)}`
 
-  if (await existeRegistroXp(usuario, key)) return null
-
   const progresoAnterior = await obtenerProgresoNivel(usuario)
-  const progresoConXp = aplicarXpAProgreso(progresoAnterior, xp)
-  const eventosRecompensa = generarRecompensasProgresion
+  const progresoConXp = aplicarAProgreso
+    ? aplicarXpAProgreso(progresoAnterior, xp)
+    : crearProgresoSinAvance(progresoAnterior)
+  const eventosRecompensa = aplicarAProgreso && generarRecompensasProgresion
     ? await calcularEventosRecompensaProgresion(usuario, progresoAnterior.nivel, progresoConXp)
     : []
   const progresoFinal = progresoConXp
 
   const subioNivel = progresoFinal.nivel > progresoAnterior.nivel
   const calculado = calcularProgresoNivelActual(progresoFinal.nivel, progresoFinal.xp)
+
+  const detalleHistorial = {
+    ...detalle,
+    xpBase,
+    xpRecompensas: 0,
+    xpProgresoAntes: progresoAnterior.xp,
+    xpProgresoDespues: progresoFinal.xp,
+    xpProgresoConsumida: progresoConXp.xpConsumida,
+    xpProgresoDescartada: progresoConXp.xpDescartada,
+    aplicadoAProgreso: aplicarAProgreso,
+    juego,
+    origen,
+    multiplicadorOrigen,
+    bonusTemporada,
+    bonusUsuario,
+    bonusRango: bonusRango.multiplicadorExp,
+    bonusRangoPorcentaje: bonusRango.exp,
+    rangoActivo: bonusRango.titulo,
+  }
+
+  const { error: historialError } = await supabase
+    .from('historial_xp')
+    .insert({
+      usuario_id: usuario,
+      accion,
+      accion_key: key,
+      xp_ganado: xp,
+      detalle: detalleHistorial,
+    })
+
+  if (historialError) {
+    if (historialError.code !== '23505') console.warn('No se pudo registrar historial de XP', historialError)
+    return null
+  }
 
   const { error: progresoError } = await supabase
     .from('progreso_nivel')
@@ -452,32 +492,6 @@ export async function registrarXp({
   if (progresoError) {
     console.warn('No se pudo actualizar progreso de nivel', progresoError)
     return null
-  }
-
-  const { error: historialError } = await supabase
-    .from('historial_xp')
-    .insert({
-      usuario_id: usuario,
-      accion,
-      accion_key: key,
-      xp_ganado: xp,
-      detalle: {
-        ...detalle,
-        xpBase,
-        xpRecompensas: 0,
-        juego,
-        origen,
-        multiplicadorOrigen,
-        bonusTemporada,
-        bonusUsuario,
-        bonusRango: bonusRango.multiplicadorExp,
-        bonusRangoPorcentaje: bonusRango.exp,
-        rangoActivo: bonusRango.titulo,
-      },
-    })
-
-  if (historialError) {
-    console.warn('No se pudo registrar historial de XP', historialError)
   }
 
   await registrarHistorialRecompensas(usuario, eventosRecompensa)
@@ -496,6 +510,10 @@ export async function registrarXp({
     nivelAnterior: progresoAnterior.nivel,
     nivelActual: calculado.nivel,
     subioNivel,
+    xpProgresoAntes: progresoAnterior.xp,
+    xpProgresoDespues: progresoFinal.xp,
+    xpProgresoConsumida: progresoConXp.xpConsumida,
+    xpProgresoDescartada: progresoConXp.xpDescartada,
     xpRecompensas: 0,
     recompensas: eventosRecompensa,
   }
@@ -543,8 +561,14 @@ export async function registrarXpPorPartida({ usuario, juego, posicion, partidaI
   }
 
   const resultados = []
+  let progresoBloqueadoPorSubida = false
   for (const registro of registros) {
-    resultados.push(await registrarXp(registro))
+    const resultado = await registrarXp({
+      ...registro,
+      aplicarAProgreso: !progresoBloqueadoPorSubida,
+    })
+    if (resultado?.subioNivel) progresoBloqueadoPorSubida = true
+    resultados.push(resultado)
   }
   return resultados
 }
@@ -554,10 +578,11 @@ export async function registrarXpPorLogros(usuario, logros, origen = 'perfil') {
 
   const desbloqueados = logros.filter((logro) => logro?.unlocked && logro?.title)
   const resultados = []
+  let progresoBloqueadoPorSubida = false
 
   for (const logro of desbloqueados) {
     const rareza = normalizarRarezaLogro(logro.rareza || logro.rarity || 'common')
-    resultados.push(await registrarXp({
+    const resultado = await registrarXp({
       usuario,
       accion: 'logro_desbloqueado',
       xpGanado: calcularRecompensaLogro(rareza),
@@ -565,25 +590,55 @@ export async function registrarXpPorLogros(usuario, logros, origen = 'perfil') {
       accionKey: `logro:${origen}:${logro.title}:${logro.howTo || ''}`,
       origen: 'recompensa',
       aplicarMultiplicadores: false,
-    }))
+      aplicarAProgreso: !progresoBloqueadoPorSubida,
+    })
+    if (resultado?.subioNivel) progresoBloqueadoPorSubida = true
+    resultados.push(resultado)
   }
 
   return resultados
 }
 
+function crearProgresoSinAvance(progreso) {
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(progreso?.nivel) || 1)))
+  const xp = Math.max(0, Number(progreso?.xp) || 0)
+  return {
+    nivel,
+    xp,
+    xpConsumida: 0,
+    xpDescartada: 0,
+  }
+}
+
 function aplicarXpAProgreso(progreso, xpGanado) {
   let nuevoNivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(progreso?.nivel) || 1)))
-  let nuevoXp = Math.max(0, Number(progreso?.xp) || 0) + Math.max(0, Number(xpGanado) || 0)
+  const xpAnterior = Math.max(0, Number(progreso?.xp) || 0)
+  const xpEvento = Math.max(0, Number(xpGanado) || 0)
+  let nuevoXp = xpAnterior + xpEvento
+  let xpConsumida = 0
+  let xpDescartada = 0
 
-  while (nuevoNivel < NIVEL_MAXIMO) {
+  if (nuevoNivel < NIVEL_MAXIMO) {
     const requisitoNivel = xpNecesarioParaNivel(nuevoNivel)
-    if (nuevoXp < requisitoNivel) break
-    nuevoXp -= requisitoNivel
-    nuevoNivel += 1
+    if (nuevoXp >= requisitoNivel) {
+      xpConsumida = Math.max(0, requisitoNivel - xpAnterior)
+      xpDescartada = Math.max(0, nuevoXp - requisitoNivel)
+      nuevoXp = 0
+      nuevoNivel += 1
+    }
   }
 
-  if (nuevoNivel >= NIVEL_MAXIMO) nuevoXp = 0
-  return { nivel: nuevoNivel, xp: nuevoXp }
+  if (nuevoNivel >= NIVEL_MAXIMO) {
+    xpDescartada += nuevoXp
+    nuevoXp = 0
+  }
+
+  return {
+    nivel: nuevoNivel,
+    xp: nuevoXp,
+    xpConsumida,
+    xpDescartada,
+  }
 }
 
 async function calcularEventosRecompensaProgresion(usuario, nivelAnterior, progresoNuevo, ignorarKeys = new Set()) {
