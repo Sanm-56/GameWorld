@@ -536,6 +536,23 @@ function obtenerRecompensaCosmeticaDisponible(cosmeticoId) {
   }
 }
 
+async function equiparFondoDeRango(rango, action = 'equip') {
+  if (!usuario) return { ok: false, error: 'Usuario invalido' }
+
+  if (action === 'unequip') {
+    const resultado = await desequiparCosmetico(usuario, 'fondo')
+    if (resultado?.ok) fondoEquipadoActual = null
+    return resultado
+  }
+
+  const fondo = obtenerFondoCosmeticoRango(rango)
+  if (!fondo) return { ok: false, error: 'Fondo de rango no disponible' }
+
+  const resultado = await equiparCosmetico(usuario, fondo.id)
+  if (resultado?.ok) fondoEquipadoActual = resultado.cosmetico
+  return resultado
+}
+
 function rangoEstaDesbloqueado(rango, nivel) {
   return Boolean(rango?.desde && rango.desde <= (Number(nivel) || 1))
 }
@@ -776,7 +793,7 @@ function etiquetaBotonCosmeticoRuta(cosmetico) {
 function instalarEventosRangos() {
   if (!rangoRutaListEl) return
   rangoRutaListEl.querySelectorAll('[data-rank-action]').forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       if (!usuario || !progresoNivelActual) return
       const action = button.dataset.rankAction
       const titulo = action === 'unequip' ? 'Novato' : button.dataset.rankTitle
@@ -787,8 +804,12 @@ function instalarEventosRangos() {
       if (action === 'equip' && !rangoEstaDesbloqueado(rango, progresoNivelActual.nivel)) return
 
       const rangoFinal = rango || rangosTodos[0]
+      button.disabled = true
+      button.textContent = action === 'unequip' ? 'Desequipando...' : 'Equipando...'
+      await equiparFondoDeRango(rangoFinal, action)
       guardarRangoEquipado(usuario, crearRangoGuardable(rangoFinal, rangosTodos))
       aplicarRangoEquipado(rangoFinal.titulo)
+      await aplicarPersonalizacionPerfil()
       actualizarBonusRangoPerfil(rangoFinal, rangosTodos)
       renderRutaRangos(progresoNivelActual)
     })
@@ -808,7 +829,9 @@ function instalarEventosRangos() {
         ? await desequiparCosmetico(usuario, recompensa.cosmetico.tipo)
         : await equiparCosmetico(usuario, cosmeticoId)
       if (resultado?.ok) {
-        fondoEquipadoActual = action === 'unequip' ? null : resultado.cosmetico
+        if (recompensa.cosmetico.tipo === 'fondo') {
+          fondoEquipadoActual = action === 'unequip' ? null : resultado.cosmetico
+        }
         await aplicarPersonalizacionPerfil()
         renderRutaRangos(progresoNivelActual)
         if (resultado.sincronizado === false) button.title = 'Cambio aplicado en este dispositivo. Se reintentara sincronizar al actualizar.'
