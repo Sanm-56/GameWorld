@@ -301,19 +301,20 @@ export async function equiparCosmetico(usuario, cosmeticoId) {
 
   if (error) {
     console.warn("No se pudo equipar cosmetico en Supabase", error)
-    return { ok: false, cosmetico: payload, error }
+    return { ok: true, cosmetico: payload, sincronizado: false, error }
   }
 
-  return { ok: true, cosmetico: payload }
+  return { ok: true, cosmetico: payload, sincronizado: true }
 }
 
 export async function obtenerCosmeticoEquipado(usuario, tipoPreferido = "fondo") {
   const local = leerCosmeticoLocal(usuario, tipoPreferido)
   if (!usuario) return local
+  if (!tipoPreferido) return await obtenerCualquierCosmeticoEquipado(usuario)
 
   const { data, error } = await supabase
     .from("usuario_cosmeticos")
-    .select("cosmetico_id,tipo,rareza,equipado")
+    .select("cosmetico_id,tipo,rareza,equipado,created_at")
     .eq("usuario_id", usuario)
     .eq("equipado", true)
     .eq("tipo", tipoPreferido)
@@ -328,11 +329,12 @@ export async function obtenerCosmeticoEquipado(usuario, tipoPreferido = "fondo")
 
   if (data) {
     const remoto = enriquecerCosmeticoRemoto(data)
+    if (cosmeticoLocalMasReciente(local, remoto)) return local
     guardarCosmeticoLocal(usuario, remoto)
     return remoto
   }
 
-  return local || await obtenerCualquierCosmeticoEquipado(usuario)
+  return local
 }
 
 export function obtenerMonedas(usuario) {
@@ -873,7 +875,7 @@ function emitirCambioMonedas(usuario) {
 async function obtenerCualquierCosmeticoEquipado(usuario) {
   const { data, error } = await supabase
     .from("usuario_cosmeticos")
-    .select("cosmetico_id,tipo,rareza,equipado")
+    .select("cosmetico_id,tipo,rareza,equipado,created_at")
     .eq("usuario_id", usuario)
     .eq("equipado", true)
     .order("created_at", { ascending: false })
@@ -887,6 +889,8 @@ async function obtenerCualquierCosmeticoEquipado(usuario) {
 
   if (!data) return leerCosmeticoLocal(usuario, null)
   const remoto = enriquecerCosmeticoRemoto(data)
+  const local = leerCosmeticoLocal(usuario, remoto.tipo)
+  if (cosmeticoLocalMasReciente(local, remoto)) return local
   guardarCosmeticoLocal(usuario, remoto)
   return remoto
 }
@@ -937,6 +941,14 @@ function normalizarCosmeticoLocal(cosmetico) {
     rareza_visual: cosmetico?.rareza_visual || catalogo?.rareza || cosmetico?.rareza || "Normal",
     equipado: cosmetico?.equipado ?? true,
   }
+}
+
+function cosmeticoLocalMasReciente(local, remoto) {
+  if (!local?.cosmetico_id || !remoto?.cosmetico_id) return false
+  if (local.cosmetico_id === remoto.cosmetico_id) return false
+  const fechaLocal = Date.parse(local.created_at || "")
+  const fechaRemota = Date.parse(remoto.created_at || "")
+  return Number.isFinite(fechaLocal) && (!Number.isFinite(fechaRemota) || fechaLocal > fechaRemota)
 }
 
 function leerObjeto(key) {

@@ -127,6 +127,7 @@ let recompensasCosmeticasRuta = []
 let chatGlobalCanal = null
 let chatPrivadoCanal = null
 let chatPrivadoDestino = ''
+let refrescoPersonalizacionPerfil = 0
 
 const RANGOS_VISUALES = {
   novato: { tier: 'novato', emblem: 'NV', motif: 'stars', era: 'astral', material: 'space-glass', density: 'minimal', geometry: 'particles' },
@@ -406,6 +407,13 @@ function guardarRangoEquipado(usuarioId, rango) {
   if (!usuarioId) return
   guardarRangoEquipadoBonus(usuarioId, rango)
   guardarRangoEquipadoRemotoBonus(usuarioId, rango)
+}
+
+async function aplicarPersonalizacionPerfil() {
+  if (!perfilHeroEl || !usuario) return
+  const version = ++refrescoPersonalizacionPerfil
+  await aplicarPersonalizacionUsuario(perfilHeroEl, usuario)
+  if (version !== refrescoPersonalizacionPerfil) return
 }
 
 async function cargarRecompensasCosmeticasRuta(usuarioId, nivelActual = 1) {
@@ -729,8 +737,9 @@ function instalarEventosRangos() {
       button.textContent = 'Equipando...'
       const resultado = await equiparCosmetico(usuario, cosmeticoId)
       if (resultado?.ok) {
-        await aplicarPersonalizacionUsuario(perfilHeroEl, usuario)
+        await aplicarPersonalizacionPerfil()
         button.textContent = 'Equipado'
+        if (resultado.sincronizado === false) button.title = 'Equipado en este dispositivo. Se reintentara sincronizar al actualizar.'
       } else {
         console.warn('No se pudo equipar cosmetico de ruta', resultado?.error)
         button.disabled = false
@@ -969,7 +978,7 @@ async function cargarPerfil() {
   nombreUsuarioEl.innerText = usuario
   if (perfilAvatarEl) perfilAvatarEl.innerText = inicialesUsuario(usuario)
   renderPill(pillUsuarioEl, 'ID', usuario)
-  aplicarPersonalizacionUsuario(document.querySelector('.hero.profile-card'), usuario)
+  await aplicarPersonalizacionPerfil()
   await sincronizarMonedasUsuario(usuario)
 
   const { data: userData } = await supabase
@@ -5386,8 +5395,9 @@ cargarPerfil()
 instalarChatSocial()
 
 if (usuario) {
-  iniciarSincronizacionRecompensasUsuario(usuario, () => {
+  iniciarSincronizacionRecompensasUsuario(usuario, (evento) => {
     renderPanelMonedas()
+    if (evento?.tipo === 'cosmetico') aplicarPersonalizacionPerfil()
   })
 }
 

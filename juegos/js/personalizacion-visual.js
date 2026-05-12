@@ -1,14 +1,19 @@
 import { obtenerCosmeticoEquipado } from "./tienda.js"
 
+const solicitudesPersonalizacion = new WeakMap()
+
 export async function aplicarPersonalizacionUsuario(elemento, usuario) {
   if (!elemento || !usuario) return
 
+  const solicitud = (solicitudesPersonalizacion.get(elemento) || 0) + 1
+  solicitudesPersonalizacion.set(elemento, solicitud)
   const esPerfil = elemento.classList.contains("profile-card") || elemento.classList.contains("hero")
   const fondo = await obtenerCosmeticoEquipado(usuario, "fondo")
   const marco = esPerfil ? await obtenerCosmeticoEquipado(usuario, "marco") : null
   const identificador = esPerfil ? await obtenerCosmeticoEquipado(usuario, "id") : null
   const cosmetico = fondo || marco || identificador
 
+  if (solicitudesPersonalizacion.get(elemento) !== solicitud) return
   limpiarPersonalizacion(elemento)
   if (!cosmetico) return
 
@@ -51,6 +56,18 @@ export function instalarEstilosPersonalizacion() {
         0 22px 60px rgba(0,0,0,0.42),
         0 0 calc(var(--cosmetic-glow, 28) * 1px) hsl(var(--cosmetic-hue, 204) 92% 58% / 0.16),
         inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    .hero.profile-card.perfil-fondo-equipado,
+    .hero.profile-card.perfil-fondo-equipado[data-rank-tier],
+    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="advanced-"],
+    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="entity-"],
+    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="rupture-"],
+    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="lawless-"],
+    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="final-"]{
+      background:
+        radial-gradient(circle at 16% 14%, hsl(var(--cosmetic-hue, 204) 92% 58% / 0.28), transparent 34%),
+        radial-gradient(circle at 82% 20%, hsl(var(--cosmetic-accent, 280) 92% 62% / 0.18), transparent 32%),
+        linear-gradient(135deg, hsl(var(--cosmetic-hue, 204) 64% 18% / 0.9), rgba(2,6,23,0.96) 58%, hsl(var(--cosmetic-accent, 280) 70% 14% / 0.82));
     }
     .perfil-marco-equipado{
       border-color:hsl(var(--cosmetic-marco-hue, 204) 92% 62% / 0.48) !important;
