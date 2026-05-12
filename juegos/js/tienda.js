@@ -286,8 +286,8 @@ export async function equiparCosmetico(usuario, cosmeticoId) {
   })
 
   guardarCosmeticoLocal(usuario, payload)
-  sincronizarEquipamientoCosmeticoRemoto(usuario, payload)
-  return { ok: true, cosmetico: payload, sincronizado: "pendiente" }
+  const sincronizado = await sincronizarEquipamientoCosmeticoRemoto(usuario, payload)
+  return { ok: true, cosmetico: payload, sincronizado }
 }
 
 export async function desequiparCosmetico(usuario, tipo = "fondo") {
@@ -295,8 +295,8 @@ export async function desequiparCosmetico(usuario, tipo = "fondo") {
   if (!usuario || !tipoLimpio) return { ok: false, error: "Cosmetico invalido" }
 
   quitarCosmeticoLocal(usuario, tipoLimpio)
-  sincronizarDesequipamientoCosmeticoRemoto(usuario, tipoLimpio)
-  return { ok: true, sincronizado: "pendiente" }
+  const sincronizado = await sincronizarDesequipamientoCosmeticoRemoto(usuario, tipoLimpio)
+  return { ok: true, sincronizado }
 }
 
 async function sincronizarDesequipamientoCosmeticoRemoto(usuario, tipo) {
@@ -309,11 +309,14 @@ async function sincronizarDesequipamientoCosmeticoRemoto(usuario, tipo) {
 
   if (error) {
     console.warn("No se pudo desequipar cosmetico en Supabase", error)
+    return false
   }
+
+  return true
 }
 
 async function sincronizarEquipamientoCosmeticoRemoto(usuario, payload) {
-  await desactivarCosmeticosDelTipo(usuario, payload.tipo)
+  const desactivado = await desactivarCosmeticosDelTipo(usuario, payload.tipo)
 
   const { error } = await supabase
     .from("usuario_cosmeticos")
@@ -328,7 +331,10 @@ async function sincronizarEquipamientoCosmeticoRemoto(usuario, payload) {
 
   if (error) {
     console.warn("No se pudo equipar cosmetico en Supabase", error)
+    return false
   }
+
+  return desactivado !== false
 }
 
 export async function obtenerCosmeticoEquipado(usuario, tipoPreferido = "fondo") {
@@ -821,7 +827,7 @@ function rarezaCompatibleSupabase(rareza) {
 }
 
 async function desactivarCosmeticosDelTipo(usuario, tipo) {
-  if (!usuario || !tipo) return
+  if (!usuario || !tipo) return false
   const { error } = await supabase
     .from("usuario_cosmeticos")
     .update({ equipado: false })
@@ -832,6 +838,8 @@ async function desactivarCosmeticosDelTipo(usuario, tipo) {
   if (error && error.code !== "42501") {
     console.warn("No se pudieron desactivar cosmeticos previos", error)
   }
+
+  return !error
 }
 
 function guardarMonedas(usuario, cantidad) {

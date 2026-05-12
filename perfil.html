@@ -3149,6 +3149,7 @@ body.sudoku-screen-shake{
   border-radius:999px;
   background:linear-gradient(90deg, var(--node-primary), transparent);
   opacity:0.64;
+  pointer-events:none;
 }
 
 .rank-node[data-rank-tier^="advanced-"]{
@@ -3284,6 +3285,8 @@ body.sudoku-screen-shake{
 }
 
 .rank-equip-btn{
+  position:relative;
+  z-index:2;
   width:100%;
   min-height:34px;
   border:0;
@@ -3312,6 +3315,8 @@ body.sudoku-screen-shake{
 }
 
 .rank-cosmetic-btn{
+  position:relative;
+  z-index:2;
   width:100%;
   min-height:30px;
   padding:6px 8px;

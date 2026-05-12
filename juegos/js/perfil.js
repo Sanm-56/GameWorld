@@ -806,12 +806,19 @@ function instalarEventosRangos() {
       const rangoFinal = rango || rangosTodos[0]
       button.disabled = true
       button.textContent = action === 'unequip' ? 'Desequipando...' : 'Equipando...'
-      await equiparFondoDeRango(rangoFinal, action)
+      const resultado = await equiparFondoDeRango(rangoFinal, action)
+      if (!resultado?.ok) {
+        console.warn('No se pudo equipar fondo desde ruta de rangos', resultado?.error)
+        button.disabled = false
+        button.textContent = action === 'unequip' ? 'Desequipar' : 'Reintentar'
+        return
+      }
       guardarRangoEquipado(usuario, crearRangoGuardable(rangoFinal, rangosTodos))
       aplicarRangoEquipado(rangoFinal.titulo)
       actualizarBonusRangoPerfil(rangoFinal, rangosTodos)
+      if (resultado.sincronizado === false) console.warn('Fondo aplicado localmente, pero Supabase no confirmo la sincronizacion.')
       renderRutaRangos(progresoNivelActual)
-      aplicarPersonalizacionPerfil()
+      await aplicarPersonalizacionPerfil()
     })
   })
 
@@ -832,9 +839,9 @@ function instalarEventosRangos() {
         if (recompensa.cosmetico.tipo === 'fondo') {
           fondoEquipadoActual = action === 'unequip' ? null : resultado.cosmetico
         }
+        if (resultado.sincronizado === false) console.warn('Cosmetico aplicado localmente, pero Supabase no confirmo la sincronizacion.')
         renderRutaRangos(progresoNivelActual)
-        aplicarPersonalizacionPerfil()
-        if (resultado.sincronizado === false) button.title = 'Cambio aplicado en este dispositivo. Se reintentara sincronizar al actualizar.'
+        await aplicarPersonalizacionPerfil()
       } else {
         console.warn('No se pudo equipar cosmetico de ruta', resultado?.error)
         button.disabled = false
@@ -929,6 +936,7 @@ function instalarDragRutaRangos() {
   rangoRutaListEl.addEventListener('pointerdown', (event) => {
     if (event.pointerType === 'touch') return
     if (event.button !== undefined && event.button !== 0) return
+    if (event.target.closest('button, a, input, select, textarea, [role="button"]')) return
     activo = true
     inicioX = event.clientX
     scrollInicial = rangoRutaListEl.scrollLeft
