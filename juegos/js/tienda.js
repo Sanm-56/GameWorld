@@ -286,6 +286,33 @@ export async function equiparCosmetico(usuario, cosmeticoId) {
   })
 
   guardarCosmeticoLocal(usuario, payload)
+  sincronizarEquipamientoCosmeticoRemoto(usuario, payload)
+  return { ok: true, cosmetico: payload, sincronizado: "pendiente" }
+}
+
+export async function desequiparCosmetico(usuario, tipo = "fondo") {
+  const tipoLimpio = String(tipo || "fondo").trim()
+  if (!usuario || !tipoLimpio) return { ok: false, error: "Cosmetico invalido" }
+
+  quitarCosmeticoLocal(usuario, tipoLimpio)
+  sincronizarDesequipamientoCosmeticoRemoto(usuario, tipoLimpio)
+  return { ok: true, sincronizado: "pendiente" }
+}
+
+async function sincronizarDesequipamientoCosmeticoRemoto(usuario, tipo) {
+  const { error } = await supabase
+    .from("usuario_cosmeticos")
+    .update({ equipado: false })
+    .eq("usuario_id", usuario)
+    .eq("tipo", tipo)
+    .eq("equipado", true)
+
+  if (error) {
+    console.warn("No se pudo desequipar cosmetico en Supabase", error)
+  }
+}
+
+async function sincronizarEquipamientoCosmeticoRemoto(usuario, payload) {
   await desactivarCosmeticosDelTipo(usuario, payload.tipo)
 
   const { error } = await supabase
@@ -301,37 +328,14 @@ export async function equiparCosmetico(usuario, cosmeticoId) {
 
   if (error) {
     console.warn("No se pudo equipar cosmetico en Supabase", error)
-    return { ok: true, cosmetico: payload, sincronizado: false, error }
   }
-
-  return { ok: true, cosmetico: payload, sincronizado: true }
-}
-
-export async function desequiparCosmetico(usuario, tipo = "fondo") {
-  const tipoLimpio = String(tipo || "fondo").trim()
-  if (!usuario || !tipoLimpio) return { ok: false, error: "Cosmetico invalido" }
-
-  quitarCosmeticoLocal(usuario, tipoLimpio)
-
-  const { error } = await supabase
-    .from("usuario_cosmeticos")
-    .update({ equipado: false })
-    .eq("usuario_id", usuario)
-    .eq("tipo", tipoLimpio)
-    .eq("equipado", true)
-
-  if (error) {
-    console.warn("No se pudo desequipar cosmetico en Supabase", error)
-    return { ok: true, sincronizado: false, error }
-  }
-
-  return { ok: true, sincronizado: true }
 }
 
 export async function obtenerCosmeticoEquipado(usuario, tipoPreferido = "fondo") {
   const local = leerCosmeticoLocal(usuario, tipoPreferido)
   if (!usuario) return local
   if (!tipoPreferido) return await obtenerCualquierCosmeticoEquipado(usuario)
+  if (cosmeticoLocalReciente(local)) return local
 
   const { data, error } = await supabase
     .from("usuario_cosmeticos")
@@ -986,6 +990,12 @@ function cosmeticoLocalMasReciente(local, remoto) {
   const fechaLocal = Date.parse(local.created_at || "")
   const fechaRemota = Date.parse(remoto.created_at || "")
   return Number.isFinite(fechaLocal) && (!Number.isFinite(fechaRemota) || fechaLocal > fechaRemota)
+}
+
+function cosmeticoLocalReciente(local) {
+  if (!local?.cosmetico_id) return false
+  const fechaLocal = Date.parse(local.created_at || "")
+  return Number.isFinite(fechaLocal) && Date.now() - fechaLocal < 60000
 }
 
 function leerObjeto(key) {

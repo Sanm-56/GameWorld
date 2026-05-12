@@ -31,7 +31,7 @@ export function leerRangoEquipado(usuario) {
 export function guardarRangoEquipado(usuario, rango) {
   if (!usuario) return
   const datos = leerObjetoLocal(RANGO_EQUIPADO_KEY)
-  datos[usuario] = normalizarRangoGuardado(rango)
+  datos[usuario] = normalizarRangoGuardado({ ...rango, updated_at: new Date().toISOString() })
   localStorage.setItem(RANGO_EQUIPADO_KEY, JSON.stringify(datos))
 }
 
@@ -98,10 +98,13 @@ export async function sincronizarRangoEquipado(usuario, rangos = []) {
     .find((rango) => slugRango(rango.titulo) === slug)
 
   if (!remoto) return local
+  if (rangoLocalMasReciente(local, data)) return local
+
   const guardable = normalizarRangoGuardado({
     ...remoto,
     indice: Math.max(0, rangos.findIndex((rango) => slugRango(rango.titulo) === slug)),
     totalRangos: Math.max(1, rangos.length || 1),
+    updated_at: data.created_at,
   })
   guardarRangoEquipado(usuario, guardable)
   return guardable
@@ -168,7 +171,15 @@ function normalizarRangoGuardado(rango) {
     hasta: Math.max(1, Math.trunc(Number(rango.hasta) || rango.desde || 1)),
     indice: Math.max(0, Math.trunc(Number(rango.indice) || 0)),
     totalRangos: Math.max(1, Math.trunc(Number(rango.totalRangos) || 1)),
+    updated_at: String(rango.updated_at || ''),
   }
+}
+
+function rangoLocalMasReciente(local, remoto) {
+  if (!local?.titulo || !remoto?.created_at) return false
+  const fechaLocal = Date.parse(local.updated_at || '')
+  const fechaRemota = Date.parse(remoto.created_at || '')
+  return Number.isFinite(fechaLocal) && (!Number.isFinite(fechaRemota) || fechaLocal > fechaRemota)
 }
 
 function obtenerTramoBonus(progreso) {

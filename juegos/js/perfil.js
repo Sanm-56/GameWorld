@@ -809,9 +809,9 @@ function instalarEventosRangos() {
       await equiparFondoDeRango(rangoFinal, action)
       guardarRangoEquipado(usuario, crearRangoGuardable(rangoFinal, rangosTodos))
       aplicarRangoEquipado(rangoFinal.titulo)
-      await aplicarPersonalizacionPerfil()
       actualizarBonusRangoPerfil(rangoFinal, rangosTodos)
       renderRutaRangos(progresoNivelActual)
+      aplicarPersonalizacionPerfil()
     })
   })
 
@@ -832,8 +832,8 @@ function instalarEventosRangos() {
         if (recompensa.cosmetico.tipo === 'fondo') {
           fondoEquipadoActual = action === 'unequip' ? null : resultado.cosmetico
         }
-        await aplicarPersonalizacionPerfil()
         renderRutaRangos(progresoNivelActual)
+        aplicarPersonalizacionPerfil()
         if (resultado.sincronizado === false) button.title = 'Cambio aplicado en este dispositivo. Se reintentara sincronizar al actualizar.'
       } else {
         console.warn('No se pudo equipar cosmetico de ruta', resultado?.error)
