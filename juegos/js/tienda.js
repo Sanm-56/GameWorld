@@ -307,6 +307,27 @@ export async function equiparCosmetico(usuario, cosmeticoId) {
   return { ok: true, cosmetico: payload, sincronizado: true }
 }
 
+export async function desequiparCosmetico(usuario, tipo = "fondo") {
+  const tipoLimpio = String(tipo || "fondo").trim()
+  if (!usuario || !tipoLimpio) return { ok: false, error: "Cosmetico invalido" }
+
+  quitarCosmeticoLocal(usuario, tipoLimpio)
+
+  const { error } = await supabase
+    .from("usuario_cosmeticos")
+    .update({ equipado: false })
+    .eq("usuario_id", usuario)
+    .eq("tipo", tipoLimpio)
+    .eq("equipado", true)
+
+  if (error) {
+    console.warn("No se pudo desequipar cosmetico en Supabase", error)
+    return { ok: true, sincronizado: false, error }
+  }
+
+  return { ok: true, sincronizado: true }
+}
+
 export async function obtenerCosmeticoEquipado(usuario, tipoPreferido = "fondo") {
   const local = leerCosmeticoLocal(usuario, tipoPreferido)
   if (!usuario) return local
@@ -927,6 +948,22 @@ function guardarCosmeticoLocal(usuario, cosmetico) {
   const porTipo = previo && !previo.cosmetico_id && typeof previo === "object" ? previo : {}
   porTipo[normalizado.tipo || "fondo"] = normalizado
   actuales[usuario] = porTipo
+  localStorage.setItem(COSMETICOS_LOCAL_KEY, JSON.stringify(actuales))
+}
+
+function quitarCosmeticoLocal(usuario, tipo = "fondo") {
+  const actuales = leerObjeto(COSMETICOS_LOCAL_KEY)
+  const previo = actuales[usuario]
+  if (!previo) return
+
+  if (previo.cosmetico_id) {
+    const normalizado = normalizarCosmeticoLocal(previo)
+    if (normalizado.tipo === tipo) delete actuales[usuario]
+  } else if (typeof previo === "object") {
+    delete previo[tipo]
+    if (!Object.values(previo).some((item) => item?.cosmetico_id)) delete actuales[usuario]
+  }
+
   localStorage.setItem(COSMETICOS_LOCAL_KEY, JSON.stringify(actuales))
 }
 

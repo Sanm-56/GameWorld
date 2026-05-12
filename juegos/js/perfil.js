@@ -2,9 +2,11 @@ import { supabase } from './supabase.js'
 import {
   COSMETICOS,
   RECOMPENSAS_MONEDAS,
+  desequiparCosmetico,
   equiparCosmetico,
   iniciarSincronizacionRecompensasUsuario,
   obtenerHistorialMonedas,
+  obtenerCosmeticoEquipado,
   obtenerMonedas,
   sincronizarMonedasUsuario,
 } from './tienda.js'
@@ -88,6 +90,7 @@ const rankingNivelListEl = document.getElementById('rankingNivelList')
 const rangoRutaListEl = document.getElementById('rangoRutaList')
 const rangoProgresoTextoEl = document.getElementById('rangoProgresoTexto')
 const perfilHeroEl = document.querySelector('.hero.profile-card')
+const progresoPerfilEl = document.querySelector('.season-pass')
 const rangoEquipadoTextoEl = document.getElementById('rangoEquipadoTexto')
 const rangoBonusExpEl = document.getElementById('rangoBonusExp')
 const rangoBonusMonedasEl = document.getElementById('rangoBonusMonedas')
@@ -121,9 +124,11 @@ const CHAT_PRIVADO_TABLA = 'chat_privado'
 const CHAT_LIMITE = 60
 const CHAT_LECTURAS_KEY = `perfil_chat_privado_lecturas_${usuario || 'anon'}`
 const CHAT_OCULTOS_KEY = `perfil_chat_privado_ocultos_${usuario || 'anon'}`
+const RECOMPENSA_RANGO_FONDO_PREFIX = 'rango-fondo'
 let rangoEquipadoActual = 'Novato'
 let progresoNivelActual = null
 let recompensasCosmeticasRuta = []
+let fondoEquipadoActual = null
 let chatGlobalCanal = null
 let chatPrivadoCanal = null
 let chatPrivadoDestino = ''
@@ -410,9 +415,10 @@ function guardarRangoEquipado(usuarioId, rango) {
 }
 
 async function aplicarPersonalizacionPerfil() {
-  if (!perfilHeroEl || !usuario) return
+  if (!usuario) return
   const version = ++refrescoPersonalizacionPerfil
-  await aplicarPersonalizacionUsuario(perfilHeroEl, usuario)
+  const objetivos = [perfilHeroEl, progresoPerfilEl].filter(Boolean)
+  await Promise.all(objetivos.map((elemento) => aplicarPersonalizacionUsuario(elemento, usuario)))
   if (version !== refrescoPersonalizacionPerfil) return
 }
 
@@ -431,7 +437,8 @@ async function cargarRecompensasCosmeticasRuta(usuarioId, nivelActual = 1) {
 
   const desbloqueadas = error ? [] : (data || [])
   const recompensasPorNivel = await obtenerRecompensasHastaNivel(nivelActual)
-  const combinadas = [...desbloqueadas, ...recompensasPorNivel]
+  const recompensasDeRango = crearRecompensasFondoPorRango(nivelActual)
+  const combinadas = [...desbloqueadas, ...recompensasPorNivel, ...recompensasDeRango]
   const vistas = new Set()
 
   return combinadas
@@ -446,6 +453,30 @@ async function cargarRecompensasCosmeticasRuta(usuarioId, nivelActual = 1) {
       return cosmetico ? { ...recompensa, cosmetico } : null
     })
     .filter(Boolean)
+}
+
+function crearRecompensasFondoPorRango(nivelActual = 1) {
+  return obtenerRangosHastaNivel(nivelActual)
+    .map((rango) => {
+      const cosmetico = obtenerFondoCosmeticoRango(rango)
+      if (!cosmetico) return null
+      return {
+        nivel: rango.desde,
+        recompensa_id: null,
+        tipo: 'fondo',
+        valor: cosmetico.id,
+        origen: 'rango',
+        key: `${RECOMPENSA_RANGO_FONDO_PREFIX}:${rango.desde}:${cosmetico.id}`,
+      }
+    })
+    .filter(Boolean)
+}
+
+function obtenerFondoCosmeticoRango(rango) {
+  const indice = obtenerRangosDesdeNivel(1)
+    .findIndex((item) => normalizarTextoVisual(item.titulo) === normalizarTextoVisual(rango?.titulo))
+  const numero = ((Math.max(0, indice) % 100) + 1)
+  return COSMETICOS.find((item) => item.id === `fondo_${String(numero).padStart(3, '0')}`)
 }
 
 function resolverCosmeticoRuta(recompensa) {
@@ -474,7 +505,35 @@ function numeroCosmeticoRuta(nivel) {
 function obtenerCosmeticosDelRango(rango) {
   return recompensasCosmeticasRuta
     .filter((item) => item.nivel >= rango.desde && item.nivel <= rango.hasta)
+    .sort((a, b) => prioridadCosmeticoRuta(a) - prioridadCosmeticoRuta(b))
     .filter((item, index, lista) => lista.findIndex((otro) => otro.cosmetico.id === item.cosmetico.id) === index)
+}
+
+function prioridadCosmeticoRuta(item) {
+  if (item?.cosmetico?.tipo === 'fondo') return 0
+  if (item?.cosmetico?.tipo === 'marco') return 1
+  if (item?.cosmetico?.tipo === 'id') return 2
+  return 3
+}
+
+function obtenerRecompensaCosmeticaDisponible(cosmeticoId) {
+  const directa = recompensasCosmeticasRuta.find((item) => item.cosmetico.id === cosmeticoId)
+  if (directa) return directa
+
+  const nivel = progresoNivelActual?.nivel || 1
+  const rango = obtenerRangosHastaNivel(nivel)
+    .find((item) => obtenerFondoCosmeticoRango(item)?.id === cosmeticoId)
+  if (!rango) return null
+
+  const cosmetico = obtenerFondoCosmeticoRango(rango)
+  return {
+    nivel: rango.desde,
+    recompensa_id: null,
+    tipo: 'fondo',
+    valor: cosmetico.id,
+    origen: 'rango',
+    cosmetico,
+  }
 }
 
 function rangoEstaDesbloqueado(rango, nivel) {
@@ -658,8 +717,8 @@ function renderRutaRangos(progreso) {
     const recompensasHtml = cosmeticosRuta.length
       ? `<div class="rank-node-cosmetics">
           ${cosmeticosRuta.slice(0, 2).map((item) => `
-            <button class="rank-cosmetic-btn" type="button" data-cosmetic-reward="${escaparHtml(item.cosmetico.id)}" ${desbloqueado ? '' : 'disabled'}>
-              ${escaparHtml(item.cosmetico.tipo)} · ${escaparHtml(item.cosmetico.nombre)}
+            <button class="rank-cosmetic-btn" type="button" data-cosmetic-action="${cosmeticoEstaEquipado(item.cosmetico) ? 'unequip' : 'equip'}" data-cosmetic-reward="${escaparHtml(item.cosmetico.id)}" ${desbloqueado ? '' : 'disabled'}>
+              ${escaparHtml(etiquetaBotonCosmeticoRuta(item.cosmetico))}
             </button>
           `).join('')}
           ${cosmeticosRuta.length > 2 ? `<span class="rank-cosmetic-more">+${cosmeticosRuta.length - 2} mas</span>` : ''}
@@ -705,6 +764,15 @@ function renderRutaRangos(progreso) {
   rangoProgresoTextoEl.innerText = `${restantes} niveles y ${formatearNumero(avanceSiguiente.faltante)} XP para ${siguiente.titulo}`
 }
 
+function cosmeticoEstaEquipado(cosmetico) {
+  return Boolean(cosmetico?.tipo === 'fondo' && fondoEquipadoActual?.cosmetico_id === cosmetico.id)
+}
+
+function etiquetaBotonCosmeticoRuta(cosmetico) {
+  if (cosmeticoEstaEquipado(cosmetico)) return `Desequipar ${cosmetico.tipo}`
+  return `${cosmetico.tipo} · ${cosmetico.nombre}`
+}
+
 function instalarEventosRangos() {
   if (!rangoRutaListEl) return
   rangoRutaListEl.querySelectorAll('[data-rank-action]').forEach((button) => {
@@ -730,16 +798,20 @@ function instalarEventosRangos() {
     button.addEventListener('click', async () => {
       if (!usuario || button.disabled) return
       const cosmeticoId = button.dataset.cosmeticReward
-      const recompensa = recompensasCosmeticasRuta.find((item) => item.cosmetico.id === cosmeticoId)
+      const action = button.dataset.cosmeticAction || 'equip'
+      const recompensa = obtenerRecompensaCosmeticaDisponible(cosmeticoId)
       if (!recompensa || !rangoEstaDesbloqueado(obtenerRangoVisual(recompensa.nivel), progresoNivelActual?.nivel)) return
 
       button.disabled = true
-      button.textContent = 'Equipando...'
-      const resultado = await equiparCosmetico(usuario, cosmeticoId)
+      button.textContent = action === 'unequip' ? 'Desequipando...' : 'Equipando...'
+      const resultado = action === 'unequip'
+        ? await desequiparCosmetico(usuario, recompensa.cosmetico.tipo)
+        : await equiparCosmetico(usuario, cosmeticoId)
       if (resultado?.ok) {
+        fondoEquipadoActual = action === 'unequip' ? null : resultado.cosmetico
         await aplicarPersonalizacionPerfil()
-        button.textContent = 'Equipado'
-        if (resultado.sincronizado === false) button.title = 'Equipado en este dispositivo. Se reintentara sincronizar al actualizar.'
+        renderRutaRangos(progresoNivelActual)
+        if (resultado.sincronizado === false) button.title = 'Cambio aplicado en este dispositivo. Se reintentara sincronizar al actualizar.'
       } else {
         console.warn('No se pudo equipar cosmetico de ruta', resultado?.error)
         button.disabled = false
@@ -4741,6 +4813,7 @@ function obtenerRarezaLogro(gameKey, achievement) {
 
 async function renderProgresoNivel() {
   if (!usuario) {
+    fondoEquipadoActual = null
     nivelActualEl.innerText = '1'
     xpActualEl.innerText = '0 XP del nivel'
     porcentajeNivelEl.innerText = '0%'
@@ -4760,6 +4833,7 @@ async function renderProgresoNivel() {
   const progreso = await obtenerProgresoNivel(usuario)
   progresoNivelActual = progreso
   recompensasCosmeticasRuta = await cargarRecompensasCosmeticasRuta(usuario, progreso.nivel)
+  fondoEquipadoActual = await obtenerCosmeticoEquipado(usuario, 'fondo')
   const tituloNivel = obtenerTituloNivel(progreso.nivel)
   const rangoActual = obtenerRangoNivel(progreso.nivel)
   const rangosTodos = obtenerRangosDesdeNivel(1)
@@ -5395,9 +5469,13 @@ cargarPerfil()
 instalarChatSocial()
 
 if (usuario) {
-  iniciarSincronizacionRecompensasUsuario(usuario, (evento) => {
+  iniciarSincronizacionRecompensasUsuario(usuario, async (evento) => {
     renderPanelMonedas()
-    if (evento?.tipo === 'cosmetico') aplicarPersonalizacionPerfil()
+    if (evento?.tipo === 'cosmetico') {
+      fondoEquipadoActual = await obtenerCosmeticoEquipado(usuario, 'fondo')
+      await aplicarPersonalizacionPerfil()
+      if (progresoNivelActual) renderRutaRangos(progresoNivelActual)
+    }
   })
 }
 

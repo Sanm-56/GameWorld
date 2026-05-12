@@ -7,7 +7,7 @@ export async function aplicarPersonalizacionUsuario(elemento, usuario) {
 
   const solicitud = (solicitudesPersonalizacion.get(elemento) || 0) + 1
   solicitudesPersonalizacion.set(elemento, solicitud)
-  const esPerfil = elemento.classList.contains("profile-card") || elemento.classList.contains("hero")
+  const esPerfil = elemento.classList.contains("profile-card") || elemento.classList.contains("hero") || elemento.classList.contains("season-pass")
   const fondo = await obtenerCosmeticoEquipado(usuario, "fondo")
   const marco = esPerfil ? await obtenerCosmeticoEquipado(usuario, "marco") : null
   const identificador = esPerfil ? await obtenerCosmeticoEquipado(usuario, "id") : null
@@ -68,6 +68,12 @@ export function instalarEstilosPersonalizacion() {
         radial-gradient(circle at 16% 14%, hsl(var(--cosmetic-hue, 204) 92% 58% / 0.28), transparent 34%),
         radial-gradient(circle at 82% 20%, hsl(var(--cosmetic-accent, 280) 92% 62% / 0.18), transparent 32%),
         linear-gradient(135deg, hsl(var(--cosmetic-hue, 204) 64% 18% / 0.9), rgba(2,6,23,0.96) 58%, hsl(var(--cosmetic-accent, 280) 70% 14% / 0.82));
+    }
+    .season-pass.perfil-fondo-equipado{
+      background:
+        radial-gradient(circle at 16% 14%, hsl(var(--cosmetic-hue, 204) 92% 58% / 0.28), transparent 34%),
+        radial-gradient(circle at 82% 20%, hsl(var(--cosmetic-accent, 280) 92% 62% / 0.18), transparent 32%),
+        linear-gradient(135deg, hsl(var(--cosmetic-hue, 204) 64% 18% / 0.9), rgba(2,6,23,0.96) 58%, hsl(var(--cosmetic-accent, 280) 70% 14% / 0.82)) !important;
     }
     .perfil-marco-equipado{
       border-color:hsl(var(--cosmetic-marco-hue, 204) 92% 62% / 0.48) !important;
