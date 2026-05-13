@@ -12,7 +12,7 @@ as $$
       220
       + (greatest(nivel_actual - 1, 0) * 18)
       + (power(greatest(nivel_actual - 1, 0), 1.18) * 14)
-    )::integer
+    )::integer * case when nivel_actual >= 2340 then 4 else 1 end
   end;
 $$;
 
@@ -61,7 +61,7 @@ as $$
       220
       + (greatest(p_nivel - 1, 0) * 18)
       + (power(greatest(p_nivel - 1, 0), 1.18) * 14)
-    )::bigint
+    )::bigint * case when p_nivel >= 2340 then 4 else 1 end
   end;
 $$;
 

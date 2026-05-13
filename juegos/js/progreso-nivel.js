@@ -11,6 +11,8 @@ export const XP_CURVA_BASE = 220
 export const XP_CURVA_LINEAL = 18
 export const XP_CURVA_POTENCIA = 1.18
 export const XP_CURVA_FACTOR = 14
+export const NIVEL_REQUISITO_RANGO_UMBRA_ETERNA = 2340
+export const MULTIPLICADOR_XP_RANGOS_AVANZADOS = 4
 
 const XP_ACCIONES = {
   partida_completada: aplicarMultiplicadorXpBaseTorneo(125),
@@ -166,7 +168,14 @@ export function obtenerTituloNivel(nivelActual = 1) {
 export function xpNecesarioParaNivel(nivel) {
   if (nivel >= NIVEL_MAXIMO) return 0
   const nivelBase = Math.max(0, Math.trunc(Number(nivel) || 1) - 1)
-  return Math.round(XP_CURVA_BASE + (nivelBase * XP_CURVA_LINEAL) + (Math.pow(nivelBase, XP_CURVA_POTENCIA) * XP_CURVA_FACTOR))
+  const base = Math.round(XP_CURVA_BASE + (nivelBase * XP_CURVA_LINEAL) + (Math.pow(nivelBase, XP_CURVA_POTENCIA) * XP_CURVA_FACTOR))
+  return base * multiplicadorRequisitoRangoAvanzado(nivel)
+}
+
+function multiplicadorRequisitoRangoAvanzado(nivel) {
+  return Math.trunc(Number(nivel) || 1) >= NIVEL_REQUISITO_RANGO_UMBRA_ETERNA
+    ? MULTIPLICADOR_XP_RANGOS_AVANZADOS
+    : 1
 }
 
 export function xpAcumuladoParaNivel(nivel) {
