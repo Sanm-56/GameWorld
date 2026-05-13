@@ -32,6 +32,8 @@ const els = {
   back: document.getElementById("backBtn"),
 }
 
+const restartBtn = gameKey === "cricketarcade" ? crearBotonReinicioCricket() : null
+
 els.title.textContent = config.label
 els.subtitle.textContent = isMini ? "Resultado de mini torneo" : "Resultado del torneo"
 els.score.textContent = `${score} pts`
@@ -147,11 +149,29 @@ function readJson(value) {
 
 els.back.addEventListener("click", async () => {
   await volverDesdeFinal(supabase, () => {
-    localStorage.removeItem("fin_juego")
-    localStorage.removeItem(`${gameKey}_puntos`)
-    localStorage.removeItem(`${gameKey}_elapsed`)
-    localStorage.removeItem(`${gameKey}_combo`)
+    limpiarResultadoLocal()
   })
 })
 
+restartBtn?.addEventListener("click", () => {
+  limpiarResultadoLocal()
+  window.location.href = `${gameKey}.html`
+})
+
 load()
+
+function crearBotonReinicioCricket() {
+  const button = document.createElement("button")
+  button.className = "back restart"
+  button.type = "button"
+  button.textContent = "Jugar otra vez"
+  els.back.insertAdjacentElement("beforebegin", button)
+  return button
+}
+
+function limpiarResultadoLocal() {
+  localStorage.removeItem("fin_juego")
+  localStorage.removeItem(`${gameKey}_puntos`)
+  localStorage.removeItem(`${gameKey}_elapsed`)
+  localStorage.removeItem(`${gameKey}_combo`)
+}

@@ -9,11 +9,11 @@ import {
 } from "./mini-torneo.js"
 import { getArcadeGame } from "./arcade-games.js"
 
-const DURACION = 180
 const MAX_ADVERTENCIAS = 3
 const CRICKET_HIT_ZONE = 21
 const CRICKET_RESET_DELAY = 0.55
 const gameKey = document.body.dataset.game
+const DURACION = gameKey === "cricketarcade" ? 600 : 180
 const config = getArcadeGame(gameKey)
 const usuario = localStorage.getItem("usuario")
 
@@ -113,6 +113,7 @@ function clamp(value, min, max) {
 }
 
 function addScore(points) {
+  if (juegoTerminado || !juegoActivo) return
   const gained = Math.max(0, Math.round(points * (1 + combo * 0.04)))
   score += gained
   combo += 1
@@ -123,8 +124,9 @@ function addScore(points) {
 }
 
 function miss(reason = "Fallaste") {
+  if (juegoTerminado) return
   combo = 0
-  lives -= 1
+  lives = Math.max(0, lives - 1)
   setStatus(reason)
   renderHud()
   if (lives <= 0) endGame("perdiste")
@@ -591,8 +593,6 @@ async function saveResult(reason) {
 
     if (error) {
       console.error(`No se pudo guardar ranking de ${gameKey}`, error)
-      resultadoEnviado = false
-      return false
     }
   }
 
@@ -612,9 +612,21 @@ async function endGame(reason) {
   if (juegoTerminado) return
   juegoTerminado = true
   juegoActivo = false
+  renderHud()
+  setStatus(reason === "tiempo" ? "Tiempo terminado" : reason === "perdiste" ? "Sin vidas" : "Partida terminada")
   cleanupRuntime()
-  const saved = await saveResult(reason)
-  if (saved !== false) window.location.href = "final.html"
+  try {
+    await saveResult(reason)
+  } catch (error) {
+    console.error(`No se pudo completar el guardado final de ${gameKey}`, error)
+    const finalScore = reason === "descalificado" || descalificado ? 0 : score
+    localStorage.setItem("fin_juego", reason)
+    localStorage.setItem(`${gameKey}_puntos`, String(finalScore))
+    localStorage.setItem(`${gameKey}_elapsed`, String(Math.max(1, Math.round((performance.now() - startMs) / 1000))))
+    localStorage.setItem(`${gameKey}_combo`, String(bestCombo))
+  } finally {
+    window.location.href = "final.html"
+  }
 }
 
 async function checkTournamentState() {

@@ -307,6 +307,53 @@ body[data-game="cricketarcade"] .stage{
   user-select:none;
   -webkit-user-select:none;
 }
+body[data-game="cricketarcade"] .shell{
+  gap:16px;
+}
+body[data-game="cricketarcade"] .top,
+body[data-game="cricketarcade"] .side,
+body[data-game="cricketarcade"] .stage,
+body[data-game="cricketarcade"].final-page .final-card{
+  border-color:rgba(250,204,21,.22);
+}
+body[data-game="cricketarcade"] .top{
+  background:
+    radial-gradient(circle at 10% 0,rgba(34,197,94,.22),transparent 34%),
+    radial-gradient(circle at 88% 20%,rgba(250,204,21,.16),transparent 28%),
+    linear-gradient(135deg,rgba(10,45,31,.96),rgba(2,6,23,.78));
+}
+body[data-game="cricketarcade"] .pill,
+body[data-game="cricketarcade"] .stat{
+  border-color:rgba(250,204,21,.2);
+  background:rgba(3,35,25,.52);
+}
+body[data-game="cricketarcade"] .pill:first-child strong{
+  color:#fde68a;
+  font-variant-numeric:tabular-nums;
+}
+body[data-game="cricketarcade"] .stat strong{
+  font-size:22px;
+  font-variant-numeric:tabular-nums;
+}
+body[data-game="cricketarcade"] .stat:nth-child(4) strong{
+  color:#fecaca;
+}
+body[data-game="cricketarcade"] .action{
+  min-height:64px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:18px;
+  font-size:20px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  box-shadow:0 18px 36px rgba(34,197,94,.18),0 0 30px rgba(250,204,21,.12);
+}
+body[data-game="cricketarcade"] .status{
+  color:#e2e8f0;
+  border-color:rgba(34,197,94,.24);
+  background:
+    linear-gradient(135deg,rgba(34,197,94,.12),rgba(250,204,21,.08)),
+    rgba(2,6,23,.42);
+}
 body[data-game="cricketarcade"] .stage::before{
   inset:18px;
   border-color:rgba(250,204,21,.28);
@@ -383,6 +430,16 @@ body[data-game="cricketarcade"] .stage::before{
 .cricket-ball.missed{
   opacity:.62;
   filter:saturate(.7);
+}
+body[data-game="cricketarcade"].final-page .final-card{
+  background:
+    radial-gradient(circle at 15% 0,rgba(34,197,94,.24),transparent 32%),
+    radial-gradient(circle at 92% 18%,rgba(250,204,21,.18),transparent 28%),
+    linear-gradient(145deg,rgba(10,45,31,.96),rgba(2,6,23,.88));
+}
+.back.restart{
+  margin-top:10px;
+  background:linear-gradient(135deg,var(--secondary),var(--accent));
 }
 body[data-game="basketballarcade"] .stage{
   background:
