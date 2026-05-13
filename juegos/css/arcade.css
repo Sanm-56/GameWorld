@@ -959,14 +959,35 @@ body[data-game="esquivaobstaculos"].final-page .final-card{
 }
 body[data-game="subelamontana"] .stage{
   background:
-    radial-gradient(circle at 18% 18%,rgba(255,255,255,.16),transparent 12%),
-    radial-gradient(circle at 68% 34%,rgba(255,255,255,.12),transparent 10%),
+    radial-gradient(ellipse at 18% 18%,rgba(255,255,255,.42),transparent 14%),
+    radial-gradient(ellipse at 68% 30%,rgba(255,255,255,.28),transparent 12%),
     radial-gradient(circle at 50% 100%,rgba(245,158,11,.20),transparent 34%),
-    linear-gradient(180deg,#7dd3fc 0%,#2563eb 48%,#1f2937 84%,#2b1809);
+    linear-gradient(180deg,#bae6fd 0%,#38bdf8 34%,#2563eb 68%,#1f2937 88%,#2b1809);
   touch-action:none;
   user-select:none;
   -webkit-user-select:none;
 }
+body[data-game="subelamontana"] .stage::after{
+  inset:auto -8% -6% -8%;
+  height:34%;
+  border-radius:50% 50% 0 0;
+  background:
+    radial-gradient(ellipse at 28% 100%,rgba(255,255,255,.16),transparent 55%),
+    radial-gradient(ellipse at 72% 100%,rgba(254,243,199,.14),transparent 58%);
+  filter:blur(2px);
+}
+.climb-sky::before,
+.climb-sky::after{
+  content:"";
+  position:absolute;
+  width:120px;
+  height:38px;
+  border-radius:999px;
+  background:rgba(255,255,255,.28);
+  filter:blur(.2px);
+}
+.climb-sky::before{left:10%;top:6%}
+.climb-sky::after{right:9%;top:20%;width:92px}
 .climb-sky{
   left:0;
   right:0;
@@ -986,19 +1007,34 @@ body[data-game="subelamontana"] .stage{
   box-shadow:0 16px 28px rgba(0,0,0,.3),0 0 18px rgba(245,158,11,.28);
   transform:translate(-50%,-50%);
 }
+.climb-player::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-9px;
+  width:24px;
+  height:12px;
+  transform:translateX(-50%);
+  border-radius:999px;
+  background:rgba(239,68,68,.26);
+  filter:blur(3px);
+}
 .climb-platform{
   height:16px;
   min-width:58px;
   transform:translateX(-50%);
   border-radius:999px;
-  background:linear-gradient(90deg,#fef3c7,#22c55e);
-  box-shadow:0 12px 24px rgba(0,0,0,.24),inset 0 -4px 0 rgba(22,101,52,.22);
+  background:
+    radial-gradient(circle at 20% 35%,rgba(255,255,255,.42),transparent 12%),
+    linear-gradient(90deg,#fef3c7,#22c55e);
+  box-shadow:0 12px 24px rgba(0,0,0,.24),inset 0 -4px 0 rgba(22,101,52,.22),0 0 18px rgba(34,197,94,.18);
 }
 .climb-platform-moving{
-  background:linear-gradient(90deg,#bfdbfe,#60a5fa);
+  background:linear-gradient(90deg,#dbeafe,#60a5fa);
 }
 .climb-platform-spring{
-  background:linear-gradient(90deg,#fde68a,#f59e0b);
+  background:linear-gradient(90deg,#fef3c7,#f59e0b);
+  box-shadow:0 14px 26px rgba(0,0,0,.24),0 0 22px rgba(245,158,11,.28);
 }
 .climb-platform-spike{
   background:linear-gradient(90deg,#fecaca,#ef4444);
@@ -1010,13 +1046,29 @@ body[data-game="subelamontana"] .stage{
 .climb-spring{
   position:absolute;
   left:50%;
-  bottom:12px;
-  width:18px;
-  height:18px;
+  bottom:11px;
+  width:28px;
+  height:24px;
   transform:translateX(-50%);
-  border:3px solid #f97316;
-  border-top:0;
-  border-radius:0 0 999px 999px;
+  border-radius:8px 8px 999px 999px;
+  background:
+    repeating-linear-gradient(180deg,#0f172a 0 3px,#f97316 3px 6px,#fde68a 6px 9px),
+    #f97316;
+  box-shadow:0 0 0 3px rgba(255,247,237,.75),0 0 18px rgba(245,158,11,.5);
+}
+.climb-spring::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-8px;
+  width:34px;
+  height:8px;
+  transform:translateX(-50%);
+  border-radius:999px;
+  background:linear-gradient(90deg,#fff7ed,#f59e0b);
+}
+.climb-spring.active{
+  animation:climbSpringPop .42s ease-out;
 }
 .climb-spike{
   position:absolute;
@@ -1044,11 +1096,17 @@ body[data-game="subelamontana"] .stage{
   18%{opacity:1;transform:translate(-50%,0) scale(1)}
   100%{opacity:0;transform:translate(-50%,-16px) scale(.98)}
 }
+@keyframes climbSpringPop{
+  0%{transform:translateX(-50%) scaleY(.72)}
+  45%{transform:translateX(-50%) translateY(-7px) scaleY(1.18)}
+  100%{transform:translateX(-50%) scaleY(1)}
+}
 @media (prefers-reduced-motion:reduce){
   .final-card::before{animation:none}
   .action{transition:none}
   .cricket-ball-mark,
   .dodge-ship,
+  .climb-spring.active,
   body[data-game="esquivaobstaculos"] .stage::after,
   .dodge-feedback,
   .neon-road{animation:none}
@@ -1101,14 +1159,14 @@ body[data-game="subelamontana"] .stage{
     border:1px solid rgba(255,255,255,.18);
     border-radius:16px;
     color:#020617;
-    background:linear-gradient(135deg,var(--accent),var(--secondary));
+    background:linear-gradient(135deg,#f59e0b,#60a5fa);
     font-size:18px;
     font-weight:1000;
-    box-shadow:0 12px 24px color-mix(in srgb,var(--accent) 18%,transparent);
+    box-shadow:0 12px 24px rgba(245,158,11,.18);
   }
   .climb-controls [data-climb-dir]{
     color:#f8fafc;
-    background:rgba(2,6,23,.52);
+    background:linear-gradient(180deg,rgba(15,23,42,.72),rgba(30,41,59,.88));
   }
 }
 @media (max-width:520px){

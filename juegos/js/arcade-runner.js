@@ -30,6 +30,8 @@ const CLIMB_CAMERA_TARGET = 42
 const CLIMB_VISIBLE_TOP = -14
 const CLIMB_VISIBLE_BOTTOM = 104
 const CLIMB_MAX_PLATFORMS = 12
+const CLIMB_MAX_AIR_JUMPS = 3
+const CLIMB_SPRING_COOLDOWN_MS = 650
 const DODGE_LANES = [18, 42, 66]
 const DODGE_X_RANGE = [10, 78]
 const DODGE_Y_RANGE = [50, 88]
@@ -220,6 +222,9 @@ function createClimbState() {
     lastSafeX: 42,
     springCooldownY: -80,
     spikeCooldownY: -120,
+    jumpsLeft: CLIMB_MAX_AIR_JUMPS,
+    springLockUntil: 0,
+    springPulseUntil: 0,
   }
 }
 
@@ -483,7 +488,9 @@ function renderClimb() {
     })
     if (platform.type === "spring") {
       const spring = document.createElement("i")
-      spring.className = "climb-spring"
+      spring.className = performance.now() < state.climb.springPulseUntil
+        ? "climb-spring active"
+        : "climb-spring"
       el.appendChild(spring)
     }
     if (platform.type === "spike") {
@@ -831,8 +838,12 @@ function updateClimb(dt) {
   const prevY = climb.playerY
   state.x = clamp(state.x + climbInputX * CLIMB_MOVE_SPEED * dt, CLIMB_X_RANGE[0], CLIMB_X_RANGE[1])
 
-  if (climbJumpQueued && climb.vy > -10) {
+  if (climbJumpQueued && climb.vy > -10 && climb.jumpsLeft > 0) {
     climb.vy = Math.max(climb.vy, CLIMB_JUMP_SPEED * 0.82)
+    climb.jumpsLeft -= 1
+    climbJumpQueued = false
+    setStatus(`Saltos ${climb.jumpsLeft}/${CLIMB_MAX_AIR_JUMPS}`)
+  } else if (climbJumpQueued) {
     climbJumpQueued = false
   }
 
@@ -927,12 +938,28 @@ function resolveClimbPlatformCollisions(prevY) {
   if (!platform) return
 
   climb.playerY = platform.y + CLIMB_PLAYER_FEET
-  climb.vy = platform.type === "spring" ? CLIMB_SPRING_SPEED : CLIMB_JUMP_SPEED
+  climb.jumpsLeft = CLIMB_MAX_AIR_JUMPS
+  if (platform.type === "spring") {
+    triggerClimbSpring(platform)
+  } else {
+    climb.vy = CLIMB_JUMP_SPEED
+  }
   if (!platform.touched) {
     platform.touched = true
     addScore(platform.type === "spring" ? 32 : 14)
-    if (platform.type === "spring") setStatus("Impulso")
   }
+}
+
+function triggerClimbSpring(platform) {
+  const climb = state.climb
+  const now = performance.now()
+  if (now < climb.springLockUntil) return
+  climb.vy = CLIMB_SPRING_SPEED
+  climb.springLockUntil = now + CLIMB_SPRING_COOLDOWN_MS
+  climb.springPulseUntil = now + 420
+  climb.jumpsLeft = CLIMB_MAX_AIR_JUMPS
+  platform.touched = true
+  setStatus("Resorte")
 }
 
 function resolveClimbSpikeHits() {
@@ -961,6 +988,7 @@ function resetClimbAfterFall() {
   state.x = safe.x
   climb.playerY = safe.y + CLIMB_PLAYER_FEET + 1
   climb.vy = CLIMB_JUMP_SPEED
+  climb.jumpsLeft = CLIMB_MAX_AIR_JUMPS
 }
 
 function updateDodgeDirectionalInput(dt) {
