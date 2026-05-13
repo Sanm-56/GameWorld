@@ -80,6 +80,9 @@ let dodgeScene = null
 let lastDodgeMoveAt = 0
 let dodgeInvulnerableUntil = 0
 let dodgeVisualX = 42
+let dodgeVisualVelocity = 0
+let dodgeLean = 0
+let dodgeMovePulseUntil = 0
 let dodgeFeedback = ""
 let dodgeFeedbackUntil = 0
 let runId = ""
@@ -285,8 +288,11 @@ function renderDodge() {
   }
 
   const actorClass = performance.now() < dodgeInvulnerableUntil ? "actor dodge-player invulnerable" : "actor dodge-player"
+  const pulse = performance.now() < dodgeMovePulseUntil ? 1 : 0
+  const stretch = Math.min(0.08, Math.abs(dodgeLean) * 0.003) + pulse * 0.025
   dodgeScene.player.className = actorClass
   dodgeScene.player.style.left = `${dodgeVisualX}%`
+  dodgeScene.player.style.transform = `translateX(-50%) rotate(${dodgeLean}deg) scale(${1 + stretch},${1 - pulse * 0.018})`
 
   const active = new Set()
   objects.forEach((item) => {
@@ -436,12 +442,8 @@ function moveDodge(delta) {
     setStatus("Espera el inicio oficial del torneo")
     return
   }
-  const now = performance.now()
-  if (now - lastDodgeMoveAt < 70) return
-  lastDodgeMoveAt = now
   const current = Math.max(0, DODGE_LANES.indexOf(state.x))
-  state.x = DODGE_LANES[clamp(current + delta, 0, DODGE_LANES.length - 1)]
-  showDodgeFeedback(delta < 0 ? "Izquierda" : "Derecha")
+  setDodgeLane(current + delta, delta < 0 ? "Izquierda" : "Derecha", 54)
 }
 
 function cycleDodgeLane() {
@@ -449,12 +451,8 @@ function cycleDodgeLane() {
     setStatus("Espera el inicio oficial del torneo")
     return
   }
-  const now = performance.now()
-  if (now - lastDodgeMoveAt < 70) return
-  lastDodgeMoveAt = now
   const current = Math.max(0, DODGE_LANES.indexOf(state.x))
-  state.x = DODGE_LANES[(current + 1) % DODGE_LANES.length]
-  showDodgeFeedback("Cambio")
+  setDodgeLane((current + 1) % DODGE_LANES.length, "Cambio", 54)
 }
 
 function moveDodgeToLaneByClientX(clientX) {
@@ -462,14 +460,23 @@ function moveDodgeToLaneByClientX(clientX) {
     setStatus("Espera el inicio oficial del torneo")
     return
   }
-  const now = performance.now()
-  if (now - lastDodgeMoveAt < 70) return
-  lastDodgeMoveAt = now
   const rect = els.stage.getBoundingClientRect()
   const ratio = rect.width ? clamp((clientX - rect.left) / rect.width, 0, 1) : 0.5
   const index = clamp(Math.floor(ratio * DODGE_LANES.length), 0, DODGE_LANES.length - 1)
-  state.x = DODGE_LANES[index]
-  showDodgeFeedback(["Izquierda", "Centro", "Derecha"][index])
+  setDodgeLane(index, ["Izquierda", "Centro", "Derecha"][index], 22)
+}
+
+function setDodgeLane(index, feedback, cooldownMs) {
+  const now = performance.now()
+  if (now - lastDodgeMoveAt < cooldownMs) return
+
+  const next = DODGE_LANES[clamp(index, 0, DODGE_LANES.length - 1)]
+  if (next === state.x) return
+
+  lastDodgeMoveAt = now
+  state.x = next
+  dodgeMovePulseUntil = now + 145
+  showDodgeFeedback(feedback)
 }
 
 function showDodgeFeedback(text) {
@@ -478,7 +485,13 @@ function showDodgeFeedback(text) {
 }
 
 function updateDodge(dt) {
-  dodgeVisualX += (state.x - dodgeVisualX) * Math.min(1, dt * 18)
+  const previousX = dodgeVisualX
+  const ease = 1 - Math.exp(-dt * 21)
+  dodgeVisualX += (state.x - dodgeVisualX) * ease
+  if (Math.abs(state.x - dodgeVisualX) < 0.04) dodgeVisualX = state.x
+  dodgeVisualVelocity = dt > 0 ? (dodgeVisualX - previousX) / dt : 0
+  const targetLean = clamp(dodgeVisualVelocity * 0.09, -11, 11)
+  dodgeLean += (targetLean - dodgeLean) * Math.min(1, dt * 17)
   spawnTimer -= dt
   if (spawnTimer <= 0) {
     spawnTimer = Math.max(0.24, rand(0.62, 1.02) - level * 0.035)
