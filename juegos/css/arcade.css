@@ -601,6 +601,42 @@ body[data-game="esquivaobstaculos"] .stage::before{
   text-transform:uppercase;
   animation:dodgeFeedback .65s ease forwards;
 }
+.dodge-controls{
+  display:grid;
+  grid-template-columns:repeat(3,48px);
+  grid-template-areas:
+    ". up ."
+    "left down right";
+  justify-content:center;
+  gap:8px;
+  padding:6px 0 2px;
+  touch-action:none;
+}
+.dodge-controls button{
+  width:48px;
+  height:48px;
+  border:1px solid rgba(125,211,252,.32);
+  border-radius:14px;
+  color:#e0f2fe;
+  background:
+    linear-gradient(180deg,rgba(56,189,248,.18),rgba(251,113,133,.08)),
+    rgba(2,6,23,.5);
+  box-shadow:0 10px 20px rgba(0,0,0,.22);
+  font-size:22px;
+  font-weight:1000;
+  line-height:1;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.dodge-controls button:active{
+  transform:translateY(1px) scale(.98);
+  filter:brightness(1.16);
+}
+.dodge-controls [data-dodge-dir="up"]{grid-area:up}
+.dodge-controls [data-dodge-dir="left"]{grid-area:left}
+.dodge-controls [data-dodge-dir="down"]{grid-area:down}
+.dodge-controls [data-dodge-dir="right"]{grid-area:right}
 body[data-game="esquivaobstaculos"].final-page .final-card{
   background:
     radial-gradient(circle at 15% 0,rgba(56,189,248,.22),transparent 32%),
@@ -644,6 +680,7 @@ body[data-game="subelamontana"] .stage{
   body[data-game="cricketarcade"] .status{min-height:54px}
   body[data-game="esquivaobstaculos"] .side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
   body[data-game="esquivaobstaculos"] .action,
+  body[data-game="esquivaobstaculos"] .dodge-controls,
   body[data-game="esquivaobstaculos"] .status{grid-column:1/-1}
   body[data-game="esquivaobstaculos"] .status{min-height:54px}
 }
@@ -656,5 +693,12 @@ body[data-game="subelamontana"] .stage{
   .cricket-bat{left:7%;bottom:17%}
   .cricket-zone{height:14px !important}
   body[data-game="esquivaobstaculos"] .side{grid-template-columns:1fr}
+  .dodge-controls{
+    grid-template-columns:repeat(3,52px);
+  }
+  .dodge-controls button{
+    width:52px;
+    height:46px;
+  }
   .dodge-player,.dodge-obstacle{width:42px;height:42px}
 }

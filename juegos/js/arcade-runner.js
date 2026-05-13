@@ -14,11 +14,18 @@ const MAX_ADVERTENCIAS = 3
 const CRICKET_HIT_ZONE = 21
 const CRICKET_RESET_DELAY = 0.55
 const DODGE_LANES = [18, 42, 66]
-const DODGE_X_RANGE = [12, 72]
-const DODGE_Y_RANGE = [68, 86]
-const DODGE_PLAYER_HITBOX = { x: 4.8, y: 4.9 }
-const DODGE_OBSTACLE_HITBOX = { x: 4.5, y: 5.2 }
-const DODGE_WARMUP_MS = 12000
+const DODGE_X_RANGE = [10, 78]
+const DODGE_Y_RANGE = [50, 88]
+const DODGE_PLAYER_HITBOX = { x: 2.45, y: 2.7 }
+const DODGE_OBSTACLE_HITBOX = { x: 2.65, y: 3.05 }
+const DODGE_WARMUP_MS = 26000
+const DODGE_BASE_SPEED = 10.8
+const DODGE_SPEED_GROWTH = 1.35
+const DODGE_MAX_SPEED_BONUS = 10
+const DODGE_KEYBOARD_SPEED_X = 44
+const DODGE_KEYBOARD_SPEED_Y = 34
+const DODGE_MIN_SPAWN_GAP = 20
+const DODGE_SAFE_OPENING = 17
 const gameKey = document.body.dataset.game
 const DURACION = ["cricketarcade", "esquivaobstaculos"].includes(gameKey) ? 600 : 180
 const config = getArcadeGame(gameKey)
@@ -94,8 +101,12 @@ let dodgeLean = 0
 let dodgeMovePulseUntil = 0
 let dodgeFeedback = ""
 let dodgeFeedbackUntil = 0
+let dodgeInputX = 0
+let dodgeInputY = 0
 let runId = ""
 const inputController = new AbortController()
+const dodgePressedKeys = new Set()
+const dodgeButtonInputs = new Set()
 
 localStorage.setItem("juego_actual", gameKey)
 
@@ -522,10 +533,11 @@ function showDodgeFeedback(text) {
 }
 
 function updateDodge(dt) {
+  updateDodgeDirectionalInput(dt)
   const previousX = dodgeVisualX
-  const ease = 1 - Math.exp(-dt * 13.5)
+  const ease = 1 - Math.exp(-dt * 12.5)
   dodgeVisualX += (state.x - dodgeVisualX) * ease
-  dodgeVisualY += (state.y - dodgeVisualY) * (1 - Math.exp(-dt * 12))
+  dodgeVisualY += (state.y - dodgeVisualY) * (1 - Math.exp(-dt * 10.5))
   if (Math.abs(state.x - dodgeVisualX) < 0.04) dodgeVisualX = state.x
   if (Math.abs(state.y - dodgeVisualY) < 0.04) dodgeVisualY = state.y
   dodgeVisualVelocity = dt > 0 ? (dodgeVisualX - previousX) / dt : 0
@@ -533,31 +545,39 @@ function updateDodge(dt) {
   dodgeLean += (targetLean - dodgeLean) * Math.min(1, dt * 17)
   const elapsedMs = juegoActivo ? performance.now() - startMs : 0
   const warmup = clamp(elapsedMs / DODGE_WARMUP_MS, 0, 1)
-  const difficulty = Math.max(0, level - 1) * warmup
+  const timeDifficulty = clamp(elapsedMs / 180000, 0, 1)
+  const difficulty = (Math.max(0, level - 1) * 0.55 + timeDifficulty * 3.5) * warmup
   spawnTimer -= dt
-  if (spawnTimer <= 0) {
-    spawnTimer = Math.max(0.38, rand(0.82, 1.24) - difficulty * 0.028)
-    const ultimo = objects[objects.length - 1]
-    let lane = DODGE_LANES[Math.floor(rand(0, DODGE_LANES.length))]
-    if (ultimo && ultimo.y < 22 && Math.abs(ultimo.x - lane) < 4) {
-      lane = DODGE_LANES[(DODGE_LANES.indexOf(lane) + 1) % DODGE_LANES.length]
-    }
+  const maxObstacles = 3 + Math.floor(clamp(difficulty / 2.4, 0, 2))
+  const ultimo = objects[objects.length - 1]
+  if (spawnTimer <= 0 && objects.length < maxObstacles && (!ultimo || ultimo.y > DODGE_MIN_SPAWN_GAP)) {
+    spawnTimer = Math.max(0.72, rand(1.18, 1.68) - difficulty * 0.035)
+    const lane = chooseDodgeSpawnX()
+    const scale = rand(0.78, 1.02)
+    const driftRange = warmup < 0.35 ? 0.35 : 0.85
+    const previousTopObstacle = objects.find((item) => item.y < DODGE_MIN_SPAWN_GAP + 10)
+    const x = previousTopObstacle && Math.abs(previousTopObstacle.x - lane) < DODGE_SAFE_OPENING
+      ? clamp(lane + (lane < 44 ? DODGE_SAFE_OPENING : -DODGE_SAFE_OPENING), DODGE_X_RANGE[0], DODGE_X_RANGE[1])
+      : lane
     objects.push({
       id: state.nextId++,
-      x: lane,
+      x,
       y: -10,
       hit: false,
-      speed: rand(0.74, 1.02) + Math.min(0.22, difficulty * 0.01),
-      drift: rand(-0.8, 0.8) * Math.max(0.35, warmup),
+      speed: rand(0.72, 0.95) + Math.min(0.13, difficulty * 0.008),
+      drift: rand(-driftRange, driftRange) * Math.max(0.25, warmup),
       spin: rand(-18, 18),
-      scale: rand(0.88, 1.12),
+      scale,
       variant: Math.floor(rand(0, 3)),
     })
+  } else if (spawnTimer <= 0) {
+    spawnTimer = 0.18
   }
   objects.forEach((item) => {
-    item.y += (15.5 + difficulty * 2.7) * Number(item.speed || 1) * dt
-    item.drift = clamp(Number(item.drift || 0) + Math.sin((performance.now() + item.id * 211) / 420) * 0.012 * Math.max(0.45, warmup), -1.65, 1.65)
-    item.spin = Number(item.spin || 0) + 28 * dt
+    const fallSpeed = DODGE_BASE_SPEED + Math.min(DODGE_MAX_SPEED_BONUS, difficulty * DODGE_SPEED_GROWTH)
+    item.y += fallSpeed * Number(item.speed || 1) * dt
+    item.drift = clamp(Number(item.drift || 0) + Math.sin((performance.now() + item.id * 211) / 520) * 0.007 * Math.max(0.35, warmup), -1.15, 1.15)
+    item.spin = Number(item.spin || 0) + 22 * dt
   })
   objects = objects.filter((item) => {
     if (item.y > 96) {
@@ -578,6 +598,32 @@ function updateDodge(dt) {
     }
     return true
   })
+}
+
+function chooseDodgeSpawnX() {
+  if (Math.random() < 0.68) {
+    return DODGE_LANES[Math.floor(rand(0, DODGE_LANES.length))]
+  }
+  return rand(DODGE_X_RANGE[0] + 6, DODGE_X_RANGE[1] - 6)
+}
+
+function updateDodgeDirectionalInput(dt) {
+  if (config.type !== "dodge" || juegoTerminado || !juegoActivo) return
+  const keyX = (dodgePressedKeys.has("ArrowRight") || dodgePressedKeys.has("KeyD") ? 1 : 0)
+    - (dodgePressedKeys.has("ArrowLeft") || dodgePressedKeys.has("KeyA") ? 1 : 0)
+  const keyY = (dodgePressedKeys.has("ArrowDown") || dodgePressedKeys.has("KeyS") ? 1 : 0)
+    - (dodgePressedKeys.has("ArrowUp") || dodgePressedKeys.has("KeyW") ? 1 : 0)
+  const buttonX = (dodgeButtonInputs.has("right") ? 1 : 0) - (dodgeButtonInputs.has("left") ? 1 : 0)
+  const buttonY = (dodgeButtonInputs.has("down") ? 1 : 0) - (dodgeButtonInputs.has("up") ? 1 : 0)
+  const rawX = clamp(keyX + buttonX, -1, 1)
+  const rawY = clamp(keyY + buttonY, -1, 1)
+  dodgeInputX += (rawX - dodgeInputX) * Math.min(1, dt * 14)
+  dodgeInputY += (rawY - dodgeInputY) * Math.min(1, dt * 14)
+  if (Math.abs(dodgeInputX) < 0.02 && Math.abs(dodgeInputY) < 0.02) return
+  const diagonal = dodgeInputX && dodgeInputY ? 0.72 : 1
+  state.x = clamp(state.x + dodgeInputX * DODGE_KEYBOARD_SPEED_X * diagonal * dt, DODGE_X_RANGE[0], DODGE_X_RANGE[1])
+  state.y = clamp(state.y + dodgeInputY * DODGE_KEYBOARD_SPEED_Y * diagonal * dt, DODGE_Y_RANGE[0], DODGE_Y_RANGE[1])
+  dodgeMovePulseUntil = performance.now() + 80
 }
 
 function update(dt) {
@@ -684,18 +730,25 @@ if (config.type === "timing") {
   }, { signal: inputController.signal })
 }
 document.addEventListener("keydown", (event) => {
+  if (config.type === "dodge" && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "KeyA", "KeyD", "KeyW", "KeyS"].includes(event.code)) {
+    event.preventDefault()
+    dodgePressedKeys.add(event.code)
+    return
+  }
   if (event.code === "Space" || event.code === "ArrowUp" || event.code === "Enter") {
     event.preventDefault()
     action()
   }
-  if (config.type === "dodge" && (event.code === "ArrowLeft" || event.code === "ArrowRight")) {
-    event.preventDefault()
-    moveDodge(event.code === "ArrowLeft" ? -1 : 1)
-  }
-  if (config.type === "dodge" && (event.code === "ArrowUp" || event.code === "ArrowDown")) {
-    event.preventDefault()
-    setDodgeTarget(state.x, state.y + (event.code === "ArrowUp" ? -6 : 6), event.code === "ArrowUp" ? "Arriba" : "Abajo", 54)
-  }
+}, { signal: inputController.signal })
+
+document.addEventListener("keyup", (event) => {
+  if (config.type !== "dodge") return
+  dodgePressedKeys.delete(event.code)
+}, { signal: inputController.signal })
+
+window.addEventListener("blur", () => {
+  dodgePressedKeys.clear()
+  dodgeButtonInputs.clear()
 }, { signal: inputController.signal })
 
 if (config.type === "dodge") {
@@ -709,6 +762,24 @@ if (config.type === "dodge") {
     event.preventDefault()
     moveDodgeToPointer(event.clientX, event.clientY)
   }, { signal: inputController.signal })
+  document.querySelectorAll("[data-dodge-dir]").forEach((button) => {
+    const dir = button.dataset.dodgeDir
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault()
+      button.setPointerCapture?.(event.pointerId)
+      dodgeButtonInputs.add(dir)
+    }, { signal: inputController.signal })
+    button.addEventListener("pointerup", (event) => {
+      event.preventDefault()
+      dodgeButtonInputs.delete(dir)
+    }, { signal: inputController.signal })
+    button.addEventListener("pointercancel", () => {
+      dodgeButtonInputs.delete(dir)
+    }, { signal: inputController.signal })
+    button.addEventListener("lostpointercapture", () => {
+      dodgeButtonInputs.delete(dir)
+    }, { signal: inputController.signal })
+  })
 }
 
 document.addEventListener("visibilitychange", async () => {
