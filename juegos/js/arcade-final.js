@@ -15,6 +15,7 @@ const elapsed = Number(localStorage.getItem(`${gameKey}_elapsed`) || 0)
 const combo = Number(localStorage.getItem(`${gameKey}_combo`) || 0)
 const isMini = localStorage.getItem("solitario_origen") === "sala"
 const rewards = readJson(localStorage.getItem(`ultimo_resultado_${gameKey}`))
+const usaFallbackLocal = gameKey === "cricketarcade"
 
 document.documentElement.style.setProperty("--accent", config.accent)
 document.documentElement.style.setProperty("--secondary", config.secondary)
@@ -63,6 +64,10 @@ async function loadTournamentRanking() {
     .order("tiempo", { ascending: false })
 
   if (error || !data) {
+    if (usaFallbackLocal) {
+      renderRanking([], { aviso: "Ranking remoto no disponible. Mostrando tu resultado guardado." })
+      return
+    }
     els.ranking.innerHTML = '<div class="empty">No se pudo cargar el ranking.</div>'
     return
   }
@@ -79,6 +84,10 @@ async function loadMiniRanking() {
     .order("puntos", { ascending: false })
 
   if (error || !data) {
+    if (usaFallbackLocal) {
+      renderRanking([], { aviso: "Ranking del mini torneo no disponible. Mostrando tu resultado guardado." })
+      return
+    }
     els.ranking.innerHTML = '<div class="empty">No se pudo cargar el ranking del mini torneo.</div>'
     return
   }
@@ -86,40 +95,79 @@ async function loadMiniRanking() {
   renderRanking(data.map((row) => ({ usuario: row.usuario, puntos: row.puntos })))
 }
 
-function renderRanking(rows) {
-  const myIndex = rows.findIndex((row) => row.usuario === usuario)
-  const winner = rows[0]
+function renderRanking(rows, opciones = {}) {
+  const filas = normalizarFilasFinal(rows)
+  const myIndex = filas.findIndex((row) => row.usuario === usuario)
+  const filaUsuario = myIndex >= 0 ? filas[myIndex] : null
+  const winner = filas[0]
+
+  if (opciones.aviso) {
+    els.delta.textContent = opciones.aviso
+  }
+
   if (myIndex === 0) {
     els.result.textContent = "Ganaste"
-    burst()
+    if (filas.length > 1) burst()
   } else if (myIndex > 0 && winner) {
     const diff = Math.max(0, Number(winner.puntos || 0) - score)
-    els.delta.textContent = `Perdiste por ${diff} puntos`
+    agregarDelta(`Perdiste por ${diff} puntos`)
+  } else if (filaUsuario) {
+    els.result.textContent = "Resultado guardado"
   }
 
   const previousBest = Number(localStorage.getItem(`${gameKey}_best`) || 0)
-  if (score > previousBest) {
-    localStorage.setItem(`${gameKey}_best`, String(score))
-    els.delta.textContent = els.delta.textContent
-      ? `${els.delta.textContent} - Nuevo record personal`
-      : "Nuevo record personal"
+  const mejorRemoto = filaUsuario ? Number(filaUsuario.puntos || 0) : 0
+  const mejorPersonal = Math.max(previousBest, mejorRemoto, score)
+  if (mejorPersonal > previousBest) {
+    localStorage.setItem(`${gameKey}_best`, String(mejorPersonal))
   }
 
-  els.podio.innerHTML = rows.slice(0, 3).map((row, index) => `
+  if (myIndex >= 0) {
+    agregarDelta(`Posicion #${myIndex + 1} de ${filas.length}`)
+  }
+
+  if (score > previousBest && score > 0) {
+    agregarDelta("Nuevo record personal")
+  } else if (mejorPersonal > 0) {
+    agregarDelta(`Record personal: ${mejorPersonal} pts`)
+  }
+
+  els.podio.innerHTML = filas.slice(0, 3).map((row, index) => `
     <div class="podium-card">
       <span>#${index + 1}</span>
       <strong>${escapeHtml(row.usuario || "Jugador")}</strong>
       <em>${Number(row.puntos || 0)} pts</em>
     </div>
-  `).join("") || '<div class="empty">Todavia no hay podio.</div>'
+  `).join("") || '<div class="empty">Sin podio disponible.</div>'
 
-  els.ranking.innerHTML = rows.slice(0, 20).map((row, index) => `
+  els.ranking.innerHTML = filas.slice(0, 20).map((row, index) => `
     <div class="ranking-row ${row.usuario === usuario ? "current" : ""}">
       <span>#${index + 1}</span>
       <strong>${escapeHtml(row.usuario || "Jugador")}</strong>
       <span>${Number(row.puntos || 0)} pts</span>
     </div>
-  `).join("") || '<div class="empty">Todavia no hay resultados.</div>'
+  `).join("") || '<div class="empty">Sin resultados disponibles.</div>'
+}
+
+function normalizarFilasFinal(rows) {
+  const limpias = Array.isArray(rows)
+    ? rows
+      .filter((row) => row && row.usuario)
+      .map((row) => ({ usuario: row.usuario, puntos: Math.max(0, Number(row.puntos || 0)) }))
+    : []
+
+  if (usaFallbackLocal && usuario && !limpias.some((row) => row.usuario === usuario)) {
+    limpias.push({ usuario, puntos: Math.max(0, score) })
+  }
+
+  return limpias.sort((a, b) => Number(b.puntos || 0) - Number(a.puntos || 0))
+}
+
+function agregarDelta(texto) {
+  if (!texto) return
+  els.delta.textContent = els.delta.textContent
+    ? `${els.delta.textContent} - ${texto}`
+    : texto
 }
 
 function burst() {
