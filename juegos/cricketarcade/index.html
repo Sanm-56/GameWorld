@@ -6,14 +6,40 @@
   <title>Cricket Arcade</title>
   <link rel="stylesheet" href="../css/arcade.css">
 </head>
-<body>
-  <main class="final-card">
-    <h1>Cricket Arcade</h1>
-    <p>Entra con tu apodo y codigo para jugar el torneo.</p>
-    <input id="usuario" placeholder="Tu apodo">
-    <input id="codigo" placeholder="Codigo unico">
-    <button class="back" onclick="entrar()">Entrar</button>
-    <button class="back" onclick="window.location.href='../../index.html'">Volver</button>
+<body data-game="cricketarcade" data-screen="login">
+  <main class="arcade-login cricket-login">
+    <section class="login-hero" aria-hidden="true">
+      <div class="stadium-lights"></div>
+      <div class="cricket-field">
+        <span class="pitch-line pitch-line-a"></span>
+        <span class="pitch-line pitch-line-b"></span>
+        <span class="wicket wicket-left"></span>
+        <span class="wicket wicket-right"></span>
+        <span class="cricket-ball-mark"></span>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <span class="login-kicker">Torneo deportivo arcade</span>
+      <h1>Cricket Arcade</h1>
+      <p>Entra a la cancha con tu apodo y codigo unico.</p>
+
+      <div class="login-fields">
+        <label>
+          <span>Jugador</span>
+          <input id="usuario" autocomplete="nickname" placeholder="Tu apodo">
+        </label>
+        <label>
+          <span>Codigo unico</span>
+          <input id="codigo" autocomplete="one-time-code" placeholder="Ej: CRK-2048">
+        </label>
+      </div>
+
+      <div class="login-actions">
+        <button class="login-primary" onclick="entrar()">Entrar al torneo</button>
+        <button class="login-secondary" onclick="window.location.href='../../index.html'">Volver</button>
+      </div>
+    </section>
   </main>
   <script type="module" src="../js/login.js"></script>
 </body>

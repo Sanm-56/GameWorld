@@ -1,5 +1,47 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Esquiva Obstaculos</title><link rel="stylesheet" href="../css/arcade.css"></head>
-<body><main class="final-card"><h1>Esquiva Obstaculos</h1><p>Entra con tu apodo y codigo para jugar.</p><input id="usuario" placeholder="Tu apodo"><input id="codigo" placeholder="Codigo unico"><button class="back" onclick="entrar()">Entrar</button><button class="back" onclick="window.location.href='../../index.html'">Volver</button></main><script type="module" src="../js/login.js"></script></body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Esquiva Obstaculos</title>
+  <link rel="stylesheet" href="../css/arcade.css">
+</head>
+<body data-game="esquivaobstaculos" data-screen="login">
+  <main class="arcade-login dodge-login">
+    <section class="login-hero" aria-hidden="true">
+      <div class="neon-road">
+        <span class="road-line line-left"></span>
+        <span class="road-line line-mid"></span>
+        <span class="road-line line-right"></span>
+        <span class="dodge-ship"></span>
+        <span class="dodge-threat threat-a"></span>
+        <span class="dodge-threat threat-b"></span>
+        <span class="dodge-threat threat-c"></span>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <span class="login-kicker">Reflejos neon</span>
+      <h1>Esquiva Obstaculos</h1>
+      <p>Activa tu entrada y preparate para moverte sin parar.</p>
+
+      <div class="login-fields">
+        <label>
+          <span>Piloto</span>
+          <input id="usuario" autocomplete="nickname" placeholder="Tu apodo">
+        </label>
+        <label>
+          <span>Codigo unico</span>
+          <input id="codigo" autocomplete="one-time-code" placeholder="Ej: NEO-4096">
+        </label>
+      </div>
+
+      <div class="login-actions">
+        <button class="login-primary" onclick="entrar()">Iniciar carrera</button>
+        <button class="login-secondary" onclick="window.location.href='../../index.html'">Volver</button>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="../js/login.js"></script>
+</body>
 </html>
