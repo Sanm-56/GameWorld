@@ -1112,10 +1112,21 @@ body[data-game="basketballarcade"] .stage::before{
   border-bottom:0;
   border-radius:50% 50% 0 0;
 }
+.basket-court-play::after{
+  content:"";
+  position:absolute;
+  right:2.5%;
+  top:13%;
+  bottom:7%;
+  width:18px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#e0f2fe,#38bdf8 44%,#0f172a);
+  box-shadow:-18px 10px 34px rgba(0,0,0,.24),0 0 24px rgba(34,211,238,.22);
+}
 .basket-play-backboard{
   position:absolute;
-  width:112px;
-  height:78px;
+  width:118px;
+  height:82px;
   transform:translate(-50%,-50%);
   border:4px solid rgba(224,242,254,.92);
   border-radius:10px;
@@ -1141,18 +1152,18 @@ body[data-game="basketballarcade"] .stage::before{
 .basket-play-backboard::after{
   content:"";
   position:absolute;
-  right:-34px;
+  right:-40px;
   top:50%;
-  width:34px;
-  height:14px;
+  width:42px;
+  height:16px;
   transform:translateY(-50%);
   border-radius:0 999px 999px 0;
   background:linear-gradient(90deg,rgba(224,242,254,.9),rgba(34,211,238,.55),rgba(15,23,42,.7));
   box-shadow:10px 0 20px rgba(0,0,0,.25);
 }
 .basket-play-hoop{
-  width:72px;
-  height:30px;
+  width:70px;
+  height:28px;
   transform:translate(-50%,50%);
   border-width:6px;
   border-color:#fb923c;
@@ -1167,17 +1178,29 @@ body[data-game="basketballarcade"] .stage::before{
   position:absolute;
   left:50%;
   top:50%;
-  width:88px;
+  width:84px;
   height:10px;
   transform:translate(-50%,-50%);
   border-radius:999px;
   background:linear-gradient(90deg,transparent,#fed7aa,#fb923c,#fed7aa,transparent);
   box-shadow:0 0 20px rgba(251,146,60,.38);
 }
+.basket-play-hoop::after{
+  content:"";
+  position:absolute;
+  right:-24px;
+  top:50%;
+  width:28px;
+  height:9px;
+  transform:translateY(-50%);
+  border-radius:999px;
+  background:linear-gradient(90deg,#fb923c,#fed7aa);
+  box-shadow:0 0 14px rgba(251,146,60,.32);
+}
 .basket-play-net{
   position:absolute;
-  width:48px;
-  height:54px;
+  width:46px;
+  height:52px;
   transform:translate(-50%,0);
   clip-path:polygon(0 0,100% 0,72% 100%,28% 100%);
   background:

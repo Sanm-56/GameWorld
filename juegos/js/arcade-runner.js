@@ -52,8 +52,11 @@ const DODGE_COVERAGE_COOLDOWN_MS = 5200
 const DODGE_TOP_BAND_Y = 34
 const BASKET_START_X = 18
 const BASKET_START_Y = 17
-const BASKET_HOOP_X = 82
+const BASKET_HOOP_X = 80.5
 const BASKET_HOOP_Y = 62
+const BASKET_BOARD_X = 91
+const BASKET_BOARD_Y = 70
+const BASKET_BOARD_FACE_X = 87.8
 const BASKET_GRAVITY = 98
 const BASKET_MIN_POWER = 46
 const BASKET_MAX_POWER = 118
@@ -584,11 +587,11 @@ function renderBasket() {
     basketScene.power.appendChild(basketScene.powerFill)
   }
 
-  basketScene.backboard.style.left = `${BASKET_HOOP_X - 3}%`
-  basketScene.backboard.style.bottom = `${BASKET_HOOP_Y + 4}%`
+  basketScene.backboard.style.left = `${BASKET_BOARD_X}%`
+  basketScene.backboard.style.bottom = `${BASKET_BOARD_Y}%`
   basketScene.hoop.style.left = `${BASKET_HOOP_X}%`
   basketScene.hoop.style.bottom = `${BASKET_HOOP_Y}%`
-  basketScene.net.style.left = `${BASKET_HOOP_X + 1.2}%`
+  basketScene.net.style.left = `${BASKET_HOOP_X + 0.4}%`
   basketScene.net.style.bottom = `${BASKET_HOOP_Y - 9}%`
   basketScene.net.classList.toggle("made", performance.now() < basket.netUntil)
 
@@ -1250,7 +1253,7 @@ function resolveBasketBounds() {
 
 function resolveBasketBackboard() {
   const basket = state.basket
-  const boardFaceX = BASKET_HOOP_X + 7.2
+  const boardFaceX = BASKET_BOARD_FACE_X
   const boardBottom = BASKET_HOOP_Y + 2.2
   const boardTop = BASKET_HOOP_Y + 19.2
   const crossedBoard = basket.prevBallX < boardFaceX && basket.ballX + BASKET_BALL_RADIUS >= boardFaceX
@@ -1311,6 +1314,19 @@ function getBasketRimCrossing() {
   return { x, t }
 }
 
+function isBasketShotFinished() {
+  const basket = state.basket
+  const shotAge = performance.now() - basket.lastReleaseAt
+  const belowPlay = basket.ballY < -8
+  const tooFarLeft = basket.ballX < -10
+  const tooFarRight = basket.ballX > 110
+  const pastHoopAndFalling = basket.ballX < BASKET_HOOP_X - 17 && basket.vx <= 0 && basket.ballY < BASKET_HOOP_Y - 13 && basket.vy <= 0
+  const lowAndFalling = basket.ballY < BASKET_START_Y - 10 && basket.vy <= 0
+  const stalled = shotAge > 4200 && Math.hypot(basket.vx, basket.vy) < 16
+
+  return belowPlay || tooFarLeft || tooFarRight || (shotAge > 850 && pastHoopAndFalling) || (shotAge > 1250 && lowAndFalling) || stalled
+}
+
 function updateBasket(dt) {
   const basket = state.basket
   if (basket.mode === "charging") {
@@ -1330,9 +1346,9 @@ function updateBasket(dt) {
   basket.ballY += basket.vy * dt
   basket.vy -= BASKET_GRAVITY * dt
 
-  resolveBasketBounds()
   resolveBasketBackboard()
   resolveBasketRimBounce()
+  resolveBasketBounds()
 
   const rimCross = getBasketRimCrossing()
   const rimDiff = rimCross ? Math.abs(rimCross.x - BASKET_HOOP_X) : Infinity
@@ -1351,7 +1367,7 @@ function updateBasket(dt) {
     return
   }
 
-  if (basket.ballY < -8 || basket.ballX < -10 || basket.ballX > 110 || basket.bounceCount > 4) {
+  if (isBasketShotFinished()) {
     if (!basket.scored) {
       basketMiss(basket.missMarked ? "Reboto fuera" : "Tiro fallado")
       showBasketFeedback("Fallaste")
