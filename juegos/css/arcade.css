@@ -1114,14 +1114,29 @@ body[data-game="basketballarcade"] .stage::before{
 }
 .basket-play-backboard{
   position:absolute;
-  width:96px;
-  height:68px;
+  width:112px;
+  height:78px;
   transform:translate(-50%,-50%);
-  border:3px solid rgba(224,242,254,.86);
-  border-radius:8px;
-  background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(34,211,238,.08));
-  box-shadow:0 18px 38px rgba(0,0,0,.34),0 0 24px rgba(34,211,238,.2);
+  border:4px solid rgba(224,242,254,.92);
+  border-radius:10px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px),
+    linear-gradient(0deg,rgba(255,255,255,.08) 1px,transparent 1px),
+    linear-gradient(135deg,rgba(255,255,255,.2),rgba(34,211,238,.08));
+  background-size:18px 18px,18px 18px,auto;
+  box-shadow:0 18px 38px rgba(0,0,0,.34),0 0 28px rgba(34,211,238,.22),inset 0 0 0 2px rgba(2,6,23,.28);
   pointer-events:none;
+}
+.basket-play-backboard::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:14px;
+  width:42px;
+  height:28px;
+  transform:translateX(-50%);
+  border:3px solid rgba(255,237,213,.72);
+  border-radius:6px;
 }
 .basket-play-hoop{
   width:72px;
@@ -1134,6 +1149,18 @@ body[data-game="basketballarcade"] .stage::before{
   box-shadow:0 0 22px rgba(251,146,60,.42);
   z-index:4;
   pointer-events:none;
+}
+.basket-play-hoop::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:88px;
+  height:10px;
+  transform:translate(-50%,-50%);
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,#fed7aa,#fb923c,#fed7aa,transparent);
+  box-shadow:0 0 20px rgba(251,146,60,.38);
 }
 .basket-play-net{
   position:absolute;
@@ -1194,7 +1221,7 @@ body[data-game="basketballarcade"] .stage::before{
   pointer-events:none;
 }
 .basket-play-ball.flying{
-  animation:basketBallSpin .52s linear infinite;
+  filter:saturate(1.08) brightness(1.04);
 }
 .basket-play-ball.held{
   transition:left .12s ease,bottom .12s ease;
@@ -1210,13 +1237,23 @@ body[data-game="basketballarcade"] .stage::before{
   pointer-events:none;
   z-index:6;
 }
-.basket-guide-line{
-  height:4px;
-  transform-origin:left center;
-  background:linear-gradient(90deg,rgba(34,211,238,.86),rgba(251,146,60,.24),transparent);
-  box-shadow:0 0 18px rgba(34,211,238,.28);
+.basket-arc-guide{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
   pointer-events:none;
   z-index:2;
+  overflow:visible;
+}
+.basket-arc-guide path{
+  fill:none;
+  stroke:rgba(34,211,238,.86);
+  stroke-width:1.35;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:3 3;
+  filter:drop-shadow(0 0 5px rgba(34,211,238,.42));
 }
 .basket-power{
   position:absolute;
@@ -1608,7 +1645,6 @@ body[data-game="subelamontana"] .stage::after{
   .basket-ball,
   .score-flash,
   .basket-shooter::before,
-  .basket-play-ball.flying,
   .basket-play-net.made,
   .basket-feedback,
   .climb-spring.active,

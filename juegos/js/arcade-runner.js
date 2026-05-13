@@ -54,11 +54,11 @@ const BASKET_START_X = 18
 const BASKET_START_Y = 17
 const BASKET_HOOP_X = 82
 const BASKET_HOOP_Y = 62
-const BASKET_GRAVITY = 118
-const BASKET_CHARGE_MS = 1150
-const BASKET_MIN_POWER = 42
-const BASKET_MAX_POWER = 102
+const BASKET_GRAVITY = 98
+const BASKET_MIN_POWER = 46
+const BASKET_MAX_POWER = 118
 const BASKET_RELEASE_COOLDOWN_MS = 420
+const BASKET_BALL_RADIUS = 2.6
 const gameKey = document.body.dataset.game
 const DURACION = ["cricketarcade", "esquivaobstaculos"].includes(gameKey) ? 600 : 180
 const config = getArcadeGame(gameKey)
@@ -234,6 +234,7 @@ function createBasketState() {
     mode: "ready",
     ballX: BASKET_START_X,
     ballY: BASKET_START_Y,
+    prevBallX: BASKET_START_X,
     prevBallY: BASKET_START_Y,
     vx: 0,
     vy: 0,
@@ -247,6 +248,7 @@ function createBasketState() {
     feedbackUntil: 0,
     netUntil: 0,
     missMarked: false,
+    bounceCount: 0,
   }
 }
 
@@ -378,7 +380,7 @@ function setStatus(text) {
 }
 
 function clearStage() {
-  els.stage.querySelectorAll(".actor,.target,.trail,.block,.platform,.hoop,.ball,.bat,.mountain,.dodge-lane,.dodge-road-glow,.dodge-feedback,.basket-court-play,.basket-guide,.basket-power,.basket-feedback").forEach((node) => node.remove())
+  els.stage.querySelectorAll(".actor,.target,.trail,.block,.platform,.hoop,.ball,.bat,.mountain,.dodge-lane,.dodge-road-glow,.dodge-feedback,.basket-court-play,.basket-guide,.basket-arc-guide,.basket-power,.basket-feedback").forEach((node) => node.remove())
 }
 
 function makeEl(className, style = {}, text = "") {
@@ -554,12 +556,19 @@ function renderBasket() {
       net: makeEl("basket-play-net"),
       shooter: makeEl("actor basket-shooter"),
       guide: makeEl("basket-guide"),
-      guideLine: makeEl("trail basket-guide-line"),
+      guideLine: null,
       power: makeEl("basket-power"),
       powerFill: null,
       ball: makeEl("ball basket-play-ball"),
       feedback: makeEl("basket-feedback"),
     }
+    basketScene.guideLine = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    basketScene.guideLine.classList.add("basket-arc-guide")
+    basketScene.guideLine.setAttribute("viewBox", "0 0 100 100")
+    basketScene.guideLine.setAttribute("preserveAspectRatio", "none")
+    basketScene.guidePath = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    basketScene.guideLine.appendChild(basketScene.guidePath)
+    els.stage.appendChild(basketScene.guideLine)
     basketScene.powerFill = document.createElement("span")
     basketScene.power.appendChild(basketScene.powerFill)
   }
@@ -587,19 +596,13 @@ function renderBasket() {
   basketScene.guideLine.hidden = !guideVisible
   basketScene.power.hidden = !guideVisible
   if (guideVisible) {
-    const dx = basket.aimX - BASKET_START_X
-    const dy = basket.aimY - BASKET_START_Y
-    const len = clamp(Math.hypot(dx, dy), 12, 62)
-    const angle = Math.atan2(-dy, dx) * 180 / Math.PI
+    const metrics = getBasketAimMetrics()
     basketScene.guide.style.left = `${basket.aimX}%`
     basketScene.guide.style.bottom = `${basket.aimY}%`
-    basketScene.guideLine.style.left = `${BASKET_START_X + 2}%`
-    basketScene.guideLine.style.bottom = `${BASKET_START_Y + 3}%`
-    basketScene.guideLine.style.width = `${len}%`
-    basketScene.guideLine.style.transform = `rotate(${angle}deg)`
+    basketScene.guidePath.setAttribute("d", getBasketGuidePath(metrics))
     basketScene.power.style.left = `${BASKET_START_X - 5}%`
     basketScene.power.style.bottom = `${BASKET_START_Y + 13}%`
-    basketScene.powerFill.style.width = `${Math.round(getBasketCharge() * 100)}%`
+    basketScene.powerFill.style.width = `${Math.round(metrics.powerRatio * 100)}%`
   }
 
   if (basket.feedback && performance.now() < basket.feedbackUntil) {
@@ -1108,12 +1111,30 @@ function updateDodgeDirectionalInput(dt) {
   dodgeMovePulseUntil = performance.now() + 80
 }
 
-function getBasketCharge() {
+function getBasketAimMetrics() {
   const basket = state.basket
-  if (basket.mode !== "charging") return basket.charge || 0
-  const raw = clamp((performance.now() - basket.chargeStart) / BASKET_CHARGE_MS, 0, 1.18)
-  basket.charge = raw <= 1 ? raw : 1 - (raw - 1) * 0.42
-  return clamp(basket.charge, 0, 1)
+  const dx = basket.aimX - BASKET_START_X
+  const dy = basket.aimY - BASKET_START_Y
+  const distance = clamp(Math.hypot(dx, dy), 12, 78)
+  const powerRatio = clamp((distance - 12) / 66, 0, 1)
+  const angle = Math.atan2(dy, dx)
+  const speed = BASKET_MIN_POWER + powerRatio * (BASKET_MAX_POWER - BASKET_MIN_POWER)
+  const vx = Math.cos(angle) * speed
+  const vy = Math.sin(angle) * speed + 18 + powerRatio * 28
+  return { dx, dy, distance, powerRatio, angle, speed, vx, vy }
+}
+
+function getBasketGuidePath(metrics = getBasketAimMetrics()) {
+  const points = []
+  const step = 0.115
+  for (let i = 0; i < 11; i += 1) {
+    const t = i * step
+    const x = BASKET_START_X + metrics.vx * t
+    const y = BASKET_START_Y + metrics.vy * t - 0.5 * BASKET_GRAVITY * t * t
+    if (x < 0 || x > 100 || y < 0 || y > 100) break
+    points.push(`${x.toFixed(2)},${(100 - y).toFixed(2)}`)
+  }
+  return points.length ? `M ${points.join(" L ")}` : ""
 }
 
 function getBasketPoint(clientX, clientY) {
@@ -1154,7 +1175,9 @@ function startBasketCharge(clientX = null, clientY = null) {
   basket.missMarked = false
   basket.ballX = BASKET_START_X
   basket.ballY = BASKET_START_Y
+  basket.prevBallX = BASKET_START_X
   basket.prevBallY = BASKET_START_Y
+  basket.bounceCount = 0
   setStatus("Mantén presionado, apunta y suelta")
 }
 
@@ -1162,22 +1185,17 @@ function releaseBasketShot() {
   const basket = state.basket
   if (basket.mode !== "charging") return
 
-  const charge = getBasketCharge()
-  const powerError = charge - 0.72
-  const targetX = clamp(basket.aimX + powerError * 20, 18, 102)
-  const targetY = clamp(basket.aimY + powerError * 8, 22, 92)
-  const flightTime = 1.32 - charge * 0.48
-  const power = BASKET_MIN_POWER + charge * (BASKET_MAX_POWER - BASKET_MIN_POWER)
+  const metrics = getBasketAimMetrics()
 
   basket.mode = "flying"
   basket.lastReleaseAt = performance.now()
-  basket.vx = (targetX - BASKET_START_X) / flightTime
-  basket.vy = (targetY - BASKET_START_Y + 0.5 * BASKET_GRAVITY * flightTime * flightTime) / flightTime
-  basket.vx += (power - 72) * 0.05
+  basket.vx = metrics.vx
+  basket.vy = metrics.vy
   basket.scored = false
   basket.missMarked = false
+  basket.bounceCount = 0
   basket.feedback = ""
-  setStatus(`Tiro ${Math.round(charge * 100)}%`)
+  setStatus(`Potencia ${Math.round(metrics.powerRatio * 100)}%`)
 }
 
 function resetBasketShot(message = "") {
@@ -1196,22 +1214,103 @@ function showBasketFeedback(text) {
   state.basket.feedbackUntil = performance.now() + 850
 }
 
+function resolveBasketBounds() {
+  const basket = state.basket
+  if (basket.ballX <= BASKET_BALL_RADIUS) {
+    basket.ballX = BASKET_BALL_RADIUS
+    basket.vx = Math.abs(basket.vx) * 0.72
+    basket.bounceCount += 1
+    basket.missMarked = true
+  } else if (basket.ballX >= 100 - BASKET_BALL_RADIUS) {
+    basket.ballX = 100 - BASKET_BALL_RADIUS
+    basket.vx = -Math.abs(basket.vx) * 0.72
+    basket.bounceCount += 1
+    basket.missMarked = true
+  }
+
+  if (basket.ballY >= 94) {
+    basket.ballY = 94
+    basket.vy = -Math.abs(basket.vy) * 0.62
+    basket.vx *= 0.88
+    basket.bounceCount += 1
+    basket.missMarked = true
+  }
+}
+
+function resolveBasketBackboard() {
+  const basket = state.basket
+  const boardLeft = BASKET_HOOP_X - 8.8
+  const boardRight = BASKET_HOOP_X + 3.8
+  const boardBottom = BASKET_HOOP_Y + 1.4
+  const boardTop = BASKET_HOOP_Y + 17.2
+  const crossedBoard = basket.prevBallX < boardLeft && basket.ballX + BASKET_BALL_RADIUS >= boardLeft
+  const inBoardY = basket.ballY >= boardBottom && basket.ballY <= boardTop
+
+  if (!crossedBoard || !inBoardY || basket.vx <= 0) return
+
+  basket.ballX = boardLeft - BASKET_BALL_RADIUS
+  basket.vx = -Math.abs(basket.vx) * 0.56
+  basket.vy *= 0.86
+  basket.bounceCount += 1
+  basket.missMarked = true
+  showBasketFeedback("Tablero")
+}
+
+function resolveBasketRimBounce() {
+  const basket = state.basket
+  if (basket.scored || basket.vy < -70) return
+
+  const rimY = BASKET_HOOP_Y
+  const rimLeft = BASKET_HOOP_X - 5.2
+  const rimRight = BASKET_HOOP_X + 5.2
+  const possibleScore = basket.prevBallY >= BASKET_HOOP_Y
+    && basket.ballY <= BASKET_HOOP_Y + 2.8
+    && Math.abs(basket.ballX - BASKET_HOOP_X) <= 4.2
+  if (possibleScore) return
+  const nearY = Math.abs(basket.ballY - rimY) <= 3.2
+  if (!nearY) return
+
+  const hitLeft = basket.prevBallX < rimLeft && basket.ballX + BASKET_BALL_RADIUS >= rimLeft
+  const hitRight = basket.prevBallX > rimRight && basket.ballX - BASKET_BALL_RADIUS <= rimRight
+  const topHit = basket.prevBallY > rimY + 2 && basket.ballY - BASKET_BALL_RADIUS <= rimY + 2
+    && basket.ballX > rimLeft - 1 && basket.ballX < rimRight + 1
+
+  if (!hitLeft && !hitRight && !topHit) return
+
+  basket.bounceCount += 1
+  basket.missMarked = true
+  if (topHit) {
+    basket.vy = Math.abs(basket.vy) * 0.42
+    basket.vx += basket.ballX < BASKET_HOOP_X ? -10 : 10
+  } else {
+    basket.vx = (hitLeft ? -1 : 1) * Math.max(18, Math.abs(basket.vx) * 0.46)
+    basket.vy = Math.max(10, Math.abs(basket.vy) * 0.36)
+  }
+  showBasketFeedback("Aro")
+}
+
 function updateBasket(dt) {
   const basket = state.basket
   if (basket.mode === "charging") {
-    getBasketCharge()
-    const sway = Math.sin(performance.now() / 260) * (0.18 + basket.charge * 0.32)
+    const metrics = getBasketAimMetrics()
+    basket.charge = metrics.powerRatio
+    const sway = Math.sin(performance.now() / 260) * (0.1 + metrics.powerRatio * 0.18)
     basket.ballX = BASKET_START_X + sway
-    basket.ballY = BASKET_START_Y + basket.charge * 2.4
+    basket.ballY = BASKET_START_Y + metrics.powerRatio * 1.8
     return
   }
 
   if (basket.mode !== "flying") return
 
+  basket.prevBallX = basket.ballX
   basket.prevBallY = basket.ballY
   basket.ballX += basket.vx * dt
   basket.ballY += basket.vy * dt
   basket.vy -= BASKET_GRAVITY * dt
+
+  resolveBasketBounds()
+  resolveBasketBackboard()
+  resolveBasketRimBounce()
 
   const descending = basket.vy < 0
   const crossesRim = basket.prevBallY >= BASKET_HOOP_Y && basket.ballY <= BASKET_HOOP_Y + 2.8
@@ -1239,7 +1338,7 @@ function updateBasket(dt) {
     showBasketFeedback("Tocó el aro")
   }
 
-  if (basket.ballY < -8 || basket.ballX < -10 || basket.ballX > 110) {
+  if (basket.ballY < -8 || basket.ballX < -10 || basket.ballX > 110 || basket.bounceCount > 4) {
     if (!basket.scored) {
       miss(basket.missMarked ? "Rebotó fuera" : "Tiro fallado")
       showBasketFeedback("Fallaste")
@@ -1693,7 +1792,7 @@ renderHud()
 setStatus(config.type === "timing"
   ? "Toca la pantalla, Espacio o Golpear cuando la bola entre en la zona"
   : config.type === "basket"
-    ? "Mantén presionado, apunta y suelta para lanzar"
+    ? "Arrastra para apuntar: mas largo = mas fuerza"
     : "Listo")
 tournamentCheckId = setInterval(checkTournamentState, 3000)
 rafId = requestAnimationFrame(loop)
@@ -1710,7 +1809,7 @@ startTimer().then((started) => {
   setStatus(config.type === "timing"
     ? "Partida iniciada: golpea en la zona dorada"
     : config.type === "basket"
-      ? "Mantén presionado, apunta al aro y suelta"
+      ? "Arrastra la guia curva y suelta para lanzar"
       : "Partida iniciada")
 })
 
