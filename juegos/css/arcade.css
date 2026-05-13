@@ -1061,11 +1061,199 @@ body[data-game="basketballarcade"][data-screen="login"]{
   0%,38%,100%{opacity:0;transform:translateY(8px) scale(.9)}
   52%,68%{opacity:1;transform:translateY(0) scale(1)}
 }
+@keyframes basketArmLoad{
+  from{transform:rotate(-18deg) translateY(0)}
+  to{transform:rotate(-48deg) translateY(-5px)}
+}
+@keyframes basketBallSpin{
+  to{rotate:360deg}
+}
+@keyframes basketNetSnap{
+  0%{transform:translate(-50%,0) scaleY(.72)}
+  45%{transform:translate(-50%,-3px) scaleY(1.18)}
+  100%{transform:translate(-50%,0) scaleY(1)}
+}
+@keyframes basketFeedbackPop{
+  0%{opacity:0;transform:translate(-50%,8px) scale(.94)}
+  20%{opacity:1;transform:translate(-50%,0) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-16px) scale(.98)}
+}
 body[data-game="basketballarcade"] .stage{
+  touch-action:none;
+  cursor:crosshair;
+  user-select:none;
+  -webkit-user-select:none;
   background:
     repeating-linear-gradient(0deg,rgba(251,146,60,.10) 0 8px,transparent 8px 16px),
     radial-gradient(circle at 78% 18%,rgba(34,211,238,.18),transparent 26%),
     linear-gradient(160deg,#2b1208,#101827);
+}
+body[data-game="basketballarcade"] .stage::before{
+  inset:18px;
+  border-color:rgba(251,146,60,.28);
+}
+.basket-court-play{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 76% 70%,rgba(251,146,60,.18),transparent 24%),
+    linear-gradient(90deg,transparent 0 48%,rgba(255,237,213,.12) 48% 49%,transparent 49%),
+    repeating-linear-gradient(90deg,rgba(255,237,213,.055) 0 2px,transparent 2px 44px);
+}
+.basket-court-play::before{
+  content:"";
+  position:absolute;
+  left:6%;
+  right:6%;
+  bottom:7%;
+  height:46%;
+  border:2px solid rgba(255,237,213,.22);
+  border-bottom:0;
+  border-radius:50% 50% 0 0;
+}
+.basket-play-backboard{
+  position:absolute;
+  width:96px;
+  height:68px;
+  transform:translate(-50%,-50%);
+  border:3px solid rgba(224,242,254,.86);
+  border-radius:8px;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(34,211,238,.08));
+  box-shadow:0 18px 38px rgba(0,0,0,.34),0 0 24px rgba(34,211,238,.2);
+  pointer-events:none;
+}
+.basket-play-hoop{
+  width:72px;
+  height:30px;
+  transform:translate(-50%,50%);
+  border-width:6px;
+  border-color:#fb923c;
+  border-top-color:#fed7aa;
+  background:transparent;
+  box-shadow:0 0 22px rgba(251,146,60,.42);
+  z-index:4;
+  pointer-events:none;
+}
+.basket-play-net{
+  position:absolute;
+  width:48px;
+  height:54px;
+  transform:translate(-50%,0);
+  clip-path:polygon(0 0,100% 0,72% 100%,28% 100%);
+  background:
+    linear-gradient(90deg,transparent 0 22%,rgba(255,237,213,.46) 22% 26%,transparent 26% 48%,rgba(255,237,213,.46) 48% 52%,transparent 52% 74%,rgba(255,237,213,.46) 74% 78%,transparent 78%),
+    linear-gradient(180deg,rgba(255,237,213,.3),transparent);
+  z-index:2;
+  pointer-events:none;
+}
+.basket-play-net.made{
+  animation:basketNetSnap .42s ease-out;
+}
+.basket-shooter{
+  width:48px;
+  height:70px;
+  transform:translate(-50%,50%);
+  border-radius:22px 22px 12px 12px;
+  background:
+    radial-gradient(circle at 50% 14%,#fff7ed,transparent 15%),
+    linear-gradient(135deg,#22d3ee,#0f172a 52%,#fb923c);
+  box-shadow:0 18px 34px rgba(0,0,0,.34),0 0 18px rgba(34,211,238,.2);
+  z-index:3;
+}
+.basket-shooter::before{
+  content:"";
+  position:absolute;
+  right:-19px;
+  top:23px;
+  width:34px;
+  height:12px;
+  border-radius:999px;
+  background:#fed7aa;
+  transform-origin:left center;
+  transform:rotate(-26deg);
+}
+.basket-shooter.charging::before{
+  animation:basketArmLoad .48s ease-in-out infinite alternate;
+}
+.basket-shooter.released::before{
+  transform:rotate(-54deg) translateX(6px);
+}
+.basket-play-ball{
+  width:46px;
+  height:46px;
+  transform:translate(-50%,50%);
+  border-radius:999px;
+  background:
+    linear-gradient(90deg,transparent 47%,rgba(67,20,7,.58) 48% 52%,transparent 53%),
+    linear-gradient(0deg,transparent 47%,rgba(67,20,7,.55) 48% 52%,transparent 53%),
+    radial-gradient(circle at 30% 24%,#fed7aa,transparent 18%),
+    linear-gradient(135deg,#fb923c,#c2410c);
+  box-shadow:0 18px 34px rgba(0,0,0,.34),0 0 22px rgba(251,146,60,.26);
+  z-index:5;
+  pointer-events:none;
+}
+.basket-play-ball.flying{
+  animation:basketBallSpin .52s linear infinite;
+}
+.basket-play-ball.held{
+  transition:left .12s ease,bottom .12s ease;
+}
+.basket-guide{
+  position:absolute;
+  width:18px;
+  height:18px;
+  transform:translate(-50%,50%);
+  border:2px solid rgba(34,211,238,.85);
+  border-radius:999px;
+  box-shadow:0 0 18px rgba(34,211,238,.42);
+  pointer-events:none;
+  z-index:6;
+}
+.basket-guide-line{
+  height:4px;
+  transform-origin:left center;
+  background:linear-gradient(90deg,rgba(34,211,238,.86),rgba(251,146,60,.24),transparent);
+  box-shadow:0 0 18px rgba(34,211,238,.28);
+  pointer-events:none;
+  z-index:2;
+}
+.basket-power{
+  position:absolute;
+  width:88px;
+  height:12px;
+  padding:2px;
+  transform:translate(-50%,50%);
+  border:1px solid rgba(255,237,213,.34);
+  border-radius:999px;
+  background:rgba(2,6,23,.62);
+  box-shadow:0 10px 22px rgba(0,0,0,.28);
+  pointer-events:none;
+  z-index:7;
+}
+.basket-power span{
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#22d3ee,#fb923c,#facc15);
+  box-shadow:0 0 14px rgba(251,146,60,.42);
+}
+.basket-feedback{
+  position:absolute;
+  left:50%;
+  top:14%;
+  transform:translateX(-50%);
+  padding:9px 13px;
+  border:1px solid rgba(251,146,60,.34);
+  border-radius:999px;
+  color:#fff7ed;
+  background:rgba(2,6,23,.68);
+  font-weight:1000;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  z-index:8;
+  animation:basketFeedbackPop .85s ease forwards;
 }
 body[data-game="torreinfinita"] .stage{
   background:
@@ -1419,6 +1607,10 @@ body[data-game="subelamontana"] .stage::after{
   .jump-spring,
   .basket-ball,
   .score-flash,
+  .basket-shooter::before,
+  .basket-play-ball.flying,
+  .basket-play-net.made,
+  .basket-feedback,
   .climb-spring.active,
   body[data-game="esquivaobstaculos"] .stage::after,
   .dodge-feedback,

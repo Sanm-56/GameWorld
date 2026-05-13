@@ -1,6 +1,41 @@
 import { supabase } from "./supabase.js"
 import { safeAlert } from "./mensajes.js"
 
+const SAVED_NICKNAME_KEY = "savedNickname"
+const SAVED_UNIQUE_CODE_KEY = "savedUniqueCode"
+
+function getLoginFields() {
+return {
+usuarioInput: document.getElementById("usuario"),
+codigoInput: document.getElementById("codigo")
+}
+}
+
+function precargarCredencialesGuardadas() {
+const { usuarioInput, codigoInput } = getLoginFields()
+
+if(!usuarioInput || !codigoInput) return
+
+const savedNickname = localStorage.getItem(SAVED_NICKNAME_KEY) || localStorage.getItem("usuario") || ""
+const savedUniqueCode = localStorage.getItem(SAVED_UNIQUE_CODE_KEY) || ""
+
+if(savedNickname && !usuarioInput.value){
+usuarioInput.value = savedNickname
+}
+
+if(savedUniqueCode && !codigoInput.value){
+codigoInput.value = savedUniqueCode
+}
+
+usuarioInput.setAttribute("autocomplete", usuarioInput.getAttribute("autocomplete") || "nickname")
+codigoInput.setAttribute("autocomplete", codigoInput.getAttribute("autocomplete") || "one-time-code")
+}
+
+function guardarCredencialesLocales(usuario, codigo) {
+localStorage.setItem(SAVED_NICKNAME_KEY, usuario)
+localStorage.setItem(SAVED_UNIQUE_CODE_KEY, codigo)
+}
+
 async function entrar(){
 
 let usuario = document.getElementById("usuario").value.trim()
@@ -19,6 +54,7 @@ p_codigo: codigo
 
 if(!loginRpcError && loginRpc){
 if(loginRpc.ok){
+guardarCredencialesLocales(usuario, codigo)
 localStorage.setItem("usuario", usuario)
 window.location.href="lobby.html"
 return
@@ -47,6 +83,7 @@ return
 }
 
 // ENTRAR
+guardarCredencialesLocales(usuario, codigo)
 localStorage.setItem("usuario",usuario)
 window.location.href="lobby.html"
 return
@@ -83,9 +120,12 @@ await supabase
 .eq("codigo",codigo)
 
 localStorage.setItem("usuario",usuario)
+guardarCredencialesLocales(usuario, codigo)
 
 window.location.href="lobby.html"
 
 }
+
+precargarCredencialesGuardadas()
 
 window.entrar = entrar

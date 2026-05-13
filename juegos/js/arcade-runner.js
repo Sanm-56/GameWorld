@@ -50,6 +50,15 @@ const DODGE_STILL_PRESSURE_MS = 1900
 const DODGE_PRESSURE_COOLDOWN_MS = 3200
 const DODGE_COVERAGE_COOLDOWN_MS = 5200
 const DODGE_TOP_BAND_Y = 34
+const BASKET_START_X = 18
+const BASKET_START_Y = 17
+const BASKET_HOOP_X = 82
+const BASKET_HOOP_Y = 62
+const BASKET_GRAVITY = 118
+const BASKET_CHARGE_MS = 1150
+const BASKET_MIN_POWER = 42
+const BASKET_MAX_POWER = 102
+const BASKET_RELEASE_COOLDOWN_MS = 420
 const gameKey = document.body.dataset.game
 const DURACION = ["cricketarcade", "esquivaobstaculos"].includes(gameKey) ? 600 : 180
 const config = getArcadeGame(gameKey)
@@ -142,6 +151,9 @@ const dodgeButtonInputs = new Set()
 const dodgeZoneLastThreatAt = DODGE_ZONE_CENTERS.map(() => 0)
 const climbPressedKeys = new Set()
 const climbButtonInputs = new Set()
+let basketScene = null
+let basketPointerId = null
+let basketKeyCharging = false
 
 if (config.type === "stack") resetStackState()
 if (config.type === "climb") resetClimbState()
@@ -211,8 +223,30 @@ function createState() {
     stackX: STACK_BASE_X,
     stackDir: 1,
     climb: createClimbState(),
+    basket: createBasketState(),
     platforms: [],
     nextId: 1,
+  }
+}
+
+function createBasketState() {
+  return {
+    mode: "ready",
+    ballX: BASKET_START_X,
+    ballY: BASKET_START_Y,
+    prevBallY: BASKET_START_Y,
+    vx: 0,
+    vy: 0,
+    aimX: BASKET_HOOP_X,
+    aimY: BASKET_HOOP_Y + 8,
+    chargeStart: 0,
+    charge: 0,
+    scored: false,
+    lastReleaseAt: 0,
+    feedback: "",
+    feedbackUntil: 0,
+    netUntil: 0,
+    missMarked: false,
   }
 }
 
@@ -344,7 +378,7 @@ function setStatus(text) {
 }
 
 function clearStage() {
-  els.stage.querySelectorAll(".actor,.target,.trail,.block,.platform,.hoop,.ball,.bat,.mountain,.dodge-lane,.dodge-road-glow,.dodge-feedback").forEach((node) => node.remove())
+  els.stage.querySelectorAll(".actor,.target,.trail,.block,.platform,.hoop,.ball,.bat,.mountain,.dodge-lane,.dodge-road-glow,.dodge-feedback,.basket-court-play,.basket-guide,.basket-power,.basket-feedback").forEach((node) => node.remove())
 }
 
 function makeEl(className, style = {}, text = "") {
@@ -510,10 +544,70 @@ function renderClimb() {
 }
 
 function renderBasket() {
-  clearStage()
-  makeEl("hoop", { right: "10%", top: `${state.target}%` })
-  makeEl("ball", { left: "14%", bottom: "16%" })
-  makeEl("trail", { left: "18%", bottom: "20%", width: `${state.x}%`, transform: `rotate(${-20 - level * 2}deg)` })
+  const basket = state.basket
+  if (!basketScene) {
+    clearStage()
+    basketScene = {
+      court: makeEl("basket-court-play"),
+      backboard: makeEl("basket-play-backboard"),
+      hoop: makeEl("hoop basket-play-hoop"),
+      net: makeEl("basket-play-net"),
+      shooter: makeEl("actor basket-shooter"),
+      guide: makeEl("basket-guide"),
+      guideLine: makeEl("trail basket-guide-line"),
+      power: makeEl("basket-power"),
+      powerFill: null,
+      ball: makeEl("ball basket-play-ball"),
+      feedback: makeEl("basket-feedback"),
+    }
+    basketScene.powerFill = document.createElement("span")
+    basketScene.power.appendChild(basketScene.powerFill)
+  }
+
+  basketScene.backboard.style.left = `${BASKET_HOOP_X - 3}%`
+  basketScene.backboard.style.bottom = `${BASKET_HOOP_Y + 4}%`
+  basketScene.hoop.style.left = `${BASKET_HOOP_X}%`
+  basketScene.hoop.style.bottom = `${BASKET_HOOP_Y}%`
+  basketScene.net.style.left = `${BASKET_HOOP_X + 1.2}%`
+  basketScene.net.style.bottom = `${BASKET_HOOP_Y - 9}%`
+  basketScene.net.classList.toggle("made", performance.now() < basket.netUntil)
+
+  basketScene.shooter.style.left = `${BASKET_START_X - 4}%`
+  basketScene.shooter.style.bottom = `${BASKET_START_Y - 4}%`
+  basketScene.shooter.classList.toggle("charging", basket.mode === "charging")
+  basketScene.shooter.classList.toggle("released", basket.mode === "flying")
+
+  basketScene.ball.style.left = `${basket.ballX}%`
+  basketScene.ball.style.bottom = `${basket.ballY}%`
+  basketScene.ball.classList.toggle("flying", basket.mode === "flying")
+  basketScene.ball.classList.toggle("held", basket.mode === "ready" || basket.mode === "charging")
+
+  const guideVisible = basket.mode === "ready" || basket.mode === "charging"
+  basketScene.guide.hidden = !guideVisible
+  basketScene.guideLine.hidden = !guideVisible
+  basketScene.power.hidden = !guideVisible
+  if (guideVisible) {
+    const dx = basket.aimX - BASKET_START_X
+    const dy = basket.aimY - BASKET_START_Y
+    const len = clamp(Math.hypot(dx, dy), 12, 62)
+    const angle = Math.atan2(-dy, dx) * 180 / Math.PI
+    basketScene.guide.style.left = `${basket.aimX}%`
+    basketScene.guide.style.bottom = `${basket.aimY}%`
+    basketScene.guideLine.style.left = `${BASKET_START_X + 2}%`
+    basketScene.guideLine.style.bottom = `${BASKET_START_Y + 3}%`
+    basketScene.guideLine.style.width = `${len}%`
+    basketScene.guideLine.style.transform = `rotate(${angle}deg)`
+    basketScene.power.style.left = `${BASKET_START_X - 5}%`
+    basketScene.power.style.bottom = `${BASKET_START_Y + 13}%`
+    basketScene.powerFill.style.width = `${Math.round(getBasketCharge() * 100)}%`
+  }
+
+  if (basket.feedback && performance.now() < basket.feedbackUntil) {
+    basketScene.feedback.hidden = false
+    basketScene.feedback.textContent = basket.feedback
+  } else {
+    basketScene.feedback.hidden = true
+  }
 }
 
 function loop(ts) {
@@ -1014,6 +1108,146 @@ function updateDodgeDirectionalInput(dt) {
   dodgeMovePulseUntil = performance.now() + 80
 }
 
+function getBasketCharge() {
+  const basket = state.basket
+  if (basket.mode !== "charging") return basket.charge || 0
+  const raw = clamp((performance.now() - basket.chargeStart) / BASKET_CHARGE_MS, 0, 1.18)
+  basket.charge = raw <= 1 ? raw : 1 - (raw - 1) * 0.42
+  return clamp(basket.charge, 0, 1)
+}
+
+function getBasketPoint(clientX, clientY) {
+  const rect = els.stage.getBoundingClientRect()
+  const x = rect.width ? clamp((clientX - rect.left) / rect.width * 100, 6, 94) : BASKET_HOOP_X
+  const y = rect.height ? clamp((rect.bottom - clientY) / rect.height * 100, 14, 88) : BASKET_HOOP_Y
+  return { x, y }
+}
+
+function setBasketAim(clientX, clientY) {
+  const point = getBasketPoint(clientX, clientY)
+  state.basket.aimX = point.x
+  state.basket.aimY = point.y
+}
+
+function startBasketCharge(clientX = null, clientY = null) {
+  if (juegoTerminado) return
+  if (!juegoActivo) {
+    setStatus("Espera a que cargue el cronometro")
+    return
+  }
+
+  const basket = state.basket
+  const now = performance.now()
+  if (basket.mode === "flying" || now - basket.lastReleaseAt < BASKET_RELEASE_COOLDOWN_MS) return
+
+  if (typeof clientX === "number" && typeof clientY === "number") {
+    setBasketAim(clientX, clientY)
+  } else {
+    basket.aimX = BASKET_HOOP_X
+    basket.aimY = BASKET_HOOP_Y + 8
+  }
+
+  basket.mode = "charging"
+  basket.chargeStart = now
+  basket.charge = 0
+  basket.scored = false
+  basket.missMarked = false
+  basket.ballX = BASKET_START_X
+  basket.ballY = BASKET_START_Y
+  basket.prevBallY = BASKET_START_Y
+  setStatus("Mantén presionado, apunta y suelta")
+}
+
+function releaseBasketShot() {
+  const basket = state.basket
+  if (basket.mode !== "charging") return
+
+  const charge = getBasketCharge()
+  const powerError = charge - 0.72
+  const targetX = clamp(basket.aimX + powerError * 20, 18, 102)
+  const targetY = clamp(basket.aimY + powerError * 8, 22, 92)
+  const flightTime = 1.32 - charge * 0.48
+  const power = BASKET_MIN_POWER + charge * (BASKET_MAX_POWER - BASKET_MIN_POWER)
+
+  basket.mode = "flying"
+  basket.lastReleaseAt = performance.now()
+  basket.vx = (targetX - BASKET_START_X) / flightTime
+  basket.vy = (targetY - BASKET_START_Y + 0.5 * BASKET_GRAVITY * flightTime * flightTime) / flightTime
+  basket.vx += (power - 72) * 0.05
+  basket.scored = false
+  basket.missMarked = false
+  basket.feedback = ""
+  setStatus(`Tiro ${Math.round(charge * 100)}%`)
+}
+
+function resetBasketShot(message = "") {
+  state.basket = {
+    ...createBasketState(),
+    aimX: clamp(BASKET_HOOP_X - 2 + rand(-5, 5), 58, 90),
+    aimY: clamp(BASKET_HOOP_Y + 8 + rand(-7, 7), 38, 82),
+  }
+  basketPointerId = null
+  basketKeyCharging = false
+  if (message) setStatus(message)
+}
+
+function showBasketFeedback(text) {
+  state.basket.feedback = text
+  state.basket.feedbackUntil = performance.now() + 850
+}
+
+function updateBasket(dt) {
+  const basket = state.basket
+  if (basket.mode === "charging") {
+    getBasketCharge()
+    const sway = Math.sin(performance.now() / 260) * (0.18 + basket.charge * 0.32)
+    basket.ballX = BASKET_START_X + sway
+    basket.ballY = BASKET_START_Y + basket.charge * 2.4
+    return
+  }
+
+  if (basket.mode !== "flying") return
+
+  basket.prevBallY = basket.ballY
+  basket.ballX += basket.vx * dt
+  basket.ballY += basket.vy * dt
+  basket.vy -= BASKET_GRAVITY * dt
+
+  const descending = basket.vy < 0
+  const crossesRim = basket.prevBallY >= BASKET_HOOP_Y && basket.ballY <= BASKET_HOOP_Y + 2.8
+  const rimDiff = Math.abs(basket.ballX - BASKET_HOOP_X)
+
+  if (!basket.scored && descending && crossesRim && rimDiff <= 4.2) {
+    basket.scored = true
+    basket.netUntil = performance.now() + 620
+    basket.vx *= 0.28
+    basket.vy = -28
+    basket.ballX = BASKET_HOOP_X + clamp(basket.ballX - BASKET_HOOP_X, -1.6, 1.6)
+    addScore(rimDiff <= 1.8 ? 70 + level * 7 : 45 + level * 5)
+    showBasketFeedback(rimDiff <= 1.8 ? "Canasta perfecta" : "Canasta")
+    setTimeout(() => {
+      if (!juegoTerminado && state.basket === basket) resetBasketShot("Siguiente tiro")
+    }, 720)
+    return
+  }
+
+  const rimHit = descending && crossesRim && rimDiff <= 8.2 && rimDiff > 4.2
+  if (rimHit && !basket.missMarked) {
+    basket.missMarked = true
+    basket.vx += basket.ballX < BASKET_HOOP_X ? -16 : 16
+    basket.vy = Math.max(12, Math.abs(basket.vy) * 0.34)
+    showBasketFeedback("Tocó el aro")
+  }
+
+  if (basket.ballY < -8 || basket.ballX < -10 || basket.ballX > 110) {
+    if (!basket.scored) {
+      miss(basket.missMarked ? "Rebotó fuera" : "Tiro fallado")
+      showBasketFeedback("Fallaste")
+    }
+    if (!juegoTerminado) resetBasketShot("Prepara otro tiro")
+  }
+}
+
 function update(dt) {
   if (config.type === "timing") {
     updateCricket(dt)
@@ -1043,7 +1277,7 @@ function update(dt) {
     return
   }
 
-  state.x = clamp(state.x + 38 * dt, 10, 78)
+  updateBasket(dt)
 }
 
 function action() {
@@ -1089,18 +1323,19 @@ function action() {
     return
   }
 
-  const target = state.target
-  const power = state.x
-  const perfect = 54 + (target - 42) * 0.55
-  const diff = Math.abs(power - perfect)
-  if (diff < 5) addScore(50 + level * 5)
-  else if (diff < 12) addScore(25)
-  else miss("Tiro fallado")
-  state.x = 10
-  state.target = rand(24, 60)
+  const basket = state.basket
+  if (basket.mode === "charging") {
+    releaseBasketShot()
+  } else {
+    startBasketCharge()
+  }
 }
 
-els.action.addEventListener("click", action, { signal: inputController.signal })
+if (config.type === "basket") {
+  els.action.textContent = "Mantener y soltar"
+} else {
+  els.action.addEventListener("click", action, { signal: inputController.signal })
+}
 if (config.type === "timing") {
   els.stage.addEventListener("pointerdown", (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return
@@ -1109,6 +1344,13 @@ if (config.type === "timing") {
   }, { signal: inputController.signal })
 }
 document.addEventListener("keydown", (event) => {
+  if (config.type === "basket" && ["Space", "ArrowUp", "Enter"].includes(event.code)) {
+    event.preventDefault()
+    if (event.repeat || basketKeyCharging) return
+    basketKeyCharging = true
+    startBasketCharge()
+    return
+  }
   if (config.type === "dodge" && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "KeyA", "KeyD", "KeyW", "KeyS"].includes(event.code)) {
     event.preventDefault()
     dodgePressedKeys.add(event.code)
@@ -1132,6 +1374,12 @@ document.addEventListener("keydown", (event) => {
 }, { signal: inputController.signal })
 
 document.addEventListener("keyup", (event) => {
+  if (config.type === "basket" && ["Space", "ArrowUp", "Enter"].includes(event.code)) {
+    event.preventDefault()
+    basketKeyCharging = false
+    releaseBasketShot()
+    return
+  }
   if (config.type === "climb") {
     climbPressedKeys.delete(event.code)
     return
@@ -1145,6 +1393,9 @@ window.addEventListener("blur", () => {
   dodgeButtonInputs.clear()
   climbPressedKeys.clear()
   climbButtonInputs.clear()
+  basketKeyCharging = false
+  basketPointerId = null
+  releaseBasketShot()
 }, { signal: inputController.signal })
 
 if (config.type === "dodge") {
@@ -1176,6 +1427,47 @@ if (config.type === "dodge") {
       dodgeButtonInputs.delete(dir)
     }, { signal: inputController.signal })
   })
+}
+
+if (config.type === "basket") {
+  els.stage.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return
+    event.preventDefault()
+    basketPointerId = event.pointerId
+    els.stage.setPointerCapture?.(event.pointerId)
+    startBasketCharge(event.clientX, event.clientY)
+  }, { signal: inputController.signal })
+  els.stage.addEventListener("pointermove", (event) => {
+    if (basketPointerId !== event.pointerId) return
+    event.preventDefault()
+    setBasketAim(event.clientX, event.clientY)
+  }, { signal: inputController.signal })
+  els.stage.addEventListener("pointerup", (event) => {
+    if (basketPointerId !== event.pointerId) return
+    event.preventDefault()
+    setBasketAim(event.clientX, event.clientY)
+    basketPointerId = null
+    releaseBasketShot()
+  }, { signal: inputController.signal })
+  els.stage.addEventListener("pointercancel", () => {
+    basketPointerId = null
+    releaseBasketShot()
+  }, { signal: inputController.signal })
+  els.action.addEventListener("pointerdown", (event) => {
+    event.preventDefault()
+    basketPointerId = event.pointerId
+    els.action.setPointerCapture?.(event.pointerId)
+    startBasketCharge()
+  }, { signal: inputController.signal })
+  els.action.addEventListener("pointerup", (event) => {
+    event.preventDefault()
+    basketPointerId = null
+    releaseBasketShot()
+  }, { signal: inputController.signal })
+  els.action.addEventListener("pointercancel", () => {
+    basketPointerId = null
+    releaseBasketShot()
+  }, { signal: inputController.signal })
 }
 
 if (config.type === "climb") {
@@ -1398,7 +1690,11 @@ async function checkTournamentState() {
 }
 
 renderHud()
-setStatus(config.type === "timing" ? "Toca la pantalla, Espacio o Golpear cuando la bola entre en la zona" : "Listo")
+setStatus(config.type === "timing"
+  ? "Toca la pantalla, Espacio o Golpear cuando la bola entre en la zona"
+  : config.type === "basket"
+    ? "Mantén presionado, apunta y suelta para lanzar"
+    : "Listo")
 tournamentCheckId = setInterval(checkTournamentState, 3000)
 rafId = requestAnimationFrame(loop)
 startTimer().then((started) => {
@@ -1411,7 +1707,11 @@ startTimer().then((started) => {
   startMs = performance.now()
   lastTs = 0
   juegoActivo = true
-  setStatus(config.type === "timing" ? "Partida iniciada: golpea en la zona dorada" : "Partida iniciada")
+  setStatus(config.type === "timing"
+    ? "Partida iniciada: golpea en la zona dorada"
+    : config.type === "basket"
+      ? "Mantén presionado, apunta al aro y suelta"
+      : "Partida iniciada")
 })
 
 function cleanupRuntime() {
