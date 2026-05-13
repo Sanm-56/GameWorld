@@ -11,6 +11,8 @@ import { getArcadeGame } from "./arcade-games.js"
 
 const DURACION = 180
 const MAX_ADVERTENCIAS = 3
+const CRICKET_HIT_ZONE = 21
+const CRICKET_RESET_DELAY = 0.55
 const gameKey = document.body.dataset.game
 const config = getArcadeGame(gameKey)
 const usuario = localStorage.getItem("usuario")
@@ -64,7 +66,10 @@ let objects = []
 let spawnTimer = 0
 let state = createState()
 let timerId = null
+let tournamentCheckId = null
+let rafId = null
 let cricketScene = null
+const inputController = new AbortController()
 
 localStorage.setItem("juego_actual", gameKey)
 
@@ -76,11 +81,26 @@ function createState() {
     target: 50,
     ball: null,
     ballSpeed: 42,
+    cricket: createCricketState(),
     stackWidth: 70,
     stackX: 15,
     stackDir: 1,
     platforms: [],
     nextId: 1,
+  }
+}
+
+function createCricketState() {
+  return {
+    x: 92,
+    y: 43,
+    target: CRICKET_HIT_ZONE,
+    speed: 42,
+    phase: "pitch",
+    resetIn: 0,
+    lastActionAt: 0,
+    result: "",
+    resultPower: 0,
   }
 }
 
@@ -108,6 +128,18 @@ function miss(reason = "Fallaste") {
   setStatus(reason)
   renderHud()
   if (lives <= 0) endGame("perdiste")
+}
+
+function resetCricketDelivery(message = "") {
+  const nextSpeed = Math.min(112, 44 + level * 5.8 + Math.min(18, combo * 0.7))
+  state.cricket = {
+    ...createCricketState(),
+    speed: nextSpeed,
+    target: CRICKET_HIT_ZONE + rand(-1.8, 1.8),
+  }
+  state.x = state.cricket.x
+  state.target = state.cricket.target
+  if (message) setStatus(message)
 }
 
 function renderHud() {
@@ -155,10 +187,13 @@ function renderTiming() {
     }
   }
 
-  cricketScene.target.style.left = `${state.target - 7}%`
+  const cricket = state.cricket
+  cricketScene.target.style.left = `${cricket.target - 6}%`
   cricketScene.target.style.width = "14%"
-  cricketScene.ball.style.left = `${state.x}%`
-  cricketScene.ball.style.bottom = `${34 + Math.sin(state.x / 8) * 1.5}%`
+  cricketScene.ball.style.left = `${cricket.x}%`
+  cricketScene.ball.style.bottom = `${cricket.y}%`
+  cricketScene.ball.classList.toggle("hit", cricket.phase === "result" && cricket.result === "hit")
+  cricketScene.ball.classList.toggle("missed", cricket.phase === "result" && cricket.result === "miss")
   cricketScene.bat.classList.toggle("swing", performance.now() - ultimoSwing < 150)
 }
 
@@ -197,7 +232,7 @@ function loop(ts) {
   if (juegoTerminado) return
   if (!juegoActivo) {
     render()
-    requestAnimationFrame(loop)
+    rafId = requestAnimationFrame(loop)
     return
   }
   if (!lastTs) lastTs = ts
@@ -205,39 +240,110 @@ function loop(ts) {
   lastTs = ts
   update(dt)
   render()
-  requestAnimationFrame(loop)
+  rafId = requestAnimationFrame(loop)
 }
 
-function update(dt) {
-  if (config.type === "timing") {
-    state.ballSpeed = Math.min(96, 38 + level * 6.4)
-    state.x += state.ballSpeed * dt
-    if (state.x > 104) {
-      state.x = -4
-      state.target = rand(44, 82)
-      miss("Se fue la bola")
+function updateCricket(dt) {
+  const cricket = state.cricket
+
+  if (cricket.phase === "result") {
+    cricket.resetIn -= dt
+    if (cricket.result === "hit") {
+      cricket.x = clamp(cricket.x + (86 + cricket.resultPower * 0.5) * dt, 0, 108)
+      cricket.y = clamp(cricket.y + (42 + cricket.resultPower * 0.2) * dt, 10, 86)
+    } else {
+      cricket.x = clamp(cricket.x - 34 * dt, -8, 108)
+      cricket.y = clamp(cricket.y - 14 * dt, 8, 86)
+    }
+    if (cricket.resetIn <= 0 && !juegoTerminado) {
+      resetCricketDelivery(cricket.result === "hit" ? "Siguiente bola" : "Nueva bola")
     }
     return
   }
 
-  if (config.type === "dodge") {
-    spawnTimer -= dt
-    if (spawnTimer <= 0) {
-      spawnTimer = Math.max(0.34, 0.9 - level * 0.045)
-      objects.push({ id: state.nextId++, x: [18, 42, 66][Math.floor(rand(0, 3))], y: -8 })
+  cricket.x -= cricket.speed * dt
+  const travel = clamp((92 - cricket.x) / 76, 0, 1)
+  cricket.y = 42 - Math.sin(travel * Math.PI) * 10 + travel * 2
+  state.x = cricket.x
+  state.target = cricket.target
+
+  if (cricket.x <= 7) {
+    cricket.phase = "result"
+    cricket.result = "miss"
+    cricket.resetIn = CRICKET_RESET_DELAY
+    miss("No golpeaste la bola")
+  }
+}
+
+function resolveCricketSwing() {
+  const cricket = state.cricket
+  const now = performance.now()
+  if (cricket.phase !== "pitch") return
+  if (now - cricket.lastActionAt < 180) return
+  cricket.lastActionAt = now
+  ultimoSwing = now
+
+  const diff = Math.abs(cricket.x - cricket.target)
+  cricket.phase = "result"
+  cricket.resetIn = CRICKET_RESET_DELAY
+
+  if (diff <= 2.6) {
+    cricket.result = "hit"
+    cricket.resultPower = 96
+    addScore(85 + level * 6)
+    setStatus("Golpe perfecto")
+    return
+  }
+
+  if (diff <= 6.4) {
+    cricket.result = "hit"
+    cricket.resultPower = 68
+    addScore(48 + level * 4)
+    setStatus("Buen golpe")
+    return
+  }
+
+  if (diff <= 10.5) {
+    cricket.result = "hit"
+    cricket.resultPower = 38
+    addScore(20 + level * 2)
+    setStatus("Roce salvado")
+    return
+  }
+
+  cricket.result = "miss"
+  cricket.resultPower = 0
+  miss(cricket.x > cricket.target ? "Swing muy temprano" : "Swing tarde")
+}
+
+function updateDodge(dt) {
+  spawnTimer -= dt
+  if (spawnTimer <= 0) {
+    spawnTimer = Math.max(0.34, 0.9 - level * 0.045)
+    objects.push({ id: state.nextId++, x: [18, 42, 66][Math.floor(rand(0, 3))], y: -8 })
+  }
+  objects.forEach((item) => item.y += (22 + level * 3.5) * dt)
+  objects = objects.filter((item) => {
+    if (item.y > 96) {
+      addScore(8)
+      return false
     }
-    objects.forEach((item) => item.y += (22 + level * 3.5) * dt)
-    objects = objects.filter((item) => {
-      if (item.y > 96) {
-        addScore(8)
-        return false
-      }
-      if (item.y > 72 && item.y < 88 && Math.abs(item.x - state.x) < 11) {
-        miss("Choque")
-        return false
-      }
-      return true
-    })
+    if (item.y > 72 && item.y < 88 && Math.abs(item.x - state.x) < 11) {
+      miss("Choque")
+      return false
+    }
+    return true
+  })
+}
+
+function update(dt) {
+  if (config.type === "timing") {
+    updateCricket(dt)
+    return
+  }
+
+  if (config.type === "dodge") {
+    updateDodge(dt)
     return
   }
 
@@ -268,16 +374,9 @@ function action() {
     setStatus("Espera a que cargue el cronometro")
     return
   }
-  ultimoSwing = performance.now()
 
   if (config.type === "timing") {
-    const diff = Math.abs(state.x - state.target)
-    if (diff < 3) addScore(70 + level * 5)
-    else if (diff < 7) addScore(42 + level * 3)
-    else if (diff < 12) addScore(18 + level)
-    else miss("Swing fuera de ritmo")
-    state.x = -4
-    state.target = rand(44, 82)
+    resolveCricketSwing()
     return
   }
 
@@ -334,13 +433,13 @@ function action() {
   state.target = rand(24, 60)
 }
 
-els.action.addEventListener("click", action)
+els.action.addEventListener("click", action, { signal: inputController.signal })
 if (config.type === "timing") {
   els.stage.addEventListener("pointerdown", (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return
     event.preventDefault()
     action()
-  })
+  }, { signal: inputController.signal })
 }
 document.addEventListener("keydown", (event) => {
   if (event.code === "Space" || event.code === "ArrowUp" || event.code === "Enter") {
@@ -354,7 +453,7 @@ document.addEventListener("keydown", (event) => {
     const delta = event.code === "ArrowLeft" ? -1 : 1
     state.x = lanes[clamp(current + delta, 0, lanes.length - 1)]
   }
-})
+}, { signal: inputController.signal })
 
 document.addEventListener("visibilitychange", async () => {
   if (!document.hidden || juegoTerminado) return
@@ -368,7 +467,7 @@ document.addEventListener("visibilitychange", async () => {
   } else {
     alert(advertencias === 1 ? "No cambies de pestana" : "Ultima advertencia")
   }
-})
+}, { signal: inputController.signal })
 
 async function startTimer() {
   let restante = await obtenerTiempoRestanteTorneo(supabase, gameKey, DURACION)
@@ -513,7 +612,7 @@ async function endGame(reason) {
   if (juegoTerminado) return
   juegoTerminado = true
   juegoActivo = false
-  if (timerId) clearInterval(timerId)
+  cleanupRuntime()
   const saved = await saveResult(reason)
   if (saved !== false) window.location.href = "final.html"
 }
@@ -526,8 +625,8 @@ async function checkTournamentState() {
 
 renderHud()
 setStatus(config.type === "timing" ? "Toca la pantalla, Espacio o Golpear cuando la bola entre en la zona" : "Listo")
-setInterval(checkTournamentState, 3000)
-requestAnimationFrame(loop)
+tournamentCheckId = setInterval(checkTournamentState, 3000)
+rafId = requestAnimationFrame(loop)
 startTimer().then((started) => {
   if (!started || juegoTerminado) return
   startMs = performance.now()
@@ -535,3 +634,19 @@ startTimer().then((started) => {
   juegoActivo = true
   setStatus(config.type === "timing" ? "Partida iniciada: golpea en la zona dorada" : "Partida iniciada")
 })
+
+function cleanupRuntime() {
+  if (timerId) {
+    clearInterval(timerId)
+    timerId = null
+  }
+  if (tournamentCheckId) {
+    clearInterval(tournamentCheckId)
+    tournamentCheckId = null
+  }
+  if (rafId) {
+    cancelAnimationFrame(rafId)
+    rafId = null
+  }
+  inputController.abort()
+}
