@@ -16,6 +16,9 @@ const CRICKET_RESET_DELAY = 0.55
 const DODGE_LANES = [18, 42, 66]
 const DODGE_X_RANGE = [12, 72]
 const DODGE_Y_RANGE = [68, 86]
+const DODGE_PLAYER_HITBOX = { x: 4.8, y: 4.9 }
+const DODGE_OBSTACLE_HITBOX = { x: 4.5, y: 5.2 }
+const DODGE_WARMUP_MS = 12000
 const gameKey = document.body.dataset.game
 const DURACION = ["cricketarcade", "esquivaobstaculos"].includes(gameKey) ? 600 : 180
 const config = getArcadeGame(gameKey)
@@ -528,12 +531,15 @@ function updateDodge(dt) {
   dodgeVisualVelocity = dt > 0 ? (dodgeVisualX - previousX) / dt : 0
   const targetLean = clamp(dodgeVisualVelocity * 0.09, -11, 11)
   dodgeLean += (targetLean - dodgeLean) * Math.min(1, dt * 17)
+  const elapsedMs = juegoActivo ? performance.now() - startMs : 0
+  const warmup = clamp(elapsedMs / DODGE_WARMUP_MS, 0, 1)
+  const difficulty = Math.max(0, level - 1) * warmup
   spawnTimer -= dt
   if (spawnTimer <= 0) {
-    spawnTimer = Math.max(0.24, rand(0.62, 1.02) - level * 0.035)
+    spawnTimer = Math.max(0.38, rand(0.82, 1.24) - difficulty * 0.028)
     const ultimo = objects[objects.length - 1]
     let lane = DODGE_LANES[Math.floor(rand(0, DODGE_LANES.length))]
-    if (ultimo && ultimo.y < 14 && ultimo.x === lane) {
+    if (ultimo && ultimo.y < 22 && Math.abs(ultimo.x - lane) < 4) {
       lane = DODGE_LANES[(DODGE_LANES.indexOf(lane) + 1) % DODGE_LANES.length]
     }
     objects.push({
@@ -541,16 +547,16 @@ function updateDodge(dt) {
       x: lane,
       y: -10,
       hit: false,
-      speed: rand(0.86, 1.18) + Math.min(0.26, level * 0.012),
-      drift: rand(-1.4, 1.4),
+      speed: rand(0.74, 1.02) + Math.min(0.22, difficulty * 0.01),
+      drift: rand(-0.8, 0.8) * Math.max(0.35, warmup),
       spin: rand(-18, 18),
       scale: rand(0.88, 1.12),
       variant: Math.floor(rand(0, 3)),
     })
   }
   objects.forEach((item) => {
-    item.y += (19 + level * 3.4) * Number(item.speed || 1) * dt
-    item.drift = clamp(Number(item.drift || 0) + Math.sin((performance.now() + item.id * 211) / 380) * 0.018, -2.2, 2.2)
+    item.y += (15.5 + difficulty * 2.7) * Number(item.speed || 1) * dt
+    item.drift = clamp(Number(item.drift || 0) + Math.sin((performance.now() + item.id * 211) / 420) * 0.012 * Math.max(0.45, warmup), -1.65, 1.65)
     item.spin = Number(item.spin || 0) + 28 * dt
   })
   objects = objects.filter((item) => {
@@ -560,7 +566,10 @@ function updateDodge(dt) {
       return false
     }
     const puedeGolpear = performance.now() >= dodgeInvulnerableUntil
-    if (!item.hit && puedeGolpear && Math.abs(item.y - state.y) < 9 && Math.abs(item.x - state.x) < 9) {
+    const obstacleX = item.x + Number(item.drift || 0)
+    const hitX = DODGE_PLAYER_HITBOX.x + DODGE_OBSTACLE_HITBOX.x * Number(item.scale || 1)
+    const hitY = DODGE_PLAYER_HITBOX.y + DODGE_OBSTACLE_HITBOX.y * Number(item.scale || 1)
+    if (!item.hit && puedeGolpear && Math.abs(item.y - state.y) < hitY && Math.abs(obstacleX - state.x) < hitX) {
       item.hit = true
       dodgeInvulnerableUntil = performance.now() + 850
       showDodgeFeedback("Impacto")
