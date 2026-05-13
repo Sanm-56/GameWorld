@@ -1,2 +1,49 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Sube la Montana</title><link rel="stylesheet" href="../css/arcade.css"></head><body><main class="final-card"><h1>Sube la Montana</h1><p>Entra con tu apodo y codigo para jugar.</p><input id="usuario" placeholder="Tu apodo"><input id="codigo" placeholder="Codigo unico"><button class="back" onclick="entrar()">Entrar</button><button class="back" onclick="window.location.href='../../index.html'">Volver</button></main><script type="module" src="../js/login.js"></script></body></html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sube la Montana</title>
+  <link rel="stylesheet" href="../css/arcade.css">
+</head>
+<body data-game="subelamontana" data-screen="login">
+  <main class="arcade-login mountain-login">
+    <section class="login-hero" aria-hidden="true">
+      <div class="mountain-scene">
+        <span class="mountain-cloud cloud-a"></span>
+        <span class="mountain-cloud cloud-b"></span>
+        <span class="mountain-peak peak-back"></span>
+        <span class="mountain-peak peak-front"></span>
+        <span class="jump-platform platform-a"></span>
+        <span class="jump-platform platform-b"></span>
+        <span class="jump-platform platform-c"></span>
+        <span class="jump-player"></span>
+        <span class="jump-spring"></span>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <span class="login-kicker">Salto arcade</span>
+      <h1>Sube la Montana</h1>
+      <p>Ingresa con tu apodo y codigo unico para escalar entre nubes y plataformas.</p>
+
+      <div class="login-fields">
+        <label>
+          <span>Escalador</span>
+          <input id="usuario" autocomplete="nickname" placeholder="Tu apodo">
+        </label>
+        <label>
+          <span>Codigo unico</span>
+          <input id="codigo" autocomplete="one-time-code" placeholder="Ej: MTN-2026">
+        </label>
+      </div>
+
+      <div class="login-actions">
+        <button class="login-primary" onclick="entrar()">Entrar a la subida</button>
+        <button class="login-secondary" onclick="window.location.href='../../index.html'">Volver</button>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="../js/login.js"></script>
+</body>
+</html>

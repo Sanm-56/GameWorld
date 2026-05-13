@@ -747,6 +747,281 @@ body[data-game="esquivaobstaculos"][data-screen="login"]{
 .dodge-login .login-panel{
   border-left-color:rgba(56,189,248,.22);
 }
+body[data-game="torreinfinita"][data-screen="login"]{
+  --accent:#a78bfa;
+  --secondary:#34d399;
+  --line:rgba(167,139,250,.24);
+  background:
+    radial-gradient(circle at 14% 12%,rgba(167,139,250,.22),transparent 30%),
+    radial-gradient(circle at 88% 80%,rgba(52,211,153,.18),transparent 30%),
+    linear-gradient(150deg,#070b18,#14142d 56%,#07111f);
+}
+.tower-login{
+  border-color:rgba(167,139,250,.27);
+  background:
+    linear-gradient(145deg,rgba(16,14,39,.84),rgba(2,6,23,.72)),
+    #070b18;
+}
+.tower-login .login-hero{
+  background:
+    linear-gradient(90deg,rgba(167,139,250,.12) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(52,211,153,.12),transparent 38%),
+    linear-gradient(180deg,#0b1024,#070b18);
+  background-size:54px 54px,auto,auto;
+}
+.tower-city{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.tower-city::before{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:8%;
+  bottom:8%;
+  height:18%;
+  border-radius:50%;
+  background:radial-gradient(ellipse,rgba(52,211,153,.18),transparent 68%);
+  filter:blur(8px);
+}
+.tower-block{
+  position:absolute;
+  left:50%;
+  height:44px;
+  border-radius:9px;
+  transform:translateX(-50%);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.18),transparent 34%),
+    linear-gradient(135deg,#a78bfa,#34d399);
+  box-shadow:0 18px 34px rgba(0,0,0,.34),0 0 24px rgba(167,139,250,.2);
+}
+.block-base{bottom:18%;width:250px;opacity:.7}
+.block-mid{bottom:28%;width:190px}
+.block-top{bottom:38%;width:138px;background:linear-gradient(135deg,#34d399,#60a5fa)}
+.block-active{
+  top:22%;
+  width:168px;
+  background:linear-gradient(135deg,#f8fafc,#a78bfa);
+  animation:towerBlockSlide 2.8s ease-in-out infinite;
+}
+.tower-scan{
+  position:absolute;
+  left:18%;
+  right:18%;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(196,181,253,.72),transparent);
+  box-shadow:0 0 18px rgba(167,139,250,.5);
+  animation:towerScan 3.2s linear infinite;
+}
+.scan-a{top:18%}
+.scan-b{top:52%;animation-delay:1.4s}
+.tower-login .login-panel{
+  border-left-color:rgba(167,139,250,.22);
+}
+body[data-game="subelamontana"][data-screen="login"]{
+  --accent:#f59e0b;
+  --secondary:#38bdf8;
+  --line:rgba(245,158,11,.25);
+  background:
+    radial-gradient(circle at 16% 12%,rgba(56,189,248,.2),transparent 30%),
+    radial-gradient(circle at 84% 82%,rgba(245,158,11,.18),transparent 28%),
+    linear-gradient(150deg,#09213b,#0f3554 52%,#1b140a);
+}
+.mountain-login{
+  border-color:rgba(245,158,11,.28);
+  background:
+    linear-gradient(145deg,rgba(9,33,59,.82),rgba(2,6,23,.66)),
+    #09213b;
+}
+.mountain-login .login-hero{
+  background:
+    radial-gradient(circle at 22% 16%,rgba(255,255,255,.62),transparent 12%),
+    radial-gradient(circle at 78% 28%,rgba(255,255,255,.38),transparent 11%),
+    linear-gradient(180deg,#bae6fd 0%,#38bdf8 43%,#1d4ed8 72%,#422006 100%);
+}
+.mountain-scene{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.mountain-cloud{
+  position:absolute;
+  width:128px;
+  height:38px;
+  border-radius:999px;
+  background:rgba(255,255,255,.42);
+  box-shadow:34px 8px 0 rgba(255,255,255,.32),-22px 10px 0 rgba(255,255,255,.22);
+  animation:mountainCloudFloat 6s ease-in-out infinite;
+}
+.cloud-a{left:11%;top:12%}
+.cloud-b{right:13%;top:28%;transform:scale(.8);animation-delay:1.7s}
+.mountain-peak{
+  position:absolute;
+  left:-8%;
+  right:-8%;
+  bottom:-6%;
+  height:58%;
+  clip-path:polygon(0 100%,18% 42%,32% 74%,52% 22%,68% 66%,84% 34%,100% 100%);
+  background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,.04));
+}
+.peak-back{bottom:4%;height:48%;opacity:.46}
+.peak-front{background:linear-gradient(180deg,rgba(254,243,199,.38),rgba(120,53,15,.16))}
+.jump-platform{
+  position:absolute;
+  width:112px;
+  height:16px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#fef3c7,#22c55e);
+  box-shadow:0 12px 24px rgba(0,0,0,.22),inset 0 -4px 0 rgba(22,101,52,.18);
+}
+.platform-a{left:18%;top:63%}
+.platform-b{right:18%;top:47%;background:linear-gradient(90deg,#dbeafe,#60a5fa)}
+.platform-c{left:42%;top:30%;background:linear-gradient(90deg,#fef3c7,#f59e0b)}
+.jump-player{
+  position:absolute;
+  left:45%;
+  top:48%;
+  width:42px;
+  height:52px;
+  border-radius:19px 19px 15px 15px;
+  background:
+    radial-gradient(circle at 50% 22%,#fff7ed,transparent 18%),
+    linear-gradient(135deg,#f59e0b,#ef4444);
+  box-shadow:0 18px 34px rgba(0,0,0,.3),0 0 22px rgba(245,158,11,.26);
+  animation:jumpPlayerArc 2.2s ease-in-out infinite;
+}
+.jump-spring{
+  position:absolute;
+  right:25%;
+  top:43%;
+  width:34px;
+  height:28px;
+  border-radius:9px 9px 999px 999px;
+  background:repeating-linear-gradient(180deg,#0f172a 0 3px,#f97316 3px 6px,#fde68a 6px 9px);
+  box-shadow:0 0 0 3px rgba(255,247,237,.72),0 0 20px rgba(245,158,11,.42);
+  animation:jumpSpringBounce 2.2s ease-in-out infinite;
+}
+.mountain-login .login-panel{
+  border-left-color:rgba(245,158,11,.22);
+}
+body[data-game="basketballarcade"][data-screen="login"]{
+  --accent:#fb923c;
+  --secondary:#22d3ee;
+  --line:rgba(251,146,60,.26);
+  background:
+    radial-gradient(circle at 18% 14%,rgba(251,146,60,.22),transparent 28%),
+    radial-gradient(circle at 86% 80%,rgba(34,211,238,.18),transparent 30%),
+    linear-gradient(150deg,#2b1208,#121827 58%,#07111f);
+}
+.basket-login{
+  border-color:rgba(251,146,60,.28);
+  background:
+    linear-gradient(145deg,rgba(43,18,8,.84),rgba(2,6,23,.7)),
+    #2b1208;
+}
+.basket-login .login-hero{
+  background:
+    repeating-linear-gradient(0deg,rgba(251,146,60,.1) 0 8px,transparent 8px 18px),
+    radial-gradient(circle at 76% 18%,rgba(34,211,238,.2),transparent 26%),
+    linear-gradient(160deg,#3b1a09,#101827);
+}
+.basket-court{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.court-lines{
+  position:absolute;
+  left:8%;
+  right:8%;
+  bottom:8%;
+  height:58%;
+  border:2px solid rgba(255,237,213,.26);
+  border-bottom:0;
+  border-radius:50% 50% 0 0;
+}
+.court-lines::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:0;
+  width:2px;
+  height:100%;
+  transform:translateX(-50%);
+  background:rgba(255,237,213,.22);
+}
+.basket-backboard{
+  position:absolute;
+  right:15%;
+  top:17%;
+  width:136px;
+  height:88px;
+  border:3px solid rgba(224,242,254,.82);
+  border-radius:8px;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(34,211,238,.08));
+  box-shadow:0 18px 38px rgba(0,0,0,.34),0 0 24px rgba(34,211,238,.2);
+}
+.basket-rim{
+  position:absolute;
+  right:28%;
+  top:32%;
+  width:72px;
+  height:28px;
+  border:6px solid #fb923c;
+  border-top-color:#fed7aa;
+  border-radius:50%;
+  box-shadow:0 0 22px rgba(251,146,60,.42);
+}
+.basket-net{
+  position:absolute;
+  right:30%;
+  top:37%;
+  width:48px;
+  height:58px;
+  clip-path:polygon(0 0,100% 0,72% 100%,28% 100%);
+  background:
+    linear-gradient(90deg,transparent 0 22%,rgba(255,237,213,.44) 22% 26%,transparent 26% 48%,rgba(255,237,213,.44) 48% 52%,transparent 52% 74%,rgba(255,237,213,.44) 74% 78%,transparent 78%),
+    linear-gradient(180deg,rgba(255,237,213,.28),transparent);
+}
+.basket-ball{
+  position:absolute;
+  width:58px;
+  height:58px;
+  border-radius:999px;
+  background:
+    linear-gradient(90deg,transparent 47%,rgba(67,20,7,.58) 48% 52%,transparent 53%),
+    linear-gradient(0deg,transparent 47%,rgba(67,20,7,.55) 48% 52%,transparent 53%),
+    radial-gradient(circle at 30% 24%,#fed7aa,transparent 18%),
+    linear-gradient(135deg,#fb923c,#c2410c);
+  box-shadow:0 18px 34px rgba(0,0,0,.34),0 0 22px rgba(251,146,60,.26);
+}
+.ball-a{
+  left:18%;
+  bottom:25%;
+  animation:basketShot 2.8s cubic-bezier(.3,.55,.25,1) infinite;
+}
+.ball-b{
+  left:34%;
+  bottom:14%;
+  width:40px;
+  height:40px;
+  opacity:.58;
+}
+.score-flash{
+  position:absolute;
+  right:22%;
+  top:12%;
+  color:#a7f3d0;
+  font-size:46px;
+  font-weight:1000;
+  text-shadow:0 0 24px rgba(34,211,238,.42);
+  animation:scoreFlash 2.8s ease-in-out infinite;
+}
+.basket-login .login-panel{
+  border-left-color:rgba(251,146,60,.22);
+}
 @keyframes cricketBallFloat{
   0%,100%{transform:translate3d(0,0,0) rotate(0)}
   50%{transform:translate3d(-18px,12px,0) rotate(18deg)}
@@ -754,6 +1029,37 @@ body[data-game="esquivaobstaculos"][data-screen="login"]{
 @keyframes dodgeShipPulse{
   0%,100%{transform:translateX(-50%) scale(1)}
   50%{transform:translateX(-50%) scale(1.045)}
+}
+@keyframes towerBlockSlide{
+  0%,100%{transform:translateX(-138%)}
+  50%{transform:translateX(38%)}
+}
+@keyframes towerScan{
+  0%{transform:translateY(-20px);opacity:0}
+  20%,72%{opacity:1}
+  100%{transform:translateY(220px);opacity:0}
+}
+@keyframes mountainCloudFloat{
+  0%,100%{transform:translateX(0)}
+  50%{transform:translateX(18px)}
+}
+@keyframes jumpPlayerArc{
+  0%,100%{transform:translateY(18px)}
+  50%{transform:translateY(-36px)}
+}
+@keyframes jumpSpringBounce{
+  0%,100%{transform:scaleY(.86)}
+  50%{transform:translateY(-5px) scaleY(1.16)}
+}
+@keyframes basketShot{
+  0%{transform:translate3d(0,0,0) rotate(0)}
+  48%{transform:translate3d(210px,-190px,0) rotate(300deg)}
+  62%{transform:translate3d(258px,-130px,0) rotate(390deg)}
+  100%{transform:translate3d(0,0,0) rotate(720deg)}
+}
+@keyframes scoreFlash{
+  0%,38%,100%{opacity:0;transform:translateY(8px) scale(.9)}
+  52%,68%{opacity:1;transform:translateY(0) scale(1)}
 }
 body[data-game="basketballarcade"] .stage{
   background:
@@ -1106,6 +1412,13 @@ body[data-game="subelamontana"] .stage::after{
   .action{transition:none}
   .cricket-ball-mark,
   .dodge-ship,
+  .tower-block,
+  .tower-scan,
+  .mountain-cloud,
+  .jump-player,
+  .jump-spring,
+  .basket-ball,
+  .score-flash,
   .climb-spring.active,
   body[data-game="esquivaobstaculos"] .stage::after,
   .dodge-feedback,
@@ -1196,6 +1509,20 @@ body[data-game="subelamontana"] .stage::after{
     width:44px;
     height:52px;
   }
+  .block-base{width:198px}
+  .block-mid{width:152px}
+  .block-top{width:112px}
+  .block-active{width:132px}
+  .mountain-cloud{width:92px;height:30px}
+  .jump-platform{width:84px}
+  .jump-player{width:34px;height:44px}
+  .jump-spring{width:28px;height:23px}
+  .basket-backboard{right:11%;width:104px;height:72px}
+  .basket-rim{right:25%;width:58px}
+  .basket-net{right:28%;width:40px;height:48px}
+  .basket-ball{width:46px;height:46px}
+  .ball-b{width:34px;height:34px}
+  .score-flash{font-size:36px;right:20%}
   .podium-card,.ranking-row{grid-template-columns:36px minmax(0,1fr)}
   .podium-card em,.ranking-row span:last-child{grid-column:2}
   body[data-game="cricketarcade"] .side{grid-template-columns:1fr}

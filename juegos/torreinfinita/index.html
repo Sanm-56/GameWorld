@@ -1,2 +1,46 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Torre Infinita</title><link rel="stylesheet" href="../css/arcade.css"></head><body><main class="final-card"><h1>Torre Infinita</h1><p>Entra con tu apodo y codigo para jugar.</p><input id="usuario" placeholder="Tu apodo"><input id="codigo" placeholder="Codigo unico"><button class="back" onclick="entrar()">Entrar</button><button class="back" onclick="window.location.href='../../index.html'">Volver</button></main><script type="module" src="../js/login.js"></script></body></html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Torre Infinita</title>
+  <link rel="stylesheet" href="../css/arcade.css">
+</head>
+<body data-game="torreinfinita" data-screen="login">
+  <main class="arcade-login tower-login">
+    <section class="login-hero" aria-hidden="true">
+      <div class="tower-city">
+        <span class="tower-block block-base"></span>
+        <span class="tower-block block-mid"></span>
+        <span class="tower-block block-top"></span>
+        <span class="tower-block block-active"></span>
+        <span class="tower-scan scan-a"></span>
+        <span class="tower-scan scan-b"></span>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <span class="login-kicker">Precision vertical</span>
+      <h1>Torre Infinita</h1>
+      <p>Entra con tu apodo y codigo unico para levantar la torre del torneo.</p>
+
+      <div class="login-fields">
+        <label>
+          <span>Constructor</span>
+          <input id="usuario" autocomplete="nickname" placeholder="Tu apodo">
+        </label>
+        <label>
+          <span>Codigo unico</span>
+          <input id="codigo" autocomplete="one-time-code" placeholder="Ej: TOR-1080">
+        </label>
+      </div>
+
+      <div class="login-actions">
+        <button class="login-primary" onclick="entrar()">Entrar a la torre</button>
+        <button class="login-secondary" onclick="window.location.href='../../index.html'">Volver</button>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="../js/login.js"></script>
+</body>
+</html>
