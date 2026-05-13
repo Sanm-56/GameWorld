@@ -335,6 +335,10 @@ function resolveCricketSwing() {
 }
 
 function moveDodge(delta) {
+  if (juegoTerminado || !juegoActivo) {
+    setStatus("Espera el inicio oficial del torneo")
+    return
+  }
   const now = performance.now()
   if (now - lastDodgeMoveAt < 70) return
   lastDodgeMoveAt = now
@@ -344,6 +348,10 @@ function moveDodge(delta) {
 }
 
 function cycleDodgeLane() {
+  if (juegoTerminado || !juegoActivo) {
+    setStatus("Espera el inicio oficial del torneo")
+    return
+  }
   const now = performance.now()
   if (now - lastDodgeMoveAt < 70) return
   lastDodgeMoveAt = now
@@ -353,6 +361,10 @@ function cycleDodgeLane() {
 }
 
 function moveDodgeToLaneByClientX(clientX) {
+  if (juegoTerminado || !juegoActivo) {
+    setStatus("Espera el inicio oficial del torneo")
+    return
+  }
   const now = performance.now()
   if (now - lastDodgeMoveAt < 70) return
   lastDodgeMoveAt = now

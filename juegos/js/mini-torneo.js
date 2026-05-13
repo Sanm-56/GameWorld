@@ -35,6 +35,9 @@ export async function obtenerInicioTorneo(supabase, juego) {
   if (esMiniTorneo(juego)) {
     await obtenerSnapshotBonusXP(juego, "minitorneo")
     const salaId = localStorage.getItem("solitario_sala_id")
+    const usuario = localStorage.getItem("usuario")
+    if (!usuario) return null
+
     const { data } = await supabase
       .from("salas")
       .select("estado,juego,inicio_torneo,created_at")
@@ -42,6 +45,15 @@ export async function obtenerInicioTorneo(supabase, juego) {
       .maybeSingle()
 
     if (data?.estado !== "en_juego" || data?.juego !== juego) return null
+
+    const { data: participante } = await supabase
+      .from("sala_jugadores")
+      .select("id")
+      .eq("sala_id", salaId)
+      .eq("usuario_id", usuario)
+      .maybeSingle()
+
+    if (!participante) return null
     return inicioSeguroParaSolitario(juego, "sala", data.inicio_torneo || data.created_at)
   }
 
@@ -54,10 +66,11 @@ export async function obtenerInicioTorneo(supabase, juego) {
 
   const { data } = await supabase
     .from("estado_torneo")
-    .select("inicio_torneo")
+    .select("estado,juego_actual,inicio_torneo")
     .eq("id", 1)
     .single()
 
+  if (data?.estado !== "iniciado" || data?.juego_actual !== juego) return null
   return data?.inicio_torneo || null
 }
 
@@ -83,24 +96,34 @@ export async function obtenerTiempoRestanteTorneo(supabase, juego, duracionSegun
 export async function debeSalirDelTorneo(supabase, juego) {
   if (esMiniTorneo(juego)) {
     const salaId = localStorage.getItem("solitario_sala_id")
+    const usuario = localStorage.getItem("usuario")
     const { data } = await supabase
       .from("salas")
       .select("estado,juego")
       .eq("id", salaId)
       .maybeSingle()
 
-    return !data || data.juego !== juego || data.estado === "finalizado"
+    if (!data || data.juego !== juego || data.estado === "finalizado") return true
+
+    const { data: participante } = await supabase
+      .from("sala_jugadores")
+      .select("id")
+      .eq("sala_id", salaId)
+      .eq("usuario_id", usuario)
+      .maybeSingle()
+
+    return !participante
   }
 
   if (esNivelSolitario(juego)) return false
 
   const { data } = await supabase
     .from("estado_torneo")
-    .select("estado")
+    .select("estado,juego_actual")
     .eq("id", 1)
     .single()
 
-  return data?.estado === "espera"
+  return data?.estado !== "iniciado" || data?.juego_actual !== juego
 }
 
 export function bloquearFinalizacionInicialSolitario(juego, motivo = "finalizacion inicial") {

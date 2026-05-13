@@ -1,6 +1,22 @@
 import { supabase } from "../js/supabase.js"
 
 const container = document.querySelector(".container")
+const juegoLobby = window.location.pathname.split("/").filter(Boolean).slice(-2, -1)[0]
+const rutasJuego = {
+  sudoku: "sudoku.html",
+  memoria: "memoria.html",
+  matematicas: "matematicas.html",
+  flashmind: "flashmind.html",
+  numcatch: "numcatch.html",
+  cricketarcade: "cricketarcade.html",
+  esquivaobstaculos: "esquivaobstaculos.html",
+  torreinfinita: "torreinfinita.html",
+  subelamontana: "subelamontana.html",
+  basketballarcade: "basketballarcade.html",
+  ajedrez: "ajedrez.html",
+  domino: "domino.html",
+  damas: "damas.html",
+}
 
 if (container && !document.getElementById("volverMenuBtn")) {
 const volverBtn = document.createElement("button")
@@ -43,43 +59,14 @@ document.getElementById("mensaje").innerText =
 
 if(estado === "iniciado"){
 
+if(juego === juegoLobby && rutasJuego[juego]){
 localStorage.setItem("juego_actual", juego)
-
-if(juego === "sudoku"){
-window.location.href = "sudoku.html"
+window.location.href = rutasJuego[juego]
+return
 }
 
-if(juego === "memoria"){
-window.location.href = "memoria.html"
-}
-
-if(juego === "matematicas"){
-window.location.href = "matematicas.html"
-}
-
-if(juego === "flashmind"){
-window.location.href = "flashmind.html"
-}
-
-if(juego === "numcatch"){
-window.location.href = "numcatch.html"
-}
-
-if(["cricketarcade","esquivaobstaculos","torreinfinita","subelamontana","basketballarcade"].includes(juego)){
-window.location.href = juego + ".html"
-}
-
-if(juego === "ajedrez"){
-window.location.href = "ajedrez.html"
-}
-
-if(juego === "domino"){
-window.location.href = "domino.html"
-}
-
-if(juego === "damas"){
-window.location.href = "damas.html"
-}
+document.getElementById("mensaje").innerText =
+"Estado: " + estado + " | Juego activo: " + juego + " | Esperando inicio de " + juegoLobby
 
 }
 
