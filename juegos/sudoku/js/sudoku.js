@@ -1,6 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
 const pestana = "sudoku_activo"
 const JUEGO_ACTUAL = "sudoku"
@@ -21,6 +22,8 @@ let usuario = localStorage.getItem("usuario")
 if(!usuario){
 window.location.href = "index.html"
 }
+
+iniciarFinalProtegido(JUEGO_ACTUAL)
 
 let resultadoEnviado = false
 let descalificado = false
@@ -65,6 +68,7 @@ juegoTerminado = true
 await guardarResultado(9999, true, true, "Demasiados cambios de pestana")
 await reiniciarRachasSudoku()
 localStorage.setItem("juego_actual", "sudoku")
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
 }
 }
@@ -397,6 +401,7 @@ juegoTerminado = true
 
 alert("Tiempo terminado")
 localStorage.setItem("juego_actual", "sudoku")
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
 return
 }
@@ -516,6 +521,7 @@ alert("Sudoku completado")
 }
 
 localStorage.setItem("juego_actual", "sudoku")
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
 }
 

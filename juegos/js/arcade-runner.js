@@ -184,7 +184,7 @@ async function validarAccesoEsquiva() {
 }
 
 function limpiarResultadoEsquivaPrevio() {
-  if (gameKey !== "esquivaobstaculos") return
+  if (!isArcadeFinalProtected()) return
   localStorage.removeItem("fin_juego")
   localStorage.removeItem(`${gameKey}_puntos`)
   localStorage.removeItem(`${gameKey}_elapsed`)
@@ -192,6 +192,10 @@ function limpiarResultadoEsquivaPrevio() {
   localStorage.removeItem(`${gameKey}_run_id`)
   localStorage.removeItem(`${gameKey}_finished_run_id`)
   localStorage.removeItem(`${gameKey}_finished_at`)
+}
+
+function isArcadeFinalProtected() {
+  return ["cricketarcade", "esquivaobstaculos", "torreinfinita", "subelamontana", "basketballarcade"].includes(gameKey)
 }
 
 function createState() {
@@ -1354,7 +1358,7 @@ async function saveResult(reason) {
   localStorage.setItem(`${gameKey}_puntos`, String(finalScore))
   localStorage.setItem(`${gameKey}_elapsed`, String(elapsed))
   localStorage.setItem(`${gameKey}_combo`, String(bestCombo))
-  if (gameKey === "esquivaobstaculos") {
+  if (isArcadeFinalProtected()) {
     localStorage.setItem(`${gameKey}_finished_run_id`, runId)
     localStorage.setItem(`${gameKey}_finished_at`, new Date().toISOString())
   }
@@ -1377,7 +1381,7 @@ async function endGame(reason) {
     localStorage.setItem(`${gameKey}_puntos`, String(finalScore))
     localStorage.setItem(`${gameKey}_elapsed`, String(Math.max(1, Math.round((performance.now() - startMs) / 1000))))
     localStorage.setItem(`${gameKey}_combo`, String(bestCombo))
-    if (gameKey === "esquivaobstaculos") {
+    if (isArcadeFinalProtected()) {
       localStorage.setItem(`${gameKey}_finished_run_id`, runId)
       localStorage.setItem(`${gameKey}_finished_at`, new Date().toISOString())
     }
@@ -1401,7 +1405,7 @@ startTimer().then((started) => {
   if (!started || juegoTerminado) return
   limpiarResultadoEsquivaPrevio()
   runId = `${Date.now()}-${Math.random().toString(36).slice(2)}`
-  if (gameKey === "esquivaobstaculos") {
+  if (isArcadeFinalProtected()) {
     localStorage.setItem(`${gameKey}_run_id`, runId)
   }
   startMs = performance.now()

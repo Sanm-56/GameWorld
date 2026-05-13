@@ -1,6 +1,7 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
+import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 
 // =============================
 // BLOQUEO MULTI-PESTANA
@@ -82,6 +83,7 @@ window.addEventListener('pagehide', liberarBloqueoPestana)
 // =============================
 const usuario = localStorage.getItem('usuario') || 'anonimo'
 const JUEGO_ACTUAL = 'domino'
+iniciarFinalProtegido(JUEGO_ACTUAL)
 const statusEl = document.getElementById('status')
 const resultEl = document.getElementById('result')
 const handEl = document.getElementById('hand')
@@ -135,6 +137,7 @@ document.addEventListener('visibilitychange', () => {
     localStorage.setItem('dominoResultado', 'Descalificado por cambiar de pestaña.')
     localStorage.setItem('juego_actual', 'domino')
     alert('Descalificado por cambiar de pestaña')
+    marcarFinalValido(JUEGO_ACTUAL)
     window.location.href = 'final.html'
   }
 })
@@ -210,6 +213,7 @@ async function finalizarPorTiempo() {
   localStorage.setItem('juego_actual', 'domino')
   localStorage.setItem('dominoResultado', 'Tiempo terminado.')
   alert('Tiempo terminado')
+  marcarFinalValido(JUEGO_ACTUAL)
   window.location.href = 'final.html'
 }
 
@@ -595,6 +599,7 @@ async function finishGame(message, shouldSaveResult = true) {
   }
 
   setTimeout(() => {
+    marcarFinalValido(JUEGO_ACTUAL)
     window.location.href = 'final.html'
   }, 1400)
 }

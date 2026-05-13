@@ -2,8 +2,10 @@ import { supabase } from '../../js/supabase.js'
 import { redirigirFinalNivelSolitario, volverDesdeFinal } from '../../js/mini-torneo.js'
 import { cleanText, escapeHtml, setCleanText } from '../../js/mensajes.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from '../../js/personalizacion-visual.js'
+import { limpiarFinalProtegido, validarFinalReciente } from '../../js/final-guard.js'
 
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
+if (!validarFinalReciente('damas')) await new Promise(() => {})
 
 const resultadoFinal = document.getElementById('resultadoFinal')
 const podioDiv = document.getElementById('podio')
@@ -163,6 +165,7 @@ cargarResultados()
 
 window.volverLobby = async function () {
   await volverDesdeFinal(supabase, () => {
+    limpiarFinalProtegido('damas')
     localStorage.removeItem('damasSinPosicion')
     localStorage.removeItem('damasEstadisticasPendientes')
   })

@@ -1,6 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
 const pestana = "memoria_activo"
 const JUEGO_ACTUAL = "memoria"
@@ -21,6 +22,8 @@ let usuario = localStorage.getItem("usuario")
 if(!usuario){
 window.location.href = "index.html"
 }
+
+iniciarFinalProtegido(JUEGO_ACTUAL)
 
 let resultadoEnviado = false
 let descalificado = false
@@ -54,6 +57,7 @@ await guardarEstadisticasMemoria({ tiempo: DURACION, completado: false })
 
 alert("Descalificado")
 localStorage.setItem("juego_actual", "memoria")
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
 }
 
@@ -331,6 +335,7 @@ juegoTerminado = true
 
 alert("Tiempo terminado")
 localStorage.setItem("juego_actual", "memoria")
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
 return
 }
@@ -501,6 +506,7 @@ juegoTerminado = true
 
 alert("Juego completado")
 localStorage.setItem("juego_actual", "memoria")
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
 }
 

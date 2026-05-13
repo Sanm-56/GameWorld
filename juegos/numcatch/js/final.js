@@ -2,8 +2,10 @@ import { supabase } from "../../js/supabase.js"
 import { redirigirFinalNivelSolitario, volverDesdeFinal } from "../../js/mini-torneo.js"
 import { escapeHtml } from "../../js/mensajes.js"
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
+import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guard.js"
 
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
+if (!validarFinalReciente("numcatch")) await new Promise(() => {})
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
@@ -99,6 +101,7 @@ setMensaje()
 cargar()
 
 window.volverLobby = async function () {
+  limpiarFinalProtegido("numcatch")
   await volverDesdeFinal(supabase)
 }
 

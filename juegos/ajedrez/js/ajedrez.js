@@ -2,6 +2,7 @@ import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
 import { confirmAction } from '../../js/mensajes.js'
+import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 
 // =============================
 // 🔒 BLOQUEO MULTI-PESTAÑA
@@ -94,6 +95,7 @@ window.addEventListener('storage', (event) => {
 // =============================
 let usuario = localStorage.getItem('usuario') || 'anónimo'
 const JUEGO_ACTUAL = 'ajedrez'
+iniciarFinalProtegido(JUEGO_ACTUAL)
 
 // =============================
 // 🔒 CONTROL GLOBAL
@@ -207,6 +209,7 @@ descalificado = true
 juegoTerminado = true
 localStorage.setItem("fin_juego","descalificado")
 alert("❌ Descalificado por cambiar de pestaña")
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
 }
 
@@ -297,6 +300,7 @@ async function iniciarCronometro() {
       juegoTerminado = true
       alert('Tiempo terminado')
       localStorage.setItem('juego_actual', 'ajedrez')
+      marcarFinalValido(JUEGO_ACTUAL)
       window.location.href = 'final.html'
       return
     }
@@ -1205,6 +1209,7 @@ async function finishGame(message, wasVictory = true) {
   localStorage.setItem('ajedrezResultado', message)
 
   setTimeout(() => {
+    marcarFinalValido(JUEGO_ACTUAL)
     window.location.href = 'final.html'
   }, 1400)
 }
@@ -1255,6 +1260,7 @@ function resign() {
   setTimeout(async () => {
     await eliminarResultadoAjedrez()
     await marcarDerrotaAjedrez()
+    marcarFinalValido(JUEGO_ACTUAL)
     window.location.href = 'final.html'
   }, 1400)
 }

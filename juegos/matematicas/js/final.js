@@ -2,8 +2,10 @@ import { supabase } from "../../js/supabase.js"
 import { redirigirFinalNivelSolitario, volverDesdeFinal } from "../../js/mini-torneo.js"
 import { escapeHtml } from "../../js/mensajes.js"
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
+import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guard.js"
 
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
+if (!validarFinalReciente("matematicas")) await new Promise(() => {})
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
@@ -111,5 +113,6 @@ cargar()
 localStorage.removeItem("fin_juego")
 
 window.volverLobby = async function(){
+limpiarFinalProtegido("matematicas")
 await volverDesdeFinal(supabase)
 }

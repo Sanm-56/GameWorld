@@ -1,6 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
 const DURACION = 600
 const JUEGO_ACTUAL = "numcatch"
@@ -13,6 +14,7 @@ const BASE_VELOCIDAD = 120
 const MAX_VELOCIDAD = 245
 
 const usuario = localStorage.getItem("usuario") || "Invitado"
+iniciarFinalProtegido(JUEGO_ACTUAL)
 document.getElementById("usuarioLabel").innerText = usuario
 
 const gameEl = document.getElementById("game")
@@ -209,6 +211,7 @@ async function descalificarPorActividadSospechosa() {
   localStorage.setItem("fin_juego", "descalificado")
   alert("Descalificado por actividad sospechosa")
   await enviarResultado("descalificado")
+  marcarFinalValido(JUEGO_ACTUAL)
   window.location.href = "final.html"
 }
 
@@ -264,6 +267,7 @@ async function iniciarCronometro() {
       reloj.innerText = "0:00"
       juegoTerminado = true
       if (!resultadoEnviado && !descalificado) await enviarResultado("tiempo")
+      marcarFinalValido(JUEGO_ACTUAL)
       window.location.href = "final.html"
       return
     }

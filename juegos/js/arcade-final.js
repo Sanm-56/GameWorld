@@ -27,8 +27,15 @@ const finishedRunId = localStorage.getItem(`${gameKey}_finished_run_id`)
 const finishedAtMs = Date.parse(localStorage.getItem(`${gameKey}_finished_at`) || "")
 const resultadoReciente = Number.isFinite(finishedAtMs) && Date.now() - finishedAtMs < 30 * 60 * 1000
 const resultadoLocalValido = Boolean(fin && (elapsed > 0 || score > 0 || fin === "descalificado"))
+const requiereFinalValido = [
+  "cricketarcade",
+  "esquivaobstaculos",
+  "torreinfinita",
+  "subelamontana",
+  "basketballarcade",
+].includes(gameKey)
 
-if (gameKey === "esquivaobstaculos" && (!resultadoLocalValido || !runId || runId !== finishedRunId || !resultadoReciente)) {
+if (requiereFinalValido && (!resultadoLocalValido || !runId || runId !== finishedRunId || !resultadoReciente)) {
   window.location.replace("lobby.html")
   await new Promise(() => {})
 }

@@ -1,6 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
 // 🔒 BLOQUEO MULTI-PESTAÑA
 const pestaña = "mate_activo"
@@ -23,6 +24,8 @@ let usuario = localStorage.getItem("usuario")
 if(!usuario){
 window.location.href="index.html"
 }
+
+iniciarFinalProtegido(JUEGO_ACTUAL)
 
 // 🔒 CONTROL
 let resultadoEnviado = false
@@ -57,6 +60,7 @@ descalificado = true
 juegoTerminado = true
 localStorage.setItem("fin_juego","descalificado")
 alert("❌ Descalificado por cambiar de pestaña")
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
 }
 
@@ -449,6 +453,7 @@ await guardarEstadisticasMatematicas()
 // ✅ marcar como terminado correctamente
 localStorage.setItem("fin_juego","tiempo")
 
+marcarFinalValido(JUEGO_ACTUAL)
 window.location.href="final.html"
 return
 }
