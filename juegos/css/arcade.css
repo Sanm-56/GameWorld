@@ -455,6 +455,8 @@ body[data-game="torreinfinita"] .stage{
   background-size:54px 54px,auto,auto;
 }
 body[data-game="esquivaobstaculos"] .stage{
+  contain:layout paint style;
+  touch-action:none;
   background:
     linear-gradient(90deg,transparent 0 31%,rgba(255,255,255,.1) 31% 32%,transparent 32% 64%,rgba(255,255,255,.1) 64% 65%,transparent 65%),
     repeating-linear-gradient(0deg,rgba(56,189,248,.08) 0 2px,transparent 2px 34px),
@@ -541,6 +543,7 @@ body[data-game="esquivaobstaculos"] .stage::before{
 }
 .dodge-player{
   transform:translateX(-50%);
+  will-change:left,transform;
   border-radius:16px 16px 22px 22px;
   background:
     radial-gradient(circle at 50% 18%,#e0f2fe,transparent 18%),
@@ -566,6 +569,8 @@ body[data-game="esquivaobstaculos"] .stage::before{
 }
 .dodge-obstacle{
   transform:translateX(-50%) rotate(45deg);
+  will-change:top,left,transform;
+  pointer-events:none;
   border-radius:12px;
   background:linear-gradient(135deg,#fb7185,#be123c);
   box-shadow:0 16px 30px rgba(0,0,0,.3),0 0 22px rgba(251,113,133,.28);

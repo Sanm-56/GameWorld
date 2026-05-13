@@ -76,6 +76,7 @@ let timerId = null
 let tournamentCheckId = null
 let rafId = null
 let cricketScene = null
+let dodgeScene = null
 let lastDodgeMoveAt = 0
 let dodgeInvulnerableUntil = 0
 let dodgeVisualX = 42
@@ -215,7 +216,7 @@ function setStatus(text) {
 }
 
 function clearStage() {
-  els.stage.querySelectorAll(".actor,.target,.trail,.block,.platform,.hoop,.ball,.bat,.mountain").forEach((node) => node.remove())
+  els.stage.querySelectorAll(".actor,.target,.trail,.block,.platform,.hoop,.ball,.bat,.mountain,.dodge-lane,.dodge-road-glow,.dodge-feedback").forEach((node) => node.remove())
 }
 
 function makeEl(className, style = {}, text = "") {
@@ -259,18 +260,61 @@ function renderTiming() {
 }
 
 function renderDodge() {
-  clearStage()
-  DODGE_LANES.forEach((lane) => makeEl("dodge-lane", { left: `${lane}%` }))
-  makeEl("dodge-road-glow")
+  if (!dodgeScene) {
+    clearStage()
+    const fragment = document.createDocumentFragment()
+    DODGE_LANES.forEach((lane) => {
+      const el = document.createElement("div")
+      el.className = "dodge-lane"
+      el.style.left = `${lane}%`
+      fragment.appendChild(el)
+    })
+    const glow = document.createElement("div")
+    glow.className = "dodge-road-glow"
+    fragment.appendChild(glow)
+    const player = document.createElement("div")
+    player.className = "actor dodge-player"
+    player.style.bottom = "12%"
+    fragment.appendChild(player)
+    const feedback = document.createElement("div")
+    feedback.className = "dodge-feedback"
+    feedback.hidden = true
+    fragment.appendChild(feedback)
+    els.stage.appendChild(fragment)
+    dodgeScene = { player, feedback, obstacles: new Map() }
+  }
+
   const actorClass = performance.now() < dodgeInvulnerableUntil ? "actor dodge-player invulnerable" : "actor dodge-player"
-  makeEl(actorClass, { left: `${dodgeVisualX}%`, bottom: "12%" })
-  objects.forEach((item) => makeEl(`block danger dodge-obstacle dodge-obstacle-${item.variant || 0}`, {
-    left: `${item.x + Number(item.drift || 0)}%`,
-    top: `${item.y}%`,
-    transform: `translateX(-50%) rotate(${45 + Number(item.spin || 0)}deg) scale(${Number(item.scale || 1)})`,
-  }))
+  dodgeScene.player.className = actorClass
+  dodgeScene.player.style.left = `${dodgeVisualX}%`
+
+  const active = new Set()
+  objects.forEach((item) => {
+    const id = String(item.id)
+    active.add(id)
+    let el = dodgeScene.obstacles.get(id)
+    if (!el) {
+      el = document.createElement("div")
+      dodgeScene.obstacles.set(id, el)
+      els.stage.appendChild(el)
+    }
+    el.className = `block danger dodge-obstacle dodge-obstacle-${item.variant || 0}`
+    el.style.left = `${item.x + Number(item.drift || 0)}%`
+    el.style.top = `${item.y}%`
+    el.style.transform = `translate3d(-50%,0,0) rotate(${45 + Number(item.spin || 0)}deg) scale(${Number(item.scale || 1)})`
+  })
+
+  dodgeScene.obstacles.forEach((el, id) => {
+    if (active.has(id)) return
+    el.remove()
+    dodgeScene.obstacles.delete(id)
+  })
+
   if (dodgeFeedback && performance.now() < dodgeFeedbackUntil) {
-    makeEl("dodge-feedback", {}, dodgeFeedback)
+    dodgeScene.feedback.hidden = false
+    dodgeScene.feedback.textContent = dodgeFeedback
+  } else {
+    dodgeScene.feedback.hidden = true
   }
 }
 
@@ -434,7 +478,7 @@ function showDodgeFeedback(text) {
 }
 
 function updateDodge(dt) {
-  dodgeVisualX += (state.x - dodgeVisualX) * Math.min(1, dt * 14)
+  dodgeVisualX += (state.x - dodgeVisualX) * Math.min(1, dt * 18)
   spawnTimer -= dt
   if (spawnTimer <= 0) {
     spawnTimer = Math.max(0.24, rand(0.62, 1.02) - level * 0.035)
@@ -595,6 +639,11 @@ document.addEventListener("keydown", (event) => {
 if (config.type === "dodge") {
   els.stage.addEventListener("pointerdown", (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return
+    event.preventDefault()
+    moveDodgeToLaneByClientX(event.clientX)
+  }, { signal: inputController.signal })
+  els.stage.addEventListener("pointermove", (event) => {
+    if (event.pointerType === "mouse" && event.buttons !== 1) return
     event.preventDefault()
     moveDodgeToLaneByClientX(event.clientX)
   }, { signal: inputController.signal })
