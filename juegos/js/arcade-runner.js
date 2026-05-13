@@ -55,12 +55,18 @@ let advertencias = 0
 let resultadoEnviado = false
 let descalificado = false
 let juegoTerminado = false
+let juegoActivo = false
 let ultimoCambio = 0
+let ultimoSwing = 0
 let startMs = performance.now()
 let lastTs = 0
 let objects = []
 let spawnTimer = 0
 let state = createState()
+let timerId = null
+let cricketScene = null
+
+localStorage.setItem("juego_actual", gameKey)
 
 function createState() {
   return {
@@ -69,6 +75,7 @@ function createState() {
     vx: 125,
     target: 50,
     ball: null,
+    ballSpeed: 42,
     stackWidth: 70,
     stackX: 15,
     stackDir: 1,
@@ -136,10 +143,23 @@ function render() {
 }
 
 function renderTiming() {
-  clearStage()
-  makeEl("target", { left: `${state.target - 8}%`, bottom: "34%", width: "16%", height: "8px" })
-  makeEl("bat", { left: "11%", bottom: "18%" })
-  makeEl("ball actor", { left: `${state.x}%`, bottom: "35%" })
+  if (!cricketScene) {
+    clearStage()
+    cricketScene = {
+      pitch: makeEl("cricket-pitch"),
+      crease: makeEl("cricket-crease"),
+      wicket: makeEl("cricket-wicket"),
+      target: makeEl("target cricket-zone"),
+      bat: makeEl("bat cricket-bat", {}, "BAT"),
+      ball: makeEl("ball actor cricket-ball"),
+    }
+  }
+
+  cricketScene.target.style.left = `${state.target - 7}%`
+  cricketScene.target.style.width = "14%"
+  cricketScene.ball.style.left = `${state.x}%`
+  cricketScene.ball.style.bottom = `${34 + Math.sin(state.x / 8) * 1.5}%`
+  cricketScene.bat.classList.toggle("swing", performance.now() - ultimoSwing < 150)
 }
 
 function renderDodge() {
@@ -175,6 +195,11 @@ function renderBasket() {
 
 function loop(ts) {
   if (juegoTerminado) return
+  if (!juegoActivo) {
+    render()
+    requestAnimationFrame(loop)
+    return
+  }
   if (!lastTs) lastTs = ts
   const dt = Math.min(0.05, (ts - lastTs) / 1000)
   lastTs = ts
@@ -185,10 +210,11 @@ function loop(ts) {
 
 function update(dt) {
   if (config.type === "timing") {
-    state.x += (42 + level * 7) * dt
+    state.ballSpeed = Math.min(96, 38 + level * 6.4)
+    state.x += state.ballSpeed * dt
     if (state.x > 104) {
       state.x = -4
-      state.target = rand(45, 82)
+      state.target = rand(44, 82)
       miss("Se fue la bola")
     }
     return
@@ -238,14 +264,20 @@ function update(dt) {
 
 function action() {
   if (juegoTerminado) return
+  if (!juegoActivo) {
+    setStatus("Espera a que cargue el cronometro")
+    return
+  }
+  ultimoSwing = performance.now()
 
   if (config.type === "timing") {
     const diff = Math.abs(state.x - state.target)
-    if (diff < 4) addScore(45 + level * 4)
-    else if (diff < 9) addScore(25 + level * 2)
+    if (diff < 3) addScore(70 + level * 5)
+    else if (diff < 7) addScore(42 + level * 3)
+    else if (diff < 12) addScore(18 + level)
     else miss("Swing fuera de ritmo")
     state.x = -4
-    state.target = rand(45, 82)
+    state.target = rand(44, 82)
     return
   }
 
@@ -303,6 +335,13 @@ function action() {
 }
 
 els.action.addEventListener("click", action)
+if (config.type === "timing") {
+  els.stage.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return
+    event.preventDefault()
+    action()
+  })
+}
 document.addEventListener("keydown", (event) => {
   if (event.code === "Space" || event.code === "ArrowUp" || event.code === "Enter") {
     event.preventDefault()
@@ -335,11 +374,18 @@ async function startTimer() {
   let restante = await obtenerTiempoRestanteTorneo(supabase, gameKey, DURACION)
   if (restante === null) {
     console.warn(`No hay inicio valido para ${gameKey}`)
-    return
+    setStatus("El torneo aun no ha iniciado")
+    setTimeout(() => {
+      window.location.href = salidaTorneoUrl()
+    }, 1200)
+    return false
+  }
+  if (restante <= 0) {
+    await endGame("tiempo")
+    return false
   }
 
   const tick = async () => {
-    restante -= 1
     const min = Math.floor(restante / 60)
     const seg = restante % 60
     els.timer.textContent = `${min}:${seg < 10 ? "0" : ""}${seg}`
@@ -349,14 +395,17 @@ async function startTimer() {
         restante = DURACION
         return
       }
-      clearInterval(timer)
+      clearInterval(timerId)
       await endGame("tiempo")
+      return
     }
+    restante -= 1
   }
 
-  let timer = null
-  tick()
-  timer = setInterval(tick, 1000)
+  timerId = setInterval(tick, 1000)
+  await tick()
+  if (juegoTerminado) return false
+  return true
 }
 
 async function getPosition() {
@@ -416,16 +465,30 @@ async function saveResult(reason) {
   const elapsed = Math.max(1, Math.round((performance.now() - startMs) / 1000))
 
   if (finalScore > 0 && !invalid) {
-    const { error } = await supabase
+    const { data: recordActual, error: recordError } = await supabase
       .from("ranking")
-      .upsert({
-        usuario,
-        tiempo: finalScore,
-        juego: gameKey,
-        sospechoso: advertencias > 0,
-        invalido: false,
-        motivo: advertencias > 0 ? "Cambio de pestana" : "",
-      }, { onConflict: "usuario,juego" })
+      .select("tiempo,invalido")
+      .eq("usuario", usuario)
+      .eq("juego", gameKey)
+      .maybeSingle()
+
+    if (recordError) {
+      console.warn(`No se pudo leer record actual de ${gameKey}`, recordError)
+    }
+
+    const debeActualizarRecord = !recordActual || recordActual.invalido || finalScore >= Number(recordActual.tiempo || 0)
+    const { error } = debeActualizarRecord
+      ? await supabase
+        .from("ranking")
+        .upsert({
+          usuario,
+          tiempo: finalScore,
+          juego: gameKey,
+          sospechoso: advertencias > 0,
+          invalido: false,
+          motivo: advertencias > 0 ? "Cambio de pestana" : "",
+        }, { onConflict: "usuario,juego" })
+      : { error: null }
 
     if (error) {
       console.error(`No se pudo guardar ranking de ${gameKey}`, error)
@@ -449,6 +512,8 @@ async function saveResult(reason) {
 async function endGame(reason) {
   if (juegoTerminado) return
   juegoTerminado = true
+  juegoActivo = false
+  if (timerId) clearInterval(timerId)
   const saved = await saveResult(reason)
   if (saved !== false) window.location.href = "final.html"
 }
@@ -460,7 +525,13 @@ async function checkTournamentState() {
 }
 
 renderHud()
-setStatus("Listo")
-startTimer()
+setStatus(config.type === "timing" ? "Toca la pantalla, Espacio o Golpear cuando la bola entre en la zona" : "Listo")
 setInterval(checkTournamentState, 3000)
 requestAnimationFrame(loop)
+startTimer().then((started) => {
+  if (!started || juegoTerminado) return
+  startMs = performance.now()
+  lastTs = 0
+  juegoActivo = true
+  setStatus(config.type === "timing" ? "Partida iniciada: golpea en la zona dorada" : "Partida iniciada")
+})
