@@ -5,170 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ingreso Damas</title>
 <style>
-:root{
-  --bg-1:#111827;
-  --bg-2:#0f172a;
-  --card:#1e293bcc;
-  --card-border:#f59e0b33;
-  --text:#fffaf0;
-  --muted:#fde68a;
-  --accent:#f59e0b;
-  --accent-2:#ea580c;
-  --input:#0b1120;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:24px;
-  font-family:Verdana, Geneva, Tahoma, sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(circle at top left, rgba(245,158,11,0.18), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(234,88,12,0.18), transparent 28%),
-    linear-gradient(150deg, var(--bg-1), var(--bg-2));
-}
-
-.container{
-  width:min(100%, 430px);
-  background:var(--card);
-  border:1px solid var(--card-border);
-  border-radius:28px;
-  padding:34px 28px;
-  text-align:center;
-  box-shadow:0 24px 60px rgba(0,0,0,0.42);
-  backdrop-filter:blur(10px);
-}
-
-.icono{
-  font-size:48px;
-  margin-bottom:10px;
-}
-
-h2{
-  margin:0 0 8px;
-  font-size:34px;
-}
-
-p{
-  margin:0 0 24px;
-  color:var(--muted);
-  line-height:1.5;
-}
-
-input{
-  width:100%;
-  display:block;
-  margin:0 0 14px;
-  padding:14px 16px;
-  border-radius:14px;
-  border:1px solid #fdba7455;
-  background:var(--input);
-  color:var(--text);
-  font-size:16px;
-  outline:none;
-}
-
-input::placeholder{
-  color:#fdba74;
-}
-
-input:focus{
-  border-color:#f59e0b;
-  box-shadow:0 0 0 4px rgba(245,158,11,0.16);
-}
-
-button{
-  width:100%;
-  margin-top:6px;
-  padding:14px 20px;
-  border:none;
-  border-radius:16px;
-  background:linear-gradient(135deg, var(--accent), var(--accent-2));
-  color:white;
-  font-size:17px;
-  font-weight:bold;
-  cursor:pointer;
-  box-shadow:0 14px 24px rgba(234,88,12,0.3);
-  transition:transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 18px 30px rgba(234,88,12,0.38);
-}
-.acciones-login{
-  display:grid;
-  gap:10px;
-}
-
-.volver{
-  background:rgba(15,23,42,0.72);
-  border:1px solid rgba(148,163,184,0.24);
-  box-shadow:none;
-}
-
-.volver:hover{
-  box-shadow:0 14px 24px rgba(15,23,42,0.28);
-}
-</style>
-<style>
-html, body{
-width:100%;
-max-width:100%;
-overflow-x:hidden;
-}
-
-.container{
-max-width:100%;
-min-width:0;
-}
-
-h2, p, button, input{
-overflow-wrap:anywhere;
-}
-
-@media (max-width:480px){
-body{
-padding:12px;
-}
-
-.container{
-width:100%;
-padding:24px 16px;
-border-radius:18px;
-}
-
-button{
-padding:13px 12px;
-font-size:15px;
-}
-}
+:root{--text:#fffaf0;--muted:#fde68a;--accent:#f59e0b;--accent2:#ef4444;--line:rgba(245,158,11,.3)}
+*{box-sizing:border-box}html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{margin:0;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:18px;font-family:Verdana,Geneva,Tahoma,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 12%,rgba(245,158,11,.22),transparent 30%),radial-gradient(circle at 86% 82%,rgba(239,68,68,.18),transparent 28%),linear-gradient(150deg,#111827,#0f172a)}
+.login-shell{position:relative;z-index:1;width:min(1040px,100%);min-height:min(670px,calc(100vh - 36px));display:grid;grid-template-columns:minmax(0,1.1fr) minmax(330px,.9fr);overflow:hidden;border:1px solid var(--line);border-radius:28px;background:rgba(15,23,42,.76);box-shadow:0 28px 80px rgba(0,0,0,.44)}
+.visual{position:relative;overflow:hidden;min-height:520px;background:radial-gradient(circle at 50% 8%,rgba(245,158,11,.22),transparent 34%),linear-gradient(180deg,rgba(30,41,59,.35),rgba(15,23,42,.75))}
+.checker-board{position:absolute;left:50%;top:50%;width:min(78%,430px);aspect-ratio:1;transform:translate(-50%,-50%) rotate(4deg);display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border:3px solid rgba(253,230,138,.48);box-shadow:0 24px 60px rgba(0,0,0,.42),0 0 42px rgba(245,158,11,.12)}
+.sq{position:relative}.sq:nth-child(odd){background:#fbbf24}.sq:nth-child(even){background:#451a03}.piece{position:absolute;inset:14%;border-radius:50%;box-shadow:inset 0 5px 9px rgba(255,255,255,.22),0 10px 18px rgba(0,0,0,.34);animation:checkerHop 3.2s ease-in-out infinite}.red{background:linear-gradient(135deg,#ef4444,#7f1d1d)}.gold{background:linear-gradient(135deg,#fde68a,#d97706)}.p2{animation-delay:.8s}
+.panel{display:flex;flex-direction:column;justify-content:center;gap:18px;padding:42px;border-left:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,255,255,.07),transparent 32%),rgba(15,23,42,.8)}
+.kicker{width:max-content;max-width:100%;border:1px solid rgba(245,158,11,.44);border-radius:999px;padding:8px 12px;color:#fde68a;background:rgba(2,6,23,.42);font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+h1{margin:0;font-size:clamp(36px,5vw,60px);line-height:.98}p{margin:0;color:var(--muted);line-height:1.5}.fields{display:grid;gap:13px;margin-top:4px}.fields label{display:grid;gap:7px;color:var(--muted);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+input{width:100%;min-height:54px;margin:0;padding:14px 16px;border-radius:16px;border:1px solid rgba(245,158,11,.34);outline:none;color:var(--text);background:rgba(2,6,23,.56);font:inherit}input::placeholder{color:#fdba74}input:focus{border-color:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.16)}
+.actions{display:grid;grid-template-columns:1fr auto;gap:10px}button{min-height:52px;border:0;border-radius:16px;padding:0 18px;cursor:pointer;font:inherit;font-weight:1000;transition:transform .18s ease,filter .18s ease}button:hover{transform:translateY(-2px);filter:brightness(1.08)}.primary{color:white;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 18px 34px rgba(234,88,12,.24)}.back{color:var(--text);border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.075)}
+@keyframes checkerHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}@media (prefers-reduced-motion:reduce){.piece{animation:none}button{transition:none}}
+@media (max-width:820px){body{align-items:flex-start;padding:10px}.login-shell{grid-template-columns:1fr;min-height:auto;border-radius:22px}.visual{min-height:300px}.panel{border-left:0;border-top:1px solid rgba(255,255,255,.12);padding:28px}.actions{grid-template-columns:1fr}}
+@media (max-width:520px){.visual{min-height:240px}.panel{padding:22px}.back{width:100%}.checker-board{width:86%}}
 </style>
 <link rel="stylesheet" href="../css/responsive-desktop.css">
 </head>
 <body>
-
-<div class="container">
-  <div class="icono">♟️</div>
-  <h2>Damas</h2>
-  <p>Escribe tu apodo y tu código único para entrar correctamente al lobby del juego.</p>
-  <input id="usuario" placeholder="Tu apodo">
-  <input id="codigo" placeholder="Código único de Supabase">
-  <div class="acciones-login">
-    <button onclick="entrar()">Entrar</button>
-    <button class="volver" onclick="window.location.href='../../index.html'">Volver al menú principal</button>
-  </div>
-</div>
-
+<main class="login-shell"><section class="visual" aria-hidden="true"><div class="checker-board">
+<span class="sq"></span><span class="sq"><i class="piece red"></i></span><span class="sq"></span><span class="sq"><i class="piece red p2"></i></span><span class="sq"></span><span class="sq"><i class="piece red"></i></span><span class="sq"></span><span class="sq"></span>
+<span class="sq"><i class="piece red"></i></span><span class="sq"></span><span class="sq"><i class="piece red"></i></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"><i class="piece red p2"></i></span><span class="sq"></span>
+<span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"><i class="piece red"></i></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+<span class="sq"></span><span class="sq"></span><span class="sq"><i class="piece gold p2"></i></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+<span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"><i class="piece gold"></i></span><span class="sq"></span><span class="sq"></span>
+<span class="sq"></span><span class="sq"><i class="piece gold"></i></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"><i class="piece gold p2"></i></span>
+<span class="sq"><i class="piece gold p2"></i></span><span class="sq"></span><span class="sq"><i class="piece gold"></i></span><span class="sq"></span><span class="sq"><i class="piece gold"></i></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+<span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"><i class="piece gold"></i></span><span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+</div></section><section class="panel"><span class="kicker">Movimiento y captura</span><h1>Damas</h1><p>Ingresa con tu apodo y tu codigo unico para entrar al lobby del torneo.</p><div class="fields"><label><span>Jugador</span><input id="usuario" autocomplete="nickname" placeholder="Tu apodo"></label><label><span>Codigo unico</span><input id="codigo" autocomplete="one-time-code" placeholder="Codigo unico"></label></div><div class="actions"><button class="primary" onclick="entrar()">Entrar</button><button class="back" onclick="window.location.href='../../index.html'">Volver</button></div></section></main>
 <script type="module" src="../js/login.js"></script>
-
 </body>
 </html>
