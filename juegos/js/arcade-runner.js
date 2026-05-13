@@ -72,6 +72,9 @@ let rafId = null
 let cricketScene = null
 let lastDodgeMoveAt = 0
 let dodgeInvulnerableUntil = 0
+let dodgeVisualX = 42
+let dodgeFeedback = ""
+let dodgeFeedbackUntil = 0
 const inputController = new AbortController()
 
 localStorage.setItem("juego_actual", gameKey)
@@ -205,9 +208,17 @@ function renderTiming() {
 function renderDodge() {
   clearStage()
   DODGE_LANES.forEach((lane) => makeEl("dodge-lane", { left: `${lane}%` }))
+  makeEl("dodge-road-glow")
   const actorClass = performance.now() < dodgeInvulnerableUntil ? "actor dodge-player invulnerable" : "actor dodge-player"
-  makeEl(actorClass, { left: `${state.x}%`, bottom: "12%" })
-  objects.forEach((item) => makeEl("block danger dodge-obstacle", { left: `${item.x}%`, top: `${item.y}%` }))
+  makeEl(actorClass, { left: `${dodgeVisualX}%`, bottom: "12%" })
+  objects.forEach((item) => makeEl(`block danger dodge-obstacle dodge-obstacle-${item.variant || 0}`, {
+    left: `${item.x + Number(item.drift || 0)}%`,
+    top: `${item.y}%`,
+    transform: `translateX(-50%) rotate(${45 + Number(item.spin || 0)}deg) scale(${Number(item.scale || 1)})`,
+  }))
+  if (dodgeFeedback && performance.now() < dodgeFeedbackUntil) {
+    makeEl("dodge-feedback", {}, dodgeFeedback)
+  }
 }
 
 function renderStack() {
@@ -329,6 +340,7 @@ function moveDodge(delta) {
   lastDodgeMoveAt = now
   const current = Math.max(0, DODGE_LANES.indexOf(state.x))
   state.x = DODGE_LANES[clamp(current + delta, 0, DODGE_LANES.length - 1)]
+  showDodgeFeedback(delta < 0 ? "Izquierda" : "Derecha")
 }
 
 function cycleDodgeLane() {
@@ -337,6 +349,7 @@ function cycleDodgeLane() {
   lastDodgeMoveAt = now
   const current = Math.max(0, DODGE_LANES.indexOf(state.x))
   state.x = DODGE_LANES[(current + 1) % DODGE_LANES.length]
+  showDodgeFeedback("Cambio")
 }
 
 function moveDodgeToLaneByClientX(clientX) {
@@ -347,29 +360,52 @@ function moveDodgeToLaneByClientX(clientX) {
   const ratio = rect.width ? clamp((clientX - rect.left) / rect.width, 0, 1) : 0.5
   const index = clamp(Math.floor(ratio * DODGE_LANES.length), 0, DODGE_LANES.length - 1)
   state.x = DODGE_LANES[index]
+  showDodgeFeedback(["Izquierda", "Centro", "Derecha"][index])
+}
+
+function showDodgeFeedback(text) {
+  dodgeFeedback = text
+  dodgeFeedbackUntil = performance.now() + 650
 }
 
 function updateDodge(dt) {
+  dodgeVisualX += (state.x - dodgeVisualX) * Math.min(1, dt * 14)
   spawnTimer -= dt
   if (spawnTimer <= 0) {
-    spawnTimer = Math.max(0.28, 0.82 - level * 0.04)
+    spawnTimer = Math.max(0.24, rand(0.62, 1.02) - level * 0.035)
     const ultimo = objects[objects.length - 1]
     let lane = DODGE_LANES[Math.floor(rand(0, DODGE_LANES.length))]
     if (ultimo && ultimo.y < 14 && ultimo.x === lane) {
       lane = DODGE_LANES[(DODGE_LANES.indexOf(lane) + 1) % DODGE_LANES.length]
     }
-    objects.push({ id: state.nextId++, x: lane, y: -10, hit: false })
+    objects.push({
+      id: state.nextId++,
+      x: lane,
+      y: -10,
+      hit: false,
+      speed: rand(0.86, 1.18) + Math.min(0.26, level * 0.012),
+      drift: rand(-1.4, 1.4),
+      spin: rand(-18, 18),
+      scale: rand(0.88, 1.12),
+      variant: Math.floor(rand(0, 3)),
+    })
   }
-  objects.forEach((item) => item.y += (20 + level * 3.2) * dt)
+  objects.forEach((item) => {
+    item.y += (19 + level * 3.4) * Number(item.speed || 1) * dt
+    item.drift = clamp(Number(item.drift || 0) + Math.sin((performance.now() + item.id * 211) / 380) * 0.018, -2.2, 2.2)
+    item.spin = Number(item.spin || 0) + 28 * dt
+  })
   objects = objects.filter((item) => {
     if (item.y > 96) {
       addScore(10 + level)
+      if (combo > 0 && combo % 5 === 0) showDodgeFeedback(`Racha x${combo}`)
       return false
     }
     const puedeGolpear = performance.now() >= dodgeInvulnerableUntil
     if (!item.hit && puedeGolpear && item.y > 70 && item.y < 88 && Math.abs(item.x - state.x) < 9) {
       item.hit = true
       dodgeInvulnerableUntil = performance.now() + 850
+      showDodgeFeedback("Impacto")
       miss("Choque")
       return false
     }

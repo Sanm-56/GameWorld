@@ -464,6 +464,16 @@ body[data-game="esquivaobstaculos"] .stage{
   user-select:none;
   -webkit-user-select:none;
 }
+body[data-game="esquivaobstaculos"] .stage::after{
+  inset:0;
+  height:auto;
+  border-radius:0;
+  background:
+    repeating-linear-gradient(180deg,transparent 0 34px,rgba(125,211,252,.12) 34px 40px,transparent 40px 76px);
+  filter:none;
+  opacity:.55;
+  animation:dodgeRoadFlow 0.78s linear infinite;
+}
 body[data-game="esquivaobstaculos"] .top,
 body[data-game="esquivaobstaculos"] .side,
 body[data-game="esquivaobstaculos"] .stage,
@@ -518,6 +528,17 @@ body[data-game="esquivaobstaculos"] .stage::before{
   background:linear-gradient(180deg,transparent,rgba(125,211,252,.34),transparent);
   pointer-events:none;
 }
+.dodge-road-glow{
+  position:absolute;
+  left:7%;
+  right:7%;
+  bottom:5%;
+  height:24%;
+  border-radius:50%;
+  background:radial-gradient(ellipse,rgba(56,189,248,.2),transparent 68%);
+  filter:blur(10px);
+  pointer-events:none;
+}
 .dodge-player{
   transform:translateX(-50%);
   border-radius:16px 16px 22px 22px;
@@ -525,6 +546,7 @@ body[data-game="esquivaobstaculos"] .stage::before{
     radial-gradient(circle at 50% 18%,#e0f2fe,transparent 18%),
     linear-gradient(135deg,#38bdf8,#0369a1);
   box-shadow:0 18px 34px rgba(0,0,0,.34),0 0 24px rgba(56,189,248,.3);
+  transition:left .16s cubic-bezier(.2,.9,.2,1), transform .16s ease, opacity .16s ease;
 }
 .dodge-player::before{
   content:"";
@@ -548,6 +570,31 @@ body[data-game="esquivaobstaculos"] .stage::before{
   background:linear-gradient(135deg,#fb7185,#be123c);
   box-shadow:0 16px 30px rgba(0,0,0,.3),0 0 22px rgba(251,113,133,.28);
 }
+.dodge-obstacle-1{
+  border-radius:50% 18% 50% 18%;
+  background:linear-gradient(135deg,#f97316,#e11d48);
+}
+.dodge-obstacle-2{
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+  background:linear-gradient(135deg,#c084fc,#e11d48);
+}
+.dodge-feedback{
+  position:absolute;
+  left:50%;
+  top:16%;
+  z-index:5;
+  transform:translateX(-50%);
+  padding:8px 12px;
+  border:1px solid rgba(125,211,252,.36);
+  border-radius:999px;
+  color:#e0f2fe;
+  background:rgba(2,6,23,.62);
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  animation:dodgeFeedback .65s ease forwards;
+}
 body[data-game="esquivaobstaculos"].final-page .final-card{
   background:
     radial-gradient(circle at 15% 0,rgba(56,189,248,.22),transparent 32%),
@@ -564,9 +611,19 @@ body[data-game="subelamontana"] .stage{
   100%{transform:translateX(80%)}
 }
 @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.1}}
+@keyframes dodgeRoadFlow{
+  to{background-position:0 76px}
+}
+@keyframes dodgeFeedback{
+  0%{opacity:0;transform:translate(-50%,8px) scale(.94)}
+  18%{opacity:1;transform:translate(-50%,0) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-16px) scale(.98)}
+}
 @media (prefers-reduced-motion:reduce){
   .final-card::before{animation:none}
   .action{transition:none}
+  body[data-game="esquivaobstaculos"] .stage::after,
+  .dodge-feedback{animation:none}
 }
 @media (max-width:820px){
   body{align-items:flex-start;padding:10px}
