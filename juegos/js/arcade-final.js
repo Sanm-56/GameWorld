@@ -49,7 +49,12 @@ const els = {
   back: document.getElementById("backBtn"),
 }
 
-const restartBtn = usaFallbackLocal && gameKey !== "esquivaobstaculos" ? crearBotonReinicioArcade() : null
+const restartBtn = usaFallbackLocal && ![
+  "esquivaobstaculos",
+  "torreinfinita",
+  "subelamontana",
+  "basketballarcade",
+].includes(gameKey) ? crearBotonReinicioArcade() : null
 
 els.title.textContent = config.label
 els.subtitle.textContent = isMini ? "Resultado de mini torneo" : "Resultado del torneo"

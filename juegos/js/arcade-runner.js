@@ -13,6 +13,11 @@ import { getArcadeGame } from "./arcade-games.js"
 const MAX_ADVERTENCIAS = 3
 const CRICKET_HIT_ZONE = 21
 const CRICKET_RESET_DELAY = 0.55
+const STACK_BASE_X = 15
+const STACK_BASE_WIDTH = 70
+const STACK_STAGE_MIN_X = 2
+const STACK_STAGE_MAX_X = 98
+const STACK_START_X = 4
 const DODGE_LANES = [18, 42, 66]
 const DODGE_X_RANGE = [10, 78]
 const DODGE_Y_RANGE = [50, 88]
@@ -119,6 +124,8 @@ const dodgePressedKeys = new Set()
 const dodgeButtonInputs = new Set()
 const dodgeZoneLastThreatAt = DODGE_ZONE_CENTERS.map(() => 0)
 
+if (config.type === "stack") resetStackState()
+
 localStorage.setItem("juego_actual", gameKey)
 
 async function validarAccesoEsquiva() {
@@ -176,8 +183,8 @@ function createState() {
     ball: null,
     ballSpeed: 42,
     cricket: createCricketState(),
-    stackWidth: 70,
-    stackX: 15,
+    stackWidth: STACK_BASE_WIDTH,
+    stackX: STACK_BASE_X,
     stackDir: 1,
     platforms: [],
     nextId: 1,
@@ -204,6 +211,24 @@ function rand(min, max) {
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value))
+}
+
+function resetStackState() {
+  state.stackX = STACK_BASE_X
+  state.stackWidth = STACK_BASE_WIDTH
+  state.stackDir = 1
+  state.x = STACK_START_X
+}
+
+function getStackMaxX(width = state.stackWidth) {
+  return Math.max(STACK_STAGE_MIN_X, STACK_STAGE_MAX_X - width)
+}
+
+function prepareNextStackBlock() {
+  const maxX = getStackMaxX()
+  const startFromLeft = objects.length % 2 === 0
+  state.stackDir = startFromLeft ? 1 : -1
+  state.x = startFromLeft ? STACK_STAGE_MIN_X : maxX
 }
 
 function addScore(points) {
@@ -367,7 +392,7 @@ function updateDodgeStageSize() {
 
 function renderStack() {
   clearStage()
-  makeEl("block base", { left: `${state.stackX}%`, bottom: "8%", width: `${state.stackWidth}%` })
+  makeEl("block base", { left: `${STACK_BASE_X}%`, bottom: "8%", width: `${STACK_BASE_WIDTH}%` })
   objects.forEach((item, index) => makeEl("block", {
     left: `${item.x}%`,
     bottom: `${8 + (index + 1) * 7}%`,
@@ -735,7 +760,14 @@ function update(dt) {
 
   if (config.type === "stack") {
     state.x += state.vx * state.stackDir * dt / 8
-    if (state.x <= 2 || state.x + state.stackWidth >= 98) state.stackDir *= -1
+    const maxX = getStackMaxX()
+    if (state.x <= STACK_STAGE_MIN_X) {
+      state.x = STACK_STAGE_MIN_X
+      state.stackDir = 1
+    } else if (state.x >= maxX) {
+      state.x = maxX
+      state.stackDir = -1
+    }
     return
   }
 
@@ -772,7 +804,7 @@ function action() {
   }
 
   if (config.type === "stack") {
-    const base = objects.length ? objects[objects.length - 1] : { x: state.stackX, w: state.stackWidth }
+    const base = objects.length ? objects[objects.length - 1] : { x: STACK_BASE_X, w: STACK_BASE_WIDTH }
     const overlapLeft = Math.max(base.x, state.x)
     const overlapRight = Math.min(base.x + base.w, state.x + state.stackWidth)
     const overlap = overlapRight - overlapLeft
@@ -782,13 +814,13 @@ function action() {
     }
     state.stackX = overlapLeft
     state.stackWidth = overlap
-    objects.push({ x: overlapLeft, w: overlap })
-    state.x = rand(4, 24)
+    objects.push({ id: state.nextId++, x: overlapLeft, w: overlap })
     addScore(22 + objects.length * 4)
     if (objects.length >= 9) {
       objects.shift()
       addScore(35)
     }
+    prepareNextStackBlock()
     return
   }
 
