@@ -959,8 +959,77 @@ body[data-game="esquivaobstaculos"].final-page .final-card{
 }
 body[data-game="subelamontana"] .stage{
   background:
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.16),transparent 12%),
+    radial-gradient(circle at 68% 34%,rgba(255,255,255,.12),transparent 10%),
     radial-gradient(circle at 50% 100%,rgba(245,158,11,.20),transparent 34%),
-    linear-gradient(180deg,#0b1931,#1f2937 62%,#2b1809);
+    linear-gradient(180deg,#7dd3fc 0%,#2563eb 48%,#1f2937 84%,#2b1809);
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.climb-sky{
+  left:0;
+  right:0;
+  bottom:-20%;
+  height:58%;
+  clip-path:polygon(0 72%,16% 34%,30% 66%,48% 18%,64% 60%,80% 28%,100% 74%,100% 100%,0 100%);
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.04));
+  pointer-events:none;
+}
+.climb-player{
+  width:38px;
+  height:46px;
+  border-radius:18px 18px 14px 14px;
+  background:
+    radial-gradient(circle at 50% 22%,#fff7ed,transparent 18%),
+    linear-gradient(135deg,#f59e0b,#ef4444);
+  box-shadow:0 16px 28px rgba(0,0,0,.3),0 0 18px rgba(245,158,11,.28);
+  transform:translate(-50%,-50%);
+}
+.climb-platform{
+  height:16px;
+  min-width:58px;
+  transform:translateX(-50%);
+  border-radius:999px;
+  background:linear-gradient(90deg,#fef3c7,#22c55e);
+  box-shadow:0 12px 24px rgba(0,0,0,.24),inset 0 -4px 0 rgba(22,101,52,.22);
+}
+.climb-platform-moving{
+  background:linear-gradient(90deg,#bfdbfe,#60a5fa);
+}
+.climb-platform-spring{
+  background:linear-gradient(90deg,#fde68a,#f59e0b);
+}
+.climb-platform-spike{
+  background:linear-gradient(90deg,#fecaca,#ef4444);
+}
+.climb-platform-hit{
+  opacity:.45;
+  background:linear-gradient(90deg,#7f1d1d,#ef4444);
+}
+.climb-spring{
+  position:absolute;
+  left:50%;
+  bottom:12px;
+  width:18px;
+  height:18px;
+  transform:translateX(-50%);
+  border:3px solid #f97316;
+  border-top:0;
+  border-radius:0 0 999px 999px;
+}
+.climb-spike{
+  position:absolute;
+  left:50%;
+  bottom:12px;
+  width:36px;
+  height:22px;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,#fff,#fecaca);
+  clip-path:polygon(0 100%,18% 0,36% 100%,54% 0,72% 100%,90% 0,100% 100%);
+}
+.climb-controls{
+  display:none;
 }
 @keyframes finalSheen{
   0%,60%{transform:translateX(-80%)}
@@ -1017,6 +1086,30 @@ body[data-game="subelamontana"] .stage{
   body[data-game="esquivaobstaculos"] .dodge-controls,
   body[data-game="esquivaobstaculos"] .status{grid-column:1/-1}
   body[data-game="esquivaobstaculos"] .status{min-height:54px}
+  body[data-game="subelamontana"] .side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+  body[data-game="subelamontana"] .climb-controls,
+  body[data-game="subelamontana"] .status{grid-column:1/-1}
+  body[data-game="subelamontana"] .status{min-height:54px}
+  .climb-controls{
+    display:grid;
+    grid-template-columns:1fr 1.2fr 1fr;
+    gap:8px;
+    touch-action:none;
+  }
+  .climb-controls button{
+    min-height:52px;
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:16px;
+    color:#020617;
+    background:linear-gradient(135deg,var(--accent),var(--secondary));
+    font-size:18px;
+    font-weight:1000;
+    box-shadow:0 12px 24px color-mix(in srgb,var(--accent) 18%,transparent);
+  }
+  .climb-controls [data-climb-dir]{
+    color:#f8fafc;
+    background:rgba(2,6,23,.52);
+  }
 }
 @media (max-width:520px){
   .stage{min-height:360px}
@@ -1052,12 +1145,20 @@ body[data-game="subelamontana"] .stage{
   .cricket-bat{left:7%;bottom:17%}
   .cricket-zone{height:14px !important}
   body[data-game="esquivaobstaculos"] .side{grid-template-columns:1fr}
+  body[data-game="subelamontana"] .side{grid-template-columns:1fr}
   .dodge-controls{
     grid-template-columns:repeat(3,52px);
   }
   .dodge-controls button{
     width:52px;
     height:46px;
+  }
+  .climb-controls{
+    grid-template-columns:64px minmax(90px,1fr) 64px;
+  }
+  .climb-controls button{
+    min-height:48px;
+    padding:0 10px;
   }
   .dodge-player,.dodge-obstacle{width:42px;height:42px}
 }

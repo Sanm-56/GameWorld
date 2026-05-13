@@ -19,6 +19,17 @@ const STACK_STAGE_MIN_X = 2
 const STACK_STAGE_MAX_X = 98
 const STACK_START_X = 4
 const STACK_VISIBLE_BLOCKS = 7
+const CLIMB_X_RANGE = [6, 88]
+const CLIMB_PLAYER_WIDTH = 6.2
+const CLIMB_PLAYER_FEET = 3.4
+const CLIMB_GRAVITY = 74
+const CLIMB_JUMP_SPEED = 36
+const CLIMB_SPRING_SPEED = 54
+const CLIMB_MOVE_SPEED = 42
+const CLIMB_CAMERA_TARGET = 42
+const CLIMB_VISIBLE_TOP = -14
+const CLIMB_VISIBLE_BOTTOM = 104
+const CLIMB_MAX_PLATFORMS = 12
 const DODGE_LANES = [18, 42, 66]
 const DODGE_X_RANGE = [10, 78]
 const DODGE_Y_RANGE = [50, 88]
@@ -114,6 +125,9 @@ let dodgeFeedback = ""
 let dodgeFeedbackUntil = 0
 let dodgeInputX = 0
 let dodgeInputY = 0
+let climbInputX = 0
+let climbJumpQueued = false
+let climbLastScoredHeight = 0
 let dodgeLastTrackedX = 42
 let dodgeLastTrackedY = 78
 let dodgeStillMs = 0
@@ -124,8 +138,11 @@ const inputController = new AbortController()
 const dodgePressedKeys = new Set()
 const dodgeButtonInputs = new Set()
 const dodgeZoneLastThreatAt = DODGE_ZONE_CENTERS.map(() => 0)
+const climbPressedKeys = new Set()
+const climbButtonInputs = new Set()
 
 if (config.type === "stack") resetStackState()
+if (config.type === "climb") resetClimbState()
 
 localStorage.setItem("juego_actual", gameKey)
 
@@ -187,8 +204,22 @@ function createState() {
     stackWidth: STACK_BASE_WIDTH,
     stackX: STACK_BASE_X,
     stackDir: 1,
+    climb: createClimbState(),
     platforms: [],
     nextId: 1,
+  }
+}
+
+function createClimbState() {
+  return {
+    playerY: 6,
+    vy: 0,
+    cameraY: 0,
+    height: 0,
+    lastPlatformY: 0,
+    lastSafeX: 42,
+    springCooldownY: -80,
+    spikeCooldownY: -120,
   }
 }
 
@@ -230,6 +261,34 @@ function prepareNextStackBlock() {
   const startFromLeft = Math.random() < 0.5
   state.stackDir = startFromLeft ? 1 : -1
   state.x = startFromLeft ? STACK_STAGE_MIN_X : maxX
+}
+
+function resetClimbState() {
+  state.climb = createClimbState()
+  state.x = 42
+  state.y = 72
+  state.platforms = [
+    createClimbPlatform(42, 0, 32, "start"),
+    createClimbPlatform(24, 16, 26, "normal"),
+    createClimbPlatform(62, 32, 24, "normal"),
+    createClimbPlatform(38, 49, 23, "spring"),
+  ]
+  state.climb.lastPlatformY = 49
+  state.climb.lastSafeX = 38
+  climbLastScoredHeight = 0
+}
+
+function createClimbPlatform(x, y, w, type = "normal") {
+  return {
+    id: state.nextId++,
+    x: clamp(x, CLIMB_X_RANGE[0], CLIMB_X_RANGE[1]),
+    y,
+    w,
+    type,
+    touched: false,
+    phase: rand(0, Math.PI * 2),
+    baseX: clamp(x, CLIMB_X_RANGE[0], CLIMB_X_RANGE[1]),
+  }
 }
 
 function addScore(points) {
@@ -412,9 +471,31 @@ function renderStack() {
 
 function renderClimb() {
   clearStage()
-  makeEl("mountain")
-  state.platforms.forEach((platform) => makeEl("platform", { left: `${platform.x}%`, top: `${platform.y}%` }))
-  makeEl("actor", { left: `${state.x}%`, top: `${state.y}%` })
+  makeEl("mountain climb-sky")
+  const climb = state.climb
+  state.platforms.forEach((platform) => {
+    const top = climbWorldToScreen(platform.y)
+    if (top < CLIMB_VISIBLE_TOP || top > CLIMB_VISIBLE_BOTTOM) return
+    const el = makeEl(`platform climb-platform climb-platform-${platform.type}`, {
+      left: `${platform.x}%`,
+      top: `${top}%`,
+      width: `${platform.w}%`,
+    })
+    if (platform.type === "spring") {
+      const spring = document.createElement("i")
+      spring.className = "climb-spring"
+      el.appendChild(spring)
+    }
+    if (platform.type === "spike") {
+      const spike = document.createElement("i")
+      spike.className = "climb-spike"
+      el.appendChild(spike)
+    }
+  })
+  makeEl("actor climb-player", {
+    left: `${state.x}%`,
+    top: `${climbWorldToScreen(climb.playerY)}%`,
+  })
 }
 
 function renderBasket() {
@@ -737,6 +818,151 @@ function markDodgeZoneThreat(x) {
   dodgeZoneLastThreatAt[nearestIndex] = now
 }
 
+function climbWorldToScreen(worldY) {
+  return 78 - (worldY - state.climb.cameraY)
+}
+
+function updateClimb(dt) {
+  const climb = state.climb
+  updateClimbDirectionalInput(dt)
+  ensureClimbPlatforms()
+  updateMovingClimbPlatforms(dt)
+
+  const prevY = climb.playerY
+  state.x = clamp(state.x + climbInputX * CLIMB_MOVE_SPEED * dt, CLIMB_X_RANGE[0], CLIMB_X_RANGE[1])
+
+  if (climbJumpQueued && climb.vy > -10) {
+    climb.vy = Math.max(climb.vy, CLIMB_JUMP_SPEED * 0.82)
+    climbJumpQueued = false
+  }
+
+  climb.vy -= CLIMB_GRAVITY * dt
+  climb.playerY += climb.vy * dt
+  resolveClimbPlatformCollisions(prevY)
+  resolveClimbSpikeHits()
+
+  const targetCamera = Math.max(0, climb.playerY - (78 - CLIMB_CAMERA_TARGET))
+  climb.cameraY += (targetCamera - climb.cameraY) * Math.min(1, dt * 5.5)
+  state.y = climbWorldToScreen(climb.playerY)
+
+  const height = Math.max(0, Math.floor(climb.playerY))
+  if (height > climb.height) climb.height = height
+  if (climb.height - climbLastScoredHeight >= 12) {
+    const steps = Math.floor((climb.height - climbLastScoredHeight) / 12)
+    climbLastScoredHeight += steps * 12
+    addScore(steps * (10 + Math.floor(level * 1.5)))
+  }
+
+  if (climb.playerY < climb.cameraY - 30) {
+    miss("Caida")
+    if (!juegoTerminado) resetClimbAfterFall()
+  }
+
+  state.platforms = state.platforms.filter((platform) => platform.y > climb.cameraY - 22)
+}
+
+function updateClimbDirectionalInput(dt) {
+  const keyX = (climbPressedKeys.has("ArrowRight") || climbPressedKeys.has("KeyD") ? 1 : 0)
+    - (climbPressedKeys.has("ArrowLeft") || climbPressedKeys.has("KeyA") ? 1 : 0)
+  const buttonX = (climbButtonInputs.has("right") ? 1 : 0) - (climbButtonInputs.has("left") ? 1 : 0)
+  const rawX = clamp(keyX + buttonX, -1, 1)
+  climbInputX += (rawX - climbInputX) * Math.min(1, dt * 13)
+}
+
+function ensureClimbPlatforms() {
+  const climb = state.climb
+  const maxY = climb.cameraY + 112
+  while (climb.lastPlatformY < maxY && state.platforms.length < CLIMB_MAX_PLATFORMS + 4) {
+    const difficulty = clamp(climb.lastPlatformY / 420, 0, 1)
+    const gap = rand(13.5 + difficulty * 1.8, 18.5 + difficulty * 4.2)
+    const nextY = climb.lastPlatformY + gap
+    const maxStep = 30 - difficulty * 6
+    const nextX = clamp(climb.lastSafeX + rand(-maxStep, maxStep), 12, 82)
+    const width = rand(24 - difficulty * 5, 31 - difficulty * 4)
+    const type = chooseClimbPlatformType(nextY, difficulty)
+    if (type === "spike") {
+      const spikeX = clamp(nextX + (nextX < 50 ? rand(14, 24) : rand(-24, -14)), 12, 82)
+      state.platforms.push(createClimbPlatform(spikeX, nextY + rand(-2, 2), 17, "spike"))
+      state.platforms.push(createClimbPlatform(nextX, nextY, width, "normal"))
+    } else {
+      state.platforms.push(createClimbPlatform(nextX, nextY, width, type))
+    }
+    climb.lastPlatformY = nextY
+    climb.lastSafeX = nextX
+  }
+}
+
+function chooseClimbPlatformType(y, difficulty) {
+  if (y < 65) return "normal"
+  if (y - state.climb.springCooldownY > 90 && Math.random() < 0.12) {
+    state.climb.springCooldownY = y
+    return "spring"
+  }
+  if (y - state.climb.spikeCooldownY > 80 && Math.random() < 0.08 + difficulty * 0.08) {
+    state.climb.spikeCooldownY = y
+    return "spike"
+  }
+  if (difficulty > 0.28 && Math.random() < 0.16 + difficulty * 0.12) return "moving"
+  return "normal"
+}
+
+function updateMovingClimbPlatforms(dt) {
+  const difficulty = clamp(state.climb.height / 420, 0, 1)
+  state.platforms.forEach((platform) => {
+    if (platform.type !== "moving") return
+    platform.phase += dt * (1.2 + difficulty)
+    platform.x = clamp(platform.baseX + Math.sin(platform.phase) * (7 + difficulty * 5), 10, 84)
+  })
+}
+
+function resolveClimbPlatformCollisions(prevY) {
+  const climb = state.climb
+  if (climb.vy > 0) return
+  const feetY = climb.playerY - CLIMB_PLAYER_FEET
+  const prevFeetY = prevY - CLIMB_PLAYER_FEET
+  const platform = state.platforms
+    .filter((item) => item.type !== "spike")
+    .find((item) => prevFeetY >= item.y && feetY <= item.y && Math.abs(state.x - item.x) <= item.w * 0.5 + CLIMB_PLAYER_WIDTH)
+
+  if (!platform) return
+
+  climb.playerY = platform.y + CLIMB_PLAYER_FEET
+  climb.vy = platform.type === "spring" ? CLIMB_SPRING_SPEED : CLIMB_JUMP_SPEED
+  if (!platform.touched) {
+    platform.touched = true
+    addScore(platform.type === "spring" ? 32 : 14)
+    if (platform.type === "spring") setStatus("Impulso")
+  }
+}
+
+function resolveClimbSpikeHits() {
+  const climb = state.climb
+  const spike = state.platforms.find((item) => item.type === "spike"
+    && Math.abs(item.y - (climb.playerY - CLIMB_PLAYER_FEET)) < 3.6
+    && Math.abs(state.x - item.x) <= item.w * 0.42 + CLIMB_PLAYER_WIDTH)
+  if (!spike) return
+  spike.type = "hit"
+  miss("Pinchos")
+  if (!juegoTerminado) {
+    climb.vy = CLIMB_JUMP_SPEED * 0.75
+    climb.playerY += 2
+  }
+}
+
+function resetClimbAfterFall() {
+  const climb = state.climb
+  const safe = state.platforms
+    .filter((platform) => platform.type !== "spike" && platform.y >= climb.cameraY)
+    .sort((a, b) => a.y - b.y)[0]
+  if (!safe) {
+    endGame("perdiste")
+    return
+  }
+  state.x = safe.x
+  climb.playerY = safe.y + CLIMB_PLAYER_FEET + 1
+  climb.vy = CLIMB_JUMP_SPEED
+}
+
 function updateDodgeDirectionalInput(dt) {
   if (config.type !== "dodge" || juegoTerminado || !juegoActivo) return
   const keyX = (dodgePressedKeys.has("ArrowRight") || dodgePressedKeys.has("KeyD") ? 1 : 0)
@@ -781,14 +1007,7 @@ function update(dt) {
   }
 
   if (config.type === "climb") {
-    state.y += (10 + level * 0.8) * dt
-    if (!state.platforms.length) {
-      state.platforms = Array.from({ length: 7 }, (_, index) => ({ x: rand(8, 78), y: 86 - index * 13 }))
-    }
-    state.platforms.forEach((platform) => platform.y += (4 + level * 0.35) * dt)
-    state.platforms = state.platforms.filter((platform) => platform.y < 100)
-    while (state.platforms.length < 7) state.platforms.push({ x: rand(8, 78), y: rand(-10, 0) })
-    if (state.y > 95) miss("Caida")
+    updateClimb(dt)
     return
   }
 
@@ -834,16 +1053,7 @@ function action() {
   }
 
   if (config.type === "climb") {
-    const next = state.platforms
-      .filter((platform) => platform.y < state.y && Math.abs(platform.x - state.x) < 24)
-      .sort((a, b) => b.y - a.y)[0]
-    if (!next) {
-      miss("Salto sin plataforma")
-      return
-    }
-    state.x = next.x
-    state.y = next.y - 8
-    addScore(30 + level * 3)
+    climbJumpQueued = true
     return
   }
 
@@ -872,6 +1082,17 @@ document.addEventListener("keydown", (event) => {
     dodgePressedKeys.add(event.code)
     return
   }
+  if (config.type === "climb" && ["ArrowLeft", "ArrowRight", "KeyA", "KeyD"].includes(event.code)) {
+    event.preventDefault()
+    climbPressedKeys.add(event.code)
+    return
+  }
+  if (config.type === "climb" && ["ArrowUp", "KeyW", "Space"].includes(event.code)) {
+    event.preventDefault()
+    if (event.repeat) return
+    action()
+    return
+  }
   if (event.code === "Space" || event.code === "ArrowUp" || event.code === "Enter") {
     event.preventDefault()
     action()
@@ -879,6 +1100,10 @@ document.addEventListener("keydown", (event) => {
 }, { signal: inputController.signal })
 
 document.addEventListener("keyup", (event) => {
+  if (config.type === "climb") {
+    climbPressedKeys.delete(event.code)
+    return
+  }
   if (config.type !== "dodge") return
   dodgePressedKeys.delete(event.code)
 }, { signal: inputController.signal })
@@ -886,6 +1111,8 @@ document.addEventListener("keyup", (event) => {
 window.addEventListener("blur", () => {
   dodgePressedKeys.clear()
   dodgeButtonInputs.clear()
+  climbPressedKeys.clear()
+  climbButtonInputs.clear()
 }, { signal: inputController.signal })
 
 if (config.type === "dodge") {
@@ -915,6 +1142,27 @@ if (config.type === "dodge") {
     }, { signal: inputController.signal })
     button.addEventListener("lostpointercapture", () => {
       dodgeButtonInputs.delete(dir)
+    }, { signal: inputController.signal })
+  })
+}
+
+if (config.type === "climb") {
+  document.querySelectorAll("[data-climb-dir]").forEach((button) => {
+    const dir = button.dataset.climbDir
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault()
+      button.setPointerCapture?.(event.pointerId)
+      climbButtonInputs.add(dir)
+    }, { signal: inputController.signal })
+    button.addEventListener("pointerup", (event) => {
+      event.preventDefault()
+      climbButtonInputs.delete(dir)
+    }, { signal: inputController.signal })
+    button.addEventListener("pointercancel", () => {
+      climbButtonInputs.delete(dir)
+    }, { signal: inputController.signal })
+    button.addEventListener("lostpointercapture", () => {
+      climbButtonInputs.delete(dir)
     }, { signal: inputController.signal })
   })
 }
