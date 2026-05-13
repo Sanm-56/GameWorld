@@ -548,7 +548,7 @@ if (config.type === "dodge") {
 }
 
 document.addEventListener("visibilitychange", async () => {
-  if (!document.hidden || juegoTerminado) return
+  if (!document.hidden || juegoTerminado || (gameKey === "esquivaobstaculos" && !juegoActivo)) return
   const ahora = Date.now()
   if (ahora - ultimoCambio < 3000) return
   ultimoCambio = ahora
@@ -572,6 +572,11 @@ async function startTimer() {
     return false
   }
   if (restante <= 0) {
+    if (gameKey === "esquivaobstaculos") {
+      setStatus("El torneo ya finalizo")
+      window.location.href = salidaTorneoUrl()
+      return false
+    }
     await endGame("tiempo")
     return false
   }

@@ -16,6 +16,12 @@ const combo = Number(localStorage.getItem(`${gameKey}_combo`) || 0)
 const isMini = localStorage.getItem("solitario_origen") === "sala"
 const rewards = readJson(localStorage.getItem(`ultimo_resultado_${gameKey}`))
 const usaFallbackLocal = ["cricketarcade", "esquivaobstaculos"].includes(gameKey)
+const resultadoLocalValido = Boolean(fin && (elapsed > 0 || score > 0 || fin === "descalificado"))
+
+if (gameKey === "esquivaobstaculos" && !resultadoLocalValido) {
+  window.location.replace("lobby.html")
+  await new Promise(() => {})
+}
 
 document.documentElement.style.setProperty("--accent", config.accent)
 document.documentElement.style.setProperty("--secondary", config.secondary)
@@ -33,7 +39,7 @@ const els = {
   back: document.getElementById("backBtn"),
 }
 
-const restartBtn = usaFallbackLocal ? crearBotonReinicioArcade() : null
+const restartBtn = usaFallbackLocal && gameKey !== "esquivaobstaculos" ? crearBotonReinicioArcade() : null
 
 els.title.textContent = config.label
 els.subtitle.textContent = isMini ? "Resultado de mini torneo" : "Resultado del torneo"
