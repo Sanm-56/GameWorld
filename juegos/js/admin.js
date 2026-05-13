@@ -52,7 +52,7 @@ let rewardAmountSeleccionado = 100
 let rewardHistoryChannel = null
 const REWARD_AMOUNT_PRESETS = {
   monedas: [100, 1000, 10000, 100000, 1000000],
-  experiencia: [100, 1000, 10000, 100000, 1000000, 10000000],
+  experiencia: [100, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000],
 }
 const REWARD_TYPES = {
   monedas: "Monedas",
@@ -1754,7 +1754,8 @@ return { tipo, usuario: rewardUserSeleccionado, cantidad, multiplicador, duracio
 function validarPayloadRegaloAdmin(payload){
 if(!payload.usuario) return "Selecciona un usuario existente."
 if(!REWARD_TYPES[payload.tipo]) return "Tipo de recompensa invalido."
-if(["monedas", "experiencia"].includes(payload.tipo) && (!Number.isFinite(payload.cantidad) || payload.cantidad <= 0 || payload.cantidad > 10000000)) return "La cantidad debe estar entre 1 y 10,000,000."
+if(payload.tipo === "monedas" && (!Number.isFinite(payload.cantidad) || payload.cantidad <= 0 || payload.cantidad > 10000000)) return "La cantidad debe estar entre 1 y 10,000,000."
+if(payload.tipo === "experiencia" && (!Number.isFinite(payload.cantidad) || payload.cantidad <= 0 || payload.cantidad > 100000)) return "La experiencia debe estar entre 1 y 100,000."
 if(["booster_xp", "booster_monedas"].includes(payload.tipo)){
 if(payload.multiplicador < 1.2 || payload.multiplicador > 3.5) return "El multiplicador debe estar entre x1.2 y x3.5."
 if(!["horas", "dias"].includes(payload.duracionTipo) || payload.duracionCantidad < 1 || payload.duracionCantidad > 365) return "La duracion debe ser valida."

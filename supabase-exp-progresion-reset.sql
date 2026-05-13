@@ -1,5 +1,5 @@
--- Migracion segura: separa EXP historica de EXP de progreso actual.
--- historial_xp conserva la EXP historica; progreso_nivel.xp es solo progreso del nivel/rango activo.
+-- Migracion segura: restaura progresion acumulativa y conserva excedente de EXP.
+-- historial_xp audita cada ganancia; progreso_nivel.xp conserva el sobrante del nivel actual.
 
 create or replace function public.xp_requerido_nivel(nivel_actual integer)
 returns integer
@@ -35,8 +35,13 @@ begin
     new.temporada_id := coalesce(new.temporada_id, 'temporada-actual');
   end if;
 
-  if new.nivel < 3000 and new.xp >= public.xp_requerido_nivel(new.nivel) then
+  while new.nivel < 3000 loop
+    exit when new.xp < public.xp_requerido_nivel(new.nivel);
+    new.xp := new.xp - public.xp_requerido_nivel(new.nivel);
     new.nivel := new.nivel + 1;
+  end loop;
+
+  if new.nivel >= 3000 then
     new.xp := 0;
   end if;
 
@@ -89,13 +94,12 @@ begin
   nivel_nuevo := nivel_anterior;
   xp_nuevo := greatest(coalesce(actual.xp, 0), 0) + greatest(coalesce(p_xp, 0), 0);
 
-  if nivel_nuevo < 3000 then
+  while nivel_nuevo < 3000 loop
     requisito := public.admin_recompensa_xp_requerido(nivel_nuevo);
-    if xp_nuevo >= requisito then
-      xp_nuevo := 0;
-      nivel_nuevo := nivel_nuevo + 1;
-    end if;
-  end if;
+    exit when xp_nuevo < requisito;
+    xp_nuevo := xp_nuevo - requisito;
+    nivel_nuevo := nivel_nuevo + 1;
+  end loop;
 
   if nivel_nuevo >= 3000 then
     xp_nuevo := 0;

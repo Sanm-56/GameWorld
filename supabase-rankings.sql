@@ -968,8 +968,13 @@ begin
     new.temporada_id := coalesce(new.temporada_id, 'temporada-actual');
   end if;
 
-  if new.nivel < 3000 and new.xp >= public.xp_requerido_nivel(new.nivel) then
+  while new.nivel < 3000 loop
+    exit when new.xp < public.xp_requerido_nivel(new.nivel);
+    new.xp := new.xp - public.xp_requerido_nivel(new.nivel);
     new.nivel := new.nivel + 1;
+  end loop;
+
+  if new.nivel >= 3000 then
     new.xp := 0;
   end if;
 

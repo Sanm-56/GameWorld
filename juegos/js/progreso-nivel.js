@@ -4,7 +4,7 @@ import { obtenerBonusUsuario } from './tienda.js'
 import { obtenerBonusRangoActivo } from './rango-bonus.js'
 
 export const NIVEL_MAXIMO = 3000
-export const MULTIPLICADOR_XP_BASE_TORNEO = 144
+export const MULTIPLICADOR_XP_BASE_TORNEO = 1
 export const MULTIPLICADOR_XP_BASE_ANTERIOR_TORNEO = 8
 export const MULTIPLICADOR_XP_REBALANCE = 18
 export const XP_CURVA_BASE = 220
@@ -18,21 +18,21 @@ const XP_ACCIONES = {
 }
 
 const XP_RECOMPENSA_LOGRO_POR_RAREZA = {
-  common: 100000,
-  comun: 100000,
-  normal: 100000,
-  rare: 1000000,
-  raro: 1000000,
-  epic: 3500000,
-  epico: 3500000,
-  legendary: 12000000,
-  legendario: 12000000,
-  mythic: 35000000,
-  mitico: 35000000,
-  mythical: 35000000,
-  forbidden: 65000000,
-  prohibido: 65000000,
-  supremo: 65000000,
+  common: 750,
+  comun: 750,
+  normal: 750,
+  rare: 1800,
+  raro: 1800,
+  epic: 4200,
+  epico: 4200,
+  legendary: 9000,
+  legendario: 9000,
+  mythic: 16000,
+  mitico: 16000,
+  mythical: 16000,
+  forbidden: 26000,
+  prohibido: 26000,
+  supremo: 26000,
 }
 
 const TITULOS_NIVEL = [
@@ -206,14 +206,9 @@ export function calcularNivelPorXp(xpTotal = 0) {
 }
 
 export function calcularProgresoNivelActual(nivelActual = 1, xpNivelActual = 0) {
-  let nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
-  let xp = Math.max(0, Number(xpNivelActual) || 0)
-  let xpSiguiente = xpNecesarioParaNivel(nivel)
-  if (nivel < NIVEL_MAXIMO && xp >= xpSiguiente) {
-    nivel += 1
-    xp = 0
-    xpSiguiente = xpNecesarioParaNivel(nivel)
-  }
+  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(nivelActual) || 1)))
+  const xp = Math.max(0, Number(xpNivelActual) || 0)
+  const xpSiguiente = xpNecesarioParaNivel(nivel)
   const xpEnNivel = nivel >= NIVEL_MAXIMO ? 0 : Math.min(xp, xpSiguiente)
   const porcentaje = nivel >= NIVEL_MAXIMO
     ? 100
@@ -414,7 +409,6 @@ export async function registrarXp({
   bonusXPAplicado = null,
   aplicarMultiplicadores = true,
   generarRecompensasProgresion = true,
-  aplicarAProgreso = true,
 }) {
   if (!usuario) return null
 
@@ -435,10 +429,8 @@ export async function registrarXp({
   const key = accionKey || `${accion}:${Date.now()}:${Math.random().toString(16).slice(2)}`
 
   const progresoAnterior = await obtenerProgresoNivel(usuario)
-  const progresoConXp = aplicarAProgreso
-    ? aplicarXpAProgreso(progresoAnterior, xp)
-    : crearProgresoSinAvance(progresoAnterior)
-  const eventosRecompensa = aplicarAProgreso && generarRecompensasProgresion
+  const progresoConXp = aplicarXpAProgreso(progresoAnterior, xp)
+  const eventosRecompensa = generarRecompensasProgresion
     ? await calcularEventosRecompensaProgresion(usuario, progresoAnterior.nivel, progresoConXp)
     : []
   const progresoFinal = progresoConXp
@@ -453,8 +445,7 @@ export async function registrarXp({
     xpProgresoAntes: progresoAnterior.xp,
     xpProgresoDespues: progresoFinal.xp,
     xpProgresoConsumida: progresoConXp.xpConsumida,
-    xpProgresoDescartada: progresoConXp.xpDescartada,
-    aplicadoAProgreso: aplicarAProgreso,
+    xpProgresoSobrante: progresoConXp.xpSobrante,
     juego,
     origen,
     multiplicadorOrigen,
@@ -513,7 +504,7 @@ export async function registrarXp({
     xpProgresoAntes: progresoAnterior.xp,
     xpProgresoDespues: progresoFinal.xp,
     xpProgresoConsumida: progresoConXp.xpConsumida,
-    xpProgresoDescartada: progresoConXp.xpDescartada,
+    xpProgresoSobrante: progresoConXp.xpSobrante,
     xpRecompensas: 0,
     recompensas: eventosRecompensa,
   }
@@ -561,14 +552,8 @@ export async function registrarXpPorPartida({ usuario, juego, posicion, partidaI
   }
 
   const resultados = []
-  let progresoBloqueadoPorSubida = false
   for (const registro of registros) {
-    const resultado = await registrarXp({
-      ...registro,
-      aplicarAProgreso: !progresoBloqueadoPorSubida,
-    })
-    if (resultado?.subioNivel) progresoBloqueadoPorSubida = true
-    resultados.push(resultado)
+    resultados.push(await registrarXp(registro))
   }
   return resultados
 }
@@ -578,11 +563,10 @@ export async function registrarXpPorLogros(usuario, logros, origen = 'perfil') {
 
   const desbloqueados = logros.filter((logro) => logro?.unlocked && logro?.title)
   const resultados = []
-  let progresoBloqueadoPorSubida = false
 
   for (const logro of desbloqueados) {
     const rareza = normalizarRarezaLogro(logro.rareza || logro.rarity || 'common')
-    const resultado = await registrarXp({
+    resultados.push(await registrarXp({
       usuario,
       accion: 'logro_desbloqueado',
       xpGanado: calcularRecompensaLogro(rareza),
@@ -590,24 +574,10 @@ export async function registrarXpPorLogros(usuario, logros, origen = 'perfil') {
       accionKey: `logro:${origen}:${logro.title}:${logro.howTo || ''}`,
       origen: 'recompensa',
       aplicarMultiplicadores: false,
-      aplicarAProgreso: !progresoBloqueadoPorSubida,
-    })
-    if (resultado?.subioNivel) progresoBloqueadoPorSubida = true
-    resultados.push(resultado)
+    }))
   }
 
   return resultados
-}
-
-function crearProgresoSinAvance(progreso) {
-  const nivel = Math.min(NIVEL_MAXIMO, Math.max(1, Math.trunc(Number(progreso?.nivel) || 1)))
-  const xp = Math.max(0, Number(progreso?.xp) || 0)
-  return {
-    nivel,
-    xp,
-    xpConsumida: 0,
-    xpDescartada: 0,
-  }
 }
 
 function aplicarXpAProgreso(progreso, xpGanado) {
@@ -616,28 +586,22 @@ function aplicarXpAProgreso(progreso, xpGanado) {
   const xpEvento = Math.max(0, Number(xpGanado) || 0)
   let nuevoXp = xpAnterior + xpEvento
   let xpConsumida = 0
-  let xpDescartada = 0
 
-  if (nuevoNivel < NIVEL_MAXIMO) {
+  while (nuevoNivel < NIVEL_MAXIMO) {
     const requisitoNivel = xpNecesarioParaNivel(nuevoNivel)
-    if (nuevoXp >= requisitoNivel) {
-      xpConsumida = Math.max(0, requisitoNivel - xpAnterior)
-      xpDescartada = Math.max(0, nuevoXp - requisitoNivel)
-      nuevoXp = 0
-      nuevoNivel += 1
-    }
+    if (nuevoXp < requisitoNivel) break
+    nuevoXp -= requisitoNivel
+    xpConsumida += requisitoNivel
+    nuevoNivel += 1
   }
 
-  if (nuevoNivel >= NIVEL_MAXIMO) {
-    xpDescartada += nuevoXp
-    nuevoXp = 0
-  }
+  if (nuevoNivel >= NIVEL_MAXIMO) nuevoXp = 0
 
   return {
     nivel: nuevoNivel,
     xp: nuevoXp,
     xpConsumida,
-    xpDescartada,
+    xpSobrante: nuevoXp,
   }
 }
 

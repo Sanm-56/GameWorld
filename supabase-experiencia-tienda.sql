@@ -1121,13 +1121,12 @@ begin
   nivel_nuevo := nivel_anterior;
   xp_nuevo := greatest(coalesce(actual.xp, 0), 0) + greatest(coalesce(p_xp, 0), 0);
 
-  if nivel_nuevo < 3000 then
+  while nivel_nuevo < 3000 loop
     requisito := public.admin_recompensa_xp_requerido(nivel_nuevo);
-    if xp_nuevo >= requisito then
-      xp_nuevo := 0;
-      nivel_nuevo := nivel_nuevo + 1;
-    end if;
-  end if;
+    exit when xp_nuevo < requisito;
+    xp_nuevo := xp_nuevo - requisito;
+    nivel_nuevo := nivel_nuevo + 1;
+  end loop;
 
   if nivel_nuevo >= 3000 then
     xp_nuevo := 0;
@@ -1222,7 +1221,11 @@ begin
     return jsonb_build_object('ok', false, 'mensaje', 'Tipo de recompensa invalido');
   end if;
 
-  if tipo_limpio in ('monedas', 'experiencia') and (cantidad_limpia <= 0 or cantidad_limpia > 10000000) then
+  if tipo_limpio = 'monedas' and (cantidad_limpia <= 0 or cantidad_limpia > 10000000) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Cantidad fuera de rango');
+  end if;
+
+  if tipo_limpio = 'experiencia' and (cantidad_limpia <= 0 or cantidad_limpia > 100000) then
     return jsonb_build_object('ok', false, 'mensaje', 'Cantidad fuera de rango');
   end if;
 
