@@ -15,7 +15,13 @@ const elapsed = Number(localStorage.getItem(`${gameKey}_elapsed`) || 0)
 const combo = Number(localStorage.getItem(`${gameKey}_combo`) || 0)
 const isMini = localStorage.getItem("solitario_origen") === "sala"
 const rewards = readJson(localStorage.getItem(`ultimo_resultado_${gameKey}`))
-const usaFallbackLocal = ["cricketarcade", "esquivaobstaculos"].includes(gameKey)
+const usaFallbackLocal = [
+  "cricketarcade",
+  "esquivaobstaculos",
+  "torreinfinita",
+  "subelamontana",
+  "basketballarcade",
+].includes(gameKey)
 const runId = localStorage.getItem(`${gameKey}_run_id`)
 const finishedRunId = localStorage.getItem(`${gameKey}_finished_run_id`)
 const finishedAtMs = Date.parse(localStorage.getItem(`${gameKey}_finished_at`) || "")
