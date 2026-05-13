@@ -3,6 +3,7 @@ import { registrarPartidaDesdeRanking } from "./partidas.js"
 import {
   bloquearFinalizacionInicialSolitario,
   debeSalirDelTorneo,
+  esMiniTorneo,
   obtenerTiempoRestanteTorneo,
   registrarPuntosMiniTorneo,
   salidaTorneoUrl,
@@ -19,6 +20,11 @@ const config = getArcadeGame(gameKey)
 const usuario = localStorage.getItem("usuario")
 
 if (!usuario) window.location.href = "index.html"
+
+if (gameKey === "esquivaobstaculos") {
+  const accesoPermitido = await validarAccesoEsquiva()
+  if (!accesoPermitido) await new Promise(() => {})
+}
 
 const lockKey = `${gameKey}_activo`
 if (localStorage.getItem(lockKey)) {
@@ -75,9 +81,56 @@ let dodgeInvulnerableUntil = 0
 let dodgeVisualX = 42
 let dodgeFeedback = ""
 let dodgeFeedbackUntil = 0
+let runId = ""
 const inputController = new AbortController()
 
 localStorage.setItem("juego_actual", gameKey)
+
+async function validarAccesoEsquiva() {
+  if (!usuario) return false
+
+  if (esMiniTorneo(gameKey)) {
+    const salaId = localStorage.getItem("solitario_sala_id")
+    const [{ data: sala }, { data: participante }] = await Promise.all([
+      supabase
+        .from("salas")
+        .select("estado,juego")
+        .eq("id", salaId)
+        .maybeSingle(),
+      supabase
+        .from("sala_jugadores")
+        .select("id")
+        .eq("sala_id", salaId)
+        .eq("usuario_id", usuario)
+        .maybeSingle(),
+    ])
+
+    if (sala?.estado === "en_juego" && sala?.juego === gameKey && participante) return true
+    window.location.replace(salidaTorneoUrl())
+    return false
+  }
+
+  const { data } = await supabase
+    .from("estado_torneo")
+    .select("estado,juego_actual,inicio_torneo")
+    .eq("id", 1)
+    .maybeSingle()
+
+  if (data?.estado === "iniciado" && data?.juego_actual === gameKey && data?.inicio_torneo) return true
+  window.location.replace("lobby.html")
+  return false
+}
+
+function limpiarResultadoEsquivaPrevio() {
+  if (gameKey !== "esquivaobstaculos") return
+  localStorage.removeItem("fin_juego")
+  localStorage.removeItem(`${gameKey}_puntos`)
+  localStorage.removeItem(`${gameKey}_elapsed`)
+  localStorage.removeItem(`${gameKey}_combo`)
+  localStorage.removeItem(`${gameKey}_run_id`)
+  localStorage.removeItem(`${gameKey}_finished_run_id`)
+  localStorage.removeItem(`${gameKey}_finished_at`)
+}
 
 function createState() {
   return {
@@ -566,6 +619,11 @@ async function startTimer() {
   if (restante === null) {
     console.warn(`No hay inicio valido para ${gameKey}`)
     setStatus("El torneo aun no ha iniciado")
+    if (gameKey === "esquivaobstaculos") {
+      cleanupRuntime()
+      window.location.replace(salidaTorneoUrl())
+      return false
+    }
     setTimeout(() => {
       window.location.href = salidaTorneoUrl()
     }, 1200)
@@ -574,7 +632,8 @@ async function startTimer() {
   if (restante <= 0) {
     if (gameKey === "esquivaobstaculos") {
       setStatus("El torneo ya finalizo")
-      window.location.href = salidaTorneoUrl()
+      cleanupRuntime()
+      window.location.replace(salidaTorneoUrl())
       return false
     }
     await endGame("tiempo")
@@ -660,7 +719,7 @@ async function saveResult(reason) {
   const finalScore = invalid ? 0 : score
   const elapsed = Math.max(1, Math.round((performance.now() - startMs) / 1000))
 
-  if (finalScore > 0 && !invalid) {
+  if ((finalScore > 0 || gameKey === "esquivaobstaculos") && !invalid) {
     const { data: recordActual, error: recordError } = await supabase
       .from("ranking")
       .select("tiempo,invalido")
@@ -700,6 +759,10 @@ async function saveResult(reason) {
   localStorage.setItem(`${gameKey}_puntos`, String(finalScore))
   localStorage.setItem(`${gameKey}_elapsed`, String(elapsed))
   localStorage.setItem(`${gameKey}_combo`, String(bestCombo))
+  if (gameKey === "esquivaobstaculos") {
+    localStorage.setItem(`${gameKey}_finished_run_id`, runId)
+    localStorage.setItem(`${gameKey}_finished_at`, new Date().toISOString())
+  }
   return true
 }
 
@@ -719,6 +782,10 @@ async function endGame(reason) {
     localStorage.setItem(`${gameKey}_puntos`, String(finalScore))
     localStorage.setItem(`${gameKey}_elapsed`, String(Math.max(1, Math.round((performance.now() - startMs) / 1000))))
     localStorage.setItem(`${gameKey}_combo`, String(bestCombo))
+    if (gameKey === "esquivaobstaculos") {
+      localStorage.setItem(`${gameKey}_finished_run_id`, runId)
+      localStorage.setItem(`${gameKey}_finished_at`, new Date().toISOString())
+    }
   } finally {
     window.location.href = "final.html"
   }
@@ -726,7 +793,8 @@ async function endGame(reason) {
 
 async function checkTournamentState() {
   if (await debeSalirDelTorneo(supabase, gameKey)) {
-    window.location.href = salidaTorneoUrl()
+    if (gameKey === "esquivaobstaculos") cleanupRuntime()
+    window.location.replace(salidaTorneoUrl())
   }
 }
 
@@ -736,6 +804,11 @@ tournamentCheckId = setInterval(checkTournamentState, 3000)
 rafId = requestAnimationFrame(loop)
 startTimer().then((started) => {
   if (!started || juegoTerminado) return
+  limpiarResultadoEsquivaPrevio()
+  runId = `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  if (gameKey === "esquivaobstaculos") {
+    localStorage.setItem(`${gameKey}_run_id`, runId)
+  }
   startMs = performance.now()
   lastTs = 0
   juegoActivo = true

@@ -2,6 +2,7 @@ import { supabase } from "../js/supabase.js"
 
 const container = document.querySelector(".container")
 const juegoLobby = window.location.pathname.split("/").filter(Boolean).slice(-2, -1)[0]
+const esLobbyEsquiva = juegoLobby === "esquivaobstaculos"
 const rutasJuego = {
   sudoku: "sudoku.html",
   memoria: "memoria.html",
@@ -16,6 +17,24 @@ const rutasJuego = {
   ajedrez: "ajedrez.html",
   domino: "domino.html",
   damas: "damas.html",
+}
+
+if (esLobbyEsquiva && !localStorage.getItem("usuario")) {
+window.location.replace("index.html")
+await new Promise(() => {})
+}
+
+if (esLobbyEsquiva) {
+[
+"fin_juego",
+"esquivaobstaculos_puntos",
+"esquivaobstaculos_elapsed",
+"esquivaobstaculos_combo",
+"esquivaobstaculos_run_id",
+"esquivaobstaculos_finished_run_id",
+"esquivaobstaculos_finished_at",
+"esquivaobstaculos_activo",
+].forEach((key) => localStorage.removeItem(key))
 }
 
 if (container && !document.getElementById("volverMenuBtn")) {
@@ -74,3 +93,13 @@ document.getElementById("mensaje").innerText =
 
 setInterval(revisarEstado,3000)
 revisarEstado()
+
+if (esLobbyEsquiva) {
+const canalEsquiva = supabase
+.channel("lobby-esquivaobstaculos")
+.on("postgres_changes", { event: "*", schema: "public", table: "estado_torneo", filter: "id=eq.1" }, revisarEstado)
+.subscribe()
+window.addEventListener("beforeunload", () => {
+supabase.removeChannel(canalEsquiva)
+})
+}

@@ -16,9 +16,13 @@ const combo = Number(localStorage.getItem(`${gameKey}_combo`) || 0)
 const isMini = localStorage.getItem("solitario_origen") === "sala"
 const rewards = readJson(localStorage.getItem(`ultimo_resultado_${gameKey}`))
 const usaFallbackLocal = ["cricketarcade", "esquivaobstaculos"].includes(gameKey)
+const runId = localStorage.getItem(`${gameKey}_run_id`)
+const finishedRunId = localStorage.getItem(`${gameKey}_finished_run_id`)
+const finishedAtMs = Date.parse(localStorage.getItem(`${gameKey}_finished_at`) || "")
+const resultadoReciente = Number.isFinite(finishedAtMs) && Date.now() - finishedAtMs < 30 * 60 * 1000
 const resultadoLocalValido = Boolean(fin && (elapsed > 0 || score > 0 || fin === "descalificado"))
 
-if (gameKey === "esquivaobstaculos" && !resultadoLocalValido) {
+if (gameKey === "esquivaobstaculos" && (!resultadoLocalValido || !runId || runId !== finishedRunId || !resultadoReciente)) {
   window.location.replace("lobby.html")
   await new Promise(() => {})
 }
@@ -228,4 +232,7 @@ function limpiarResultadoLocal() {
   localStorage.removeItem(`${gameKey}_puntos`)
   localStorage.removeItem(`${gameKey}_elapsed`)
   localStorage.removeItem(`${gameKey}_combo`)
+  localStorage.removeItem(`${gameKey}_run_id`)
+  localStorage.removeItem(`${gameKey}_finished_run_id`)
+  localStorage.removeItem(`${gameKey}_finished_at`)
 }
