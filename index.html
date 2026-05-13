@@ -418,6 +418,7 @@ h1{
   align-items:center;
   justify-content:center;
   padding:22px;
+  overflow:hidden;
   background:rgba(2,6,23,0.72);
   backdrop-filter:blur(8px);
   opacity:0;
@@ -561,6 +562,8 @@ h1{
   grid-template-columns:1fr;
   gap:20px;
   align-items:start;
+  min-width:0;
+  overflow-x:hidden;
 }
 
 .store-tabs{
@@ -572,6 +575,9 @@ h1{
   border:1px solid rgba(148,163,184,0.16);
   border-radius:8px;
   background:rgba(2,6,23,0.48);
+  min-width:0;
+  overflow-x:auto;
+  scrollbar-width:thin;
 }
 
 .store-tabs button{
@@ -603,6 +609,7 @@ h1{
 .store-list{
   display:grid;
   gap:16px;
+  min-width:0;
 }
 
 .store-column{
@@ -683,6 +690,12 @@ h1{
   transition:transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
+.store-list > .store-item,
+.cosmetic-grid > .store-item{
+  content-visibility:auto;
+  contain-intrinsic-size:280px;
+}
+
 .store-item::before{
   content:"";
   position:absolute;
@@ -740,6 +753,7 @@ h1{
   color:var(--muted);
   font-size:13px;
   line-height:1.35;
+  overflow-wrap:anywhere;
 }
 
 .store-copy .store-kicker{
@@ -788,6 +802,8 @@ h1{
 .store-item button{
   position:relative;
   z-index:1;
+  max-width:100%;
+  min-width:0;
   border:1px solid rgba(251,146,60,0.38);
   border-radius:8px;
   min-height:42px;
@@ -798,6 +814,7 @@ h1{
   font:inherit;
   font-size:13px;
   font-weight:900;
+  white-space:normal;
   transition:transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
@@ -1049,6 +1066,8 @@ h1{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
   gap:12px;
+  min-width:0;
+  overflow-x:hidden;
 }
 
 .store-cosmetic{
@@ -1057,6 +1076,7 @@ h1{
   align-items:stretch;
   flex-direction:column;
   padding:14px;
+  min-width:0;
 }
 
 .cosmetic-preview{
@@ -2434,11 +2454,14 @@ h1{
 }
 
 #storeModal .rules-panel{
-  width:min(1180px, 100%);
+  width:min(1180px, calc(100vw - 24px));
+  max-height:calc(100dvh - 24px);
 }
 
 #storeModal .ranking-body{
   max-height:calc(min(820px, 100vh - 44px) - 92px);
+  overflow-x:hidden;
+  overscroll-behavior:contain;
 }
 
 .ranking-head{
@@ -2782,6 +2805,35 @@ h1{
     grid-template-columns:1fr;
   }
 
+  #storeModal.ranking-modal{
+    align-items:stretch;
+    padding:10px;
+  }
+
+  #storeModal .rules-panel{
+    width:100%;
+    max-height:calc(100dvh - 20px);
+    border-radius:18px;
+  }
+
+  #storeModal .ranking-body{
+    max-height:calc(100dvh - 104px);
+    padding-top:14px;
+  }
+
+  #storeModal .ranking-head{
+    gap:10px;
+  }
+
+  #storeModal .ranking-head h2{
+    font-size:20px;
+    line-height:1.12;
+  }
+
+  #storeModal .ranking-head p{
+    font-size:13px;
+  }
+
   .ranking-tabs{
     grid-template-columns:1fr;
   }
@@ -2797,6 +2849,7 @@ h1{
   .store-tabs{
     grid-template-columns:repeat(2, minmax(0, 1fr));
     gap:6px;
+    padding:5px;
   }
 
   .store-tabs button{
@@ -2807,6 +2860,7 @@ h1{
 
   .store-column{
     padding:14px;
+    border-radius:8px;
   }
 
   .store-list{
@@ -2826,6 +2880,8 @@ h1{
   .store-item{
     align-items:stretch;
     flex-direction:column;
+    gap:12px;
+    padding:14px;
   }
 
   .booster-card,
@@ -2858,6 +2914,15 @@ h1{
 
   .cosmetic-grid{
     grid-template-columns:1fr;
+  }
+
+  .store-cosmetic{
+    min-height:0;
+  }
+
+  .cosmetic-preview,
+  .cosmetic-fondo .cosmetic-preview{
+    min-height:118px;
   }
 
   .cosmetic-id .cosmetic-preview{
@@ -3053,6 +3118,46 @@ h1{
     min-height:44px;
     padding:9px 6px;
     font-size:12px;
+  }
+
+  #storeModal.ranking-modal{
+    padding:6px;
+  }
+
+  #storeModal .rules-panel{
+    max-height:calc(100dvh - 12px);
+    border-radius:14px;
+  }
+
+  #storeModal .ranking-body{
+    max-height:calc(100dvh - 96px);
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  #storeModal .ranking-head{
+    padding:14px 12px 10px;
+  }
+
+  .store-tabs,
+  .cosmetic-tabs,
+  .rarity-tabs{
+    grid-template-columns:1fr;
+  }
+
+  .store-column,
+  .cosmetic-category,
+  .rarity-section{
+    padding:10px;
+  }
+
+  .store-item{
+    padding:12px;
+  }
+
+  .store-actions-inline,
+  .cosmetic-actions{
+    grid-template-columns:1fr;
   }
 }
 </style>

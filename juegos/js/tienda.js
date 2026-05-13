@@ -110,23 +110,28 @@ const FORMAS_NOMBRE = [
   "El {base} Silente", "{base} de la Arena Final", "Codigo {base}", "Dominio del {base}", "El Ultimo {base}",
 ]
 
-const DESCRIPCIONES_LORE = [
-  "Solo aparece ante quienes sobreviven.",
-  "El vacio tambien observa.",
-  "Nacido despues del ultimo eclipse.",
-  "Nadie volvio igual tras verlo.",
-  "Reservado para nombres que pesan en el ranking.",
-  "Un juramento grabado antes de la victoria.",
-  "Brilla cuando la partida se vuelve imposible.",
-  "No concede poder; exige presencia.",
-  "Forjado para quienes no retroceden.",
-  "Su rastro queda incluso cuando termina el torneo.",
-  "Los rivales lo reconocen antes del primer movimiento.",
-  "Una senal breve de dominio absoluto.",
-  "Donde cae su sombra, empieza la final.",
-  "Hecho para sobrevivir al marcador.",
-  "La arena recuerda a quien lo porta.",
-]
+const DESCRIPCIONES_COSMETICAS = {
+  fondo: {
+    inicio: ["Arena", "Horizonte", "Portal", "Tormenta", "Dominio", "Nexo", "Eclipse", "Bastion", "Ruta", "Cielo"],
+    cierre: ["para perfiles de final", "con energia de ascenso", "listo para duelos largos", "hecho para destacar victorias", "con presencia de ranking", "para partidas decisivas"],
+  },
+  id: {
+    inicio: ["Placa", "Firma", "Codigo", "Insignia", "Marca", "Sello", "Clave", "Emblema", "Registro", "Distintivo"],
+    cierre: ["para nombres que pesan", "con lectura de elite", "preparado para lobby competitivo", "hecho para entrar con autoridad", "con pulso de retador", "para cerrar series intensas"],
+  },
+  marco: {
+    inicio: ["Borde", "Corona", "Armazon", "Guardia", "Contorno", "Anillo", "Relicario", "Frente", "Cerco", "Umbral"],
+    cierre: ["con presencia de campeon", "para mostrar rango sin ruido", "hecho para vitrinas de perfil", "con brillo de finalista", "listo para victorias limpias", "para perfiles de alto impacto"],
+  },
+}
+
+const PATRONES_DESCRIPCION = {
+  lineas: "trazos",
+  pulso: "pulso",
+  anillo: "anillos",
+  fragmentos: "fragmentos",
+  halo: "halo",
+}
 
 export const COSMETICOS = [
   ...generarCosmeticos("fondo", 100),
@@ -541,19 +546,32 @@ function generarCosmeticos(tipo, cantidad) {
     const forma = FORMAS_NOMBRE[(index * 7 + offsetTipo) % FORMAS_NOMBRE.length]
     const nombre = forma.replace("{base}", base)
     const precio = precioCosmetico(tipo, rareza.nombre)
+    const diseno = crearDisenoCosmetico(tipo, rareza.nombre, index, intensidad)
     return {
       id: `${tipo}_${String(numero).padStart(3, "0")}`,
       tipo,
       categoria: tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos",
       nombre,
-      descripcion: DESCRIPCIONES_LORE[(index * 5 + tipo.length) % DESCRIPCIONES_LORE.length],
+      descripcion: descripcionCosmetico(tipo, rareza.nombre, index, diseno),
       rareza: rareza.nombre,
       precio: precio.monedas,
       precioReal: precio.real,
       etiqueta: precio.etiqueta,
-      diseno: crearDisenoCosmetico(tipo, rareza.nombre, index, intensidad),
+      diseno,
     }
   })
+}
+
+function descripcionCosmetico(tipo, rareza, index, diseno) {
+  const banco = DESCRIPCIONES_COSMETICAS[tipo] || DESCRIPCIONES_COSMETICAS.fondo
+  const tema = String(diseno?.tema || TEMAS_VISUALES[index % TEMAS_VISUALES.length]).toLowerCase()
+  const patron = PATRONES_DESCRIPCION[diseno?.patron] || diseno?.patron || "energia"
+  const inicio = banco.inicio[(index * 3 + rareza.length) % banco.inicio.length]
+  const cierre = banco.cierre[(index * 5 + tipo.length) % banco.cierre.length]
+  const intensidad = Number(diseno?.brillo || 1)
+  const tono = intensidad >= 8 ? "intenso" : intensidad >= 5 ? "afilado" : "sobrio"
+
+  return `${inicio} ${tema} de ${patron} ${tono}; ${cierre}.`
 }
 
 function crearDisenoCosmetico(tipo, rareza, index, intensidad) {
