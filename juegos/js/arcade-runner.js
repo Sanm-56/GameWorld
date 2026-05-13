@@ -93,6 +93,10 @@ const els = {
   action: document.getElementById("actionBtn"),
 }
 
+if (config.type === "basket") {
+  els.lives?.closest(".stat")?.setAttribute("hidden", "")
+}
+
 document.documentElement.style.setProperty("--accent", config.accent)
 document.documentElement.style.setProperty("--secondary", config.secondary)
 els.title.textContent = config.label
@@ -356,6 +360,13 @@ function miss(reason = "Fallaste") {
   if (lives <= 0) endGame("perdiste")
 }
 
+function basketMiss(reason = "Tiro fallado") {
+  if (juegoTerminado) return
+  combo = 0
+  setStatus(reason)
+  renderHud()
+}
+
 function resetCricketDelivery(message = "") {
   const nextSpeed = Math.min(112, 44 + level * 5.8 + Math.min(18, combo * 0.7))
   state.cricket = {
@@ -372,7 +383,7 @@ function renderHud() {
   els.score.textContent = String(score)
   els.level.textContent = String(level)
   els.combo.textContent = String(bestCombo)
-  els.lives.textContent = String(Math.max(0, lives))
+  if (config.type !== "basket") els.lives.textContent = String(Math.max(0, lives))
 }
 
 function setStatus(text) {
@@ -1178,7 +1189,7 @@ function startBasketCharge(clientX = null, clientY = null) {
   basket.prevBallX = BASKET_START_X
   basket.prevBallY = BASKET_START_Y
   basket.bounceCount = 0
-  setStatus("Mantén presionado, apunta y suelta")
+  setStatus("Arrastra: indicador largo = mas fuerza")
 }
 
 function releaseBasketShot() {
@@ -1239,16 +1250,15 @@ function resolveBasketBounds() {
 
 function resolveBasketBackboard() {
   const basket = state.basket
-  const boardLeft = BASKET_HOOP_X - 8.8
-  const boardRight = BASKET_HOOP_X + 3.8
-  const boardBottom = BASKET_HOOP_Y + 1.4
-  const boardTop = BASKET_HOOP_Y + 17.2
-  const crossedBoard = basket.prevBallX < boardLeft && basket.ballX + BASKET_BALL_RADIUS >= boardLeft
+  const boardFaceX = BASKET_HOOP_X + 7.2
+  const boardBottom = BASKET_HOOP_Y + 2.2
+  const boardTop = BASKET_HOOP_Y + 19.2
+  const crossedBoard = basket.prevBallX < boardFaceX && basket.ballX + BASKET_BALL_RADIUS >= boardFaceX
   const inBoardY = basket.ballY >= boardBottom && basket.ballY <= boardTop
 
   if (!crossedBoard || !inBoardY || basket.vx <= 0) return
 
-  basket.ballX = boardLeft - BASKET_BALL_RADIUS
+  basket.ballX = boardFaceX - BASKET_BALL_RADIUS
   basket.vx = -Math.abs(basket.vx) * 0.56
   basket.vy *= 0.86
   basket.bounceCount += 1
@@ -1263,9 +1273,8 @@ function resolveBasketRimBounce() {
   const rimY = BASKET_HOOP_Y
   const rimLeft = BASKET_HOOP_X - 5.2
   const rimRight = BASKET_HOOP_X + 5.2
-  const possibleScore = basket.prevBallY >= BASKET_HOOP_Y
-    && basket.ballY <= BASKET_HOOP_Y + 2.8
-    && Math.abs(basket.ballX - BASKET_HOOP_X) <= 4.2
+  const rimCross = getBasketRimCrossing()
+  const possibleScore = rimCross && Math.abs(rimCross.x - BASKET_HOOP_X) <= 4.2
   if (possibleScore) return
   const nearY = Math.abs(basket.ballY - rimY) <= 3.2
   if (!nearY) return
@@ -1287,6 +1296,19 @@ function resolveBasketRimBounce() {
     basket.vy = Math.max(10, Math.abs(basket.vy) * 0.36)
   }
   showBasketFeedback("Aro")
+}
+
+function getBasketRimCrossing() {
+  const basket = state.basket
+  const rimLineY = BASKET_HOOP_Y + 1.2
+  if (basket.prevBallY < rimLineY || basket.ballY > rimLineY || basket.vy >= 0) return null
+
+  const dy = basket.prevBallY - basket.ballY
+  if (Math.abs(dy) < 0.001) return null
+
+  const t = clamp((basket.prevBallY - rimLineY) / dy, 0, 1)
+  const x = basket.prevBallX + (basket.ballX - basket.prevBallX) * t
+  return { x, t }
 }
 
 function updateBasket(dt) {
@@ -1312,16 +1334,15 @@ function updateBasket(dt) {
   resolveBasketBackboard()
   resolveBasketRimBounce()
 
-  const descending = basket.vy < 0
-  const crossesRim = basket.prevBallY >= BASKET_HOOP_Y && basket.ballY <= BASKET_HOOP_Y + 2.8
-  const rimDiff = Math.abs(basket.ballX - BASKET_HOOP_X)
+  const rimCross = getBasketRimCrossing()
+  const rimDiff = rimCross ? Math.abs(rimCross.x - BASKET_HOOP_X) : Infinity
 
-  if (!basket.scored && descending && crossesRim && rimDiff <= 4.2) {
+  if (!basket.scored && rimDiff <= 4.2) {
     basket.scored = true
     basket.netUntil = performance.now() + 620
     basket.vx *= 0.28
     basket.vy = -28
-    basket.ballX = BASKET_HOOP_X + clamp(basket.ballX - BASKET_HOOP_X, -1.6, 1.6)
+    basket.ballX = BASKET_HOOP_X + clamp((rimCross?.x || basket.ballX) - BASKET_HOOP_X, -1.6, 1.6)
     addScore(rimDiff <= 1.8 ? 70 + level * 7 : 45 + level * 5)
     showBasketFeedback(rimDiff <= 1.8 ? "Canasta perfecta" : "Canasta")
     setTimeout(() => {
@@ -1330,17 +1351,9 @@ function updateBasket(dt) {
     return
   }
 
-  const rimHit = descending && crossesRim && rimDiff <= 8.2 && rimDiff > 4.2
-  if (rimHit && !basket.missMarked) {
-    basket.missMarked = true
-    basket.vx += basket.ballX < BASKET_HOOP_X ? -16 : 16
-    basket.vy = Math.max(12, Math.abs(basket.vy) * 0.34)
-    showBasketFeedback("Tocó el aro")
-  }
-
   if (basket.ballY < -8 || basket.ballX < -10 || basket.ballX > 110 || basket.bounceCount > 4) {
     if (!basket.scored) {
-      miss(basket.missMarked ? "Rebotó fuera" : "Tiro fallado")
+      basketMiss(basket.missMarked ? "Reboto fuera" : "Tiro fallado")
       showBasketFeedback("Fallaste")
     }
     if (!juegoTerminado) resetBasketShot("Prepara otro tiro")
