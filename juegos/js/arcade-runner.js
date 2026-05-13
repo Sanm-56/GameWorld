@@ -79,6 +79,9 @@ let tournamentCheckId = null
 let rafId = null
 let cricketScene = null
 let dodgeScene = null
+let dodgeResizeObserver = null
+let dodgeStageWidth = 0
+let dodgeStageHeight = 0
 let lastDodgeMoveAt = 0
 let dodgeInvulnerableUntil = 0
 let dodgeVisualX = 42
@@ -268,6 +271,9 @@ function renderTiming() {
 function renderDodge() {
   if (!dodgeScene) {
     clearStage()
+    updateDodgeStageSize()
+    dodgeResizeObserver = new ResizeObserver(updateDodgeStageSize)
+    dodgeResizeObserver.observe(els.stage)
     const fragment = document.createDocumentFragment()
     DODGE_LANES.forEach((lane) => {
       const el = document.createElement("div")
@@ -280,6 +286,8 @@ function renderDodge() {
     fragment.appendChild(glow)
     const player = document.createElement("div")
     player.className = "actor dodge-player"
+    player.style.left = "0"
+    player.style.top = "0"
     fragment.appendChild(player)
     const feedback = document.createElement("div")
     feedback.className = "dodge-feedback"
@@ -292,10 +300,10 @@ function renderDodge() {
   const actorClass = performance.now() < dodgeInvulnerableUntil ? "actor dodge-player invulnerable" : "actor dodge-player"
   const pulse = performance.now() < dodgeMovePulseUntil ? 1 : 0
   const stretch = Math.min(0.08, Math.abs(dodgeLean) * 0.003) + pulse * 0.025
+  const playerX = dodgeStageWidth * dodgeVisualX / 100
+  const playerY = dodgeStageHeight * dodgeVisualY / 100
   dodgeScene.player.className = actorClass
-  dodgeScene.player.style.left = `${dodgeVisualX}%`
-  dodgeScene.player.style.top = `${dodgeVisualY}%`
-  dodgeScene.player.style.transform = `translate(-50%,-50%) rotate(${dodgeLean}deg) scale(${1 + stretch},${1 - pulse * 0.018})`
+  dodgeScene.player.style.transform = `translate3d(${playerX}px,${playerY}px,0) translate(-50%,-50%) rotate(${dodgeLean}deg) scale(${1 + stretch},${1 - pulse * 0.018})`
 
   const active = new Set()
   objects.forEach((item) => {
@@ -325,6 +333,11 @@ function renderDodge() {
   } else {
     dodgeScene.feedback.hidden = true
   }
+}
+
+function updateDodgeStageSize() {
+  dodgeStageWidth = els.stage.clientWidth || 1
+  dodgeStageHeight = els.stage.clientHeight || 1
 }
 
 function renderStack() {
@@ -507,9 +520,9 @@ function showDodgeFeedback(text) {
 
 function updateDodge(dt) {
   const previousX = dodgeVisualX
-  const ease = 1 - Math.exp(-dt * 21)
+  const ease = 1 - Math.exp(-dt * 13.5)
   dodgeVisualX += (state.x - dodgeVisualX) * ease
-  dodgeVisualY += (state.y - dodgeVisualY) * (1 - Math.exp(-dt * 18))
+  dodgeVisualY += (state.y - dodgeVisualY) * (1 - Math.exp(-dt * 12))
   if (Math.abs(state.x - dodgeVisualX) < 0.04) dodgeVisualX = state.x
   if (Math.abs(state.y - dodgeVisualY) < 0.04) dodgeVisualY = state.y
   dodgeVisualVelocity = dt > 0 ? (dodgeVisualX - previousX) / dt : 0
@@ -916,6 +929,10 @@ function cleanupRuntime() {
   if (rafId) {
     cancelAnimationFrame(rafId)
     rafId = null
+  }
+  if (dodgeResizeObserver) {
+    dodgeResizeObserver.disconnect()
+    dodgeResizeObserver = null
   }
   inputController.abort()
 }

@@ -542,8 +542,9 @@ body[data-game="esquivaobstaculos"] .stage::before{
   pointer-events:none;
 }
 .dodge-player{
-  transform:translateX(-50%);
-  will-change:left,transform;
+  left:0;
+  top:0;
+  will-change:transform;
   border-radius:16px 16px 22px 22px;
   background:
     radial-gradient(circle at 50% 18%,#e0f2fe,transparent 18%),
