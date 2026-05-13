@@ -15,7 +15,7 @@ const elapsed = Number(localStorage.getItem(`${gameKey}_elapsed`) || 0)
 const combo = Number(localStorage.getItem(`${gameKey}_combo`) || 0)
 const isMini = localStorage.getItem("solitario_origen") === "sala"
 const rewards = readJson(localStorage.getItem(`ultimo_resultado_${gameKey}`))
-const usaFallbackLocal = gameKey === "cricketarcade"
+const usaFallbackLocal = ["cricketarcade", "esquivaobstaculos"].includes(gameKey)
 
 document.documentElement.style.setProperty("--accent", config.accent)
 document.documentElement.style.setProperty("--secondary", config.secondary)
@@ -33,7 +33,7 @@ const els = {
   back: document.getElementById("backBtn"),
 }
 
-const restartBtn = gameKey === "cricketarcade" ? crearBotonReinicioCricket() : null
+const restartBtn = usaFallbackLocal ? crearBotonReinicioArcade() : null
 
 els.title.textContent = config.label
 els.subtitle.textContent = isMini ? "Resultado de mini torneo" : "Resultado del torneo"
@@ -208,7 +208,7 @@ restartBtn?.addEventListener("click", () => {
 
 load()
 
-function crearBotonReinicioCricket() {
+function crearBotonReinicioArcade() {
   const button = document.createElement("button")
   button.className = "back restart"
   button.type = "button"

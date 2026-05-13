@@ -12,8 +12,9 @@ import { getArcadeGame } from "./arcade-games.js"
 const MAX_ADVERTENCIAS = 3
 const CRICKET_HIT_ZONE = 21
 const CRICKET_RESET_DELAY = 0.55
+const DODGE_LANES = [18, 42, 66]
 const gameKey = document.body.dataset.game
-const DURACION = gameKey === "cricketarcade" ? 600 : 180
+const DURACION = ["cricketarcade", "esquivaobstaculos"].includes(gameKey) ? 600 : 180
 const config = getArcadeGame(gameKey)
 const usuario = localStorage.getItem("usuario")
 
@@ -69,13 +70,15 @@ let timerId = null
 let tournamentCheckId = null
 let rafId = null
 let cricketScene = null
+let lastDodgeMoveAt = 0
+let dodgeInvulnerableUntil = 0
 const inputController = new AbortController()
 
 localStorage.setItem("juego_actual", gameKey)
 
 function createState() {
   return {
-    x: 50,
+    x: 42,
     y: 78,
     vx: 125,
     target: 50,
@@ -201,8 +204,10 @@ function renderTiming() {
 
 function renderDodge() {
   clearStage()
-  makeEl("actor", { left: `${state.x}%`, bottom: "12%" })
-  objects.forEach((item) => makeEl("block danger", { left: `${item.x}%`, top: `${item.y}%` }))
+  DODGE_LANES.forEach((lane) => makeEl("dodge-lane", { left: `${lane}%` }))
+  const actorClass = performance.now() < dodgeInvulnerableUntil ? "actor dodge-player invulnerable" : "actor dodge-player"
+  makeEl(actorClass, { left: `${state.x}%`, bottom: "12%" })
+  objects.forEach((item) => makeEl("block danger dodge-obstacle", { left: `${item.x}%`, top: `${item.y}%` }))
 }
 
 function renderStack() {
@@ -318,19 +323,53 @@ function resolveCricketSwing() {
   miss(cricket.x > cricket.target ? "Swing muy temprano" : "Swing tarde")
 }
 
+function moveDodge(delta) {
+  const now = performance.now()
+  if (now - lastDodgeMoveAt < 70) return
+  lastDodgeMoveAt = now
+  const current = Math.max(0, DODGE_LANES.indexOf(state.x))
+  state.x = DODGE_LANES[clamp(current + delta, 0, DODGE_LANES.length - 1)]
+}
+
+function cycleDodgeLane() {
+  const now = performance.now()
+  if (now - lastDodgeMoveAt < 70) return
+  lastDodgeMoveAt = now
+  const current = Math.max(0, DODGE_LANES.indexOf(state.x))
+  state.x = DODGE_LANES[(current + 1) % DODGE_LANES.length]
+}
+
+function moveDodgeToLaneByClientX(clientX) {
+  const now = performance.now()
+  if (now - lastDodgeMoveAt < 70) return
+  lastDodgeMoveAt = now
+  const rect = els.stage.getBoundingClientRect()
+  const ratio = rect.width ? clamp((clientX - rect.left) / rect.width, 0, 1) : 0.5
+  const index = clamp(Math.floor(ratio * DODGE_LANES.length), 0, DODGE_LANES.length - 1)
+  state.x = DODGE_LANES[index]
+}
+
 function updateDodge(dt) {
   spawnTimer -= dt
   if (spawnTimer <= 0) {
-    spawnTimer = Math.max(0.34, 0.9 - level * 0.045)
-    objects.push({ id: state.nextId++, x: [18, 42, 66][Math.floor(rand(0, 3))], y: -8 })
+    spawnTimer = Math.max(0.28, 0.82 - level * 0.04)
+    const ultimo = objects[objects.length - 1]
+    let lane = DODGE_LANES[Math.floor(rand(0, DODGE_LANES.length))]
+    if (ultimo && ultimo.y < 14 && ultimo.x === lane) {
+      lane = DODGE_LANES[(DODGE_LANES.indexOf(lane) + 1) % DODGE_LANES.length]
+    }
+    objects.push({ id: state.nextId++, x: lane, y: -10, hit: false })
   }
-  objects.forEach((item) => item.y += (22 + level * 3.5) * dt)
+  objects.forEach((item) => item.y += (20 + level * 3.2) * dt)
   objects = objects.filter((item) => {
     if (item.y > 96) {
-      addScore(8)
+      addScore(10 + level)
       return false
     }
-    if (item.y > 72 && item.y < 88 && Math.abs(item.x - state.x) < 11) {
+    const puedeGolpear = performance.now() >= dodgeInvulnerableUntil
+    if (!item.hit && puedeGolpear && item.y > 70 && item.y < 88 && Math.abs(item.x - state.x) < 9) {
+      item.hit = true
+      dodgeInvulnerableUntil = performance.now() + 850
       miss("Choque")
       return false
     }
@@ -383,9 +422,7 @@ function action() {
   }
 
   if (config.type === "dodge") {
-    const lanes = [18, 42, 66]
-    const current = lanes.indexOf(state.x)
-    state.x = lanes[(current + 1) % lanes.length]
+    cycleDodgeLane()
     return
   }
 
@@ -450,12 +487,17 @@ document.addEventListener("keydown", (event) => {
   }
   if (config.type === "dodge" && (event.code === "ArrowLeft" || event.code === "ArrowRight")) {
     event.preventDefault()
-    const lanes = [18, 42, 66]
-    const current = lanes.indexOf(state.x)
-    const delta = event.code === "ArrowLeft" ? -1 : 1
-    state.x = lanes[clamp(current + delta, 0, lanes.length - 1)]
+    moveDodge(event.code === "ArrowLeft" ? -1 : 1)
   }
 }, { signal: inputController.signal })
+
+if (config.type === "dodge") {
+  els.stage.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return
+    event.preventDefault()
+    moveDodgeToLaneByClientX(event.clientX)
+  }, { signal: inputController.signal })
+}
 
 document.addEventListener("visibilitychange", async () => {
   if (!document.hidden || juegoTerminado) return
