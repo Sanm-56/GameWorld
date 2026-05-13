@@ -18,6 +18,7 @@ const STACK_BASE_WIDTH = 70
 const STACK_STAGE_MIN_X = 2
 const STACK_STAGE_MAX_X = 98
 const STACK_START_X = 4
+const STACK_VISIBLE_BLOCKS = 7
 const DODGE_LANES = [18, 42, 66]
 const DODGE_X_RANGE = [10, 78]
 const DODGE_Y_RANGE = [50, 88]
@@ -226,7 +227,7 @@ function getStackMaxX(width = state.stackWidth) {
 
 function prepareNextStackBlock() {
   const maxX = getStackMaxX()
-  const startFromLeft = objects.length % 2 === 0
+  const startFromLeft = Math.random() < 0.5
   state.stackDir = startFromLeft ? 1 : -1
   state.x = startFromLeft ? STACK_STAGE_MIN_X : maxX
 }
@@ -392,13 +393,21 @@ function updateDodgeStageSize() {
 
 function renderStack() {
   clearStage()
-  makeEl("block base", { left: `${STACK_BASE_X}%`, bottom: "8%", width: `${STACK_BASE_WIDTH}%` })
-  objects.forEach((item, index) => makeEl("block", {
+  const visibleBlocks = objects.slice(-STACK_VISIBLE_BLOCKS)
+  const hiddenCount = Math.max(0, objects.length - visibleBlocks.length)
+  const showBase = hiddenCount === 0
+  if (showBase) {
+    makeEl("block base", { left: `${STACK_BASE_X}%`, bottom: "8%", width: `${STACK_BASE_WIDTH}%` })
+  } else {
+    const anchor = visibleBlocks[0]
+    makeEl("block base stack-camera-base", { left: `${anchor.x}%`, bottom: "8%", width: `${anchor.w}%` })
+  }
+  visibleBlocks.forEach((item, index) => makeEl("block", {
     left: `${item.x}%`,
     bottom: `${8 + (index + 1) * 7}%`,
     width: `${item.w}%`,
   }))
-  makeEl("block active", { left: `${state.x}%`, bottom: `${15 + objects.length * 7}%`, width: `${state.stackWidth}%` })
+  makeEl("block active", { left: `${state.x}%`, bottom: `${15 + visibleBlocks.length * 7}%`, width: `${state.stackWidth}%` })
 }
 
 function renderClimb() {

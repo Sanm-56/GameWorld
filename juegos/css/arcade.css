@@ -192,6 +192,10 @@ p{margin:0;color:var(--muted);line-height:1.45}
 }
 .danger{width:58px;height:58px;background:linear-gradient(135deg,#ef4444,#f97316)}
 .base{opacity:.65}
+.stack-camera-base{
+  opacity:.32;
+  filter:saturate(.72) brightness(.85);
+}
 .active{filter:brightness(1.18)}
 .platform{
   position:absolute;
