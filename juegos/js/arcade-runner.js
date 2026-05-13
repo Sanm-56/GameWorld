@@ -26,6 +26,11 @@ const DODGE_KEYBOARD_SPEED_X = 44
 const DODGE_KEYBOARD_SPEED_Y = 34
 const DODGE_MIN_SPAWN_GAP = 20
 const DODGE_SAFE_OPENING = 17
+const DODGE_ZONE_CENTERS = [12, 24, 36, 48, 60, 72, 78]
+const DODGE_STILL_PRESSURE_MS = 1900
+const DODGE_PRESSURE_COOLDOWN_MS = 3200
+const DODGE_COVERAGE_COOLDOWN_MS = 5200
+const DODGE_TOP_BAND_Y = 34
 const gameKey = document.body.dataset.game
 const DURACION = ["cricketarcade", "esquivaobstaculos"].includes(gameKey) ? 600 : 180
 const config = getArcadeGame(gameKey)
@@ -103,10 +108,16 @@ let dodgeFeedback = ""
 let dodgeFeedbackUntil = 0
 let dodgeInputX = 0
 let dodgeInputY = 0
+let dodgeLastTrackedX = 42
+let dodgeLastTrackedY = 78
+let dodgeStillMs = 0
+let dodgeLastPressureAt = 0
+let dodgeCoverageIndex = 0
 let runId = ""
 const inputController = new AbortController()
 const dodgePressedKeys = new Set()
 const dodgeButtonInputs = new Set()
+const dodgeZoneLastThreatAt = DODGE_ZONE_CENTERS.map(() => 0)
 
 localStorage.setItem("juego_actual", gameKey)
 
@@ -534,6 +545,7 @@ function showDodgeFeedback(text) {
 
 function updateDodge(dt) {
   updateDodgeDirectionalInput(dt)
+  updateDodgeSafeZoneTracking(dt)
   const previousX = dodgeVisualX
   const ease = 1 - Math.exp(-dt * 12.5)
   dodgeVisualX += (state.x - dodgeVisualX) * ease
@@ -552,22 +564,21 @@ function updateDodge(dt) {
   const ultimo = objects[objects.length - 1]
   if (spawnTimer <= 0 && objects.length < maxObstacles && (!ultimo || ultimo.y > DODGE_MIN_SPAWN_GAP)) {
     spawnTimer = Math.max(0.72, rand(1.18, 1.68) - difficulty * 0.035)
-    const lane = chooseDodgeSpawnX()
+    const spawn = chooseDodgeSpawn(difficulty, warmup)
     const scale = rand(0.78, 1.02)
     const driftRange = warmup < 0.35 ? 0.35 : 0.85
     const previousTopObstacle = objects.find((item) => item.y < DODGE_MIN_SPAWN_GAP + 10)
-    const x = previousTopObstacle && Math.abs(previousTopObstacle.x - lane) < DODGE_SAFE_OPENING
-      ? clamp(lane + (lane < 44 ? DODGE_SAFE_OPENING : -DODGE_SAFE_OPENING), DODGE_X_RANGE[0], DODGE_X_RANGE[1])
-      : lane
+    const x = resolveDodgeSpawnX(spawn.x, previousTopObstacle)
+    markDodgeZoneThreat(x)
     objects.push({
       id: state.nextId++,
       x,
       y: -10,
       hit: false,
-      speed: rand(0.72, 0.95) + Math.min(0.13, difficulty * 0.008),
+      speed: (spawn.kind === "pressure" ? rand(0.68, 0.88) : rand(0.72, 0.95)) + Math.min(0.13, difficulty * 0.008),
       drift: rand(-driftRange, driftRange) * Math.max(0.25, warmup),
       spin: rand(-18, 18),
-      scale,
+      scale: spawn.kind === "pressure" ? Math.min(scale, 0.9) : scale,
       variant: Math.floor(rand(0, 3)),
     })
   } else if (spawnTimer <= 0) {
@@ -600,11 +611,96 @@ function updateDodge(dt) {
   })
 }
 
-function chooseDodgeSpawnX() {
-  if (Math.random() < 0.68) {
-    return DODGE_LANES[Math.floor(rand(0, DODGE_LANES.length))]
+function updateDodgeSafeZoneTracking(dt) {
+  const moved = Math.hypot(state.x - dodgeLastTrackedX, state.y - dodgeLastTrackedY)
+  const hasInput = Math.abs(dodgeInputX) > 0.12 || Math.abs(dodgeInputY) > 0.12
+  if (moved < 0.22 && !hasInput) {
+    dodgeStillMs += dt * 1000
+    return
   }
-  return rand(DODGE_X_RANGE[0] + 6, DODGE_X_RANGE[1] - 6)
+  dodgeStillMs = Math.max(0, dodgeStillMs - dt * 2600)
+  dodgeLastTrackedX = state.x
+  dodgeLastTrackedY = state.y
+}
+
+function chooseDodgeSpawn(difficulty, warmup) {
+  const now = performance.now()
+  const canPressurePlayer = warmup > 0.22
+    && dodgeStillMs >= DODGE_STILL_PRESSURE_MS
+    && now - dodgeLastPressureAt > DODGE_PRESSURE_COOLDOWN_MS
+  if (canPressurePlayer) {
+    dodgeLastPressureAt = now
+    dodgeStillMs = Math.max(0, dodgeStillMs - 1050)
+    return {
+      kind: "pressure",
+      x: clamp(state.x + rand(-4.5, 4.5), DODGE_X_RANGE[0] + 2, DODGE_X_RANGE[1] - 2),
+    }
+  }
+
+  const uncoveredZone = findDodgeUncoveredZone(now)
+  const coverageChance = clamp(0.16 + difficulty * 0.025, 0.16, 0.34)
+  if (warmup > 0.35 && uncoveredZone && Math.random() < coverageChance) {
+    return { kind: "coverage", x: uncoveredZone }
+  }
+
+  if (Math.random() < 0.62) {
+    return { kind: "lane", x: DODGE_LANES[Math.floor(rand(0, DODGE_LANES.length))] }
+  }
+  return { kind: "free", x: rand(DODGE_X_RANGE[0] + 6, DODGE_X_RANGE[1] - 6) }
+}
+
+function findDodgeUncoveredZone(now) {
+  const staleZones = DODGE_ZONE_CENTERS
+    .map((x, index) => ({ x, index, age: now - dodgeZoneLastThreatAt[index] }))
+    .filter((zone) => zone.age > DODGE_COVERAGE_COOLDOWN_MS)
+    .sort((a, b) => b.age - a.age)
+
+  for (const zone of staleZones) {
+    dodgeCoverageIndex = zone.index
+    if (isDodgeSpawnRouteOpen(zone.x)) return zone.x
+  }
+
+  for (let step = 0; step < DODGE_ZONE_CENTERS.length; step += 1) {
+    const index = (dodgeCoverageIndex + step + 1) % DODGE_ZONE_CENTERS.length
+    const x = DODGE_ZONE_CENTERS[index]
+    if (!isDodgeSpawnRouteOpen(x)) continue
+    dodgeCoverageIndex = index
+    return x
+  }
+  return null
+}
+
+function resolveDodgeSpawnX(preferredX, previousTopObstacle) {
+  let x = clamp(preferredX, DODGE_X_RANGE[0], DODGE_X_RANGE[1])
+  if (previousTopObstacle && Math.abs(previousTopObstacle.x - x) < DODGE_SAFE_OPENING) {
+    x = clamp(x + (x < 44 ? DODGE_SAFE_OPENING : -DODGE_SAFE_OPENING), DODGE_X_RANGE[0], DODGE_X_RANGE[1])
+  }
+  if (isDodgeSpawnRouteOpen(x)) return x
+
+  const alternates = DODGE_ZONE_CENTERS
+    .map((zoneX) => ({ x: zoneX, distance: Math.abs(zoneX - x) }))
+    .sort((a, b) => b.distance - a.distance)
+  const safe = alternates.find((candidate) => isDodgeSpawnRouteOpen(candidate.x))
+  return safe ? safe.x : x
+}
+
+function isDodgeSpawnRouteOpen(x) {
+  const topObstacles = objects.filter((item) => item.y < DODGE_TOP_BAND_Y)
+  const nearby = topObstacles.filter((item) => Math.abs(item.x + Number(item.drift || 0) - x) < DODGE_SAFE_OPENING * 0.62)
+  if (nearby.length >= 1) return false
+
+  const leftOpen = !topObstacles.some((item) => Math.abs(item.x + Number(item.drift || 0) - (x - DODGE_SAFE_OPENING)) < 7)
+  const rightOpen = !topObstacles.some((item) => Math.abs(item.x + Number(item.drift || 0) - (x + DODGE_SAFE_OPENING)) < 7)
+  return leftOpen || rightOpen
+}
+
+function markDodgeZoneThreat(x) {
+  const now = performance.now()
+  let nearestIndex = 0
+  DODGE_ZONE_CENTERS.forEach((zoneX, index) => {
+    if (Math.abs(zoneX - x) < Math.abs(DODGE_ZONE_CENTERS[nearestIndex] - x)) nearestIndex = index
+  })
+  dodgeZoneLastThreatAt[nearestIndex] = now
 }
 
 function updateDodgeDirectionalInput(dt) {
