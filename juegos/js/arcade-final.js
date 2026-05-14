@@ -14,7 +14,9 @@ const score = Number(localStorage.getItem(`${gameKey}_puntos`) || 0)
 const elapsed = Number(localStorage.getItem(`${gameKey}_elapsed`) || 0)
 const combo = Number(localStorage.getItem(`${gameKey}_combo`) || 0)
 const isMini = localStorage.getItem("solitario_origen") === "sala"
+const usaAltura = gameKey === "torreinfinita"
 const rewards = readJson(localStorage.getItem(`ultimo_resultado_${gameKey}`))
+const bestStorageKey = usaAltura ? `${gameKey}_best_m` : `${gameKey}_best`
 const usaFallbackLocal = [
   "cricketarcade",
   "esquivaobstaculos",
@@ -62,7 +64,8 @@ const restartBtn = usaFallbackLocal && ![
 
 els.title.textContent = config.label
 els.subtitle.textContent = isMini ? "Resultado de mini torneo" : "Resultado del torneo"
-els.score.textContent = `${score} pts`
+setScoreLabel(usaAltura ? "Altura alcanzada" : "Puntuacion final")
+els.score.textContent = formatMetric(score)
 els.time.textContent = elapsed ? formatTime(elapsed) : "-"
 els.combo.textContent = String(combo)
 document.querySelector(".summary-grid")?.insertAdjacentHTML("beforeend", `
@@ -135,16 +138,16 @@ function renderRanking(rows, opciones = {}) {
     if (filas.length > 1) burst()
   } else if (myIndex > 0 && winner) {
     const diff = Math.max(0, Number(winner.puntos || 0) - score)
-    agregarDelta(`Perdiste por ${diff} puntos`)
+    agregarDelta(`Perdiste por ${formatMetric(diff)}`)
   } else if (filaUsuario) {
     els.result.textContent = "Resultado guardado"
   }
 
-  const previousBest = Number(localStorage.getItem(`${gameKey}_best`) || 0)
+  const previousBest = Number(localStorage.getItem(bestStorageKey) || 0)
   const mejorRemoto = filaUsuario ? Number(filaUsuario.puntos || 0) : 0
   const mejorPersonal = Math.max(previousBest, mejorRemoto, score)
   if (mejorPersonal > previousBest) {
-    localStorage.setItem(`${gameKey}_best`, String(mejorPersonal))
+    localStorage.setItem(bestStorageKey, String(mejorPersonal))
   }
 
   if (myIndex >= 0) {
@@ -154,14 +157,14 @@ function renderRanking(rows, opciones = {}) {
   if (score > previousBest && score > 0) {
     agregarDelta("Nuevo record personal")
   } else if (mejorPersonal > 0) {
-    agregarDelta(`Record personal: ${mejorPersonal} pts`)
+    agregarDelta(`Record personal: ${formatMetric(mejorPersonal)}`)
   }
 
   els.podio.innerHTML = filas.slice(0, 3).map((row, index) => `
     <div class="podium-card">
       <span>#${index + 1}</span>
       <strong>${escapeHtml(row.usuario || "Jugador")}</strong>
-      <em>${Number(row.puntos || 0)} pts</em>
+      <em>${formatMetric(row.puntos)}</em>
     </div>
   `).join("") || '<div class="empty">Sin podio disponible.</div>'
 
@@ -169,7 +172,7 @@ function renderRanking(rows, opciones = {}) {
     <div class="ranking-row ${row.usuario === usuario ? "current" : ""}">
       <span>#${index + 1}</span>
       <strong>${escapeHtml(row.usuario || "Jugador")}</strong>
-      <span>${Number(row.puntos || 0)} pts</span>
+      <span>${formatMetric(row.puntos)}</span>
     </div>
   `).join("") || '<div class="empty">Sin resultados disponibles.</div>'
 }
@@ -210,6 +213,16 @@ function formatTime(seconds) {
   const min = Math.floor(Number(seconds || 0) / 60)
   const sec = Number(seconds || 0) % 60
   return `${min}:${sec < 10 ? "0" : ""}${sec}`
+}
+
+function formatMetric(value) {
+  const number = Math.max(0, Number(value) || 0)
+  return usaAltura ? `${number} m` : `${number} pts`
+}
+
+function setScoreLabel(text) {
+  const label = els.score?.parentElement?.querySelector("span")
+  if (label) label.textContent = text
 }
 
 function readJson(value) {

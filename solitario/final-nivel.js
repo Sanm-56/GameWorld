@@ -97,7 +97,8 @@ function render(summary) {
   els.mission.textContent = summary.missionText || missionLabel(level)
   els.failure.textContent = completed ? "" : (summary.failureMessage || missionFailureMessage(level, result))
   els.level.textContent = String(level.id)
-  els.score.textContent = String(result.score || 0)
+  setScoreLabel(level.game === "torreinfinita" ? "Altura" : "Puntos")
+  els.score.textContent = level.game === "torreinfinita" ? `${Number(result.score || 0)} m` : String(result.score || 0)
   els.time.textContent = result.time ? formatTime(result.time) : result.elapsed ? formatTime(result.elapsed) : "-"
   els.coins.textContent = String(summary.monedasGanadas || 0)
   els.xp.textContent = formatearXpResumen(summary)
@@ -178,13 +179,23 @@ function formatDelta(summary, result, completed) {
   if (result.invalid) return "Sin progreso"
   const failed = (summary.progressItems || []).find((item) => !item.ok)
   if (completed) {
-    if (summary.personalRecord) return `+${Math.max(0, Number(summary.newBest || 0) - Number(summary.previousBest || 0))} pts`
+    if (summary.personalRecord) return `+${formatMetricDelta(summary, Math.max(0, Number(summary.newBest || 0) - Number(summary.previousBest || 0)))}`
     return "Objetivo cumplido"
   }
   if (failed?.missing) return failed.missing
   const scoreTarget = summary.level?.mission?.conditions?.find((condition) => condition.type === "score")?.target
-  if (scoreTarget) return `Te faltaron ${Math.max(0, scoreTarget - Number(result.score || 0))} puntos`
+  if (scoreTarget) return `Te faltaron ${formatMetricDelta(summary, Math.max(0, scoreTarget - Number(result.score || 0)))}`
   return "Intenta de nuevo"
+}
+
+function formatMetricDelta(summary, value) {
+  const number = Math.max(0, Number(value) || 0)
+  return summary?.level?.game === "torreinfinita" ? `${number} m` : `${number} pts`
+}
+
+function setScoreLabel(text) {
+  const label = els.score?.parentElement?.querySelector("span")
+  if (label) label.textContent = text
 }
 
 function lanzarPulsoFinal(tipo) {

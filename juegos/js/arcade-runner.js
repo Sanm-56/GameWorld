@@ -107,6 +107,7 @@ let dodgeBestOneLifeMs = 0
 let dodgeTwoLifeStartedAt = null
 let dodgeBestTwoLifeMs = 0
 let dodgeObstaclesDodged = 0
+let stackBlocksPlaced = 0
 let advertencias = 0
 let resultadoEnviado = false
 let descalificado = false
@@ -321,6 +322,11 @@ function addScore(points) {
   level = Math.max(1, Math.floor(score / 180) + 1)
   setStatus(`+${gained} puntos`)
   renderHud()
+}
+
+function getCompetitiveValue() {
+  if (gameKey === "torreinfinita") return stackBlocksPlaced * 10
+  return score
 }
 
 function miss(reason = "Fallaste") {
@@ -1108,6 +1114,7 @@ function action() {
     state.stackX = overlapLeft
     state.stackWidth = overlap
     objects.push({ id: state.nextId++, x: overlapLeft, w: overlap })
+    stackBlocksPlaced += 1
     addScore(22 + objects.length * 4)
     if (objects.length >= 9) {
       objects.shift()
@@ -1361,6 +1368,12 @@ async function saveStats(position, elapsed) {
     payload.esquiva_obstaculos_esquivados = (actual?.esquiva_obstaculos_esquivados || 0) + dodgeObstaclesDodged
   }
 
+  if (gameKey === "torreinfinita") {
+    const alturaMetros = stackBlocksPlaced * 10
+    payload.torre_mejor_altura_m = Math.max(actual?.torre_mejor_altura_m || 0, alturaMetros)
+    payload.torre_puntos_total = (actual?.torre_puntos_total || 0) + score
+  }
+
   const { error } = await supabase
     .from("estadisticas_logros")
     .upsert(payload, { onConflict: "usuario,juego" })
@@ -1372,7 +1385,7 @@ async function saveResult(reason) {
   if (resultadoEnviado) return
   resultadoEnviado = true
   const invalid = reason === "descalificado" || descalificado
-  const finalScore = invalid ? 0 : score
+  const finalScore = invalid ? 0 : getCompetitiveValue()
   const elapsed = Math.max(1, Math.round((performance.now() - startMs) / 1000))
 
   if ((finalScore > 0 || gameKey === "esquivaobstaculos") && !invalid) {
@@ -1433,7 +1446,7 @@ async function endGame(reason) {
     await saveResult(reason)
   } catch (error) {
     console.error(`No se pudo completar el guardado final de ${gameKey}`, error)
-    const finalScore = reason === "descalificado" || descalificado ? 0 : score
+    const finalScore = reason === "descalificado" || descalificado ? 0 : getCompetitiveValue()
     localStorage.setItem("fin_juego", reason)
     localStorage.setItem(`${gameKey}_puntos`, String(finalScore))
     localStorage.setItem(`${gameKey}_elapsed`, String(Math.max(1, Math.round((performance.now() - startMs) / 1000))))

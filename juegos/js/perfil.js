@@ -1303,6 +1303,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosEsquivaObstaculos(estadisticasLogros.esquivaobstaculos || {}, resultado)
   }
 
+  if (game.key === 'torreinfinita') {
+    return crearLogrosTorreInfinita(estadisticasLogros.torreinfinita || {})
+  }
+
   if (game.key === 'ajedrez') {
     return crearLogrosAjedrez(estadisticasLogros.ajedrez || {})
   }
@@ -1642,6 +1646,88 @@ function crearLogrosEsquivaObstaculos(stats, resultado) {
       description,
       howTo,
       unlocked: obstaculosEsquivados >= requisito,
+    })),
+    ...logrosPartidas.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: partidasJugadas >= requisito,
+    })),
+    ...logrosTorneos.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: victoriasTorneos >= requisito,
+    })),
+  ]
+}
+
+function crearLogrosTorreInfinita(stats) {
+  const mejorAlturaMetros = stats.torre_mejor_altura_m || 0
+  const puntosTotal = stats.torre_puntos_total || 0
+  const partidasJugadas = stats.completados || 0
+  const victoriasTorneos = stats.victorias_torneos || 0
+  const logrosAltura = [
+    ['El Umbral de Eryndor', 'La torre apenas permiti&oacute; tu primer ascenso.', 'Alcanza 10 m.', 10],
+    ['Las Escaleras de Vael&rsquo;Thir', 'Cada pelda&ntilde;o comenz&oacute; a separarte del mundo.', 'Alcanza 100 m.', 100],
+    ['El Santuario Suspendido', 'Las alturas empezaron a devorar el horizonte.', 'Alcanza 230 m.', 230],
+    ['La Cornisa de Aer&rsquo;Kael', 'Muy pocos llegan donde el viento deja de sonar.', 'Alcanza 275 m.', 275],
+    ['El Piso del Silencio Blanco', 'Incluso la torre guard&oacute; silencio a tu paso.', 'Alcanza 300 m.', 300],
+    ['Los Muros de Nythara', 'Las nubes quedaron atrapadas bajo tus pies.', 'Alcanza 650 m.', 650],
+    ['El Ascenso de Valkorim', 'La gravedad comenz&oacute; a sentirse lejana.', 'Alcanza 850 m.', 850],
+    ['La Aguja de Xhal&rsquo;Vareth', 'La torre dej&oacute; de parecer construida por humanos.', 'Alcanza 1350 m.', 1350],
+    ['El Trono sobre Etherion', 'Miraste el mundo desde donde nacen las tormentas.', 'Alcanza 1500 m.', 1500],
+    ['El &Uacute;ltimo Piso de Aethernia', 'M&aacute;s arriba de este punto... solo existen leyendas.', 'Alcanza 2000 m.', 2000],
+  ]
+  const logrosPuntos = [
+    ['La Primera Marca de Obsidiana', 'La torre registr&oacute; tu existencia por primera vez.', 'Consigue 1000 puntos.', 1000],
+    ['El Pulso de Kaer&rsquo;Thul', 'Cada plataforma fortaleci&oacute; el ritmo del ascenso.', 'Consigue 25000 puntos.', 25000],
+    ['El N&uacute;mero de los Antiguos', 'Las viejas piedras comenzaron a reaccionar.', 'Consigue 50000 puntos.', 50000],
+    ['El Eco Vertical', 'Tu puntuaci&oacute;n empez&oacute; a romper antiguos registros.', 'Consigue 100000 puntos.', 100000],
+    ['Las Cuentas de Valkyreth', 'La torre ya no pod&iacute;a ignorar tu presencia.', 'Consigue 250000 puntos.', 250000],
+    ['El Archivo de Aerion', 'Tu recorrido qued&oacute; grabado entre escaladores perdidos.', 'Consigue 500000 puntos.', 500000],
+    ['El C&oacute;digo del Horizonte', 'Las alturas comenzaron a inclinarse ante ti.', 'Consigue 750000 puntos.', 750000],
+    ['El Ocaso de los Marcadores', 'Los n&uacute;meros dejaron de tener significado.', 'Consigue 1000000 puntos.', 1000000],
+    ['El Fragmento de Lumyra', 'Algo antiguo despert&oacute; dentro de la torre.', 'Consigue 1500000 puntos.', 1500000],
+    ['El C&aacute;liz del Ascenso Eterno', 'La cima comenz&oacute; a parecer alcanzable.', 'Consigue 2500000 puntos.', 2500000],
+  ]
+  const logrosPartidas = [
+    ['Regreso al Primer Pelda&ntilde;o', 'La torre volvi&oacute; a abrir sus puertas para ti.', 'Juega 5 partidas.', 5],
+    ['El Ritual del Ascenso', 'Cada ca&iacute;da aliment&oacute; tu siguiente intento.', 'Juega 100 partidas.', 100],
+    ['Habitante de las Cornisas', 'Las alturas comenzaron a sentirse familiares.', 'Juega 250 partidas.', 250],
+    ['El Eco del Escalador', 'Tus pasos resonaron una y otra vez.', 'Juega 500 partidas.', 500],
+    ['El Vig&iacute;a de la Torre Gris', 'Las viejas piedras ya reconoc&iacute;an tu presencia.', 'Juega 1000 partidas.', 1000],
+    ['El Peregrino de Valkor', 'Pocos regresan tantas veces al vac&iacute;o.', 'Juega 1500 partidas.', 1500],
+    ['Las Cr&oacute;nicas de Aer&rsquo;Vhal', 'Tu historia comenz&oacute; a mezclarse con la de la torre.', 'Juega 2500 partidas.', 2500],
+    ['El Guardi&aacute;n del Horizonte Vertical', 'Las alturas dejaron de ser territorio desconocido.', 'Juega 5000 partidas.', 5000],
+    ['La Sombra de las Mil Subidas', 'Tus intentos comenzaron a parecer eternos.', 'Juega 750 partidas.', 750],
+    ['El &Uacute;ltimo Escalador de Noctyra', 'Cuando todos dejaron de subir... t&uacute; continuaste.', 'Juega 1800 partidas.', 1800],
+  ]
+  const logrosTorneos = [
+    ['La Corona de Aer&rsquo;Thal', 'La torre eligi&oacute; a su primer soberano.', 'Gana 1 torneo.', 1],
+    ['El Se&ntilde;or de las Cornisas Eternas', 'Tus rivales quedaron atrapados bajo tu sombra.', 'Gana 3 torneos.', 3],
+    ['El Trono de Valkerys', 'Las alturas comenzaron a inclinarse ante tu nombre.', 'Gana 5 torneos.', 5],
+    ['El Heraldo de Xhaelor', 'Cada torneo roto abri&oacute; otro camino hacia la cima.', 'Gana 10 torneos.', 10],
+    ['El Reino Suspendido de Nythar', 'Las nubes dejaron de ocultar tu ascenso.', 'Gana 250 torneos.', 250],
+    ['El Emperador de las Agujas Blancas', 'La torre ya no aceptaba otro gobernante.', 'Gana 500 torneos.', 500],
+    ['La Ascensi&oacute;n de Vael&rsquo;Korim', 'Incluso el vac&iacute;o guard&oacute; silencio ante tu victoria.', 'Gana 1000 torneos.', 1000],
+    ['El Trono Perdido de Etherion', 'Las antiguas alturas finalmente encontraron due&ntilde;o.', 'Gana 150 torneos.', 150],
+    ['El Monarca del Horizonte Infinito', 'M&aacute;s all&aacute; de las nubes... segu&iacute;as ascendiendo.', 'Gana 2000 torneos.', 2000],
+    ['El &Uacute;ltimo Soberano de Aethernia', 'Cuando la torre necesit&oacute; una leyenda... apareciste t&uacute;.', 'Gana 3000 torneos.', 3000],
+  ]
+
+  return [
+    ...logrosAltura.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: mejorAlturaMetros >= requisito,
+    })),
+    ...logrosPuntos.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: puntosTotal >= requisito,
     })),
     ...logrosPartidas.map(([title, description, howTo, requisito]) => ({
       title,
@@ -4895,6 +4981,36 @@ function obtenerRarezaEsquivaObstaculos(achievement) {
   return 'common'
 }
 
+function obtenerRarezaTorreInfinita(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const target = obtenerNumeroCricket(objetivoTexto) || 1
+  if (objetivoTexto.includes('punto')) {
+    if (target >= 1000000) return 'legendary'
+    if (target >= 250000) return 'epic'
+    if (target >= 50000) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('partida')) {
+    if (target >= 1000) return 'legendary'
+    if (target >= 500) return 'epic'
+    if (target >= 100) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('torneo')) {
+    if (target >= 1000) return 'legendary'
+    if (target >= 150) return 'epic'
+    if (target >= 10) return 'rare'
+    return 'common'
+  }
+
+  if (target >= 1500) return 'legendary'
+  if (target >= 650) return 'epic'
+  if (target >= 230) return 'rare'
+  return 'common'
+}
+
 function obtenerProgresoCricket(achievement, stats, resultado) {
   const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
   const objetivo = obtenerNumeroCricket(objetivoTexto) || 1
@@ -5374,6 +5490,7 @@ function obtenerRarezaLogro(gameKey, achievement) {
   if (gameKey === 'numcatch') return obtenerRarezaArcana(obtenerProgresoNumcatch(achievement, stats), achievement)
   if (gameKey === 'cricketarcade') return obtenerRarezaCricket(achievement)
   if (gameKey === 'esquivaobstaculos') return obtenerRarezaEsquivaObstaculos(achievement)
+  if (gameKey === 'torreinfinita') return obtenerRarezaTorreInfinita(achievement)
   if (gameKey === 'ajedrez' || gameKey === 'domino' || gameKey === 'damas') return obtenerRarezaTablero(obtenerProgresoTablero(achievement, stats, gameKey), achievement)
   return 'common'
 }

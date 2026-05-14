@@ -171,6 +171,8 @@ create table if not exists public.estadisticas_logros (
   esquiva_mejor_tiempo_una_vida integer not null default 0,
   esquiva_mejor_tiempo_dos_vidas integer not null default 0,
   esquiva_obstaculos_esquivados integer not null default 0,
+  torre_mejor_altura_m integer not null default 0,
+  torre_puntos_total integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -278,6 +280,12 @@ add column if not exists esquiva_mejor_tiempo_dos_vidas integer not null default
 
 alter table public.estadisticas_logros
 add column if not exists esquiva_obstaculos_esquivados integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists torre_mejor_altura_m integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists torre_puntos_total integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists posiciones_mejoradas integer not null default 0;
