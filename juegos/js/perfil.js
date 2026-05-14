@@ -1307,6 +1307,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosTorreInfinita(estadisticasLogros.torreinfinita || {})
   }
 
+  if (game.key === 'subelamontana') {
+    return crearLogrosSubeLaMontana(estadisticasLogros.subelamontana || {})
+  }
+
   if (game.key === 'ajedrez') {
     return crearLogrosAjedrez(estadisticasLogros.ajedrez || {})
   }
@@ -1740,6 +1744,75 @@ function crearLogrosTorreInfinita(stats) {
       description,
       howTo,
       unlocked: victoriasTorneos >= requisito,
+    })),
+  ]
+}
+
+function crearLogrosSubeLaMontana(stats) {
+  const mejorAlturaMetros = stats.montana_mejor_altura_m || 0
+  const puntosTotal = stats.montana_puntos_total || 0
+  const partidasJugadas = stats.completados || 0
+  const logrosAltura = [
+    ['El Primer Paso de Eryndhal', 'La monta&ntilde;a escuch&oacute; por primera vez tus botas sobre la roca.', 'Alcanza 100 m.', 100],
+    ['Los Senderos de Kael&rsquo;Drim', 'Las viejas piedras comenzaron a aceptar tu ascenso.', 'Alcanza 250 m.', 250],
+    ['La Ladera de Aerthion', 'El fr&iacute;o dej&oacute; de sentirse como enemigo.', 'Alcanza 500 m.', 500],
+    ['El Refugio de Nythara', 'Las nubes comenzaron a esconder el mundo bajo tus pies.', 'Alcanza 1000 m.', 1000],
+    ['Las Agujas de Valkor', 'Muy pocos llegan donde el viento cambia de voz.', 'Alcanza 1500 m.', 1500],
+    ['El Silencio de las Cumbres Blancas', 'Incluso la tormenta guard&oacute; distancia de tu camino.', 'Alcanza 2500 m.', 2500],
+    ['El Horizonte de Vael&rsquo;Thar', 'La monta&ntilde;a comenz&oacute; a parecer infinita.', 'Alcanza 5000 m.', 5000],
+    ['El Santuario de las Nieves Eternas', 'Las alturas dejaron de pertenecer al mundo mortal.', 'Alcanza 7500 m.', 7500],
+    ['La Corona de Etherion', 'Tu sombra apareci&oacute; m&aacute;s arriba que las nubes.', 'Alcanza 10000 m.', 10000],
+    ['El Pico de Xhal&rsquo;Vareth', 'La monta&ntilde;a comenz&oacute; a recordar tu nombre.', 'Alcanza 15000 m.', 15000],
+    ['El Reino Suspendido de Aethra', 'Ya no exist&iacute;a nada sobre ti excepto el cielo.', 'Alcanza 20000 m.', 20000],
+    ['Donde Muere el Viento', 'M&aacute;s all&aacute; de esta altura... solo sobreviven las leyendas.', 'Alcanza 30000 m.', 30000],
+  ]
+  const logrosPuntos = [
+    ['Marca sobre la Escarcha', 'Tus primeros pasos quedaron grabados en la nieve antigua.', 'Consigue 1.000 puntos acumulados.', 1000],
+    ['El Pulso de la Cordillera', 'Cada ascenso fortaleci&oacute; tu leyenda.', 'Consigue 5.000 puntos acumulados.', 5000],
+    ['Las Cr&oacute;nicas del Sendero Blanco', 'Las monta&ntilde;as comenzaron a registrar tu historia.', 'Consigue 10.000 puntos acumulados.', 10000],
+    ['El Archivo de Aer&rsquo;Khal', 'Tu nombre apareci&oacute; entre antiguos escaladores.', 'Consigue 25.000 puntos acumulados.', 25000],
+    ['La Reliquia de la Nieve Gris', 'Algo olvidado despert&oacute; con tu progreso.', 'Consigue 50.000 puntos acumulados.', 50000],
+    ['El Eco de las Alturas Eternas', 'Cada punto parec&iacute;a un paso hacia otro mundo.', 'Consigue 75.000 puntos acumulados.', 75000],
+    ['El Ocaso del Valle Fr&iacute;o', 'Las monta&ntilde;as dejaron de parecer imposibles.', 'Consigue 100.000 puntos acumulados.', 100000],
+    ['El C&aacute;liz de las Cumbres', 'Tus ascensos comenzaron a romper viejas marcas.', 'Consigue 150.000 puntos acumulados.', 150000],
+    ['El Coraz&oacute;n de Valkerys', 'La nieve comenz&oacute; a guardar memoria de tus pasos.', 'Consigue 250.000 puntos acumulados.', 250000],
+    ['El Fragmento de Noctharis', 'Las cumbres antiguas reaccionaron a tu presencia.', 'Consigue 500.000 puntos acumulados.', 500000],
+    ['La Leyenda del Ascenso Blanco', 'Tu recorrido ya no pod&iacute;a ocultarse entre la tormenta.', 'Consigue 750.000 puntos acumulados.', 750000],
+    ['El Nombre Tallado en Hielo', 'Incluso las monta&ntilde;as eternas pronunciaron tu existencia.', 'Consigue 1.000.000 puntos acumulados.', 1000000],
+  ]
+  const logrosPartidas = [
+    ['Regreso al Sendero Helado', 'La monta&ntilde;a volvi&oacute; a abrir sus caminos para ti.', 'Juega 50 partidas.', 50],
+    ['El Ritual de la Ladera Blanca', 'Cada ca&iacute;da aliment&oacute; tu siguiente ascenso.', 'Juega 100 partidas.', 100],
+    ['Habitante del Refugio Gris', 'Las alturas comenzaron a sentirse familiares.', 'Juega 250 partidas.', 250],
+    ['El Eco de las Botas Antiguas', 'Tus pasos resonaron una y otra vez sobre la nieve.', 'Juega 500 partidas.', 500],
+    ['El Peregrino de Valkareth', 'Pocos regresan tantas veces a la monta&ntilde;a.', 'Juega 1000 partidas.', 1000],
+    ['Las Cr&oacute;nicas del Ascenso Eterno', 'Tu historia comenz&oacute; a mezclarse con las tormentas.', 'Juega 1500 partidas.', 1500],
+    ['El Vig&iacute;a del Horizonte Blanco', 'Las cumbres comenzaron a reconocer tu presencia.', 'Juega 2500 partidas.', 2500],
+    ['El Guardi&aacute;n del Refugio Perdido', 'La monta&ntilde;a dej&oacute; de verte como visitante.', 'Juega 5000 partidas.', 5000],
+    ['El &Uacute;ltimo Caminante de Etherion', 'Tus intentos comenzaron a parecer infinitos.', 'Juega 7500 partidas.', 7500],
+    ['La Sombra de las Mil Subidas', 'Las rutas heladas ya conoc&iacute;an tu nombre.', 'Juega 10.000 partidas.', 10000],
+    ['El Heraldo de las Cumbres Eternas', 'Incluso la tormenta comenz&oacute; a esperarte.', 'Juega 15.000 partidas.', 15000],
+    ['El &Uacute;ltimo Monta&ntilde;ista de Aethra', 'Cuando todos abandonaron la subida... t&uacute; continuaste.', 'Juega 20.000 partidas.', 20000],
+  ]
+
+  return [
+    ...logrosAltura.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: mejorAlturaMetros >= requisito,
+    })),
+    ...logrosPuntos.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: puntosTotal >= requisito,
+    })),
+    ...logrosPartidas.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: partidasJugadas >= requisito,
     })),
   ]
 }
@@ -5011,6 +5084,29 @@ function obtenerRarezaTorreInfinita(achievement) {
   return 'common'
 }
 
+function obtenerRarezaSubeLaMontana(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const target = obtenerNumeroCricket(objetivoTexto) || 1
+  if (objetivoTexto.includes('punto')) {
+    if (target >= 500000) return 'legendary'
+    if (target >= 100000) return 'epic'
+    if (target >= 25000) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('partida')) {
+    if (target >= 10000) return 'legendary'
+    if (target >= 2500) return 'epic'
+    if (target >= 250) return 'rare'
+    return 'common'
+  }
+
+  if (target >= 10000) return 'legendary'
+  if (target >= 2500) return 'epic'
+  if (target >= 500) return 'rare'
+  return 'common'
+}
+
 function obtenerProgresoCricket(achievement, stats, resultado) {
   const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
   const objetivo = obtenerNumeroCricket(objetivoTexto) || 1
@@ -5491,6 +5587,7 @@ function obtenerRarezaLogro(gameKey, achievement) {
   if (gameKey === 'cricketarcade') return obtenerRarezaCricket(achievement)
   if (gameKey === 'esquivaobstaculos') return obtenerRarezaEsquivaObstaculos(achievement)
   if (gameKey === 'torreinfinita') return obtenerRarezaTorreInfinita(achievement)
+  if (gameKey === 'subelamontana') return obtenerRarezaSubeLaMontana(achievement)
   if (gameKey === 'ajedrez' || gameKey === 'domino' || gameKey === 'damas') return obtenerRarezaTablero(obtenerProgresoTablero(achievement, stats, gameKey), achievement)
   return 'common'
 }

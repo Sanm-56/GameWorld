@@ -1374,6 +1374,12 @@ async function saveStats(position, elapsed) {
     payload.torre_puntos_total = (actual?.torre_puntos_total || 0) + score
   }
 
+  if (gameKey === "subelamontana") {
+    const alturaMetros = Math.max(0, Math.floor(state.climb.height || 0))
+    payload.montana_mejor_altura_m = Math.max(actual?.montana_mejor_altura_m || 0, alturaMetros)
+    payload.montana_puntos_total = (actual?.montana_puntos_total || 0) + score
+  }
+
   const { error } = await supabase
     .from("estadisticas_logros")
     .upsert(payload, { onConflict: "usuario,juego" })
