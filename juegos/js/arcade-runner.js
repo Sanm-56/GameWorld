@@ -98,6 +98,10 @@ let level = 1
 let combo = 0
 let bestCombo = 0
 let lives = 3
+let cricketHits = 0
+let cricketPerfectHits = 0
+let cricketOneLifeStartedAt = null
+let cricketBestOneLifeMs = 0
 let advertencias = 0
 let resultadoEnviado = false
 let descalificado = false
@@ -318,6 +322,14 @@ function miss(reason = "Fallaste") {
   if (juegoTerminado) return
   combo = 0
   lives = Math.max(0, lives - 1)
+  if (gameKey === "cricketarcade") {
+    if (lives === 1 && cricketOneLifeStartedAt === null) {
+      cricketOneLifeStartedAt = performance.now()
+    } else if (lives < 1 && cricketOneLifeStartedAt !== null) {
+      cricketBestOneLifeMs = Math.max(cricketBestOneLifeMs, performance.now() - cricketOneLifeStartedAt)
+      cricketOneLifeStartedAt = null
+    }
+  }
   setStatus(reason)
   renderHud()
   if (lives <= 0) endGame("perdiste")
@@ -575,6 +587,8 @@ function resolveCricketSwing() {
   if (diff <= 2.6) {
     cricket.result = "hit"
     cricket.resultPower = 96
+    cricketHits += 1
+    cricketPerfectHits += 1
     addScore(85 + level * 6)
     setStatus("Golpe perfecto")
     return
@@ -583,6 +597,7 @@ function resolveCricketSwing() {
   if (diff <= 6.4) {
     cricket.result = "hit"
     cricket.resultPower = 68
+    cricketHits += 1
     addScore(48 + level * 4)
     setStatus("Buen golpe")
     return
@@ -591,6 +606,7 @@ function resolveCricketSwing() {
   if (diff <= 10.5) {
     cricket.result = "hit"
     cricket.resultPower = 38
+    cricketHits += 1
     addScore(20 + level * 2)
     setStatus("Roce salvado")
     return
@@ -1289,6 +1305,22 @@ async function saveStats(position, elapsed) {
     mejor_tiempo: typeof actual?.mejor_tiempo === "number" ? Math.min(actual.mejor_tiempo, elapsed) : elapsed,
     mejor_racha_completados: Math.max(actual?.mejor_racha_completados || 0, bestCombo),
     updated_at: new Date().toISOString(),
+  }
+
+  if (gameKey === "cricketarcade") {
+    const oneLifeMs = cricketOneLifeStartedAt === null
+      ? cricketBestOneLifeMs
+      : Math.max(cricketBestOneLifeMs, performance.now() - cricketOneLifeStartedAt)
+
+    payload.cricket_golpes_total = (actual?.cricket_golpes_total || 0) + cricketHits
+    payload.cricket_mejor_puntaje = Math.max(actual?.cricket_mejor_puntaje || 0, score)
+    payload.cricket_mejor_golpes_partida = Math.max(actual?.cricket_mejor_golpes_partida || 0, cricketHits)
+    payload.cricket_mejor_racha_golpes = Math.max(actual?.cricket_mejor_racha_golpes || 0, bestCombo)
+    payload.cricket_golpes_perfectos_total = (actual?.cricket_golpes_perfectos_total || 0) + cricketPerfectHits
+    payload.cricket_partidas_una_vida = (actual?.cricket_partidas_una_vida || 0) + (lives === 1 ? 1 : 0)
+    payload.cricket_mejor_tiempo_una_vida = Math.max(actual?.cricket_mejor_tiempo_una_vida || 0, Math.floor(oneLifeMs / 1000))
+    payload.cricket_partidas_sin_perder_todas_las_vidas = (actual?.cricket_partidas_sin_perder_todas_las_vidas || 0) + (lives > 0 ? 1 : 0)
+    payload.cricket_partidas_dos_vidas = (actual?.cricket_partidas_dos_vidas || 0) + (lives === 2 ? 1 : 0)
   }
 
   const { error } = await supabase

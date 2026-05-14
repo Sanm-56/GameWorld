@@ -1295,6 +1295,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosNumcatch(estadisticasLogros.numcatch || {})
   }
 
+  if (game.key === 'cricketarcade') {
+    return crearLogrosCricketArcade(estadisticasLogros.cricketarcade || {}, resultado)
+  }
+
   if (game.key === 'ajedrez') {
     return crearLogrosAjedrez(estadisticasLogros.ajedrez || {})
   }
@@ -1333,6 +1337,175 @@ function crearLogrosDeJuego(game, resultado) {
       title: 'Logro personalizado',
       description: 'Reservado para el nombre y descripcion que me pases despues.',
       unlocked: false,
+    },
+  ]
+}
+
+function crearLogrosCricketArcade(stats, resultado) {
+  const golpesTotal = stats.cricket_golpes_total || 0
+  const mejorGolpesPartida = stats.cricket_mejor_golpes_partida || 0
+  const mejorRachaGolpes = Math.max(stats.cricket_mejor_racha_golpes || 0, stats.mejor_racha_completados || 0)
+  const mejorScore = Math.max(stats.cricket_mejor_puntaje || 0, Number(resultado?.tiempo || 0))
+  const partidasUnaVida = stats.cricket_partidas_una_vida || 0
+  const mejorTiempoUnaVida = stats.cricket_mejor_tiempo_una_vida || 0
+  const partidasSinPerderTodas = stats.cricket_partidas_sin_perder_todas_las_vidas || 0
+  const partidasDosVidas = stats.cricket_partidas_dos_vidas || 0
+  const victoriasTorneos = stats.victorias_torneos || 0
+  const tiempoJugadoHoras = Math.floor((stats.tiempo_jugado_total || 0) / 3600)
+
+  const scoreActual = Number(mejorScore || 0)
+  const logrosGolpear = [
+    ['El Primer Eco', 'El estadio escuch&oacute; tu golpe... y jam&aacute;s volvi&oacute; al silencio.', 'Consigue tu primer golpe.', golpesTotal >= 1],
+    ['Despertar del Bateador', 'Algo dentro de ti reaccion&oacute; antes que la pelota.', 'Consigue 14 golpes acumulados.', golpesTotal >= 14],
+    ['Marca en el Polvo', 'Las gradas olvidan jugadores. El campo no.', 'Consigue 50 golpes acumulados.', golpesTotal >= 50],
+    ['Ojo del Cometa', 'Golpeaste donde incluso el tiempo dud&oacute;.', 'Consigue 117 golpes acumulados.', golpesTotal >= 117],
+    ['Pulso de Titanio', 'Ni el viento pudo mover tu precisi&oacute;n.', 'Consigue 125 golpes acumulados.', golpesTotal >= 125],
+    ['El Punto Imposible', 'Durante un instante... la pelota obedeci&oacute;.', 'Consigue 145 golpes acumulados.', golpesTotal >= 145],
+    ['Geometr&iacute;a Sagrada', 'Cada impacto parec&iacute;a escrito antes del partido.', 'Consigue 175 golpes acumulados.', golpesTotal >= 175],
+  ]
+
+  const logrosRacha = [
+    ['Llama Incontenible', 'El ritmo ya no depend&iacute;a del juego... depend&iacute;a de ti.', 'Consigue 5 golpes seguidos sin fallar.', mejorRachaGolpes >= 5],
+    ['Ritual del Impacto', 'Cada golpe despert&oacute; otro m&aacute;s violento.', 'Consigue 15 golpes seguidos sin fallar.', mejorRachaGolpes >= 15],
+    ['Cadena Carmes&iacute;', 'La multitud dej&oacute; de contar despu&eacute;s del d&eacute;cimo impacto.', 'Consigue 35 golpes seguidos sin fallar.', mejorRachaGolpes >= 35],
+    ['El Devorador de Lanzamientos', 'Las pelotas desaparec&iacute;an antes de tocar el suelo.', 'Consigue 75 golpes seguidos sin fallar.', mejorRachaGolpes >= 75],
+    ['Sin Margen para Fallar', 'El error te observ&oacute; toda la partida... pero nunca te toc&oacute;.', 'Consigue 85 golpes seguidos sin fallar.', mejorRachaGolpes >= 85],
+  ]
+
+  const logrosVictorias = [
+    ['El Rey de las Gradas', 'Cuando cay&oacute; la &uacute;ltima pelota, el estadio solo pronunci&oacute; un nombre.', 'Gana 1 torneo de Cricket Arcade.', 1],
+    ['Corona de Impactos', 'Cada golpe dej&oacute; una grieta invisible sobre el campo.', 'Gana 3 torneos de Cricket Arcade.', 3],
+    ['Donde Callan los Lanzadores', 'Los rivales dejaron de lanzar con esperanza.', 'Gana 5 torneos de Cricket Arcade.', 5],
+    ['El &Uacute;ltimo Bateador', 'Uno a uno desaparecieron del marcador... menos t&uacute;.', 'Gana 7 torneos de Cricket Arcade.', 7],
+    ['Trono Bajo las Luces', 'La noche del estadio te perteneci&oacute; por completo.', 'Gana 10 torneos de Cricket Arcade.', 10],
+    ['Cenizas del Marcador', 'El contador sigui&oacute; subiendo incluso despu&eacute;s del final.', 'Gana 12 torneos de Cricket Arcade.', 12],
+    ['La Ovaci&oacute;n Eterna', 'Algunos a&uacute;n siguen aplaudiendo aquel &uacute;ltimo golpe.', 'Gana 15 torneos de Cricket Arcade.', 15],
+    ['Pulso de Campe&oacute;n', 'Ni el ruido, ni la presi&oacute;n, ni el miedo lograron desviarte.', 'Gana 18 torneos de Cricket Arcade.', 18],
+    ['Ecos del Estadio Vac&iacute;o', 'Cuando todos se fueron, tu nombre segu&iacute;a all&iacute;.', 'Gana 20 torneos de Cricket Arcade.', 20],
+    ['El Devorador de Finales', 'Las finales comenzaron a sentirse como simples tr&aacute;mites.', 'Gana 25 torneos de Cricket Arcade.', 25],
+    ['El Bate de la Tormenta', 'Cada swing parec&iacute;a partir el cielo en dos.', 'Gana 30 torneos de Cricket Arcade.', 30],
+    ['La Noche Imposible', 'Nadie esperaba verte sobrevivir a ese &uacute;ltimo lanzamiento.', 'Gana 35 torneos de Cricket Arcade.', 35],
+    ['Fragmento del Campe&oacute;n', 'Algo antiguo despert&oacute; con cada victoria.', 'Gana 40 torneos de Cricket Arcade.', 40],
+    ['El Nombre Prohibido', 'Los comentaristas dejaron de mencionar a los dem&aacute;s.', 'Gana 45 torneos de Cricket Arcade.', 45],
+    ['El Silencio Antes del Golpe', 'El estadio aprendi&oacute; a temer ese instante exacto.', 'Gana 50 torneos de Cricket Arcade.', 50],
+    ['M&aacute;s All&aacute; del Trofeo', 'Ya no jugabas por ganar... jugabas porque pod&iacute;as hacerlo.', 'Gana 60 torneos de Cricket Arcade.', 60],
+    ['La Sombra del Campe&oacute;n', 'Incluso ausente, tu presencia pesaba sobre el torneo.', 'Gana 70 torneos de Cricket Arcade.', 70],
+    ['El Trono Carmes&iacute;', 'Las victorias comenzaron a acumularse como cicatrices.', 'Gana 80 torneos de Cricket Arcade.', 80],
+    ['Cuando el Estadio Ardi&oacute;', 'Aquella final nunca volvi&oacute; a repetirse.', 'Gana 90 torneos de Cricket Arcade.', 90],
+    ['El Due&ntilde;o del &Uacute;ltimo Golpe', 'Al final de cada torneo, el destino terminaba encontr&aacute;ndote.', 'Gana 100 torneos de Cricket Arcade.', 100],
+    ['El Rugido del Impacto', 'El sonido de tu bate atraves&oacute; todo el estadio.', 'Gana 120 torneos de Cricket Arcade.', 120],
+    ['Bajo el Cielo El&eacute;ctrico', 'Aquella victoria ilumin&oacute; incluso las gradas vac&iacute;as.', 'Gana 140 torneos de Cricket Arcade.', 140],
+    ['El Guardi&aacute;n del Pitch', 'Cada pelota que cruz&oacute; tu camino termin&oacute; derrotada.', 'Gana 146 torneos de Cricket Arcade.', 146],
+    ['La Hora del Invicto', 'Durante ese torneo, el fracaso nunca encontr&oacute; entrada.', 'Gana 158 torneos de Cricket Arcade.', 158],
+    ['El Martillo del Estadio', 'Los lanzamientos dejaron de parecer amenazas.', 'Gana 171 torneos de Cricket Arcade.', 171],
+    ['Tempestad en las Gradas', 'La multitud no sab&iacute;a si gritar o escapar.', 'Gana 194 torneos de Cricket Arcade.', 194],
+    ['El Horizonte Carm&iacute;n', 'La final termin&oacute; te&ntilde;ida por el eco de tus golpes.', 'Gana 216 torneos de Cricket Arcade.', 216],
+    ['Donde Mueren los R&eacute;cords', 'Cada victoria borr&oacute; otra marca del pasado.', 'Gana 219 torneos de Cricket Arcade.', 219],
+    ['El Juramento del Bateador', 'Prometiste dominar el torneo... y el estadio escuch&oacute;.', 'Gana 222 torneos de Cricket Arcade.', 222],
+    ['El Eco de los Campeones', 'Las viejas leyendas comenzaron a sonar peque&ntilde;as.', 'Gana 226 torneos de Cricket Arcade.', 226],
+    ['El Peso de la Corona', 'No todos sobreviven a tantas victorias consecutivas.', 'Gana 248 torneos de Cricket Arcade.', 248],
+    ['Cenit del Lanzamiento', 'La pelota alcanz&oacute; su punto m&aacute;s alto antes de desaparecer.', 'Gana 232 torneos de Cricket Arcade.', 232],
+    ['El Archivo Perdido', 'Tu nombre apareci&oacute; donde ning&uacute;n jugador hab&iacute;a llegado.', 'Gana 256 torneos de Cricket Arcade.', 256],
+    ['La Marca del Trueno', 'Despu&eacute;s de aquel golpe, el silencio pareci&oacute; eterno.', 'Gana 272 torneos de Cricket Arcade.', 272],
+    ['El Portador del &Uacute;ltimo Swing', 'Las finales comenzaban a terminar antes de empezar.', 'Gana 298 torneos de Cricket Arcade.', 298],
+    ['Reino de Pelotas Rotas', 'Algo en el estadio dej&oacute; de funcionar normalmente.', 'Gana 355 torneos de Cricket Arcade.', 355],
+    ['El Vigilante de Medianoche', 'Las luces segu&iacute;an encendidas mucho despu&eacute;s de tu victoria.', 'Gana 365 torneos de Cricket Arcade.', 365],
+    ['La Jaula de los Lanzadores', 'Cada rival entraba sabiendo c&oacute;mo terminar&iacute;a todo.', 'Gana 375 torneos de Cricket Arcade.', 375],
+    ['El Coraz&oacute;n del Coliseo', 'El estadio lati&oacute; contigo durante la final.', 'Gana 385 torneos de Cricket Arcade.', 385],
+    ['La &Uacute;ltima Leyenda del Pitch', 'Cuando el torneo necesit&oacute; un campe&oacute;n... apareci&oacute; tu sombra.', 'Gana 420 torneos de Cricket Arcade.', 420],
+  ]
+
+  const logrosTiempo = [
+    ['El Despertar de Aetherion', 'Las antiguas luces del estadio reaccionaron a tu llegada.', 'Juega 1 hora de Cricket Arcade.', 1],
+    ['Cr&oacute;nicas del Primer Vigilante', 'El campo comenz&oacute; a registrar tus pasos entre sus viejas memorias.', 'Juega 2 horas de Cricket Arcade.', 2],
+    ['El Juramento de Valtheris', 'El bate respondi&oacute; como si reconociera tu pulso.', 'Juega 3 horas de Cricket Arcade.', 3],
+    ['Los Ecos de Lun&rsquo;Kael', 'Algo antiguo despert&oacute; entre las gradas vac&iacute;as.', 'Juega 5 horas de Cricket Arcade.', 5],
+    ['El Portador del Sol Carmes&iacute;', 'Las noches del estadio ya no terminaban igual despu&eacute;s de tu llegada.', 'Juega 7 horas de Cricket Arcade.', 7],
+    ['Las Campanas de Arkanor', 'Cada impacto comenz&oacute; a sonar como un antiguo ritual.', 'Juega 10 horas de Cricket Arcade.', 10],
+    ['El Archivo de Veyrath', 'Tu nombre apareci&oacute; donde descansan los grandes campeones.', 'Juega 42 horas de Cricket Arcade.', 42],
+    ['La Vigilia de Drak&rsquo;Thar', 'Mientras otros abandonaban el campo, t&uacute; permanec&iacute;as.', 'Juega 75 horas de Cricket Arcade.', 75],
+    ['El C&oacute;dice del &Uacute;ltimo Swing', 'Las viejas leyendas empezaron a escribirse otra vez.', 'Juega 98 horas de Cricket Arcade.', 98],
+    ['El Trono de las Gradas Eternas', 'Incluso el estadio inclin&oacute; sus luces ante tu presencia.', 'Juega 120 horas de Cricket Arcade.', 120],
+    ['El Heraldo de Noctyra', 'Las sombras del pitch comenzaron a seguir tus movimientos.', 'Juega 164 horas de Cricket Arcade.', 164],
+    ['La Corona de Elarith', 'No todos soportan tanto tiempo bajo las luces sagradas.', 'Juega 228 horas de Cricket Arcade.', 228],
+    ['Los Sellos de Varkor', 'Cada partida abri&oacute; una puerta que deb&iacute;a permanecer cerrada.', 'Juega 232 horas de Cricket Arcade.', 232],
+    ['El Guardi&aacute;n de las Mil Pelotas', 'El estadio dej&oacute; de verte como jugador... y comenz&oacute; a verte como leyenda.', 'Juega 336 horas de Cricket Arcade.', 336],
+    ['El Coraz&oacute;n de Aer&rsquo;Vhal', 'Las antiguas paredes del coliseo a&uacute;n repiten tus golpes.', 'Juega 400 horas de Cricket Arcade.', 400],
+    ['La Llama de los Antiguos Bateadores', 'El fuego de viejos campeones comenz&oacute; a arder nuevamente.', 'Juega 450 horas de Cricket Arcade.', 450],
+    ['El Ocaso de Kael&rsquo;Zareth', 'Incluso el tiempo pareci&oacute; ralentizarse dentro del estadio.', 'Juega 500 horas de Cricket Arcade.', 500],
+    ['La Reliquia del Pitch Dorado', 'Los antiguos s&iacute;mbolos del campo respondieron a tu presencia.', 'Juega 600 horas de Cricket Arcade.', 600],
+    ['El Nombre Sellado en Obsidiana', 'Las leyendas ya no pod&iacute;an ocultar tu existencia.', 'Juega 750 horas de Cricket Arcade.', 750],
+    ['El Trono Perdido de Asterion', 'Despu&eacute;s de tantas noches... el estadio finalmente te reconoci&oacute; como suyo.', 'Juega 1000 horas de Cricket Arcade.', 1000],
+  ]
+
+  return [
+    ...logrosGolpear.map(([title, description, howTo, unlocked]) => ({ title, description, howTo, unlocked })),
+    ...logrosRacha.map(([title, description, howTo, unlocked]) => ({ title, description, howTo, unlocked })),
+    ...logrosVictorias.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: victoriasTorneos >= requisito,
+    })),
+    ...logrosTiempo.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: tiempoJugadoHoras >= requisito,
+    })),
+    {
+      title: 'Lluvia sobre el Estadio',
+      description: 'Los puntos comenzaron a caer como una tormenta eterna.',
+      howTo: 'Supera 300 puntos.',
+      unlocked: scoreActual > 300,
+    },
+    {
+      title: 'El N&uacute;mero Prohibido',
+      description: 'Nadie deb&iacute;a llegar tan lejos.',
+      howTo: 'Supera 1.000 puntos.',
+      unlocked: scoreActual > 1000,
+    },
+    {
+      title: 'M&aacute;s All&aacute; del Marcador',
+      description: 'El contador sigui&oacute; funcionando. Las reglas no.',
+      howTo: 'Supera 2.800 puntos.',
+      unlocked: scoreActual > 2800,
+    },
+    {
+      title: 'El Partido Eterno',
+      description: 'Algunos juraron que nunca terminaste de jugar.',
+      howTo: 'Supera 5.000 puntos.',
+      unlocked: scoreActual > 5000,
+    },
+    {
+      title: 'Contra la &Uacute;ltima Bola',
+      description: 'Sobreviviste cuando el estadio ya te daba por perdido.',
+      howTo: 'Termina una partida con una sola vida restante.',
+      unlocked: partidasUnaVida >= 1,
+    },
+    {
+      title: 'Silencio en las Gradas',
+      description: 'Nadie entend&iacute;a c&oacute;mo segu&iacute;as jugando.',
+      howTo: 'Sobrevive durante 5 minutos con 1 vida.',
+      unlocked: mejorTiempoUnaVida >= 5 * 60,
+    },
+    {
+      title: 'La Noche del Invicto',
+      description: 'Ni un fallo. Ni una grieta. Ni una duda.',
+      howTo: 'Termina una partida sin perder todas las vidas.',
+      unlocked: partidasSinPerderTodas >= 1,
+    },
+    {
+      title: 'Pulso Inhumano',
+      description: 'La velocidad aument&oacute;... y t&uacute; tambi&eacute;n.',
+      howTo: 'Sobrevive con solo 2 vidas.',
+      unlocked: partidasDosVidas >= 1,
+    },
+    {
+      title: 'Partido Tallado en Bronce',
+      description: 'Una partida no bast&oacute; para contener tu marca.',
+      howTo: 'Consigue 40 golpes en una sola partida.',
+      unlocked: mejorGolpesPartida >= 40,
     },
   ]
 }
@@ -4477,6 +4650,53 @@ function obtenerRarezaArcana(progress, achievement) {
   return 'common'
 }
 
+function obtenerRarezaCricket(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const target = obtenerPrimerNumero(objetivoTexto) || 1
+
+  if (objetivoTexto.includes('torneo')) {
+    if (target >= 100) return 'legendary'
+    if (target >= 25) return 'epic'
+    if (target >= 3) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('hora')) {
+    if (target >= 500) return 'legendary'
+    if (target >= 75) return 'epic'
+    if (target >= 5) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('punto')) {
+    if (target >= 5000) return 'legendary'
+    if (target >= 1000) return 'epic'
+    if (target >= 300) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('vida')) {
+    if (objetivoTexto.includes('5 minutos') || objetivoTexto.includes('sin perder')) return 'epic'
+    return 'rare'
+  }
+
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('sin fallar')) {
+    if (target >= 85) return 'legendary'
+    if (target >= 35) return 'epic'
+    if (target >= 5) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('golpe')) {
+    if (target >= 145) return 'legendary'
+    if (target >= 50) return 'epic'
+    if (target >= 14) return 'rare'
+    return 'common'
+  }
+
+  return achievement.unlocked ? 'rare' : 'common'
+}
+
 function obtenerIconoArcano(gameKey, achievement) {
   const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
   if (objetivoTexto.includes('menos de') || objetivoTexto.includes('0 errores') || objetivoTexto.includes('exactamente')) {
@@ -4837,6 +5057,7 @@ function obtenerRarezaLogro(gameKey, achievement) {
   if (gameKey === 'matematicas') return obtenerRarezaMatematicas(obtenerProgresoMatematicas(achievement, stats), achievement)
   if (gameKey === 'flashmind') return obtenerRarezaArcana(obtenerProgresoFlashmind(achievement, stats), achievement)
   if (gameKey === 'numcatch') return obtenerRarezaArcana(obtenerProgresoNumcatch(achievement, stats), achievement)
+  if (gameKey === 'cricketarcade') return obtenerRarezaCricket(achievement)
   if (gameKey === 'ajedrez' || gameKey === 'domino' || gameKey === 'damas') return obtenerRarezaTablero(obtenerProgresoTablero(achievement, stats, gameKey), achievement)
   return 'common'
 }

@@ -156,6 +156,15 @@ create table if not exists public.estadisticas_logros (
   ajedrez_perdio_partida_previa boolean not null default false,
   ajedrez_racha_victoria_tras_derrota_actual integer not null default 0,
   ajedrez_mejor_racha_victoria_tras_derrota integer not null default 0,
+  cricket_golpes_total integer not null default 0,
+  cricket_mejor_puntaje integer not null default 0,
+  cricket_mejor_golpes_partida integer not null default 0,
+  cricket_mejor_racha_golpes integer not null default 0,
+  cricket_golpes_perfectos_total integer not null default 0,
+  cricket_partidas_una_vida integer not null default 0,
+  cricket_mejor_tiempo_una_vida integer not null default 0,
+  cricket_partidas_sin_perder_todas_las_vidas integer not null default 0,
+  cricket_partidas_dos_vidas integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -218,6 +227,33 @@ add column if not exists top15_torneos integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists cuartos_lugares integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_golpes_total integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_mejor_puntaje integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_mejor_golpes_partida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_mejor_racha_golpes integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_golpes_perfectos_total integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_partidas_una_vida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_mejor_tiempo_una_vida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_partidas_sin_perder_todas_las_vidas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists cricket_partidas_dos_vidas integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists posiciones_mejoradas integer not null default 0;
