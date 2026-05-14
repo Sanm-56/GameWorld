@@ -1096,30 +1096,47 @@ body.sudoku-screen-shake{
 }
 
 .achievement-grid.sudoku-relics{
-  gap:12px;
+  gap:14px;
+  scrollbar-color:#b8d7ee #050816;
 }
 
 .achievement-card.sudoku-relic{
+  --sudoku-line:rgba(196,213,226,0.22);
+  --sudoku-soft:rgba(186,215,236,0.12);
+  --sudoku-ink:#f8fbff;
+  --sudoku-muted:rgba(218,230,239,0.72);
   position:relative;
-  display:block;
-  min-height:0;
-  padding:0;
-  border-radius:12px;
+  display:grid;
+  grid-template-columns:72px minmax(0, 1fr);
+  gap:14px;
+  min-height:218px;
+  padding:16px;
+  border-radius:14px;
   overflow:hidden;
+  isolation:isolate;
   background:rgba(15,23,42,0.72);
-  border:1px solid rgba(148,163,184,0.2);
-  box-shadow:0 12px 28px rgba(0,0,0,0.28);
+  border:1px solid rgba(173,193,208,0.2);
+  box-shadow:
+    0 18px 38px rgba(0,0,0,0.34),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  transition:transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
 }
 
 .achievement-card.sudoku-relic::before,
 .achievement-card.sudoku-relic::after{
-  content:none;
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  z-index:-1;
 }
 
 .achievement-card.sudoku-relic:hover{
-  transform:translateY(-1px);
-  border-color:rgba(203,213,225,0.28);
-  box-shadow:0 16px 34px rgba(0,0,0,0.34);
+  transform:translateY(-2px);
+  border-color:rgba(210,230,244,0.34);
+  box-shadow:
+    0 22px 48px rgba(0,0,0,0.42),
+    0 0 24px rgba(186,215,236,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.07);
 }
 
 .achievement-card.sudoku-relic.locked{
@@ -1128,59 +1145,78 @@ body.sudoku-screen-shake{
 }
 
 .sudoku-relic-header{
+  position:relative;
   display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:12px;
-  padding:14px 14px 0;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  gap:10px;
+  min-width:0;
+  padding:0;
 }
 
 .sudoku-relic-badges{
   display:flex;
   flex-direction:column;
-  align-items:flex-end;
+  align-items:flex-start;
   gap:6px;
 }
 
 .sudoku-relic-icon{
-  width:58px;
-  height:58px;
+  position:relative;
+  width:68px;
+  height:68px;
   display:grid;
   place-items:center;
-  border-radius:10px;
-  color:#e2e8f0;
+  border-radius:12px;
+  color:var(--sudoku-ink);
   font-size:0.68rem;
-  font-weight:900;
+  font-weight:1000;
   letter-spacing:0.06em;
-  background:rgba(30,41,59,0.78);
-  border:1px solid rgba(148,163,184,0.2);
+  background:
+    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.052) 1px, transparent 1px),
+    linear-gradient(145deg, rgba(234,242,248,0.11), rgba(15,23,42,0.8));
+  background-size:22px 22px, 22px 22px, 100% 100%;
+  border:1px solid var(--sudoku-line);
+  box-shadow:
+    inset 0 0 18px rgba(226,239,248,0.05),
+    0 10px 22px rgba(0,0,0,0.24);
 }
 
 .sudoku-relic-icon::before,
 .sudoku-relic-icon::after{
-  content:none;
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  opacity:0.62;
 }
 
 .sudoku-relic-icon span{
   position:relative;
   z-index:1;
-  text-shadow:none;
+  text-shadow:0 1px 12px rgba(184,215,238,0.18);
 }
 
 .sudoku-relic-main{
-  padding:12px 14px 14px;
+  position:relative;
+  min-width:0;
+  display:grid;
+  gap:9px;
+  padding:0;
 }
 
 .sudoku-relic-title{
   display:block;
-  color:#f8fafc;
-  font-size:1rem;
+  color:var(--sudoku-ink);
+  font-size:1.08rem;
   line-height:1.18;
+  overflow-wrap:anywhere;
 }
 
 .sudoku-relic-prophecy{
-  margin:8px 0 12px;
-  color:rgba(203,213,225,0.78);
+  margin:0;
+  color:var(--sudoku-muted);
   font-size:0.9rem;
   line-height:1.42;
 }
@@ -1188,22 +1224,22 @@ body.sudoku-screen-shake{
 .sudoku-objective{
   display:grid;
   gap:5px;
-  padding:10px 12px;
+  padding:9px 11px;
   border-radius:10px;
-  background:rgba(2,6,23,0.34);
-  border:1px solid rgba(148,163,184,0.16);
+  background:rgba(2,6,23,0.28);
+  border:1px solid rgba(173,193,208,0.16);
 }
 
 .sudoku-objective span{
-  color:#cbd5e1;
+  color:#dbeafe;
   font-size:0.68rem;
-  font-weight:800;
+  font-weight:900;
   letter-spacing:0.1em;
   text-transform:uppercase;
 }
 
 .sudoku-objective small{
-  color:rgba(226,232,240,0.84);
+  color:rgba(226,236,244,0.84);
   line-height:1.35;
 }
 
@@ -1218,25 +1254,25 @@ body.sudoku-screen-shake{
   align-items:center;
   justify-content:space-between;
   gap:10px;
-  color:rgba(203,213,225,0.74);
+  color:rgba(218,230,239,0.74);
   font-size:0.76rem;
-  font-weight:700;
+  font-weight:800;
 }
 
 .sudoku-progress-track{
   height:8px;
   overflow:hidden;
   border-radius:999px;
-  background:rgba(2,6,23,0.68);
-  border:1px solid rgba(148,163,184,0.14);
+  background:rgba(2,6,23,0.58);
+  border:1px solid rgba(173,193,208,0.14);
 }
 
 .sudoku-progress-fill{
   height:100%;
   width:0%;
   border-radius:inherit;
-  background:#94a3b8;
-  box-shadow:none;
+  background:linear-gradient(90deg, #9eb2c1, #dbeafe);
+  box-shadow:0 0 12px rgba(186,215,236,0.16);
   transition:width 0.7s ease;
 }
 
@@ -1246,12 +1282,12 @@ body.sudoku-screen-shake{
   align-items:center;
   min-height:22px;
   padding:3px 7px;
-  border-radius:999px;
-  color:#cbd5e1;
-  background:rgba(15,23,42,0.66);
-  border:1px solid rgba(148,163,184,0.16);
+  border-radius:7px;
+  color:#dbeafe;
+  background:rgba(15,23,42,0.56);
+  border:1px solid rgba(173,193,208,0.18);
   font-size:0.64rem;
-  font-weight:800;
+  font-weight:900;
   letter-spacing:0.06em;
   text-transform:uppercase;
   white-space:nowrap;
@@ -1276,6 +1312,482 @@ body.sudoku-screen-shake{
   color:#cbd5e1;
   background:rgba(15,23,42,0.66);
   border-color:rgba(148,163,184,0.16);
+}
+
+.achievement-card.sudoku-relic.common{
+  color:#f8fbff;
+  border-color:rgba(184,211,232,0.24);
+}
+
+.achievement-card.sudoku-relic.common::before{
+  inset:0;
+  opacity:0.86;
+}
+
+.achievement-card.sudoku-relic.common::after{
+  opacity:0.34;
+}
+
+.sudoku-relic.common .sudoku-relic-rarity{
+  color:#dbeafe;
+  background:rgba(184,211,232,0.1);
+  border-color:rgba(184,211,232,0.28);
+}
+
+.sudoku-common-v1{
+  background:
+    linear-gradient(rgba(226,239,248,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,239,248,0.04) 1px, transparent 1px),
+    linear-gradient(145deg, rgba(5,10,18,0.96), rgba(16,25,36,0.92));
+  background-size:34px 34px, 34px 34px, 100% 100%;
+}
+
+.sudoku-common-v1::before{
+  background:
+    linear-gradient(90deg, transparent, rgba(219,234,254,0.18), transparent),
+    repeating-linear-gradient(90deg, transparent 0 32px, rgba(184,211,232,0.07) 32px 34px);
+  animation:sudokuGridScan 6.8s ease-in-out infinite;
+}
+
+.sudoku-common-v1 .sudoku-relic-icon{
+  border-radius:8px;
+  box-shadow:inset 0 0 0 2px rgba(219,234,254,0.08), 0 12px 22px rgba(0,0,0,0.24);
+}
+
+.sudoku-common-v2{
+  grid-template-columns:1fr;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(219,234,254,0.14), transparent 32%),
+    linear-gradient(145deg, rgba(8,14,24,0.94), rgba(23,31,42,0.9));
+  border-radius:18px;
+}
+
+.sudoku-common-v2 .sudoku-relic-header{
+  flex-direction:row;
+  align-items:center;
+}
+
+.sudoku-common-v2 .sudoku-relic-icon{
+  width:74px;
+  height:48px;
+  border-radius:999px;
+  backdrop-filter:blur(10px);
+}
+
+.sudoku-common-v2::after{
+  content:"";
+  inset:14px;
+  border:1px solid rgba(219,234,254,0.1);
+  border-radius:16px;
+}
+
+.sudoku-common-v3{
+  grid-template-columns:82px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at 14% 26%, rgba(226,239,248,0.16), transparent 28%),
+    linear-gradient(145deg, #050912, #111827 60%, #070b14);
+}
+
+.sudoku-common-v3 .sudoku-relic-icon{
+  height:82px;
+  border-radius:16px 16px 26px 16px;
+  transform:perspective(180px) rotateY(-8deg);
+}
+
+.sudoku-common-v3::before{
+  right:auto;
+  width:104px;
+  top:0;
+  bottom:0;
+  background:linear-gradient(90deg, rgba(219,234,254,0.08), transparent);
+}
+
+.sudoku-common-v4{
+  grid-template-columns:68px minmax(0, 1fr);
+  border-radius:10px 18px 10px 18px;
+  background:
+    linear-gradient(135deg, rgba(226,239,248,0.08), transparent 30%),
+    linear-gradient(145deg, rgba(6,12,21,0.96), rgba(19,29,40,0.9));
+}
+
+.sudoku-common-v4 .sudoku-relic-icon{
+  clip-path:polygon(18% 0, 100% 0, 82% 100%, 0 100%);
+  border-radius:0;
+}
+
+.sudoku-common-v4::after{
+  content:"";
+  width:72px;
+  height:72px;
+  right:14px;
+  bottom:14px;
+  border:1px solid rgba(219,234,254,0.14);
+  transform:rotate(45deg);
+}
+
+.sudoku-common-v5{
+  grid-template-columns:1fr;
+  background:
+    linear-gradient(90deg, rgba(219,234,254,0.08), transparent 34% 66%, rgba(219,234,254,0.05)),
+    linear-gradient(145deg, rgba(7,12,18,0.96), rgba(21,28,35,0.9));
+}
+
+.sudoku-common-v5 .sudoku-relic-header{
+  flex-direction:row-reverse;
+  align-items:center;
+}
+
+.sudoku-common-v5 .sudoku-relic-icon{
+  border-radius:6px;
+  transform:rotate(-2deg);
+}
+
+.sudoku-common-v5::before{
+  left:20px;
+  right:20px;
+  top:18px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(219,234,254,0.26), transparent);
+  animation:sudokuQuietLine 5.8s ease-in-out infinite;
+}
+
+.sudoku-common-v6{
+  grid-template-columns:74px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at 50% 28%, rgba(219,234,254,0.14), transparent 34%),
+    conic-gradient(from 45deg at 34px 34px, transparent 0 22%, rgba(219,234,254,0.08) 22% 23%, transparent 23%),
+    linear-gradient(145deg, rgba(5,11,19,0.96), rgba(16,27,38,0.9));
+}
+
+.sudoku-common-v6 .sudoku-relic-icon{
+  border-radius:50%;
+}
+
+.sudoku-common-v6 .sudoku-relic-icon::before{
+  content:"";
+  inset:8px;
+  border:1px solid rgba(219,234,254,0.18);
+  border-radius:50%;
+  animation:sudokuOrbitCalm 7.2s linear infinite;
+}
+
+.sudoku-common-v7{
+  background:
+    linear-gradient(180deg, rgba(226,239,248,0.08), transparent 42%),
+    repeating-linear-gradient(0deg, transparent 0 24px, rgba(184,211,232,0.04) 24px 25px),
+    linear-gradient(145deg, rgba(8,12,18,0.96), rgba(21,27,34,0.92));
+}
+
+.sudoku-common-v7 .sudoku-relic-icon{
+  height:76px;
+  border-radius:8px 8px 18px 18px;
+}
+
+.sudoku-common-v7::after{
+  content:"1 4 9";
+  right:18px;
+  bottom:18px;
+  color:rgba(219,234,254,0.11);
+  font-size:2rem;
+  font-weight:1000;
+  letter-spacing:0.12em;
+}
+
+.sudoku-common-v8{
+  grid-template-columns:86px minmax(0, 1fr);
+  background:
+    linear-gradient(120deg, rgba(219,234,254,0.1), transparent 28%),
+    radial-gradient(circle at 20% 78%, rgba(147,197,253,0.1), transparent 30%),
+    linear-gradient(145deg, rgba(4,9,16,0.96), rgba(14,23,34,0.92));
+}
+
+.sudoku-common-v8 .sudoku-relic-icon{
+  width:78px;
+  border-radius:14px;
+  transform:perspective(180px) rotateX(5deg);
+}
+
+.sudoku-common-v8::before{
+  left:18px;
+  top:18px;
+  width:78px;
+  height:78px;
+  border:1px solid rgba(219,234,254,0.1);
+  border-radius:18px;
+  transform:rotate(8deg);
+}
+
+@keyframes sudokuGridScan{
+  0%,100%{ transform:translateX(-42%); opacity:0.12; }
+  48%{ transform:translateX(8%); opacity:0.44; }
+  74%{ transform:translateX(42%); opacity:0.18; }
+}
+
+@keyframes sudokuQuietLine{
+  0%,100%{ opacity:0.14; transform:translateX(-18px); }
+  50%{ opacity:0.42; transform:translateX(18px); }
+}
+
+@keyframes sudokuOrbitCalm{
+  0%{ transform:rotate(0deg); opacity:0.22; }
+  50%{ opacity:0.46; }
+  100%{ transform:rotate(360deg); opacity:0.22; }
+}
+
+.achievement-card.sudoku-relic.rare{
+  --sudoku-line:rgba(158,215,245,0.34);
+  --sudoku-soft:rgba(125,211,252,0.16);
+  --sudoku-ink:#f4fbff;
+  --sudoku-muted:rgba(219,238,248,0.76);
+  border-color:rgba(125,211,252,0.34);
+  box-shadow:
+    0 22px 54px rgba(0,0,0,0.44),
+    0 0 28px rgba(125,211,252,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.achievement-card.sudoku-relic.rare::before{
+  inset:0;
+  opacity:0.92;
+}
+
+.achievement-card.sudoku-relic.rare::after{
+  opacity:0.46;
+}
+
+.sudoku-relic.rare .sudoku-relic-icon{
+  background:
+    linear-gradient(rgba(219,242,255,0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(219,242,255,0.065) 1px, transparent 1px),
+    linear-gradient(145deg, rgba(125,211,252,0.16), rgba(15,23,42,0.82));
+  background-size:18px 18px, 18px 18px, 100% 100%;
+  border-color:rgba(158,215,245,0.36);
+  box-shadow:
+    inset 0 0 22px rgba(125,211,252,0.08),
+    0 14px 26px rgba(0,0,0,0.28),
+    0 0 22px rgba(125,211,252,0.1);
+}
+
+.sudoku-relic.rare .sudoku-relic-rarity{
+  color:#dff6ff;
+  background:rgba(14,165,233,0.12);
+  border-color:rgba(125,211,252,0.36);
+  box-shadow:0 0 14px rgba(125,211,252,0.08);
+}
+
+.sudoku-relic.rare .sudoku-progress-fill{
+  background:linear-gradient(90deg, #7fb9d8, #e0f7ff);
+  box-shadow:0 0 18px rgba(125,211,252,0.24);
+}
+
+.sudoku-rare-v1{
+  background:
+    linear-gradient(rgba(219,242,255,0.052) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(219,242,255,0.046) 1px, transparent 1px),
+    radial-gradient(circle at 78% 18%, rgba(125,211,252,0.2), transparent 32%),
+    linear-gradient(145deg, rgba(4,10,18,0.98), rgba(12,29,44,0.94));
+  background-size:28px 28px, 28px 28px, 100% 100%, 100% 100%;
+}
+
+.sudoku-rare-v1::before{
+  background:
+    linear-gradient(90deg, transparent, rgba(224,247,255,0.24), transparent),
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(125,211,252,0.08) 27px 28px);
+  animation:sudokuRareScan 5.8s ease-in-out infinite;
+}
+
+.sudoku-rare-v1 .sudoku-relic-icon{
+  border-radius:9px;
+}
+
+.sudoku-rare-v2{
+  grid-template-columns:90px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at 20% 28%, rgba(224,247,255,0.22), transparent 28%),
+    linear-gradient(145deg, rgba(3,9,16,0.98), rgba(10,24,36,0.94));
+}
+
+.sudoku-rare-v2 .sudoku-relic-icon{
+  width:82px;
+  height:82px;
+  border-radius:18px;
+  transform:perspective(190px) rotateY(-10deg) rotateX(3deg);
+}
+
+.sudoku-rare-v2 .sudoku-relic-icon::before{
+  content:"";
+  inset:10px;
+  border:1px solid rgba(224,247,255,0.18);
+  border-radius:12px;
+}
+
+.sudoku-rare-v3{
+  grid-template-columns:1fr;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(125,211,252,0.2), transparent 30%),
+    linear-gradient(145deg, rgba(6,14,23,0.98), rgba(16,32,45,0.94));
+}
+
+.sudoku-rare-v3 .sudoku-relic-header{
+  flex-direction:row;
+  align-items:center;
+}
+
+.sudoku-rare-v3 .sudoku-relic-icon{
+  width:86px;
+  height:54px;
+  border-radius:999px;
+}
+
+.sudoku-rare-v3::after{
+  content:"2 5 8";
+  right:20px;
+  bottom:16px;
+  color:rgba(224,247,255,0.12);
+  font-size:2.2rem;
+  font-weight:1000;
+  letter-spacing:0.16em;
+  animation:sudokuRareNumbers 6.4s ease-in-out infinite;
+}
+
+.sudoku-rare-v4{
+  border-radius:18px 8px 18px 8px;
+  background:
+    linear-gradient(135deg, rgba(224,247,255,0.11), transparent 32%),
+    linear-gradient(145deg, rgba(4,11,19,0.98), rgba(11,27,39,0.94));
+}
+
+.sudoku-rare-v4 .sudoku-relic-icon{
+  clip-path:polygon(14% 0, 100% 0, 86% 100%, 0 100%);
+  border-radius:0;
+}
+
+.sudoku-rare-v4::before{
+  right:18px;
+  top:18px;
+  width:76px;
+  height:76px;
+  border:1px solid rgba(224,247,255,0.13);
+  transform:rotate(45deg);
+}
+
+.sudoku-rare-v5{
+  grid-template-columns:78px minmax(0, 1fr);
+  background:
+    linear-gradient(90deg, rgba(125,211,252,0.12), transparent 38%),
+    repeating-linear-gradient(135deg, transparent 0 24px, rgba(224,247,255,0.045) 24px 25px),
+    linear-gradient(145deg, rgba(5,12,20,0.98), rgba(15,29,40,0.94));
+}
+
+.sudoku-rare-v5 .sudoku-relic-icon{
+  height:90px;
+  border-radius:14px 14px 24px 24px;
+}
+
+.sudoku-rare-v5::after{
+  content:"";
+  left:22px;
+  top:18px;
+  width:54px;
+  height:92px;
+  border:1px solid rgba(224,247,255,0.12);
+  border-radius:16px;
+  transform:translateX(8px);
+}
+
+.sudoku-rare-v6{
+  grid-template-columns:86px minmax(0, 1fr);
+  background:
+    conic-gradient(from 0deg at 43px 43px, rgba(125,211,252,0.16), transparent 18% 42%, rgba(224,247,255,0.1), transparent 62%),
+    linear-gradient(145deg, rgba(4,10,17,0.98), rgba(10,26,38,0.94));
+}
+
+.sudoku-rare-v6 .sudoku-relic-icon{
+  width:78px;
+  height:78px;
+  border-radius:50%;
+}
+
+.sudoku-rare-v6 .sudoku-relic-icon::before{
+  content:"";
+  inset:7px;
+  border:1px solid rgba(224,247,255,0.22);
+  border-radius:50%;
+  animation:sudokuRareOrbit 6.6s linear infinite;
+}
+
+.sudoku-rare-v7{
+  grid-template-columns:1fr;
+  background:
+    linear-gradient(180deg, rgba(224,247,255,0.12), transparent 44%),
+    linear-gradient(145deg, rgba(6,13,21,0.98), rgba(18,32,43,0.94));
+}
+
+.sudoku-rare-v7 .sudoku-relic-header{
+  flex-direction:row-reverse;
+  align-items:center;
+}
+
+.sudoku-rare-v7 .sudoku-relic-icon{
+  border-radius:10px;
+  transform:rotate(-2deg);
+}
+
+.sudoku-rare-v7::before{
+  left:16px;
+  right:16px;
+  top:18px;
+  height:2px;
+  background:linear-gradient(90deg, transparent, rgba(224,247,255,0.34), transparent);
+  animation:sudokuRareLine 5.2s ease-in-out infinite;
+}
+
+.sudoku-rare-v8{
+  grid-template-columns:92px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at 16% 76%, rgba(125,211,252,0.18), transparent 30%),
+    linear-gradient(120deg, rgba(224,247,255,0.1), transparent 30%),
+    linear-gradient(145deg, rgba(3,9,16,0.98), rgba(11,25,37,0.94));
+}
+
+.sudoku-rare-v8 .sudoku-relic-icon{
+  width:84px;
+  height:70px;
+  border-radius:18px 10px 18px 10px;
+  transform:perspective(180px) rotateX(7deg);
+}
+
+.sudoku-rare-v8::after{
+  content:"";
+  left:22px;
+  top:22px;
+  width:84px;
+  height:70px;
+  border:1px solid rgba(224,247,255,0.14);
+  border-radius:18px 10px 18px 10px;
+  transform:translate(8px, 8px);
+}
+
+@keyframes sudokuRareScan{
+  0%,100%{ transform:translateX(-48%); opacity:0.16; }
+  45%{ transform:translateX(10%); opacity:0.56; }
+  74%{ transform:translateX(48%); opacity:0.2; }
+}
+
+@keyframes sudokuRareNumbers{
+  0%,100%{ transform:translateY(0); opacity:0.1; }
+  50%{ transform:translateY(-6px); opacity:0.22; }
+}
+
+@keyframes sudokuRareOrbit{
+  0%{ transform:rotate(0deg); opacity:0.28; }
+  50%{ opacity:0.58; }
+  100%{ transform:rotate(360deg); opacity:0.28; }
+}
+
+@keyframes sudokuRareLine{
+  0%,100%{ transform:translateX(-24px); opacity:0.18; }
+  50%{ transform:translateX(24px); opacity:0.52; }
 }
 
 .achievement-grid.memory-relics{
@@ -6546,23 +7058,52 @@ body.sudoku-screen-shake{
   }
 
   .achievement-card.sudoku-relic{
-    padding:0;
+    grid-template-columns:64px minmax(0, 1fr);
+    gap:10px;
+    padding:12px;
     min-height:0;
   }
 
+  .sudoku-common-v2,
+  .sudoku-common-v5{
+    grid-template-columns:1fr;
+  }
+
+  .sudoku-common-v3,
+  .sudoku-common-v8,
+  .sudoku-rare-v2,
+  .sudoku-rare-v5,
+  .sudoku-rare-v6,
+  .sudoku-rare-v8{
+    grid-template-columns:68px minmax(0, 1fr);
+  }
+
+  .sudoku-rare-v3,
+  .sudoku-rare-v7{
+    grid-template-columns:1fr;
+  }
+
   .sudoku-relic-icon{
-    width:62px;
-    height:62px;
+    width:58px;
+    height:58px;
     font-size:0.64rem;
   }
 
+  .sudoku-rare-v2 .sudoku-relic-icon,
+  .sudoku-rare-v5 .sudoku-relic-icon,
+  .sudoku-rare-v6 .sudoku-relic-icon,
+  .sudoku-rare-v8 .sudoku-relic-icon{
+    width:58px;
+    height:58px;
+  }
+
   .sudoku-relic-header{
-    padding:14px 14px 0;
+    padding:0;
     gap:10px;
   }
 
   .sudoku-relic-main{
-    padding:11px 14px 14px;
+    padding:0;
   }
 
   .sudoku-relic-badges{

@@ -4567,10 +4567,29 @@ function obtenerIconoSudokuVisual(achievement) {
   return { label: '3x3', className: 'grid' }
 }
 
+function obtenerVarianteComunSudoku(achievement) {
+  const texto = textoPlano(`${achievement.title || ''} ${achievement.howTo || ''}`)
+  let hash = 0
+  for (let i = 0; i < texto.length; i += 1) hash = (hash + texto.charCodeAt(i) * (i + 1)) % 8
+  return `sudoku-common-v${hash + 1}`
+}
+
+function obtenerVarianteRaraSudoku(achievement) {
+  const texto = textoPlano(`${achievement.title || ''} ${achievement.description || ''} ${achievement.howTo || ''}`)
+  let hash = 0
+  for (let i = 0; i < texto.length; i += 1) hash = (hash + texto.charCodeAt(i) * (i + 3)) % 8
+  return `sudoku-rare-v${hash + 1}`
+}
+
 function renderLogroSudoku(achievement, stats) {
   const progress = obtenerProgresoSudoku(achievement, stats)
   const rarity = obtenerRarezaSudoku(progress, achievement)
   const icon = obtenerIconoSudokuVisual(achievement)
+  const visualVariant = rarity === 'common'
+    ? ` ${obtenerVarianteComunSudoku(achievement)}`
+    : rarity === 'rare'
+      ? ` ${obtenerVarianteRaraSudoku(achievement)}`
+      : ''
   const rarityLabel = {
     common: 'Comun',
     rare: 'Raro',
@@ -4578,7 +4597,7 @@ function renderLogroSudoku(achievement, stats) {
     legendary: 'Legendario',
   }[rarity]
   const div = document.createElement('div')
-  div.className = `achievement-card sudoku-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.className = `achievement-card sudoku-relic ${rarity}${visualVariant}${achievement.unlocked ? ' unlocked' : ' locked'}`
   div.innerHTML = `
     <div class="sudoku-relic-header">
       <div class="sudoku-relic-icon ${escaparHtml(icon.className)}" aria-hidden="true">
