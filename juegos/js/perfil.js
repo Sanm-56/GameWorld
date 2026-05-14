@@ -5267,7 +5267,7 @@ function renderLogroCricket(achievement, stats, resultado) {
     legendary: 'Legendario',
   }[rarity]
   const div = document.createElement('div')
-  div.className = `achievement-card arcane-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.className = `achievement-card arcane-relic cricket-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
   div.setAttribute('data-sigil', '22 55 85 CRICKET')
   div.innerHTML = `
     <div class="arcane-relic-header">
@@ -5336,7 +5336,7 @@ function renderLogroArcano(achievement, stats, gameKey) {
     ? { stateOn: 'Encendido', stateOff: 'Dormido', objective: 'Vision', sigil: '01 13 21 34 MIND' }
     : { stateOn: 'Capturado', stateOff: 'Sellado', objective: 'Caceria', sigil: '07 42 99 NUM' }
   const div = document.createElement('div')
-  div.className = `achievement-card arcane-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.className = `achievement-card arcane-relic ${gameKey}-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
   div.setAttribute('data-sigil', gameCopy.sigil)
   div.innerHTML = `
     <div class="arcane-relic-header">
@@ -5500,7 +5500,7 @@ function renderLogroTablero(achievement, stats, gameKey) {
       ? { stateOn: 'Coronado', stateOff: 'Sellado', objective: 'Racha real', sigil: '8 12 32 DAMA' }
       : { stateOn: 'Dominado', stateOff: 'Sellado', objective: 'Rito de mesa', sigil: '0 6 12 28 TILE' }
   const div = document.createElement('div')
-  div.className = `achievement-card board-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.className = `achievement-card board-relic ${gameKey}-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
   div.setAttribute('data-sigil', gameCopy.sigil)
   div.innerHTML = `
     <div class="board-relic-header">
@@ -5526,6 +5526,79 @@ function renderLogroTablero(achievement, stats, gameKey) {
         </div>
         <div class="board-progress-track">
           <div class="board-progress-fill" style="width:${progress.percent}%"></div>
+        </div>
+      </div>
+    </div>
+  `
+  return div
+}
+
+function obtenerProgresoArcadeTematico(achievement) {
+  return {
+    percent: achievement.unlocked ? 100 : 0,
+    label: achievement.unlocked ? 'completo' : 'pendiente',
+    target: 1,
+  }
+}
+
+function obtenerIconoArcadeTematico(gameKey, achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  if (objetivoTexto.includes('torneo') || objetivoTexto.includes('gana')) return { label: 'CUP', className: 'crown' }
+  if (objetivoTexto.includes('punto')) return { label: 'SCORE', className: 'precision' }
+  if (objetivoTexto.includes('vida') || objetivoTexto.includes('sin perder')) return { label: gameKey === 'subelamontana' ? 'ROPE' : 'LIVE', className: 'rebound' }
+  if (objetivoTexto.includes('obstaculo') || objetivoTexto.includes('obst&aacute;culo') || objetivoTexto.includes('obstÃ¡culo')) return { label: 'DANGER', className: 'hazard' }
+  if (objetivoTexto.includes('partida')) return { label: 'RUN', className: 'speed' }
+  if (gameKey === 'torreinfinita') return { label: 'STACK', className: 'stack' }
+  if (gameKey === 'subelamontana') return { label: 'PEAK', className: 'peak' }
+  return { label: 'WARN', className: 'hazard' }
+}
+
+function renderLogroArcadeTematico(achievement, gameKey) {
+  const rarity = gameKey === 'esquivaobstaculos'
+    ? obtenerRarezaEsquivaObstaculos(achievement)
+    : gameKey === 'torreinfinita'
+      ? obtenerRarezaTorreInfinita(achievement)
+      : obtenerRarezaSubeLaMontana(achievement)
+  const progress = obtenerProgresoArcadeTematico(achievement)
+  const icon = obtenerIconoArcadeTematico(gameKey, achievement)
+  const rarityLabel = {
+    common: 'Comun',
+    rare: 'Raro',
+    epic: 'Epico',
+    legendary: 'Legendario',
+  }[rarity]
+  const gameCopy = gameKey === 'esquivaobstaculos'
+    ? { stateOn: 'Sobrevivido', stateOff: 'En riesgo', objective: 'Zona roja', sigil: '!! 45 90 DANGER' }
+    : gameKey === 'torreinfinita'
+      ? { stateOn: 'Elevado', stateOff: 'Sin construir', objective: 'Altura', sigil: '12 24 48 STACK' }
+      : { stateOn: 'Conquistado', stateOff: 'Por escalar', objective: 'Cumbre', sigil: 'N 4.8K PEAK' }
+  const div = document.createElement('div')
+  div.className = `achievement-card arcade-theme-relic ${gameKey}-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.setAttribute('data-sigil', gameCopy.sigil)
+  div.innerHTML = `
+    <div class="arcade-theme-header">
+      <div class="arcade-theme-icon ${escaparHtml(icon.className)}" aria-hidden="true">
+        <span>${escaparHtml(icon.label)}</span>
+      </div>
+      <div class="arcade-theme-badges">
+        <span class="arcade-theme-rarity">${rarityLabel}</span>
+        <span class="arcade-theme-state">${achievement.unlocked ? gameCopy.stateOn : gameCopy.stateOff}</span>
+      </div>
+    </div>
+    <div class="arcade-theme-main">
+      <strong class="arcade-theme-title">${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p class="arcade-theme-prophecy">${escaparHtml(textoPlano(achievement.description))}</p>
+      <div class="arcade-theme-objective">
+        <span>${gameCopy.objective}</span>
+        <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      </div>
+      <div class="arcade-theme-progress" aria-label="Progreso">
+        <div class="arcade-theme-progress-meta">
+          <span>Progreso</span>
+          <span>${progress.percent}% - ${escaparHtml(progress.label)}</span>
+        </div>
+        <div class="arcade-theme-progress-track">
+          <div class="arcade-theme-progress-fill" style="width:${progress.percent}%"></div>
         </div>
       </div>
     </div>
@@ -5598,6 +5671,7 @@ function renderLogros() {
   logrosListEl.classList.toggle('math-relics', game.key === 'matematicas')
   logrosListEl.classList.toggle('arcane-relics', game.key === 'flashmind' || game.key === 'numcatch' || game.key === 'cricketarcade')
   logrosListEl.classList.toggle('board-relics', game.key === 'ajedrez' || game.key === 'domino' || game.key === 'damas')
+  logrosListEl.classList.toggle('arcade-theme-relics', game.key === 'esquivaobstaculos' || game.key === 'torreinfinita' || game.key === 'subelamontana')
 
   logros.forEach((achievement) => {
     if (game.key === 'sudoku') {
@@ -5627,6 +5701,11 @@ function renderLogros() {
 
     if (game.key === 'ajedrez' || game.key === 'domino' || game.key === 'damas') {
       logrosListEl.appendChild(renderLogroTablero(achievement, estadisticasLogros[game.key] || {}, game.key))
+      return
+    }
+
+    if (game.key === 'esquivaobstaculos' || game.key === 'torreinfinita' || game.key === 'subelamontana') {
+      logrosListEl.appendChild(renderLogroArcadeTematico(achievement, game.key))
       return
     }
 

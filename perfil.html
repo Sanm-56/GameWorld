@@ -2770,6 +2770,539 @@ body.sudoku-screen-shake{
   50%{ box-shadow:0 26px 68px rgba(0,0,0,0.64), 0 0 50px rgba(250,204,21,0.38), 0 0 28px rgba(56,189,248,0.13); }
 }
 
+.achievement-card.ajedrez-relic{
+  --board-main:#d6b46a;
+  --board-glow:rgba(214,180,106,0.22);
+  --board-accent:#f8fafc;
+  border-radius:18px 18px 12px 12px;
+  background:
+    radial-gradient(circle at 18% 0, rgba(214,180,106,0.2), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,0.055) 0 12%, transparent 12% 24%, rgba(255,255,255,0.035) 24% 36%, transparent 36%),
+    linear-gradient(145deg, rgba(8,8,11,0.98), rgba(28,28,34,0.96) 52%, rgba(239,246,255,0.12));
+  clip-path:polygon(8% 0, 92% 0, 100% 10%, 100% 84%, 50% 100%, 0 84%, 0 10%);
+}
+
+.achievement-card.ajedrez-relic::before{
+  background:
+    linear-gradient(45deg, rgba(255,255,255,0.055) 25%, transparent 25% 50%, rgba(255,255,255,0.04) 50% 75%, transparent 75%),
+    radial-gradient(circle at 72% 28%, rgba(214,180,106,0.12), transparent 38%);
+  background-size:48px 48px, 100% 100%;
+}
+
+.achievement-card.ajedrez-relic::after{
+  content:"K Q B N R";
+  color:rgba(214,180,106,0.14);
+}
+
+.ajedrez-relic .board-relic-icon{
+  border-radius:14px 14px 9px 9px;
+  clip-path:polygon(14% 0, 86% 0, 100% 14%, 100% 82%, 50% 100%, 0 82%, 0 14%);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.16), transparent 24%),
+    linear-gradient(145deg, rgba(24,24,27,0.98), rgba(10,10,12,0.94));
+}
+
+.ajedrez-relic.common{ --board-main:#cbd5e1; --board-glow:rgba(203,213,225,0.14); --board-accent:#f8fafc; }
+.ajedrez-relic.rare{ --board-main:#94a3b8; --board-glow:rgba(148,163,184,0.2); --board-accent:#e2e8f0; }
+.ajedrez-relic.epic{ --board-main:#d6b46a; --board-glow:rgba(214,180,106,0.3); --board-accent:#f8fafc; }
+.ajedrez-relic.legendary{ --board-main:#facc15; --board-glow:rgba(250,204,21,0.38); --board-accent:#f8fafc; }
+
+.achievement-card.damas-relic{
+  --board-main:#f87171;
+  --board-glow:rgba(248,113,113,0.28);
+  --board-accent:#f8fafc;
+  border-radius:999px 999px 28px 28px;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255,255,255,0.22), transparent 18%),
+    linear-gradient(45deg, rgba(17,24,39,0.96) 25%, rgba(248,250,252,0.13) 25% 50%, rgba(17,24,39,0.96) 50% 75%, rgba(248,250,252,0.13) 75%),
+    linear-gradient(145deg, rgba(127,29,29,0.88), rgba(15,23,42,0.96));
+  background-size:100% 100%, 56px 56px, 100% 100%;
+}
+
+.achievement-card.damas-relic:hover{
+  animation:checkersBounce 0.72s cubic-bezier(.2,.9,.28,1.25);
+}
+
+.damas-relic .board-relic-icon{
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255,255,255,0.32), transparent 24%),
+    radial-gradient(circle, color-mix(in srgb, var(--board-main) 46%, transparent), transparent 66%),
+    linear-gradient(145deg, rgba(248,113,113,0.95), rgba(127,29,29,0.92));
+}
+
+.damas-relic.common{ --board-main:#fca5a5; --board-glow:rgba(252,165,165,0.16); --board-accent:#1f2937; }
+.damas-relic.rare{ --board-main:#f87171; --board-glow:rgba(248,113,113,0.26); --board-accent:#f8fafc; }
+.damas-relic.epic{ --board-main:#fb7185; --board-glow:rgba(251,113,133,0.34); --board-accent:#facc15; }
+.damas-relic.legendary{ --board-main:#facc15; --board-glow:rgba(250,204,21,0.38); --board-accent:#ef4444; }
+
+.achievement-card.domino-relic{
+  --board-main:#e5e7eb;
+  --board-glow:rgba(229,231,235,0.2);
+  --board-accent:#111827;
+  border-radius:12px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.94) 0 48%, rgba(30,41,59,0.78) 48% 50%, rgba(255,255,255,0.9) 50%),
+    linear-gradient(145deg, #1c120b, #3b2415);
+  color:#111827;
+}
+
+.achievement-card.domino-relic::before{
+  background:
+    radial-gradient(circle at 18% 28%, rgba(15,23,42,0.6) 0 4px, transparent 5px),
+    radial-gradient(circle at 32% 46%, rgba(15,23,42,0.6) 0 4px, transparent 5px),
+    radial-gradient(circle at 68% 32%, rgba(15,23,42,0.58) 0 4px, transparent 5px),
+    radial-gradient(circle at 82% 58%, rgba(15,23,42,0.58) 0 4px, transparent 5px);
+  opacity:0.78;
+}
+
+.achievement-card.domino-relic::after{
+  content:"0|6 2|4 5|5";
+  color:rgba(17,24,39,0.14);
+}
+
+.domino-relic .board-relic-title,
+.domino-relic .board-relic-prophecy,
+.domino-relic .board-progress-meta{
+  color:#111827;
+  text-shadow:none;
+}
+
+.domino-relic .board-objective{
+  background:rgba(255,255,255,0.58);
+  border-color:rgba(17,24,39,0.16);
+}
+
+.domino-relic .board-objective small{
+  color:#1f2937;
+}
+
+.domino-relic .board-relic-icon{
+  border-radius:10px;
+  color:#111827;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.96) 0 48%, rgba(17,24,39,0.72) 48% 52%, rgba(255,255,255,0.92) 52%);
+}
+
+.domino-relic.common{ --board-main:#d1d5db; --board-glow:rgba(209,213,219,0.14); --board-accent:#111827; }
+.domino-relic.rare{ --board-main:#93c5fd; --board-glow:rgba(147,197,253,0.22); --board-accent:#111827; }
+.domino-relic.epic{ --board-main:#c084fc; --board-glow:rgba(192,132,252,0.3); --board-accent:#111827; }
+.domino-relic.legendary{ --board-main:#facc15; --board-glow:rgba(250,204,21,0.34); --board-accent:#111827; }
+
+.achievement-card.flashmind-relic{
+  --arcane-main:#22d3ee;
+  --arcane-glow:rgba(34,211,238,0.32);
+  --arcane-accent:#a855f7;
+  border-radius:16px;
+  clip-path:polygon(7% 0, 93% 0, 100% 18%, 100% 82%, 93% 100%, 7% 100%, 0 82%, 0 18%);
+  background:
+    radial-gradient(circle at 20% 8%, rgba(168,85,247,0.22), transparent 32%),
+    repeating-linear-gradient(120deg, transparent 0 18px, rgba(34,211,238,0.055) 18px 20px),
+    linear-gradient(145deg, rgba(2,6,23,0.98), rgba(15,23,42,0.96));
+}
+
+.flashmind-relic.epic,
+.flashmind-relic.legendary{
+  animation:flashmindElectric 2.4s ease-in-out infinite;
+}
+
+.flashmind-relic .arcane-relic-icon{
+  border-radius:18px;
+  clip-path:polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+
+.flashmind-relic.common{ --arcane-main:#67e8f9; --arcane-glow:rgba(103,232,249,0.14); --arcane-accent:#64748b; }
+.flashmind-relic.rare{ --arcane-main:#22d3ee; --arcane-glow:rgba(34,211,238,0.28); --arcane-accent:#2563eb; }
+.flashmind-relic.epic{ --arcane-main:#a855f7; --arcane-glow:rgba(168,85,247,0.36); --arcane-accent:#22d3ee; }
+.flashmind-relic.legendary{ --arcane-main:#facc15; --arcane-glow:rgba(250,204,21,0.38); --arcane-accent:#22d3ee; }
+
+.achievement-card.numcatch-relic{
+  --arcane-main:#fb7185;
+  --arcane-glow:rgba(251,113,133,0.3);
+  --arcane-accent:#22c55e;
+  border-radius:12px;
+  background:
+    radial-gradient(circle at 22% 16%, rgba(250,204,21,0.18), transparent 26%),
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(145deg, rgba(17,24,39,0.98), rgba(88,28,135,0.86));
+  background-size:100% 100%, 18px 18px, 18px 18px, 100% 100%;
+}
+
+.numcatch-relic .arcane-relic-icon{
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 22%, rgba(255,255,255,0.28), transparent 22%),
+    linear-gradient(145deg, rgba(251,113,133,0.92), rgba(88,28,135,0.88));
+}
+
+.numcatch-relic.common{ --arcane-main:#f472b6; --arcane-glow:rgba(244,114,182,0.16); --arcane-accent:#22c55e; }
+.numcatch-relic.rare{ --arcane-main:#fb7185; --arcane-glow:rgba(251,113,133,0.28); --arcane-accent:#22c55e; }
+.numcatch-relic.epic{ --arcane-main:#c084fc; --arcane-glow:rgba(192,132,252,0.34); --arcane-accent:#facc15; }
+.numcatch-relic.legendary{ --arcane-main:#facc15; --arcane-glow:rgba(250,204,21,0.38); --arcane-accent:#fb7185; }
+
+.achievement-card.cricket-relic{
+  --arcane-main:#facc15;
+  --arcane-glow:rgba(250,204,21,0.28);
+  --arcane-accent:#22c55e;
+  border-radius:16px 16px 24px 24px;
+  background:
+    radial-gradient(circle at 52% -10%, rgba(250,204,21,0.24), transparent 32%),
+    repeating-linear-gradient(90deg, rgba(34,197,94,0.06) 0 2px, transparent 2px 18px),
+    linear-gradient(145deg, rgba(20,83,45,0.92), rgba(15,23,42,0.98));
+}
+
+.achievement-card.cricket-relic::after{
+  content:"STADIUM 6 4 BAT";
+}
+
+.cricket-relic .arcane-relic-icon{
+  border-radius:50% 50% 42% 42%;
+  background:
+    radial-gradient(circle at 34% 22%, rgba(255,255,255,0.26), transparent 22%),
+    linear-gradient(145deg, rgba(250,204,21,0.92), rgba(132,77,14,0.92));
+}
+
+.cricket-relic.common{ --arcane-main:#86efac; --arcane-glow:rgba(134,239,172,0.14); --arcane-accent:#facc15; }
+.cricket-relic.rare{ --arcane-main:#22c55e; --arcane-glow:rgba(34,197,94,0.28); --arcane-accent:#facc15; }
+.cricket-relic.epic{ --arcane-main:#f97316; --arcane-glow:rgba(249,115,22,0.34); --arcane-accent:#facc15; }
+.cricket-relic.legendary{ --arcane-main:#facc15; --arcane-glow:rgba(250,204,21,0.4); --arcane-accent:#22c55e; }
+
+.achievement-grid.arcade-theme-relics{
+  gap:14px;
+  scrollbar-color:#fb7185 #050816;
+}
+
+.achievement-card.arcade-theme-relic{
+  --theme-main:#94a3b8;
+  --theme-glow:rgba(148,163,184,0.12);
+  --theme-accent:#475569;
+  position:relative;
+  display:block;
+  min-height:244px;
+  padding:0;
+  border-radius:14px;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 16% 0, var(--theme-glow), transparent 36%),
+    radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--theme-accent) 20%, transparent), transparent 34%),
+    linear-gradient(145deg, rgba(3,7,18,0.98), rgba(13,18,30,0.96));
+  border:1px solid color-mix(in srgb, var(--theme-main) 44%, transparent);
+  box-shadow:0 18px 42px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.045);
+  transition:transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease, filter 0.22s ease;
+}
+
+.achievement-card.arcade-theme-relic::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  opacity:0.9;
+  background:
+    linear-gradient(rgba(226,232,240,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,232,240,0.03) 1px, transparent 1px),
+    repeating-linear-gradient(135deg, transparent 0 20px, color-mix(in srgb, var(--theme-main) 11%, transparent) 20px 21px);
+  background-size:32px 32px, 32px 32px, 100% 100%;
+}
+
+.achievement-card.arcade-theme-relic::after{
+  content:attr(data-sigil);
+  position:absolute;
+  right:-46px;
+  top:22px;
+  z-index:-1;
+  max-width:290px;
+  color:color-mix(in srgb, var(--theme-main) 24%, transparent);
+  font-size:2.3rem;
+  font-weight:900;
+  line-height:0.92;
+  opacity:0.32;
+  text-align:right;
+  transform:rotate(-8deg);
+  pointer-events:none;
+}
+
+.achievement-card.arcade-theme-relic:hover{
+  transform:translateY(-4px);
+  border-color:color-mix(in srgb, var(--theme-main) 82%, white 5%);
+  box-shadow:0 24px 62px rgba(0,0,0,0.62), 0 0 36px var(--theme-glow), inset 0 1px 0 rgba(255,255,255,0.065);
+}
+
+.achievement-card.arcade-theme-relic.locked{
+  opacity:0.72;
+  filter:saturate(0.72);
+}
+
+.arcade-theme-header{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 16px 0;
+}
+
+.arcade-theme-badges{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:7px;
+}
+
+.arcade-theme-icon{
+  position:relative;
+  width:80px;
+  height:80px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  color:#f8fafc;
+  font-size:0.66rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  background:radial-gradient(circle, color-mix(in srgb, var(--theme-main) 26%, transparent), transparent 66%), linear-gradient(145deg, rgba(15,23,42,0.96), rgba(2,6,23,0.9));
+  border:1px solid color-mix(in srgb, var(--theme-main) 56%, transparent);
+  box-shadow:inset 0 0 24px color-mix(in srgb, var(--theme-main) 16%, transparent), 0 0 30px var(--theme-glow);
+}
+
+.arcade-theme-icon::before,
+.arcade-theme-icon::after{
+  content:"";
+  position:absolute;
+  border:1px solid color-mix(in srgb, var(--theme-main) 62%, transparent);
+  opacity:0.8;
+}
+
+.arcade-theme-icon::before{ inset:16px; border-radius:7px; }
+.arcade-theme-icon::after{ inset:26px; border-radius:50%; transform:rotate(45deg); }
+.arcade-theme-icon.hazard::before{ border-radius:4px; transform:rotate(45deg); }
+.arcade-theme-icon.hazard::after{ inset:33px; border-radius:2px; background:var(--theme-main); transform:none; }
+.arcade-theme-icon.stack::before{ inset:18px 20px 42px; box-shadow:0 16px 0 color-mix(in srgb, var(--theme-main) 28%, transparent), 0 32px 0 color-mix(in srgb, var(--theme-main) 18%, transparent); }
+.arcade-theme-icon.stack::after{ inset:20px 14px; border-radius:5px; transform:none; }
+.arcade-theme-icon.peak::before{ inset:18px 12px; clip-path:polygon(50% 0, 100% 100%, 0 100%); border-radius:0; }
+.arcade-theme-icon.peak::after{ inset:20px 31px 38px; border-radius:0; background:rgba(255,255,255,0.36); transform:rotate(45deg); }
+.arcade-theme-icon span{ position:relative; z-index:1; text-shadow:0 0 15px var(--theme-main); }
+
+.arcade-theme-main{
+  padding:12px 16px 16px;
+}
+
+.arcade-theme-title{
+  display:block;
+  color:#fff;
+  font-size:1.2rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 0 18px color-mix(in srgb, var(--theme-main) 24%, transparent);
+}
+
+.arcade-theme-prophecy{
+  margin:9px 0 13px;
+  color:rgba(226,232,240,0.72);
+  font-size:0.92rem;
+  line-height:1.45;
+  font-style:italic;
+}
+
+.arcade-theme-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(15,23,42,0.82), rgba(2,6,23,0.56));
+  border:1px solid color-mix(in srgb, var(--theme-main) 25%, transparent);
+}
+
+.arcade-theme-objective span{
+  color:color-mix(in srgb, var(--theme-main) 84%, white 12%);
+  font-size:0.68rem;
+  font-weight:900;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.arcade-theme-objective small{
+  color:rgba(226,232,240,0.88);
+  line-height:1.35;
+}
+
+.arcade-theme-progress{
+  display:grid;
+  gap:6px;
+  margin-top:12px;
+}
+
+.arcade-theme-progress-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:rgba(226,232,240,0.78);
+  font-size:0.76rem;
+  font-weight:800;
+}
+
+.arcade-theme-progress-track{
+  height:10px;
+  padding:1px;
+  border-radius:999px;
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(2,6,23,0.96), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--theme-main) 25%, transparent);
+}
+
+.arcade-theme-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--theme-main) 52%, var(--theme-accent)), var(--theme-main));
+  box-shadow:0 0 18px var(--theme-glow), 0 0 8px var(--theme-main);
+  transition:width 0.8s cubic-bezier(.2,.8,.2,1);
+}
+
+.arcade-theme-rarity,
+.arcade-theme-state{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:0.7rem;
+  font-weight:900;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.arcade-theme-state{
+  background:rgba(15,23,42,0.8);
+  color:#cbd5e1;
+  border:1px solid rgba(148,163,184,0.16);
+}
+
+.arcade-theme-relic.unlocked .arcade-theme-state{
+  color:color-mix(in srgb, var(--theme-main) 60%, white 34%);
+  border-color:color-mix(in srgb, var(--theme-main) 38%, transparent);
+  box-shadow:0 0 16px var(--theme-glow);
+}
+
+.arcade-theme-relic.common{ --theme-main:#94a3b8; --theme-glow:rgba(148,163,184,0.12); --theme-accent:#475569; }
+.arcade-theme-relic.rare{ --theme-main:#38bdf8; --theme-glow:rgba(56,189,248,0.26); --theme-accent:#2563eb; }
+.arcade-theme-relic.epic{ --theme-main:#a855f7; --theme-glow:rgba(168,85,247,0.34); --theme-accent:#6366f1; animation:themeEpicPulse 3s ease-in-out infinite; }
+.arcade-theme-relic.legendary{ --theme-main:#facc15; --theme-glow:rgba(250,204,21,0.36); --theme-accent:#f97316; animation:themeLegendaryShine 3.1s ease-in-out infinite; }
+
+.arcade-theme-relic.common .arcade-theme-rarity,
+.arcade-theme-relic.rare .arcade-theme-rarity,
+.arcade-theme-relic.epic .arcade-theme-rarity,
+.arcade-theme-relic.legendary .arcade-theme-rarity{
+  color:color-mix(in srgb, var(--theme-main) 82%, white 16%);
+  border:1px solid color-mix(in srgb, var(--theme-main) 36%, transparent);
+  background:color-mix(in srgb, var(--theme-main) 14%, transparent);
+}
+
+.achievement-card.esquivaobstaculos-relic{
+  --theme-main:#fb7185;
+  --theme-glow:rgba(251,113,133,0.3);
+  --theme-accent:#f97316;
+  border-radius:8px;
+  clip-path:polygon(4% 0, 96% 0, 100% 10%, 96% 100%, 4% 100%, 0 10%);
+  background:
+    repeating-linear-gradient(135deg, rgba(251,113,133,0.16) 0 10px, rgba(249,115,22,0.12) 10px 20px, transparent 20px 32px),
+    linear-gradient(145deg, rgba(69,10,10,0.96), rgba(15,23,42,0.98));
+}
+
+.esquivaobstaculos-relic.epic,
+.esquivaobstaculos-relic.legendary{
+  animation:hazardGlitch 2.2s steps(2,end) infinite;
+}
+
+.achievement-card.torreinfinita-relic{
+  --theme-main:#60a5fa;
+  --theme-glow:rgba(96,165,250,0.28);
+  --theme-accent:#a3e635;
+  border-radius:10px 10px 18px 18px;
+  background:
+    linear-gradient(180deg, rgba(96,165,250,0.16), transparent 34%),
+    repeating-linear-gradient(0deg, rgba(148,163,184,0.16) 0 18px, transparent 18px 24px),
+    linear-gradient(145deg, rgba(15,23,42,0.98), rgba(30,41,59,0.96));
+}
+
+.torreinfinita-relic::after{
+  writing-mode:vertical-rl;
+  right:8px;
+  top:12px;
+  transform:none;
+}
+
+.achievement-card.subelamontana-relic{
+  --theme-main:#bae6fd;
+  --theme-glow:rgba(186,230,253,0.28);
+  --theme-accent:#38bdf8;
+  border-radius:18px 18px 10px 10px;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(255,255,255,0.32), transparent 32%),
+    linear-gradient(135deg, rgba(186,230,253,0.16), transparent 42%),
+    linear-gradient(145deg, rgba(12,74,110,0.86), rgba(15,23,42,0.98));
+}
+
+.subelamontana-relic::before{
+  background:
+    linear-gradient(130deg, transparent 0 36%, rgba(255,255,255,0.12) 36% 38%, transparent 38%),
+    radial-gradient(circle at 74% 24%, rgba(255,255,255,0.16), transparent 34%);
+}
+
+.subelamontana-relic.epic,
+.subelamontana-relic.legendary{
+  animation:mountainMist 4s ease-in-out infinite;
+}
+
+.esquivaobstaculos-relic.common{ --theme-main:#fb7185; --theme-glow:rgba(251,113,133,0.16); --theme-accent:#f97316; }
+.esquivaobstaculos-relic.rare{ --theme-main:#f97316; --theme-glow:rgba(249,115,22,0.28); --theme-accent:#fb7185; }
+.esquivaobstaculos-relic.epic{ --theme-main:#ef4444; --theme-glow:rgba(239,68,68,0.36); --theme-accent:#facc15; }
+.esquivaobstaculos-relic.legendary{ --theme-main:#facc15; --theme-glow:rgba(250,204,21,0.38); --theme-accent:#ef4444; }
+
+.torreinfinita-relic.common{ --theme-main:#94a3b8; --theme-glow:rgba(148,163,184,0.14); --theme-accent:#60a5fa; }
+.torreinfinita-relic.rare{ --theme-main:#60a5fa; --theme-glow:rgba(96,165,250,0.28); --theme-accent:#a3e635; }
+.torreinfinita-relic.epic{ --theme-main:#a3e635; --theme-glow:rgba(163,230,53,0.34); --theme-accent:#60a5fa; }
+.torreinfinita-relic.legendary{ --theme-main:#facc15; --theme-glow:rgba(250,204,21,0.38); --theme-accent:#60a5fa; }
+
+.subelamontana-relic.common{ --theme-main:#bae6fd; --theme-glow:rgba(186,230,253,0.16); --theme-accent:#38bdf8; }
+.subelamontana-relic.rare{ --theme-main:#38bdf8; --theme-glow:rgba(56,189,248,0.28); --theme-accent:#e0f2fe; }
+.subelamontana-relic.epic{ --theme-main:#818cf8; --theme-glow:rgba(129,140,248,0.34); --theme-accent:#bae6fd; }
+.subelamontana-relic.legendary{ --theme-main:#f8fafc; --theme-glow:rgba(248,250,252,0.38); --theme-accent:#facc15; }
+
+@keyframes checkersBounce{
+  0%,100%{ transform:translateY(-4px) scale(1); }
+  42%{ transform:translateY(-10px) scale(1.015); }
+  68%{ transform:translateY(-2px) scale(0.995); }
+}
+
+@keyframes flashmindElectric{
+  0%,100%{ filter:saturate(1); box-shadow:0 18px 42px rgba(0,0,0,0.48), 0 0 24px rgba(34,211,238,0.18); }
+  50%{ filter:saturate(1.28); box-shadow:0 24px 62px rgba(0,0,0,0.62), 0 0 44px rgba(168,85,247,0.28), 0 0 22px rgba(34,211,238,0.22); }
+}
+
+@keyframes themeEpicPulse{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.48), 0 0 0 rgba(168,85,247,0); }
+  50%{ box-shadow:0 24px 64px rgba(0,0,0,0.62), 0 0 38px rgba(168,85,247,0.3); }
+}
+
+@keyframes themeLegendaryShine{
+  0%,100%{ box-shadow:0 18px 42px rgba(0,0,0,0.48), 0 0 24px rgba(250,204,21,0.14); }
+  50%{ box-shadow:0 26px 68px rgba(0,0,0,0.64), 0 0 50px rgba(250,204,21,0.38), 0 0 28px var(--theme-glow); }
+}
+
+@keyframes hazardGlitch{
+  0%,100%{ transform:translateY(0); }
+  48%{ transform:translateY(-3px) skewX(-1deg); }
+  52%{ transform:translateY(-3px) skewX(1deg); }
+}
+
+@keyframes mountainMist{
+  0%,100%{ filter:saturate(1); }
+  50%{ filter:saturate(1.12) brightness(1.08); }
+}
+
 .history-item{
   padding:16px;
   border-radius:16px;
@@ -6178,6 +6711,11 @@ body.sudoku-screen-shake{
     min-height:0;
   }
 
+  .achievement-card.arcade-theme-relic{
+    padding:0;
+    min-height:0;
+  }
+
   .math-relic-icon{
     width:62px;
     height:62px;
@@ -6196,6 +6734,12 @@ body.sudoku-screen-shake{
     font-size:0.62rem;
   }
 
+  .arcade-theme-icon{
+    width:62px;
+    height:62px;
+    font-size:0.58rem;
+  }
+
   .math-relic-header{
     padding:14px 14px 0;
     gap:10px;
@@ -6207,6 +6751,11 @@ body.sudoku-screen-shake{
   }
 
   .board-relic-header{
+    padding:14px 14px 0;
+    gap:10px;
+  }
+
+  .arcade-theme-header{
     padding:14px 14px 0;
     gap:10px;
   }
@@ -6223,6 +6772,10 @@ body.sudoku-screen-shake{
     padding:11px 14px 14px;
   }
 
+  .arcade-theme-main{
+    padding:11px 14px 14px;
+  }
+
   .math-relic-badges{
     gap:6px;
   }
@@ -6235,18 +6788,25 @@ body.sudoku-screen-shake{
     gap:6px;
   }
 
+  .arcade-theme-badges{
+    gap:6px;
+  }
+
   .math-relic-rarity,
   .math-relic-state,
   .arcane-relic-rarity,
   .arcane-relic-state,
   .board-relic-rarity,
-  .board-relic-state{
+  .board-relic-state,
+  .arcade-theme-rarity,
+  .arcade-theme-state{
     font-size:0.64rem;
   }
 
   .math-relic-title,
   .arcane-relic-title,
-  .board-relic-title{
+  .board-relic-title,
+  .arcade-theme-title{
     font-size:0.98rem;
   }
 
