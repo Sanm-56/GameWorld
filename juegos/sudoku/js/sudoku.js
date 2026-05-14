@@ -1,10 +1,12 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
 const pestana = "sudoku_activo"
 const JUEGO_ACTUAL = "sudoku"
+
+if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 
 if(localStorage.getItem(pestana)){
 alert("Ya tienes el sudoku abierto en otra pestana")

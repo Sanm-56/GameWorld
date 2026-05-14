@@ -140,12 +140,21 @@ function goMap(summary, next) {
 }
 
 function inferValue(game) {
-  if (game === "flashmind") return Number(localStorage.getItem("flashmind_puntos") || 0)
-  if (game === "numcatch") return Number(localStorage.getItem("numcatch_puntos") || 0)
-  if (["cricketarcade", "esquivaobstaculos", "torreinfinita", "subelamontana"].includes(game)) {
-    return Number(localStorage.getItem(`${game}_puntos`) || 0)
+  const metricKeys = {
+    matematicas: "matematicas_puntos",
+    flashmind: "flashmind_puntos",
+    numcatch: "numcatch_puntos",
+    cricketarcade: "cricketarcade_puntos",
+    esquivaobstaculos: "esquivaobstaculos_puntos",
+    torreinfinita: "torreinfinita_puntos",
+    subelamontana: "subelamontana_puntos",
+    memoria: "memoria_tiempo",
+    sudoku: "sudoku_tiempo",
+    damas: "damas_tiempo",
+    domino: "domino_tiempo",
+    ajedrez: "ajedrez_tiempo",
   }
-  return 0
+  return Number(localStorage.getItem(metricKeys[game]) || 0)
 }
 
 function inferMode(level) {

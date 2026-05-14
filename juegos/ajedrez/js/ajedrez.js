@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { confirmAction } from '../../js/mensajes.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 
@@ -95,6 +95,7 @@ window.addEventListener('storage', (event) => {
 // =============================
 let usuario = localStorage.getItem('usuario') || 'anónimo'
 const JUEGO_ACTUAL = 'ajedrez'
+if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 iniciarFinalProtegido(JUEGO_ACTUAL)
 
 // =============================

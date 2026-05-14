@@ -1,10 +1,11 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
 const DURACION = 600
 const JUEGO_ACTUAL = "numcatch"
+const pestana = "numcatch_activo"
 const MAX_ADVERTENCIAS = 3
 const ACIERTOS_POR_NIVEL = 20
 const MAX_LEVEL = 11
@@ -13,7 +14,17 @@ const MIN_SPAWN_CADA = 0.55
 const BASE_VELOCIDAD = 120
 const MAX_VELOCIDAD = 245
 
-const usuario = localStorage.getItem("usuario") || "Invitado"
+if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
+
+if (localStorage.getItem(pestana)) {
+  alert("Ya tienes NumCatch abierto en otra pestana")
+  window.location.href = salidaTorneoUrl()
+}
+
+localStorage.setItem(pestana, "abierto")
+window.addEventListener("beforeunload", () => localStorage.removeItem(pestana))
+
+const usuario = localStorage.getItem("usuario")
 iniciarFinalProtegido(JUEGO_ACTUAL)
 document.getElementById("usuarioLabel").innerText = usuario
 

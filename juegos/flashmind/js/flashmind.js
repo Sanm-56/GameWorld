@@ -1,10 +1,11 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
 const DURACION = 600
 const JUEGO_ACTUAL = "flashmind"
+const pestana = "flashmind_activo"
 const MAX_ADVERTENCIAS = 3
 const BASE_VENTANA_MS = 1300
 const MAX_REACTION_CAP_MS = 550
@@ -12,7 +13,17 @@ const ACIERTOS_POR_NIVEL = 20
 const PENALIZACION_TIMEOUT_MS = 2000
 const PENALIZACION_ERROR_BASE_MS = 900
 
-const usuario = localStorage.getItem("usuario") || "Invitado"
+if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
+
+if (localStorage.getItem(pestana)) {
+  alert("Ya tienes FlashMind abierto en otra pestana")
+  window.location.href = salidaTorneoUrl()
+}
+
+localStorage.setItem(pestana, "abierto")
+window.addEventListener("beforeunload", () => localStorage.removeItem(pestana))
+
+const usuario = localStorage.getItem("usuario")
 iniciarFinalProtegido(JUEGO_ACTUAL)
 document.getElementById("usuarioLabel").innerText = usuario
 

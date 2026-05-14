@@ -10,6 +10,8 @@ export function esMiniTorneo(juego) {
 }
 
 const DURACION_JUEGO_MS = 10 * 60 * 1000
+const LANZAMIENTO_JUEGO_KEY = "solitario_game_launch"
+const ORIGENES_LANZAMIENTO_VALIDOS = ["torneo", "sala", "nivel"]
 
 export function esNivelSolitario(juego) {
   const context = leerContextoNivel()
@@ -72,6 +74,50 @@ export async function obtenerInicioTorneo(supabase, juego) {
 
   if (data?.estado !== "iniciado" || data?.juego_actual !== juego) return null
   return data?.inicio_torneo || null
+}
+
+export function marcarLanzamientoJuego(juego, origin = "torneo") {
+  const origenSeguro = ORIGENES_LANZAMIENTO_VALIDOS.includes(origin) ? origin : "torneo"
+  localStorage.setItem(LANZAMIENTO_JUEGO_KEY, JSON.stringify({
+    game: juego,
+    origin: origenSeguro,
+    launchedAt: new Date().toISOString(),
+  }))
+}
+
+export function lanzamientoJuegoValido(juego, origin = null) {
+  const lanzamiento = leerContextoLanzamiento()
+  const lanzamientoMs = Date.parse(lanzamiento?.launchedAt)
+  const origenValido = origin ? lanzamiento?.origin === origin : ORIGENES_LANZAMIENTO_VALIDOS.includes(lanzamiento?.origin)
+
+  return Boolean(
+    lanzamiento
+      && lanzamiento.game === juego
+      && origenValido
+      && Number.isFinite(lanzamientoMs)
+      && Date.now() - lanzamientoMs < DURACION_JUEGO_MS
+  )
+}
+
+export async function validarAccesoJuego(supabase, juego) {
+  if (!localStorage.getItem("usuario")) {
+    window.location.replace("index.html")
+    return false
+  }
+
+  const origin = esNivelSolitario(juego) ? "nivel" : esMiniTorneo(juego) ? "sala" : "torneo"
+  if (!lanzamientoJuegoValido(juego, origin)) {
+    window.location.replace(salidaTorneoUrl())
+    return false
+  }
+
+  const inicio = await obtenerInicioTorneo(supabase, juego)
+  if (!inicio) {
+    window.location.replace(salidaTorneoUrl())
+    return false
+  }
+
+  return true
 }
 
 export async function obtenerTiempoRestanteTorneo(supabase, juego, duracionSegundos) {
@@ -262,7 +308,7 @@ function leerContextoNivel() {
 
 function leerContextoLanzamiento() {
   try {
-    return JSON.parse(localStorage.getItem("solitario_game_launch") || "null")
+    return JSON.parse(localStorage.getItem(LANZAMIENTO_JUEGO_KEY) || "null")
   } catch {
     return null
   }

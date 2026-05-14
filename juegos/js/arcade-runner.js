@@ -7,6 +7,7 @@ import {
   obtenerTiempoRestanteTorneo,
   registrarPuntosMiniTorneo,
   salidaTorneoUrl,
+  validarAccesoJuego,
 } from "./mini-torneo.js"
 import { getArcadeGame } from "./arcade-games.js"
 
@@ -51,11 +52,11 @@ const DODGE_PRESSURE_COOLDOWN_MS = 3200
 const DODGE_COVERAGE_COOLDOWN_MS = 5200
 const DODGE_TOP_BAND_Y = 34
 const gameKey = document.body.dataset.game
-const DURACION = ["cricketarcade", "esquivaobstaculos"].includes(gameKey) ? 600 : 180
+const DURACION = 600
 const config = getArcadeGame(gameKey)
 const usuario = localStorage.getItem("usuario")
 
-if (!usuario) window.location.href = "index.html"
+if (!await validarAccesoJuego(supabase, gameKey)) await new Promise(() => {})
 
 if (gameKey === "esquivaobstaculos") {
   const accesoPermitido = await validarAccesoEsquiva()

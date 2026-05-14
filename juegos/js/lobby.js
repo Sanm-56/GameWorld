@@ -1,4 +1,5 @@
 import { supabase } from "../js/supabase.js"
+import { marcarLanzamientoJuego } from "../js/mini-torneo.js"
 
 const container = document.querySelector(".container")
 const juegoLobby = window.location.pathname.split("/").filter(Boolean).slice(-2, -1)[0]
@@ -79,6 +80,7 @@ if(estado === "iniciado"){
 
 if(juego === juegoLobby && rutasJuego[juego]){
 localStorage.setItem("juego_actual", juego)
+marcarLanzamientoJuego(juego, "torneo")
 window.location.href = rutasJuego[juego]
 return
 }

@@ -13,12 +13,14 @@ const FALLBACK_TABLES = {
 
 export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo, invalido = false }) {
   if (!usuario || !juego) return
+  const numero = Number(valor || 0)
+  guardarMetricaLocalJuego(juego, modo, numero)
+
   if (invalido) {
     await reportLevelResult(supabase, { usuario, juego, valor, modo, invalido, motivo: "Descalificado por actividad sospechosa." })
     return
   }
 
-  const numero = Number(valor || 0)
   const posicion = await obtenerPosicion(usuario, juego, modo)
   const usuarioId = await obtenerUsuarioId(usuario)
 
@@ -111,6 +113,15 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
   }
 
   limpiarSnapshotBonusXP(juego)
+}
+
+function guardarMetricaLocalJuego(juego, modo, valor) {
+  try {
+    const sufijo = modo === "points" ? "puntos" : "tiempo"
+    localStorage.setItem(`${juego}_${sufijo}`, String(Number(valor || 0)))
+  } catch {
+    // El resultado principal sigue siendo Supabase/local summary; esto solo refuerza la pantalla final.
+  }
 }
 
 function esErrorColumnasInsert(error) {

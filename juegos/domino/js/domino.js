@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 
 // =============================
@@ -83,6 +83,7 @@ window.addEventListener('pagehide', liberarBloqueoPestana)
 // =============================
 const usuario = localStorage.getItem('usuario') || 'anonimo'
 const JUEGO_ACTUAL = 'domino'
+if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 iniciarFinalProtegido(JUEGO_ACTUAL)
 const statusEl = document.getElementById('status')
 const resultEl = document.getElementById('result')
