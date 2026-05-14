@@ -165,6 +165,12 @@ create table if not exists public.estadisticas_logros (
   cricket_mejor_tiempo_una_vida integer not null default 0,
   cricket_partidas_sin_perder_todas_las_vidas integer not null default 0,
   cricket_partidas_dos_vidas integer not null default 0,
+  esquiva_partidas_una_vida integer not null default 0,
+  esquiva_partidas_dos_vidas integer not null default 0,
+  esquiva_partidas_sin_perder_vidas integer not null default 0,
+  esquiva_mejor_tiempo_una_vida integer not null default 0,
+  esquiva_mejor_tiempo_dos_vidas integer not null default 0,
+  esquiva_obstaculos_esquivados integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -254,6 +260,24 @@ add column if not exists cricket_partidas_sin_perder_todas_las_vidas integer not
 
 alter table public.estadisticas_logros
 add column if not exists cricket_partidas_dos_vidas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists esquiva_partidas_una_vida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists esquiva_partidas_dos_vidas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists esquiva_partidas_sin_perder_vidas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists esquiva_mejor_tiempo_una_vida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists esquiva_mejor_tiempo_dos_vidas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists esquiva_obstaculos_esquivados integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists posiciones_mejoradas integer not null default 0;

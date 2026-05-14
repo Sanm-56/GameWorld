@@ -102,6 +102,11 @@ let cricketHits = 0
 let cricketPerfectHits = 0
 let cricketOneLifeStartedAt = null
 let cricketBestOneLifeMs = 0
+let dodgeOneLifeStartedAt = null
+let dodgeBestOneLifeMs = 0
+let dodgeTwoLifeStartedAt = null
+let dodgeBestTwoLifeMs = 0
+let dodgeObstaclesDodged = 0
 let advertencias = 0
 let resultadoEnviado = false
 let descalificado = false
@@ -328,6 +333,21 @@ function miss(reason = "Fallaste") {
     } else if (lives < 1 && cricketOneLifeStartedAt !== null) {
       cricketBestOneLifeMs = Math.max(cricketBestOneLifeMs, performance.now() - cricketOneLifeStartedAt)
       cricketOneLifeStartedAt = null
+    }
+  }
+  if (gameKey === "esquivaobstaculos") {
+    const now = performance.now()
+    if (lives === 2 && dodgeTwoLifeStartedAt === null) {
+      dodgeTwoLifeStartedAt = now
+    } else if (lives === 1) {
+      if (dodgeTwoLifeStartedAt !== null) {
+        dodgeBestTwoLifeMs = Math.max(dodgeBestTwoLifeMs, now - dodgeTwoLifeStartedAt)
+        dodgeTwoLifeStartedAt = null
+      }
+      if (dodgeOneLifeStartedAt === null) dodgeOneLifeStartedAt = now
+    } else if (lives < 1 && dodgeOneLifeStartedAt !== null) {
+      dodgeBestOneLifeMs = Math.max(dodgeBestOneLifeMs, now - dodgeOneLifeStartedAt)
+      dodgeOneLifeStartedAt = null
     }
   }
   setStatus(reason)
@@ -731,6 +751,7 @@ function updateDodge(dt) {
   })
   objects = objects.filter((item) => {
     if (item.y > 96) {
+      if (gameKey === "esquivaobstaculos") dodgeObstaclesDodged += 1
       addScore(10 + level)
       if (combo > 0 && combo % 5 === 0) showDodgeFeedback(`Racha x${combo}`)
       return false
@@ -1321,6 +1342,23 @@ async function saveStats(position, elapsed) {
     payload.cricket_mejor_tiempo_una_vida = Math.max(actual?.cricket_mejor_tiempo_una_vida || 0, Math.floor(oneLifeMs / 1000))
     payload.cricket_partidas_sin_perder_todas_las_vidas = (actual?.cricket_partidas_sin_perder_todas_las_vidas || 0) + (lives > 0 ? 1 : 0)
     payload.cricket_partidas_dos_vidas = (actual?.cricket_partidas_dos_vidas || 0) + (lives === 2 ? 1 : 0)
+  }
+
+  if (gameKey === "esquivaobstaculos") {
+    const now = performance.now()
+    const oneLifeMs = dodgeOneLifeStartedAt === null
+      ? dodgeBestOneLifeMs
+      : Math.max(dodgeBestOneLifeMs, now - dodgeOneLifeStartedAt)
+    const twoLifeMs = dodgeTwoLifeStartedAt === null
+      ? dodgeBestTwoLifeMs
+      : Math.max(dodgeBestTwoLifeMs, now - dodgeTwoLifeStartedAt)
+
+    payload.esquiva_partidas_una_vida = (actual?.esquiva_partidas_una_vida || 0) + (lives === 1 ? 1 : 0)
+    payload.esquiva_partidas_dos_vidas = (actual?.esquiva_partidas_dos_vidas || 0) + (lives === 2 ? 1 : 0)
+    payload.esquiva_partidas_sin_perder_vidas = (actual?.esquiva_partidas_sin_perder_vidas || 0) + (lives === 3 ? 1 : 0)
+    payload.esquiva_mejor_tiempo_una_vida = Math.max(actual?.esquiva_mejor_tiempo_una_vida || 0, Math.floor(oneLifeMs / 1000))
+    payload.esquiva_mejor_tiempo_dos_vidas = Math.max(actual?.esquiva_mejor_tiempo_dos_vidas || 0, Math.floor(twoLifeMs / 1000))
+    payload.esquiva_obstaculos_esquivados = (actual?.esquiva_obstaculos_esquivados || 0) + dodgeObstaclesDodged
   }
 
   const { error } = await supabase

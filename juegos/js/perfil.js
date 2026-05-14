@@ -1299,6 +1299,10 @@ function crearLogrosDeJuego(game, resultado) {
     return crearLogrosCricketArcade(estadisticasLogros.cricketarcade || {}, resultado)
   }
 
+  if (game.key === 'esquivaobstaculos') {
+    return crearLogrosEsquivaObstaculos(estadisticasLogros.esquivaobstaculos || {}, resultado)
+  }
+
   if (game.key === 'ajedrez') {
     return crearLogrosAjedrez(estadisticasLogros.ajedrez || {})
   }
@@ -1507,6 +1511,150 @@ function crearLogrosCricketArcade(stats, resultado) {
       howTo: 'Consigue 40 golpes en una sola partida.',
       unlocked: mejorGolpesPartida >= 40,
     },
+  ]
+}
+
+function crearLogrosEsquivaObstaculos(stats, resultado) {
+  const tiempoJugadoHoras = Math.floor((stats.tiempo_jugado_total || 0) / 3600)
+  const mejorScore = Number(resultado?.tiempo || 0)
+  const partidasUnaVida = stats.esquiva_partidas_una_vida || 0
+  const partidasDosVidas = stats.esquiva_partidas_dos_vidas || 0
+  const partidasSinPerderVidas = stats.esquiva_partidas_sin_perder_vidas || 0
+  const mejorTiempoUnaVida = stats.esquiva_mejor_tiempo_una_vida || 0
+  const mejorTiempoDosVidas = stats.esquiva_mejor_tiempo_dos_vidas || 0
+  const obstaculosEsquivados = stats.esquiva_obstaculos_esquivados || 0
+  const partidasJugadas = stats.completados || 0
+  const victoriasTorneos = stats.victorias_torneos || 0
+  const logrosTiempo = [
+    ['El Sendero de Nyx&rsquo;rael', 'El vac&iacute;o abri&oacute; su primer camino ante tus pasos.', 'Juega 1 hora de Esquiva Obst&aacute;culos.', 1],
+    ['Las Runas del Errante', 'Las antiguas marcas comenzaron a seguir tu recorrido.', 'Juega 2 horas de Esquiva Obst&aacute;culos.', 2],
+    ['El Pacto de Vel&rsquo;Khar', 'Tus reflejos despertaron algo que dorm&iacute;a entre las sombras.', 'Juega 3 horas de Esquiva Obst&aacute;culos.', 3],
+    ['La Senda de los Mil Riesgos', 'Cada obst&aacute;culo evitado aliment&oacute; una vieja leyenda.', 'Juega 5 horas de Esquiva Obst&aacute;culos.', 5],
+    ['El Vig&iacute;a de Obsidiana', 'Tus movimientos comenzaron a desafiar el destino mismo.', 'Juega 7 horas de Esquiva Obst&aacute;culos.', 7],
+    ['Los Ojos de Vaelor', 'Incluso las trampas m&aacute;s r&aacute;pidas dejaron de sorprenderte.', 'Juega 10 horas de Esquiva Obst&aacute;culos.', 10],
+    ['El Corredor de Etherion', 'El viento ya no pod&iacute;a alcanzarte.', 'Juega 12 horas de Esquiva Obst&aacute;culos.', 12],
+    ['El Umbral de Kaer&rsquo;Thul', 'Hab&iacute;as cruzado m&aacute;s peligros de los que cualquier mortal soportar&iacute;a.', 'Juega 15 horas de Esquiva Obst&aacute;culos.', 15],
+    ['Las Cr&oacute;nicas del Vac&iacute;o Carmes&iacute;', 'Las antiguas paredes comenzaron a recordar tus esquivas.', 'Juega 18 horas de Esquiva Obst&aacute;culos.', 18],
+    ['El Portador de la &Uacute;ltima Ruta', 'Los caminos imposibles empezaron a abrirse ante ti.', 'Juega 20 horas de Esquiva Obst&aacute;culos.', 20],
+    ['El Eco de las Sombras Eternas', 'Algo invisible segu&iacute;a cada uno de tus movimientos.', 'Juega 24 horas de Esquiva Obst&aacute;culos.', 24],
+    ['El Santuario de Vorthalim', 'Sobreviviste donde otros desaparecieron sin dejar rastro.', 'Juega 28 horas de Esquiva Obst&aacute;culos.', 28],
+    ['El Juramento del Caminante Antiguo', 'Tu nombre qued&oacute; unido a las rutas prohibidas.', 'Juega 32 horas de Esquiva Obst&aacute;culos.', 32],
+    ['El Trono del &Uacute;ltimo Esquive', 'Las trampas dejaron de parecer amenazas reales.', 'Juega 36 horas de Esquiva Obst&aacute;culos.', 36],
+    ['La Llama de Arkh&rsquo;Mora', 'Cada segundo vivo parec&iacute;a desafiar las leyes del caos.', 'Juega 40 horas de Esquiva Obst&aacute;culos.', 40],
+    ['El Guardi&aacute;n de las Puertas Vac&iacute;as', 'Los corredores eternos ya conoc&iacute;an tu presencia.', 'Juega 45 horas de Esquiva Obst&aacute;culos.', 45],
+    ['La Reliquia de los Pasos Perdidos', 'Tus huellas quedaron grabadas m&aacute;s all&aacute; del tiempo.', 'Juega 50 horas de Esquiva Obst&aacute;culos.', 50],
+    ['El Heraldo del Laberinto Negro', 'Las antiguas rutas comenzaron a inclinarse ante tu velocidad.', 'Juega 60 horas de Esquiva Obst&aacute;culos.', 60],
+    ['El Nombre Oculto en Basalto', 'Incluso las sombras aprendieron a temerte.', 'Juega 75 horas de Esquiva Obst&aacute;culos.', 75],
+    ['El Trascender de Xhal&rsquo;Tor', 'Despu&eacute;s de incontables esquivas... dejaste de ser un simple corredor.', 'Juega 100 horas de Esquiva Obst&aacute;culos.', 100],
+  ]
+  const logrosPuntos = [
+    ['El Primer Umbral', 'El caos apenas comenzaba a reconocerte.', 'Consigue 100 puntos.', 100],
+    ['Fragmento de Velastra', 'Tus pasos dejaron marcas donde nadie sobreviv&iacute;a.', 'Consigue 250 puntos.', 250],
+    ['El Corredor de Ceniza', 'Las rutas ard&iacute;an detr&aacute;s de ti.', 'Consigue 500 puntos.', 500],
+    ['Los Ecos de Arkh&rsquo;Vel', 'El vac&iacute;o comenz&oacute; a memorizar tu trayectoria.', 'Consigue 750 puntos.', 750],
+    ['El Ojo del Laberinto', 'Las trampas dejaron de atraparte.', 'Consigue 1.000 puntos.', 1000],
+    ['El Sendero Carmes&iacute;', 'Cada obst&aacute;culo evitado aliment&oacute; una vieja leyenda.', 'Consigue 2.000 puntos.', 2000],
+    ['La &Uacute;ltima Ruta de Vaelor', 'Incluso el peligro comenz&oacute; a abrirse ante ti.', 'Consigue 3.000 puntos.', 3000],
+    ['El Trono del Vac&iacute;o Gris', 'Las rutas imposibles ya conoc&iacute;an tu nombre.', 'Consigue 5.000 puntos.', 5000],
+    ['El Archivo del Caos', 'Tu recorrido qued&oacute; grabado entre corredores olvidados.', 'Consigue 7.500 puntos.', 7500],
+    ['El Coraz&oacute;n de Xhaelor', 'M&aacute;s all&aacute; de este punto... pocos regresan.', 'Consigue 10.000 puntos.', 10000],
+  ]
+  const logrosVidas = [
+    ['El &Uacute;ltimo Latido', 'La derrota estuvo cerca... demasiado cerca.', 'Sobrevive con 1 vida restante.', partidasUnaVida >= 1],
+    ['Piel de Obsidiana', 'Ni una sola grieta logr&oacute; alcanzarte.', 'Termina una partida sin perder vidas.', partidasSinPerderVidas >= 1],
+    ['El Instante Antes del Fin', 'El caos roz&oacute; tu sombra y fall&oacute;.', 'Sobrevive 20 segundos con 1 vida.', mejorTiempoUnaVida >= 20],
+    ['Reliquia Viviente', 'Algo evit&oacute; que cayeras cuando deb&iacute;as hacerlo.', 'Sobrevive con 2 vidas restantes.', partidasDosVidas >= 1],
+    ['El Pulso de Kael&rsquo;Rith', 'Tu coraz&oacute;n sigui&oacute; avanzando entre ruinas.', 'Sobrevive 50 segundos con 1 vida.', mejorTiempoUnaVida >= 50],
+    ['El Juramento del Invicto', 'El da&ntilde;o nunca encontr&oacute; tu cuerpo.', 'Sobrevive 189 segundos con 1 vida.', mejorTiempoUnaVida >= 189],
+    ['El Caminante Herido', 'Cada segundo vivo parec&iacute;a imposible.', 'Sobrevive 289 segundos con 1 vida.', mejorTiempoUnaVida >= 289],
+    ['La Sangre del Vac&iacute;o', 'El peligro comenz&oacute; a alimentarse de otros jugadores.', 'Sobrevive 50 segundos con 2 vidas.', mejorTiempoDosVidas >= 50],
+    ['El Eco del Sobreviviente', 'Las rutas prohibidas te dejaron pasar una vez m&aacute;s.', 'Sobrevive 300 segundos con 2 vidas.', mejorTiempoDosVidas >= 300],
+    ['El Nombre que No Cay&oacute;', 'Incluso el abismo perdi&oacute; la paciencia contigo.', 'Sobrevive 500 segundos con 1 vida.', mejorTiempoUnaVida >= 500],
+  ]
+  const logrosObstaculos = [
+    ['Primer Desv&iacute;o', 'Tu cuerpo reaccion&oacute; antes que el miedo.', 'Esquiva 25 obst&aacute;culos.', 25],
+    ['El Camino entre Ruinas', 'Cada paso evit&oacute; una nueva ca&iacute;da.', 'Esquiva 50 obst&aacute;culos.', 50],
+    ['Danza de Sombras', 'Te mov&iacute;as como si conocieras el futuro.', 'Esquiva 100 obst&aacute;culos.', 100],
+    ['El Sendero Invisible', 'Los obst&aacute;culos dejaron de tocarte.', 'Esquiva 200 obst&aacute;culos.', 200],
+    ['El Reflejo de Vael&rsquo;Kor', 'Ni el caos pudo seguir tu ritmo.', 'Esquiva 300 obst&aacute;culos.', 300],
+    ['La Ruta del Fantasma', 'Pasaste entre peligros que nadie m&aacute;s ve&iacute;a.', 'Esquiva 500 obst&aacute;culos.', 500],
+    ['El Archivo de los Intocables', 'Tu recorrido comenz&oacute; a convertirse en mito.', 'Esquiva 750 obst&aacute;culos.', 750],
+    ['El Pulso del Vac&iacute;o', 'Las trampas parec&iacute;an apartarse solas.', 'Esquiva 1.000 obst&aacute;culos.', 1000],
+    ['La Corona del Desv&iacute;o', 'Ya no esquivabas obst&aacute;culos... dominabas el corredor.', 'Esquiva 1.500 obst&aacute;culos.', 1500],
+    ['El Nombre Bajo las Ruinas', 'Incluso el laberinto aprendi&oacute; a respetarte.', 'Esquiva 2.000 obst&aacute;culos.', 2000],
+  ]
+  const logrosPartidas = [
+    ['El Regreso al Corredor', 'Volviste donde otros no se atreven.', 'Juega 5 partidas.', 5],
+    ['El Ritual del Caminante', 'Cada partida fortaleci&oacute; tus reflejos.', 'Juega 10 partidas.', 10],
+    ['El Habitante del Riesgo', 'El peligro comenz&oacute; a sentirse familiar.', 'Juega 25 partidas.', 25],
+    ['Las Cr&oacute;nicas del Escape', 'Tu historia empez&oacute; a expandirse entre las rutas.', 'Juega 50 partidas.', 50],
+    ['El Eco Persistente', 'El corredor ya conoc&iacute;a tus pasos.', 'Juega 75 partidas.', 75],
+    ['El Vig&iacute;a del Vac&iacute;o', 'Pocas almas soportan regresar tantas veces.', 'Juega 100 partidas.', 100],
+    ['El Peregrino de Noctyra', 'Las trampas comenzaron a esperarte.', 'Juega 150 partidas.', 150],
+    ['La Marca del Sobreviviente', 'Tu presencia qued&oacute; grabada entre ruinas antiguas.', 'Juega 250 partidas.', 250],
+    ['El Guardi&aacute;n del Laberinto', 'Las rutas eternas te reconocieron como uno de los suyos.', 'Juega 500 partidas.', 500],
+    ['El &Uacute;ltimo Corredor', 'Despu&eacute;s de tantas ca&iacute;das y victorias... seguiste avanzando.', 'Juega 1.000 partidas.', 1000],
+  ]
+  const logrosTorneos = [
+    ['El Trono de Anor&rsquo;Kai', 'Las rutas prohibidas eligieron a su primer soberano.', 'Gana 1 torneo.', 1],
+    ['Las Cr&oacute;nicas de Vhalzeryn', 'Tu victoria qued&oacute; escrita entre nombres olvidados.', 'Gana 3 torneos.', 3],
+    ['El Heraldo de Morveth', 'El corredor oscuro comenz&oacute; a abrirse ante tus pasos.', 'Gana 5 torneos.', 5],
+    ['La Corona de Nythera', 'Los antiguos campeones observaron tu ascenso en silencio.', 'Gana 8 torneos.', 8],
+    ['El Vig&iacute;a de Arkh&rsquo;Tyr', 'Ni el caos pudo apartarte del &uacute;ltimo camino.', 'Gana 12 torneos.', 12],
+    ['El Eclipse de Vael&rsquo;Drakar', 'Aquella final apag&oacute; incluso las luces del coliseo.', 'Gana 15 torneos.', 15],
+    ['Los Sellos de Aerthalion', 'Cada torneo roto liber&oacute; otra vieja leyenda.', 'Gana 20 torneos.', 20],
+    ['El Reino de Vorth&rsquo;Kael', 'Las rutas eternas comenzaron a inclinarse ante ti.', 'Gana 25 torneos.', 25],
+    ['El C&aacute;ntico de Noctharis', 'Las gradas vac&iacute;as a&uacute;n repiten aquella victoria.', 'Gana 35 torneos.', 35],
+    ['El &Uacute;ltimo Emperador de Xareth', 'Cuando el caos necesit&oacute; un due&ntilde;o... apareci&oacute; tu nombre.', 'Gana 50 torneos.', 50],
+    ['El Legado de Zepharion', 'Los corredores antiguos volvieron a abrirse tras tu victoria.', 'Gana 60 torneos.', 60],
+    ['La Reliquia de Thal&rsquo;Veyra', 'Algo sellado durante siglos reaccion&oacute; a tu presencia.', 'Gana 70 torneos.', 70],
+    ['El Trascender de Kaeloris', 'Tus reflejos comenzaron a desafiar las leyes del vac&iacute;o.', 'Gana 80 torneos.', 80],
+    ['El C&oacute;dice de Umbraxis', 'Las finales empezaron a terminar antes de comenzar.', 'Gana 90 torneos.', 90],
+    ['El Santuario de Valkyreth', 'Solo unos pocos nombres alcanzan las ruinas sagradas del corredor.', 'Gana 100 torneos.', 100],
+    ['La Sombra de Drael&rsquo;Kor', 'Incluso ausente, tu leyenda segu&iacute;a dominando el torneo.', 'Gana 120 torneos.', 120],
+    ['El Juramento de Myr&rsquo;Zareth', 'El caos dej&oacute; de verte como mortal hace mucho tiempo.', 'Gana 140 torneos.', 140],
+    ['El Ocaso de Nytharion', 'Las rutas eternas guardaron silencio tras tu llegada.', 'Gana 160 torneos.', 160],
+    ['El Trono Perdido de Velkarith', 'Los antiguos campeones ya no pod&iacute;an compararse contigo.', 'Gana 180 torneos.', 180],
+    ['La Ascensi&oacute;n de Xer&rsquo;Valtor', 'Tu nombre cruz&oacute; el l&iacute;mite donde nacen las leyendas.', 'Gana 200 torneos.', 200],
+  ]
+
+  return [
+    ...logrosTiempo.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: tiempoJugadoHoras >= requisito,
+    })),
+    ...logrosPuntos.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: mejorScore >= requisito,
+    })),
+    ...logrosVidas.map(([title, description, howTo, unlocked]) => ({
+      title,
+      description,
+      howTo,
+      unlocked,
+    })),
+    ...logrosObstaculos.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: obstaculosEsquivados >= requisito,
+    })),
+    ...logrosPartidas.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: partidasJugadas >= requisito,
+    })),
+    ...logrosTorneos.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: victoriasTorneos >= requisito,
+    })),
   ]
 }
 
@@ -4703,6 +4851,50 @@ function obtenerNumeroCricket(texto) {
   return coincidencia ? Number(coincidencia[0]) : null
 }
 
+function obtenerRarezaEsquivaObstaculos(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const target = obtenerNumeroCricket(objetivoTexto) || 1
+  if (objetivoTexto.includes('punto')) {
+    if (target >= 7500) return 'legendary'
+    if (target >= 2000) return 'epic'
+    if (target >= 750) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('vida')) {
+    if (objetivoTexto.includes('500') || objetivoTexto.includes('300')) return 'legendary'
+    if (objetivoTexto.includes('189') || objetivoTexto.includes('289') || objetivoTexto.includes('sin perder')) return 'epic'
+    if (objetivoTexto.includes('50')) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('obstaculo') || objetivoTexto.includes('obst&aacute;culo') || objetivoTexto.includes('obstáculo')) {
+    if (target >= 1500) return 'legendary'
+    if (target >= 500) return 'epic'
+    if (target >= 100) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('partida')) {
+    if (target >= 500) return 'legendary'
+    if (target >= 100) return 'epic'
+    if (target >= 25) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('torneo')) {
+    if (target >= 100) return 'legendary'
+    if (target >= 35) return 'epic'
+    if (target >= 8) return 'rare'
+    return 'common'
+  }
+
+  if (target >= 75) return 'legendary'
+  if (target >= 28) return 'epic'
+  if (target >= 7) return 'rare'
+  return 'common'
+}
+
 function obtenerProgresoCricket(achievement, stats, resultado) {
   const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
   const objetivo = obtenerNumeroCricket(objetivoTexto) || 1
@@ -4791,7 +4983,7 @@ function renderLogroCricket(achievement, stats, resultado) {
       </div>
       <div class="arcane-relic-badges">
         <span class="arcane-relic-rarity">${rarityLabel}</span>
-        <span class="arcane-relic-state">${achievement.unlocked ? 'Coronado' : 'En espera'}</span>
+        <span class="arcane-relic-state">${achievement.unlocked ? 'Coronado' : 'Sellado'}</span>
       </div>
     </div>
     <div class="arcane-relic-main">
@@ -5181,6 +5373,7 @@ function obtenerRarezaLogro(gameKey, achievement) {
   if (gameKey === 'flashmind') return obtenerRarezaArcana(obtenerProgresoFlashmind(achievement, stats), achievement)
   if (gameKey === 'numcatch') return obtenerRarezaArcana(obtenerProgresoNumcatch(achievement, stats), achievement)
   if (gameKey === 'cricketarcade') return obtenerRarezaCricket(achievement)
+  if (gameKey === 'esquivaobstaculos') return obtenerRarezaEsquivaObstaculos(achievement)
   if (gameKey === 'ajedrez' || gameKey === 'domino' || gameKey === 'damas') return obtenerRarezaTablero(obtenerProgresoTablero(achievement, stats, gameKey), achievement)
   return 'common'
 }
