@@ -1752,6 +1752,7 @@ function crearLogrosSubeLaMontana(stats) {
   const mejorAlturaMetros = stats.montana_mejor_altura_m || 0
   const puntosTotal = stats.montana_puntos_total || 0
   const partidasJugadas = stats.completados || 0
+  const victoriasTorneos = stats.victorias_torneos || 0
   const logrosAltura = [
     ['El Primer Paso de Eryndhal', 'La monta&ntilde;a escuch&oacute; por primera vez tus botas sobre la roca.', 'Alcanza 100 m.', 100],
     ['Los Senderos de Kael&rsquo;Drim', 'Las viejas piedras comenzaron a aceptar tu ascenso.', 'Alcanza 250 m.', 250],
@@ -1794,6 +1795,20 @@ function crearLogrosSubeLaMontana(stats) {
     ['El Heraldo de las Cumbres Eternas', 'Incluso la tormenta comenz&oacute; a esperarte.', 'Juega 15.000 partidas.', 15000],
     ['El &Uacute;ltimo Monta&ntilde;ista de Aethra', 'Cuando todos abandonaron la subida... t&uacute; continuaste.', 'Juega 20.000 partidas.', 20000],
   ]
+  const logrosTorneos = [
+    ['La Corona del Primer Pico', 'La monta&ntilde;a eligi&oacute; a su nuevo escalador.', 'Gana 1 torneo.', 1],
+    ['El Se&ntilde;or de las Laderas Eternas', 'Las rutas heladas comenzaron a inclinarse ante ti.', 'Gana 3 torneos.', 3],
+    ['El Trono de Valkorim', 'Las alturas dejaron de pertenecer a otros.', 'Gana 5 torneos.', 5],
+    ['El Heraldo de la Nieve Negra', 'Cada torneo roto fortaleci&oacute; tu leyenda.', 'Gana 10 torneos.', 10],
+    ['El Reino Suspendido de Aerthys', 'Incluso las tormentas guardaron silencio a tu paso.', 'Gana 15 torneos.', 15],
+    ['El Emperador de las Cumbres Blancas', 'La monta&ntilde;a ya no aceptaba otro soberano.', 'Gana 25 torneos.', 25],
+    ['La Ascensi&oacute;n de Xhal&rsquo;Vareth', 'Las nubes quedaron atrapadas bajo tu sombra.', 'Gana 35 torneos.', 35],
+    ['El Trono Perdido de Etherion', 'Las viejas alturas finalmente encontraron due&ntilde;o.', 'Gana 50 torneos.', 50],
+    ['El Monarca del Horizonte Helado', 'M&aacute;s arriba de las tormentas... segu&iacute;as ascendiendo.', 'Gana 75 torneos.', 75],
+    ['El &Uacute;ltimo Soberano de las Nieves Eternas', 'Cuando la monta&ntilde;a necesit&oacute; una leyenda... apareciste t&uacute;.', 'Gana 100 torneos.', 100],
+    ['El Eclipse de las Cumbres Antiguas', 'Las monta&ntilde;as guardaron silencio tras tu victoria.', 'Gana 150 torneos.', 150],
+    ['La Corona de Aethernia', 'Tu nombre alcanz&oacute; donde nacen las leyendas del hielo.', 'Gana 200 torneos.', 200],
+  ]
 
   return [
     ...logrosAltura.map(([title, description, howTo, requisito]) => ({
@@ -1813,6 +1828,12 @@ function crearLogrosSubeLaMontana(stats) {
       description,
       howTo,
       unlocked: partidasJugadas >= requisito,
+    })),
+    ...logrosTorneos.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: victoriasTorneos >= requisito,
     })),
   ]
 }
@@ -5098,6 +5119,13 @@ function obtenerRarezaSubeLaMontana(achievement) {
     if (target >= 10000) return 'legendary'
     if (target >= 2500) return 'epic'
     if (target >= 250) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('torneo')) {
+    if (target >= 100) return 'legendary'
+    if (target >= 35) return 'epic'
+    if (target >= 10) return 'rare'
     return 'common'
   }
 
