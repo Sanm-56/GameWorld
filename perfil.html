@@ -2818,12 +2818,8 @@ body.sudoku-screen-shake{
   border-radius:18px;
   color:#f8fafc;
   clip-path:polygon(12% 0, 88% 0, 100% 12%, 100% 76%, 50% 100%, 0 76%, 0 12%);
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.18), transparent 18% 72%, rgba(255,255,255,0.08)),
-    radial-gradient(circle at 50% 12%, color-mix(in srgb, var(--chess-metal) 30%, transparent), transparent 32%),
-    linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25% 50%, rgba(0,0,0,0.18) 50% 75%, transparent 75%),
-    linear-gradient(145deg, #050608, var(--chess-marble) 44%, #15171d 72%, #050608);
-  background-size:100% 100%, 100% 100%, 44px 44px, 100% 100%;
+  background:var(--chess-pattern);
+  background-size:100% 100%;
   box-shadow:
     0 24px 58px rgba(0,0,0,0.62),
     0 0 0 1px rgba(255,255,255,0.05),
@@ -2834,17 +2830,12 @@ body.sudoku-screen-shake{
 .achievement-card.ajedrez-relic::before{
   z-index:-2;
   opacity:0.94;
-  background:
-    linear-gradient(120deg, transparent 0 42%, color-mix(in srgb, var(--chess-edge) 18%, transparent) 42% 43%, transparent 43%),
-    radial-gradient(circle at 18% 18%, rgba(255,255,255,0.11), transparent 22%),
-    radial-gradient(circle at 76% 28%, color-mix(in srgb, var(--chess-metal) 14%, transparent), transparent 36%),
-    repeating-linear-gradient(90deg, transparent 0 31px, rgba(255,255,255,0.035) 31px 32px),
-    repeating-linear-gradient(0deg, transparent 0 31px, rgba(0,0,0,0.16) 31px 32px);
+  background:var(--chess-overlay);
   background-size:100% 100%;
 }
 
 .achievement-card.ajedrez-relic::after{
-  content:"K Q R B N P";
+  content:var(--chess-sigil);
   top:auto;
   right:14px;
   bottom:20px;
@@ -2855,6 +2846,85 @@ body.sudoku-screen-shake{
   letter-spacing:0.22em;
   opacity:0.32;
   transform:none;
+}
+
+.ajedrez-relic .board-relic-header::before,
+.ajedrez-relic .board-relic-header::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.ajedrez-relic .board-relic-header::before{
+  left:50%;
+  top:4px;
+  width:86px;
+  height:16px;
+  transform:translateX(-50%);
+  border-radius:0 0 18px 18px;
+  border:1px solid color-mix(in srgb, var(--chess-metal) 34%, transparent);
+  border-top:0;
+  opacity:0.46;
+}
+
+.ajedrez-relic .board-relic-header::after{
+  inset:16px 18px auto auto;
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--chess-metal) 26%, transparent) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--chess-edge) 18%, transparent), transparent 32%);
+  background-size:13px 13px, 100% 100%;
+  opacity:0;
+}
+
+.ajedrez-relic.rare .board-relic-header::after{
+  opacity:0.5;
+  animation:chessRareDust 7s linear infinite;
+}
+
+.ajedrez-relic.epic .board-relic-header::after{
+  opacity:0.68;
+  background:
+    radial-gradient(circle, rgba(234,220,255,0.28) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 30%, rgba(192,132,252,0.18), transparent 34%);
+  background-size:12px 12px, 100% 100%;
+  animation:chessEpicParticles 5.8s linear infinite;
+}
+
+.ajedrez-relic.legendary .board-relic-header::before,
+.ajedrez-relic.mythic .board-relic-header::before,
+.ajedrez-relic.mitico .board-relic-header::before{
+  top:0;
+  width:96px;
+  height:28px;
+  border-radius:6px 6px 18px 18px;
+  background:
+    linear-gradient(135deg, transparent 0 20%, color-mix(in srgb, var(--chess-edge) 54%, transparent) 20% 32%, transparent 32% 44%, color-mix(in srgb, var(--chess-edge) 64%, transparent) 44% 56%, transparent 56% 68%, color-mix(in srgb, var(--chess-edge) 54%, transparent) 68% 80%, transparent 80%);
+  border-color:color-mix(in srgb, var(--chess-edge) 44%, transparent);
+  opacity:0.78;
+}
+
+.ajedrez-relic.legendary .board-relic-header::after{
+  opacity:0.78;
+  background:
+    radial-gradient(circle, rgba(255,242,184,0.38) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 30%, rgba(250,204,21,0.22), transparent 36%);
+  background-size:14px 14px, 100% 100%;
+  animation:chessLegendarySparks 4.8s linear infinite;
+}
+
+.ajedrez-relic.mythic .board-relic-header::after,
+.ajedrez-relic.mitico .board-relic-header::after{
+  opacity:0.92;
+  inset:8px 14px auto auto;
+  width:92px;
+  height:92px;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 36%, rgba(250,204,21,0.22) 37% 39%, transparent 40%),
+    conic-gradient(from 0deg, rgba(250,204,21,0.22), transparent 22%, rgba(255,247,204,0.18), transparent 56%, rgba(0,0,0,0.28), transparent 78%, rgba(250,204,21,0.22));
+  animation:chessMythicOrbit 7s linear infinite;
 }
 
 .ajedrez-relic .board-relic-header{
@@ -2900,6 +2970,54 @@ body.sudoku-screen-shake{
     0 0 28px var(--board-glow),
     inset 0 0 0 2px color-mix(in srgb, var(--chess-metal) 62%, transparent),
     inset 0 0 0 7px rgba(2,6,23,0.58);
+  transition:transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.achievement-card.ajedrez-relic:hover .board-relic-icon{
+  transform:translateY(-3px);
+}
+
+.ajedrez-relic.common .board-relic-icon{
+  filter:saturate(0.86);
+}
+
+.ajedrez-relic.rare .board-relic-icon{
+  box-shadow:
+    0 19px 36px rgba(0,0,0,0.46),
+    0 0 30px rgba(147,197,253,0.18),
+    inset 0 0 0 2px rgba(215,232,244,0.42),
+    inset 0 0 0 7px rgba(2,6,23,0.58);
+}
+
+.ajedrez-relic.epic .board-relic-icon{
+  box-shadow:
+    0 22px 42px rgba(0,0,0,0.52),
+    0 0 36px rgba(192,132,252,0.26),
+    inset 0 0 22px rgba(234,220,255,0.08),
+    inset 0 0 0 2px rgba(234,220,255,0.46),
+    inset 0 0 0 7px rgba(2,6,23,0.6);
+}
+
+.ajedrez-relic.legendary .board-relic-icon{
+  box-shadow:
+    0 24px 46px rgba(0,0,0,0.55),
+    0 0 44px rgba(250,204,21,0.26),
+    0 0 18px rgba(255,242,184,0.16),
+    inset 0 0 24px rgba(255,242,184,0.12),
+    inset 0 0 0 2px rgba(255,242,184,0.54),
+    inset 0 0 0 7px rgba(2,6,23,0.56);
+}
+
+.ajedrez-relic.mythic .board-relic-icon,
+.ajedrez-relic.mitico .board-relic-icon{
+  animation:chessPieceFloat 3.8s ease-in-out infinite;
+  box-shadow:
+    0 28px 52px rgba(0,0,0,0.64),
+    0 0 52px rgba(250,204,21,0.3),
+    0 0 34px rgba(0,0,0,0.62),
+    inset 0 0 30px rgba(255,247,204,0.14),
+    inset 0 0 0 2px rgba(255,247,204,0.58),
+    inset 0 0 0 7px rgba(0,0,0,0.72);
 }
 
 .ajedrez-relic .board-relic-icon::before{
@@ -3021,6 +3139,15 @@ body.sudoku-screen-shake{
   --chess-marble:#0b0d12;
   --board-main:#9ca3af;
   --board-glow:rgba(156,163,175,0.16);
+  --chess-sigil:"P  ACADEMY";
+  --chess-pattern:
+    linear-gradient(135deg, rgba(255,255,255,0.08), transparent 18% 78%, rgba(255,255,255,0.035)),
+    radial-gradient(circle at 50% 12%, rgba(156,163,175,0.16), transparent 28%),
+    linear-gradient(145deg, #050608, #0b0d12 46%, #14171d 74%, #050608);
+  --chess-overlay:
+    linear-gradient(120deg, transparent 0 44%, rgba(196,201,208,0.08) 44% 45%, transparent 45%),
+    repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,0.028) 39px 40px),
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(0,0,0,0.14) 39px 40px);
 }
 
 .ajedrez-relic.rare{
@@ -3029,6 +3156,17 @@ body.sudoku-screen-shake{
   --chess-marble:#0a1118;
   --board-main:#93c5fd;
   --board-glow:rgba(147,197,253,0.24);
+  --chess-sigil:"N  STRATEGIST";
+  --chess-pattern:
+    linear-gradient(135deg, rgba(215,232,244,0.14), transparent 16% 70%, rgba(126,168,199,0.1)),
+    radial-gradient(circle at 74% 15%, rgba(147,197,253,0.22), transparent 32%),
+    radial-gradient(circle at 18% 72%, rgba(30,64,175,0.2), transparent 30%),
+    linear-gradient(145deg, #04070b, #0a1118 44%, #111c29 74%, #030508);
+  --chess-overlay:
+    linear-gradient(118deg, transparent 0 34%, rgba(215,232,244,0.13) 34% 35%, transparent 35%),
+    linear-gradient(62deg, transparent 0 58%, rgba(126,168,199,0.1) 58% 59%, transparent 59%),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(147,197,253,0.055) 31px 32px),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(255,255,255,0.028) 31px 32px);
 }
 
 .ajedrez-relic.epic{
@@ -3037,6 +3175,16 @@ body.sudoku-screen-shake{
   --chess-marble:#100d17;
   --board-main:#c084fc;
   --board-glow:rgba(192,132,252,0.28);
+  --chess-sigil:"B  SHADOW COURT";
+  --chess-pattern:
+    radial-gradient(circle at 50% -4%, rgba(234,220,255,0.2), transparent 28%),
+    radial-gradient(circle at 82% 24%, rgba(192,132,252,0.24), transparent 34%),
+    radial-gradient(circle at 12% 78%, rgba(76,29,149,0.3), transparent 34%),
+    linear-gradient(145deg, #050408, #100d17 38%, #201630 72%, #050408);
+  --chess-overlay:
+    conic-gradient(from 45deg at 50% 20%, transparent 0 18%, rgba(234,220,255,0.13) 18% 19%, transparent 19% 52%, rgba(192,132,252,0.1) 52% 53%, transparent 53%),
+    repeating-linear-gradient(135deg, transparent 0 23px, rgba(192,132,252,0.07) 23px 24px),
+    repeating-linear-gradient(45deg, transparent 0 33px, rgba(0,0,0,0.16) 33px 34px);
   animation:chessEpicAura 4.2s ease-in-out infinite;
 }
 
@@ -3046,6 +3194,16 @@ body.sudoku-screen-shake{
   --chess-marble:#151009;
   --board-main:#facc15;
   --board-glow:rgba(250,204,21,0.36);
+  --chess-sigil:"K  ROYAL MASTER";
+  --chess-pattern:
+    radial-gradient(circle at 50% -2%, rgba(255,242,184,0.34), transparent 30%),
+    radial-gradient(circle at 84% 20%, rgba(250,204,21,0.24), transparent 34%),
+    linear-gradient(90deg, transparent 0 42%, rgba(255,242,184,0.08) 42% 58%, transparent 58%),
+    linear-gradient(145deg, #090603, #151009 38%, #2a1d08 72%, #070502);
+  --chess-overlay:
+    linear-gradient(90deg, transparent 0 48%, rgba(255,242,184,0.14) 48% 52%, transparent 52%),
+    conic-gradient(from 0deg at 50% 12%, rgba(250,204,21,0.18), transparent 12% 25%, rgba(255,242,184,0.1) 25% 31%, transparent 31%),
+    repeating-linear-gradient(135deg, transparent 0 20px, rgba(250,204,21,0.075) 20px 21px);
   animation:chessLegendaryEdge 4s ease-in-out infinite;
 }
 
@@ -3056,6 +3214,17 @@ body.sudoku-screen-shake{
   --chess-marble:#050505;
   --board-main:#facc15;
   --board-glow:rgba(250,204,21,0.42);
+  --chess-sigil:"Q  ABSOLUTE";
+  --chess-pattern:
+    radial-gradient(circle at 50% 18%, rgba(255,247,204,0.3), transparent 24%),
+    radial-gradient(circle at 12% 82%, rgba(250,204,21,0.16), transparent 32%),
+    radial-gradient(circle at 90% 66%, rgba(0,0,0,0.86), transparent 40%),
+    conic-gradient(from 180deg at 50% 40%, rgba(250,204,21,0.22), transparent 15% 34%, rgba(255,247,204,0.14) 34% 42%, transparent 42%),
+    linear-gradient(145deg, #020202, #050505 38%, #181006 70%, #000);
+  --chess-overlay:
+    radial-gradient(circle at 50% 42%, transparent 0 38%, rgba(250,204,21,0.16) 39% 40%, transparent 41%),
+    linear-gradient(118deg, transparent 0 35%, rgba(255,247,204,0.16) 35% 36%, transparent 36%),
+    repeating-linear-gradient(135deg, transparent 0 17px, rgba(250,204,21,0.08) 17px 18px);
   animation:chessMythicFloat 4.6s ease-in-out infinite;
 }
 
@@ -3070,6 +3239,33 @@ body.sudoku-screen-shake{
 .ajedrez-relic.mythic .board-relic-icon::after,
 .ajedrez-relic.mitico .board-relic-icon::after{
   animation:chessEdgeSweep 2.8s ease-in-out infinite;
+}
+
+@keyframes chessRareDust{
+  0%{ background-position:0 0, 0 0; transform:translateX(0); }
+  100%{ background-position:26px -26px, 0 0; transform:translateX(-4px); }
+}
+
+@keyframes chessEpicParticles{
+  0%{ background-position:0 0, 0 0; transform:rotate(0deg); }
+  100%{ background-position:36px -36px, 0 0; transform:rotate(2deg); }
+}
+
+@keyframes chessLegendarySparks{
+  0%{ background-position:0 0, 0 0; filter:brightness(1); }
+  50%{ filter:brightness(1.18); }
+  100%{ background-position:42px -42px, 0 0; filter:brightness(1); }
+}
+
+@keyframes chessMythicOrbit{
+  0%{ transform:rotate(0deg) scale(1); opacity:0.82; }
+  50%{ transform:rotate(180deg) scale(1.05); opacity:1; }
+  100%{ transform:rotate(360deg) scale(1); opacity:0.82; }
+}
+
+@keyframes chessPieceFloat{
+  0%,100%{ transform:translateY(-2px); }
+  50%{ transform:translateY(-8px); }
 }
 
 @keyframes chessEpicAura{
