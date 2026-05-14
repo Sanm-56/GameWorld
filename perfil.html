@@ -1754,93 +1754,224 @@ body.sudoku-screen-shake{
 }
 
 .achievement-grid.memory-relics{
-  gap:12px;
+  gap:14px;
+  scrollbar-color:#a9b9d6 #050816;
 }
 
 .achievement-card.memory-relic{
+  --memory-metal:#8fa3c7;
+  --memory-metal-light:#e5edff;
+  --memory-bg:#080b16;
+  --memory-ink:#f1f6ff;
+  --memory-glow:rgba(168,185,214,0.18);
   position:relative;
-  display:block;
-  min-height:0;
-  padding:0;
-  border-radius:12px;
+  display:grid;
+  grid-template-columns:96px minmax(0, 1fr);
+  gap:16px;
+  min-height:232px;
+  padding:18px;
   overflow:hidden;
-  background:rgba(15,23,42,0.72);
-  border:1px solid rgba(148,163,184,0.2);
-  box-shadow:0 12px 28px rgba(0,0,0,0.28);
+  isolation:isolate;
+  border:0;
+  border-radius:18px;
+  color:var(--memory-ink);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(186,230,253,0.12), transparent 30%),
+    radial-gradient(circle at 82% 8%, rgba(196,181,253,0.14), transparent 32%),
+    linear-gradient(135deg, rgba(255,255,255,0.058), transparent 24% 76%, rgba(255,255,255,0.024)),
+    linear-gradient(145deg, #050711, var(--memory-bg) 46%, #151b2a 74%, #05070d);
+  box-shadow:
+    0 20px 46px rgba(0,0,0,0.56),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 24%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.58);
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
 }
 
 .achievement-card.memory-relic::before,
 .achievement-card.memory-relic::after{
-  content:none;
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.achievement-card.memory-relic::before{
+  inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(circle, rgba(229,237,255,0.16) 0 2px, transparent 3px),
+    linear-gradient(rgba(229,237,255,0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(229,237,255,0.02) 1px, transparent 1px),
+    linear-gradient(118deg, transparent 0 42%, color-mix(in srgb, var(--memory-metal-light) 9%, transparent) 42% 43%, transparent 43%);
+  background-size:46px 46px, 34px 34px, 34px 34px, 100% 100%;
+  opacity:0.72;
+  animation:memoryMindPoints 7.2s ease-in-out infinite;
+}
+
+.achievement-card.memory-relic::after{
+  right:16px;
+  bottom:14px;
+  z-index:-1;
+  width:92px;
+  height:92px;
+  border:1px solid color-mix(in srgb, var(--memory-metal-light) 18%, transparent);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--memory-metal-light) 14%, transparent), transparent 34%),
+    repeating-radial-gradient(circle, transparent 0 13px, color-mix(in srgb, var(--memory-metal-light) 9%, transparent) 14px 15px);
+  opacity:0.36;
+  animation:memoryQuietWave 8s ease-in-out infinite;
 }
 
 .achievement-card.memory-relic:hover{
-  transform:translateY(-1px);
-  border-color:rgba(203,213,225,0.28);
-  box-shadow:0 16px 34px rgba(0,0,0,0.34);
+  transform:translateY(-2px);
+  box-shadow:
+    0 24px 58px rgba(0,0,0,0.62),
+    0 0 30px var(--memory-glow),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 32%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.58);
 }
 
 .achievement-card.memory-relic.locked{
   opacity:0.72;
-  filter:saturate(0.82);
+  filter:saturate(0.8);
 }
 
 .memory-relic-header{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:12px;
-  padding:14px 14px 0;
+  position:relative;
+  display:grid;
+  align-content:start;
+  gap:10px;
+  min-width:0;
 }
 
 .memory-relic-badges{
   display:flex;
   flex-direction:column;
-  align-items:flex-end;
+  align-items:flex-start;
   gap:6px;
 }
 
 .memory-relic-icon{
-  width:58px;
-  height:58px;
+  position:relative;
+  width:88px;
+  height:112px;
   display:grid;
   place-items:center;
-  border-radius:10px;
-  color:#e2e8f0;
-  font-size:0.68rem;
-  font-weight:900;
+  border-radius:18px 18px 22px 22px;
+  clip-path:polygon(10% 0, 90% 0, 100% 14%, 100% 78%, 50% 100%, 0 78%, 0 14%);
+  color:#111827;
+  font-size:0.7rem;
+  font-weight:1000;
   letter-spacing:0.06em;
-  background:rgba(30,41,59,0.78);
-  border:1px solid rgba(148,163,184,0.2);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.22), transparent 24%),
+    linear-gradient(145deg, #dbe7ff, #8fa3c7 54%, #eef6ff);
+  box-shadow:
+    0 16px 30px rgba(0,0,0,0.46),
+    0 0 24px var(--memory-glow),
+    inset 0 0 0 2px color-mix(in srgb, var(--memory-metal-light) 38%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.48);
+  animation:memoryCardFloat 6s ease-in-out infinite;
 }
 
 .memory-relic-icon::before,
 .memory-relic-icon::after{
-  content:none;
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.memory-relic-icon::before{
+  inset:20px 18px 32px;
+  border-radius:10px;
+  background:
+    radial-gradient(circle at 28% 32%, rgba(17,24,39,0.26) 0 3px, transparent 4px),
+    radial-gradient(circle at 72% 32%, rgba(17,24,39,0.22) 0 3px, transparent 4px),
+    radial-gradient(circle at 50% 68%, rgba(17,24,39,0.2) 0 3px, transparent 4px),
+    linear-gradient(rgba(17,24,39,0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,0.14) 1px, transparent 1px);
+  background-size:100% 100%, 100% 100%, 100% 100%, 18px 18px, 18px 18px;
+  border:1px solid rgba(15,23,42,0.22);
+}
+
+.memory-relic-icon::after{
+  left:16px;
+  right:16px;
+  bottom:20px;
+  height:8px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, rgba(248,250,252,0.9), transparent);
+  opacity:0.68;
+  animation:memoryCardShine 5.8s ease-in-out infinite;
 }
 
 .memory-relic-icon span{
   position:relative;
   z-index:1;
-  text-shadow:none;
+  margin-top:20px;
+  text-shadow:0 1px 0 rgba(255,255,255,0.24);
 }
 
 .memory-relic-main{
-  padding:12px 14px 14px;
+  position:relative;
+  min-width:0;
+  display:grid;
+  gap:9px;
+  overflow:hidden;
+}
+
+.memory-relic-main::before,
+.memory-relic-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.memory-relic-main::before{
+  left:-42%;
+  right:-42%;
+  top:4px;
+  height:2px;
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--memory-metal-light) 46%, transparent), rgba(255,255,255,0.16), transparent);
+  box-shadow:0 0 12px var(--memory-glow);
+  animation:memorySoftTrace 6.2s ease-in-out infinite;
+}
+
+.memory-relic-main::after{
+  right:4px;
+  bottom:4px;
+  width:54px;
+  height:54px;
+  border:1px solid color-mix(in srgb, var(--memory-metal-light) 20%, transparent);
+  border-radius:16px;
+  transform:rotate(45deg);
+  opacity:0.3;
+  animation:memoryRecallMark 7.6s ease-in-out infinite;
+}
+
+.memory-relic-title,
+.memory-relic-prophecy,
+.memory-objective,
+.memory-progress{
+  position:relative;
+  z-index:1;
 }
 
 .memory-relic-title{
   display:block;
-  color:#f8fafc;
-  font-size:1rem;
-  line-height:1.18;
+  color:#f4f8ff;
+  font-size:1.14rem;
+  line-height:1.12;
+  text-shadow:0 2px 16px rgba(0,0,0,0.4);
   overflow-wrap:anywhere;
 }
 
 .memory-relic-prophecy{
-  margin:8px 0 12px;
-  color:rgba(203,213,225,0.78);
-  font-size:0.9rem;
+  margin:0;
+  color:rgba(229,237,255,0.72);
+  font-size:0.92rem;
   line-height:1.42;
   font-style:normal;
 }
@@ -1849,28 +1980,28 @@ body.sudoku-screen-shake{
   display:grid;
   gap:5px;
   padding:10px 12px;
-  border-radius:10px;
-  background:rgba(2,6,23,0.34);
-  border:1px solid rgba(148,163,184,0.16);
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--memory-metal-light) 20%, transparent);
+  background:linear-gradient(135deg, rgba(255,255,255,0.045), rgba(2,6,23,0.58));
 }
 
 .memory-objective span{
-  color:#cbd5e1;
+  color:color-mix(in srgb, var(--memory-metal-light) 86%, white 8%);
   font-size:0.68rem;
-  font-weight:800;
-  letter-spacing:0.1em;
+  font-weight:1000;
+  letter-spacing:0.16em;
   text-transform:uppercase;
 }
 
 .memory-objective small{
-  color:rgba(226,232,240,0.84);
+  color:rgba(229,237,255,0.84);
   line-height:1.35;
 }
 
 .memory-progress{
   display:grid;
   gap:6px;
-  margin-top:12px;
+  margin-top:0;
 }
 
 .memory-progress-meta{
@@ -1878,25 +2009,26 @@ body.sudoku-screen-shake{
   align-items:center;
   justify-content:space-between;
   gap:10px;
-  color:rgba(203,213,225,0.74);
+  color:rgba(229,237,255,0.74);
   font-size:0.76rem;
-  font-weight:700;
+  font-weight:800;
 }
 
 .memory-progress-track{
   height:8px;
+  padding:1px;
   overflow:hidden;
-  border-radius:999px;
-  background:rgba(2,6,23,0.68);
-  border:1px solid rgba(148,163,184,0.14);
+  border-radius:4px;
+  border:1px solid color-mix(in srgb, var(--memory-metal-light) 18%, transparent);
+  background:linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.9));
 }
 
 .memory-progress-fill{
   height:100%;
   width:0%;
-  border-radius:inherit;
-  background:#94a3b8;
-  box-shadow:none;
+  border-radius:3px;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--memory-metal) 68%, #f8fafc), var(--memory-metal-light));
+  box-shadow:0 0 12px var(--memory-glow);
   transition:width 0.7s ease;
 }
 
@@ -1904,38 +2036,78 @@ body.sudoku-screen-shake{
 .memory-relic-state{
   display:inline-flex;
   align-items:center;
-  min-height:22px;
-  padding:3px 7px;
-  border-radius:999px;
-  color:#cbd5e1;
-  background:rgba(15,23,42,0.66);
-  border:1px solid rgba(148,163,184,0.16);
-  font-size:0.64rem;
-  font-weight:800;
-  letter-spacing:0.06em;
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:color-mix(in srgb, var(--memory-metal-light) 82%, white 8%);
+  border:1px solid color-mix(in srgb, var(--memory-metal-light) 24%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--memory-metal) 12%, transparent), rgba(2,6,23,0.72));
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
   text-transform:uppercase;
   white-space:nowrap;
 }
 
 .memory-relic.unlocked .memory-relic-state{
-  color:#e2e8f0;
-  border-color:rgba(203,213,225,0.24);
+  color:#eef6ff;
+  border-color:rgba(229,237,255,0.28);
 }
 
-.memory-relic.common,
-.memory-relic.rare,
-.memory-relic.epic,
-.memory-relic.legendary{
-  animation:none;
+.achievement-card.memory-relic.common,
+.achievement-grid.memory-relics .memory-relic.common{
+  --memory-metal:#8fa3c7;
+  --memory-metal-light:#e5edff;
+  --memory-bg:#080b16;
+  --memory-glow:rgba(168,185,214,0.2);
 }
 
-.memory-relic.common .memory-relic-rarity,
-.memory-relic.rare .memory-relic-rarity,
-.memory-relic.epic .memory-relic-rarity,
-.memory-relic.legendary .memory-relic-rarity{
-  color:#cbd5e1;
-  background:rgba(15,23,42,0.66);
-  border-color:rgba(148,163,184,0.16);
+.memory-common-v1,
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 1){ border-radius:18px; }
+.memory-common-v2,
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 2){ border-radius:14px 22px 14px 22px; }
+.memory-common-v3,
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 3){ grid-template-columns:104px minmax(0, 1fr); }
+.memory-common-v4,
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 4){ border-radius:22px 14px 22px 14px; }
+.memory-common-v5,
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 5){ background-size:100% 100%, 100% 100%, 100% 100%, 100% 100%; }
+.memory-common-v6,
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 6){ grid-template-columns:90px minmax(0, 1fr); }
+.memory-common-v7,
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 7){ border-radius:16px 24px 16px 24px; }
+.memory-common-v8,
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n){ grid-template-columns:104px minmax(0, 1fr); }
+
+@keyframes memoryMindPoints{
+  0%,100%{ background-position:0 0, 0 0, 0 0, 0 0; opacity:0.58; }
+  50%{ background-position:12px -8px, 0 8px, 8px 0, 0 0; opacity:0.82; }
+}
+
+@keyframes memoryQuietWave{
+  0%,100%{ transform:scale(0.92); opacity:0.22; }
+  50%{ transform:scale(1.08); opacity:0.42; }
+}
+
+@keyframes memoryCardFloat{
+  0%,100%{ transform:translateY(0); filter:brightness(1); }
+  50%{ transform:translateY(-4px); filter:brightness(1.06); }
+}
+
+@keyframes memoryCardShine{
+  0%,100%{ transform:translateX(-8px); opacity:0.38; }
+  50%{ transform:translateX(8px); opacity:0.82; }
+}
+
+@keyframes memorySoftTrace{
+  0%,100%{ transform:translateX(-52%); opacity:0.14; }
+  48%{ transform:translateX(8%); opacity:0.72; }
+  74%{ transform:translateX(52%); opacity:0.2; }
+}
+
+@keyframes memoryRecallMark{
+  0%,100%{ transform:rotate(42deg) scale(0.92); opacity:0.2; }
+  50%{ transform:rotate(50deg) scale(1.08); opacity:0.42; }
 }
 
 .achievement-grid.math-relics{
@@ -7102,23 +7274,36 @@ body.sudoku-screen-shake{
   }
 
   .achievement-card.memory-relic{
-    padding:0;
+    grid-template-columns:74px minmax(0, 1fr);
+    gap:12px;
+    padding:14px;
     min-height:0;
+    border-radius:14px;
+  }
+
+  .memory-common-v2,
+  .memory-common-v5{
+    grid-template-columns:1fr;
+  }
+
+  .memory-common-v3,
+  .memory-common-v8{
+    grid-template-columns:82px minmax(0, 1fr);
   }
 
   .memory-relic-icon{
-    width:62px;
-    height:62px;
+    width:68px;
+    height:86px;
     font-size:0.62rem;
   }
 
   .memory-relic-header{
-    padding:14px 14px 0;
+    padding:0;
     gap:10px;
   }
 
   .memory-relic-main{
-    padding:11px 14px 14px;
+    padding:0;
   }
 
   .memory-relic-badges{
@@ -7127,11 +7312,17 @@ body.sudoku-screen-shake{
 
   .memory-relic-rarity,
   .memory-relic-state{
-    font-size:0.64rem;
+    min-height:22px;
+    font-size:0.6rem;
+    padding:3px 6px;
   }
 
   .memory-relic-title{
     font-size:0.98rem;
+  }
+
+  .memory-relic-prophecy{
+    font-size:0.86rem;
   }
 
   .achievement-card.math-relic{
@@ -7578,6 +7769,6 @@ body.sudoku-screen-shake{
   </div>
 </div>
 
-<script type="module" src="./juegos/js/perfil.js?v=sudoku-epic-legendary-relics-20260514"></script>
+<script type="module" src="./juegos/js/perfil.js?v=memory-common-relics-20260514"></script>
 </body>
 </html>

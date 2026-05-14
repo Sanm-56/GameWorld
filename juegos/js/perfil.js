@@ -4779,10 +4779,18 @@ function obtenerIconoMemoria(achievement) {
   return { label: 'PAIR', className: 'pair' }
 }
 
+function obtenerVarianteComunMemoria(achievement) {
+  const texto = textoPlano(`${achievement.title || ''} ${achievement.description || ''} ${achievement.howTo || ''}`)
+  let hash = 0
+  for (let i = 0; i < texto.length; i += 1) hash = (hash + texto.charCodeAt(i) * (i + 2)) % 8
+  return `memory-common-v${hash + 1}`
+}
+
 function renderLogroMemoria(achievement, stats) {
   const progress = obtenerProgresoMemoria(achievement, stats)
   const rarity = obtenerRarezaMemoria(progress, achievement)
   const icon = obtenerIconoMemoria(achievement)
+  const visualVariant = rarity === 'common' ? ` ${obtenerVarianteComunMemoria(achievement)}` : ''
   const rarityLabel = {
     common: 'Comun',
     rare: 'Raro',
@@ -4790,7 +4798,7 @@ function renderLogroMemoria(achievement, stats) {
     legendary: 'Legendario',
   }[rarity]
   const div = document.createElement('div')
-  div.className = `achievement-card memory-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.className = `achievement-card memory-relic ${rarity}${visualVariant}${achievement.unlocked ? ' unlocked' : ' locked'}`
   div.innerHTML = `
     <div class="memory-relic-header">
       <div class="memory-relic-icon ${escaparHtml(icon.className)}" aria-hidden="true">
