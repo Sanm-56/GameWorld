@@ -108,6 +108,10 @@ let dodgeTwoLifeStartedAt = null
 let dodgeBestTwoLifeMs = 0
 let dodgeObstaclesDodged = 0
 let stackBlocksPlaced = 0
+let mountainOneLifeStartedAt = null
+let mountainBestOneLifeMs = 0
+let mountainTwoLifeStartedAt = null
+let mountainBestTwoLifeMs = 0
 let advertencias = 0
 let resultadoEnviado = false
 let descalificado = false
@@ -354,6 +358,21 @@ function miss(reason = "Fallaste") {
     } else if (lives < 1 && dodgeOneLifeStartedAt !== null) {
       dodgeBestOneLifeMs = Math.max(dodgeBestOneLifeMs, now - dodgeOneLifeStartedAt)
       dodgeOneLifeStartedAt = null
+    }
+  }
+  if (gameKey === "subelamontana") {
+    const now = performance.now()
+    if (lives === 2 && mountainTwoLifeStartedAt === null) {
+      mountainTwoLifeStartedAt = now
+    } else if (lives === 1) {
+      if (mountainTwoLifeStartedAt !== null) {
+        mountainBestTwoLifeMs = Math.max(mountainBestTwoLifeMs, now - mountainTwoLifeStartedAt)
+        mountainTwoLifeStartedAt = null
+      }
+      if (mountainOneLifeStartedAt === null) mountainOneLifeStartedAt = now
+    } else if (lives < 1 && mountainOneLifeStartedAt !== null) {
+      mountainBestOneLifeMs = Math.max(mountainBestOneLifeMs, now - mountainOneLifeStartedAt)
+      mountainOneLifeStartedAt = null
     }
   }
   setStatus(reason)
@@ -1376,8 +1395,21 @@ async function saveStats(position, elapsed) {
 
   if (gameKey === "subelamontana") {
     const alturaMetros = Math.max(0, Math.floor(state.climb.height || 0))
+    const now = performance.now()
+    const oneLifeMs = mountainOneLifeStartedAt === null
+      ? mountainBestOneLifeMs
+      : Math.max(mountainBestOneLifeMs, now - mountainOneLifeStartedAt)
+    const twoLifeMs = mountainTwoLifeStartedAt === null
+      ? mountainBestTwoLifeMs
+      : Math.max(mountainBestTwoLifeMs, now - mountainTwoLifeStartedAt)
+
     payload.montana_mejor_altura_m = Math.max(actual?.montana_mejor_altura_m || 0, alturaMetros)
     payload.montana_puntos_total = (actual?.montana_puntos_total || 0) + score
+    payload.montana_partidas_una_vida = (actual?.montana_partidas_una_vida || 0) + (lives === 1 ? 1 : 0)
+    payload.montana_partidas_dos_vidas = (actual?.montana_partidas_dos_vidas || 0) + (lives === 2 ? 1 : 0)
+    payload.montana_partidas_sin_perder_vidas = (actual?.montana_partidas_sin_perder_vidas || 0) + (lives === 3 ? 1 : 0)
+    payload.montana_mejor_tiempo_una_vida = Math.max(actual?.montana_mejor_tiempo_una_vida || 0, Math.floor(oneLifeMs / 1000))
+    payload.montana_mejor_tiempo_dos_vidas = Math.max(actual?.montana_mejor_tiempo_dos_vidas || 0, Math.floor(twoLifeMs / 1000))
   }
 
   const { error } = await supabase

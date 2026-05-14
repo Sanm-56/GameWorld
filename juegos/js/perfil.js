@@ -1753,6 +1753,10 @@ function crearLogrosSubeLaMontana(stats) {
   const puntosTotal = stats.montana_puntos_total || 0
   const partidasJugadas = stats.completados || 0
   const victoriasTorneos = stats.victorias_torneos || 0
+  const partidasUnaVida = stats.montana_partidas_una_vida || 0
+  const partidasDosVidas = stats.montana_partidas_dos_vidas || 0
+  const mejorTiempoUnaVida = stats.montana_mejor_tiempo_una_vida || 0
+  const mejorTiempoDosVidas = stats.montana_mejor_tiempo_dos_vidas || 0
   const logrosAltura = [
     ['El Primer Paso de Eryndhal', 'La monta&ntilde;a escuch&oacute; por primera vez tus botas sobre la roca.', 'Alcanza 100 m.', 100],
     ['Los Senderos de Kael&rsquo;Drim', 'Las viejas piedras comenzaron a aceptar tu ascenso.', 'Alcanza 250 m.', 250],
@@ -1809,6 +1813,36 @@ function crearLogrosSubeLaMontana(stats) {
     ['El Eclipse de las Cumbres Antiguas', 'Las monta&ntilde;as guardaron silencio tras tu victoria.', 'Gana 150 torneos.', 150],
     ['La Corona de Aethernia', 'Tu nombre alcanz&oacute; donde nacen las leyendas del hielo.', 'Gana 200 torneos.', 200],
   ]
+  const logrosUnaVida = [
+    ['El &Uacute;ltimo Aliento de Kaelor', 'La monta&ntilde;a crey&oacute; que caer&iacute;as primero.', 'Sobrevive 20 segundos con 1 vida.', 20],
+    ['Sangre sobre la Escarcha', 'El fr&iacute;o no logr&oacute; apagar tu ascenso.', 'Sobrevive 30 segundos con 1 vida.', 30],
+    ['El Pulso de la Cornisa Negra', 'Cada segundo parec&iacute;a el &uacute;ltimo.', 'Sobrevive 45 segundos con 1 vida.', 45],
+    ['La Vigilia del Herido', 'Tus pasos continuaron incluso al borde del abismo.', 'Sobrevive 1 minuto con 1 vida.', 60],
+    ['El Coraz&oacute;n de Valkerys', 'La tormenta esperaba verte caer... y fall&oacute;.', 'Sobrevive 90 segundos con 1 vida.', 90],
+    ['El Refugio del &Uacute;ltimo Escalador', 'Las alturas comenzaron a respetar tu resistencia.', 'Sobrevive 2 minutos con 1 vida.', 120],
+    ['La Llama Bajo la Nieve', 'Algo dentro de ti sigui&oacute; ardiendo contra el hielo.', 'Sobrevive 3 minutos con 1 vida.', 180],
+    ['El Juramento de las Cumbres Eternas', 'La ca&iacute;da estuvo cerca demasiadas veces.', 'Sobrevive 4 minutos con 1 vida.', 240],
+    ['El Eco del Invicto Blanco', 'La monta&ntilde;a dej&oacute; de intentar detenerte.', 'Sobrevive 5 minutos con 1 vida.', 300],
+    ['El &Uacute;ltimo Guardi&aacute;n de Etherion', 'Ni el vac&iacute;o ni la tormenta lograron reclamarte.', 'Sobrevive 6 minutos con 1 vida.', 360],
+    ['La Reliquia del Sobreviviente', 'Tus heridas comenzaron a parecer parte de la leyenda.', 'Sobrevive una partida completa con 1 vida.', null],
+    ['El Nombre que No Cay&oacute;', 'Incluso la monta&ntilde;a perdi&oacute; la paciencia contigo.', 'Sobrevive 8 minutos con 1 vida.', 480],
+    ['El Ascenso del Heraldo Gris', 'Tus manos siguieron avanzando pese al agotamiento.', 'Sobrevive 10 minutos con 1 vida.', 600],
+  ]
+  const logrosDosVidas = [
+    ['Las Dos Llamas de Aerthys', 'Todav&iacute;a quedaban fuerzas... y la monta&ntilde;a lo sab&iacute;a.', 'Sobrevive 20 segundos con 2 vidas.', 20],
+    ['El Sendero de las Nieves Rojas', 'Cada paso dej&oacute; marcas invisibles sobre el hielo.', 'Sobrevive 30 segundos con 2 vidas.', 30],
+    ['El Vig&iacute;a del Abismo Blanco', 'Las alturas comenzaron a observar tu resistencia.', 'Sobrevive 45 segundos con 2 vidas.', 45],
+    ['El Pulso de la Escarcha Eterna', 'El fr&iacute;o mord&iacute;a la roca, pero no tu voluntad.', 'Sobrevive 1 minuto con 2 vidas.', 60],
+    ['La Reliquia de Kael&rsquo;Thor', 'Tus botas siguieron avanzando sobre cornisas imposibles.', 'Sobrevive 90 segundos con 2 vidas.', 90],
+    ['El Refugio de las Sombras Nevadas', 'Las tormentas comenzaron a rodearte en silencio.', 'Sobrevive 2 minutos con 2 vidas.', 120],
+    ['La Corona del Viento Gris', 'El vac&iacute;o qued&oacute; bajo tus pies una vez m&aacute;s.', 'Sobrevive 3 minutos con 2 vidas.', 180],
+    ['El Juramento de Valkareth', 'Las monta&ntilde;as antiguas reconocieron tu perseverancia.', 'Sobrevive 4 minutos con 2 vidas.', 240],
+    ['El Horizonte de Noctyra', 'Las cumbres dejaron de parecer inalcanzables.', 'Sobrevive 5 minutos con 2 vidas.', 300],
+    ['La Vigilia del Escalador Carmes&iacute;', 'Tus movimientos resistieron incluso bajo la tormenta.', 'Sobrevive 6 minutos con 2 vidas.', 360],
+    ['El Eco de las Alturas Eternas', 'La monta&ntilde;a comenz&oacute; a guardar memoria de tus pasos.', 'Sobrevive una partida completa con 2 vidas.', null],
+    ['El Guardi&aacute;n del Pico Sombr&iacute;o', 'Muy pocos llegan tan lejos sin desaparecer en la nieve.', 'Sobrevive 8 minutos con 2 vidas.', 480],
+    ['Las Campanas de Etherion', 'Cada segundo vivo parec&iacute;a una victoria robada al abismo.', 'Sobrevive 10 minutos con 2 vidas.', 600],
+  ]
 
   return [
     ...logrosAltura.map(([title, description, howTo, requisito]) => ({
@@ -1834,6 +1868,18 @@ function crearLogrosSubeLaMontana(stats) {
       description,
       howTo,
       unlocked: victoriasTorneos >= requisito,
+    })),
+    ...logrosUnaVida.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: requisito === null ? partidasUnaVida >= 1 : mejorTiempoUnaVida >= requisito,
+    })),
+    ...logrosDosVidas.map(([title, description, howTo, requisito]) => ({
+      title,
+      description,
+      howTo,
+      unlocked: requisito === null ? partidasDosVidas >= 1 : mejorTiempoDosVidas >= requisito,
     })),
   ]
 }
@@ -5126,6 +5172,13 @@ function obtenerRarezaSubeLaMontana(achievement) {
     if (target >= 100) return 'legendary'
     if (target >= 35) return 'epic'
     if (target >= 10) return 'rare'
+    return 'common'
+  }
+
+  if (objetivoTexto.includes('vida')) {
+    if (objetivoTexto.includes('10 minuto') || objetivoTexto.includes('8 minuto') || objetivoTexto.includes('partida completa')) return 'legendary'
+    if (objetivoTexto.includes('5 minuto') || objetivoTexto.includes('6 minuto') || objetivoTexto.includes('4 minuto')) return 'epic'
+    if (objetivoTexto.includes('90') || objetivoTexto.includes('2 minuto') || objetivoTexto.includes('3 minuto')) return 'rare'
     return 'common'
   }
 

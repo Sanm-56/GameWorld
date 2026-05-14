@@ -175,6 +175,11 @@ create table if not exists public.estadisticas_logros (
   torre_puntos_total integer not null default 0,
   montana_mejor_altura_m integer not null default 0,
   montana_puntos_total integer not null default 0,
+  montana_partidas_una_vida integer not null default 0,
+  montana_partidas_dos_vidas integer not null default 0,
+  montana_partidas_sin_perder_vidas integer not null default 0,
+  montana_mejor_tiempo_una_vida integer not null default 0,
+  montana_mejor_tiempo_dos_vidas integer not null default 0,
   ultimo_tiempo integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -294,6 +299,21 @@ add column if not exists montana_mejor_altura_m integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists montana_puntos_total integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists montana_partidas_una_vida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists montana_partidas_dos_vidas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists montana_partidas_sin_perder_vidas integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists montana_mejor_tiempo_una_vida integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists montana_mejor_tiempo_dos_vidas integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists posiciones_mejoradas integer not null default 0;
