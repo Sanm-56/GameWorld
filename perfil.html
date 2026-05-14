@@ -1450,6 +1450,185 @@ body.sudoku-screen-shake{
   box-shadow:0 0 18px rgba(125,211,252,0.12), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
+.achievement-card.sudoku-relic.epic,
+.achievement-grid.sudoku-relics .sudoku-relic.epic{
+  --sudoku-metal:#a78bfa;
+  --sudoku-metal-light:#f2e7ff;
+  --sudoku-bg:#10091f;
+  --sudoku-glow:rgba(168,85,247,0.36);
+  grid-template-columns:112px minmax(0, 1fr);
+  min-height:258px;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(34,211,238,0.16), transparent 30%),
+    radial-gradient(circle at 82% 10%, rgba(168,85,247,0.28), transparent 34%),
+    conic-gradient(from 135deg at 18% 50%, transparent 0 18%, rgba(216,180,254,0.12) 19% 21%, transparent 22% 100%),
+    linear-gradient(45deg, rgba(242,231,255,0.045) 25%, transparent 25% 50%, rgba(0,0,0,0.28) 50% 75%, transparent 75%),
+    linear-gradient(145deg, #04030a, #10091f 42%, #24113a 72%, #06030b);
+  background-size:100% 100%, 100% 100%, 100% 100%, 30px 30px, 100% 100%;
+  box-shadow:
+    0 28px 64px rgba(0,0,0,0.66),
+    0 0 44px rgba(168,85,247,0.2),
+    inset 0 0 0 1px rgba(242,231,255,0.08),
+    inset 0 0 0 2px rgba(168,85,247,0.36),
+    inset 0 0 0 8px rgba(2,6,23,0.58);
+}
+
+.sudoku-relic.epic::before{
+  background:
+    linear-gradient(rgba(242,231,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242,231,255,0.026) 1px, transparent 1px),
+    radial-gradient(circle at 32% 68%, rgba(34,211,238,0.1) 0 2px, transparent 3px),
+    linear-gradient(118deg, transparent 0 38%, rgba(216,180,254,0.13) 38% 39%, transparent 39% 100%);
+  background-size:28px 28px, 28px 28px, 46px 46px, 100% 100%;
+}
+
+.sudoku-relic.epic::after{
+  content:"7 2 9";
+  color:rgba(242,231,255,0.18);
+  text-shadow:0 0 20px rgba(168,85,247,0.24);
+}
+
+.sudoku-relic.epic .sudoku-relic-icon{
+  width:106px;
+  height:130px;
+  color:#160b27;
+  clip-path:polygon(50% 0, 92% 10%, 100% 48%, 82% 86%, 50% 100%, 18% 86%, 0 48%, 8% 10%);
+  background:
+    radial-gradient(circle at 50% 16%, rgba(255,255,255,0.34), transparent 23%),
+    conic-gradient(from 45deg, #22d3ee, #f2e7ff, #a78bfa, #31204c, #22d3ee);
+  box-shadow:
+    0 24px 42px rgba(0,0,0,0.54),
+    0 0 42px rgba(168,85,247,0.32),
+    inset 0 0 0 2px rgba(242,231,255,0.56),
+    inset 0 0 0 9px rgba(15,8,28,0.54);
+  animation:sudokuEpicCoreFloat 5.4s ease-in-out infinite;
+}
+
+.sudoku-relic.epic .sudoku-relic-icon::before{
+  inset:25px 20px 32px;
+  background:
+    linear-gradient(rgba(14,10,30,0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14,10,30,0.26) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.42) 0 4px, transparent 5px);
+  background-size:12px 12px, 12px 12px, 100% 100%;
+  border-color:rgba(14,10,30,0.28);
+}
+
+.sudoku-relic.epic .sudoku-relic-icon::after{
+  left:15px;
+  right:15px;
+  bottom:22px;
+  height:10px;
+  background:linear-gradient(90deg, transparent, rgba(242,231,255,0.95), rgba(34,211,238,0.65), transparent);
+  box-shadow:0 0 20px rgba(168,85,247,0.32);
+  animation:sudokuEpicIconRay 4.8s ease-in-out infinite;
+}
+
+.sudoku-relic.epic .sudoku-relic-main::before{
+  height:3px;
+  background:linear-gradient(90deg, transparent, rgba(34,211,238,0.48), rgba(242,231,255,0.82), rgba(168,85,247,0.42), transparent);
+  box-shadow:0 0 28px rgba(168,85,247,0.34);
+  animation:sudokuEpicCircuit 4.1s ease-in-out infinite;
+}
+
+.sudoku-relic.epic .sudoku-relic-main::after{
+  width:72px;
+  height:72px;
+  border-radius:16px;
+  border-color:rgba(216,180,254,0.4);
+  box-shadow:0 0 26px rgba(168,85,247,0.16);
+  opacity:0.66;
+  animation:sudokuEpicOrbit 7.4s ease-in-out infinite;
+}
+
+.sudoku-relic.epic .sudoku-relic-rarity,
+.sudoku-relic.epic .sudoku-relic-state{
+  color:#f2e7ff;
+  border-color:rgba(216,180,254,0.42);
+  background:linear-gradient(135deg, rgba(168,85,247,0.2), rgba(2,6,23,0.78));
+  box-shadow:0 0 20px rgba(168,85,247,0.16), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.achievement-card.sudoku-relic.legendary,
+.achievement-grid.sudoku-relics .sudoku-relic.legendary{
+  --sudoku-metal:#d6a94e;
+  --sudoku-metal-light:#fff1bd;
+  --sudoku-bg:#150f05;
+  --sudoku-glow:rgba(251,191,36,0.34);
+  grid-template-columns:118px minmax(0, 1fr);
+  min-height:270px;
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255,241,189,0.18), transparent 30%),
+    radial-gradient(circle at 88% 18%, rgba(251,191,36,0.22), transparent 34%),
+    conic-gradient(from 90deg at 50% 48%, transparent 0 16%, rgba(255,241,189,0.1) 17% 18%, transparent 19% 50%, rgba(251,191,36,0.1) 51% 52%, transparent 53% 100%),
+    linear-gradient(45deg, rgba(255,241,189,0.052) 25%, transparent 25% 50%, rgba(0,0,0,0.28) 50% 75%, transparent 75%),
+    linear-gradient(145deg, #060402, #150f05 42%, #34260d 72%, #050302);
+  background-size:100% 100%, 100% 100%, 100% 100%, 32px 32px, 100% 100%;
+  box-shadow:
+    0 30px 70px rgba(0,0,0,0.7),
+    0 0 52px rgba(251,191,36,0.2),
+    inset 0 0 0 1px rgba(255,241,189,0.1),
+    inset 0 0 0 2px rgba(251,191,36,0.38),
+    inset 0 0 0 9px rgba(2,6,23,0.56);
+}
+
+.sudoku-relic.legendary::after{
+  content:"9 9 9";
+  color:rgba(255,241,189,0.2);
+  text-shadow:0 0 24px rgba(251,191,36,0.28);
+}
+
+.sudoku-relic.legendary .sudoku-relic-icon{
+  width:112px;
+  height:136px;
+  color:#1d1302;
+  clip-path:polygon(50% 0, 88% 8%, 100% 24%, 94% 78%, 50% 100%, 6% 78%, 0 24%, 12% 8%);
+  background:
+    radial-gradient(circle at 50% 14%, rgba(255,255,255,0.42), transparent 23%),
+    linear-gradient(145deg, #fff1bd, #d6a94e 46%, #5d3f10 72%, #fff7d6);
+  box-shadow:
+    0 26px 46px rgba(0,0,0,0.58),
+    0 0 48px rgba(251,191,36,0.32),
+    inset 0 0 0 2px rgba(255,241,189,0.6),
+    inset 0 0 0 9px rgba(20,13,3,0.52);
+  animation:sudokuLegendaryRise 5.8s ease-in-out infinite;
+}
+
+.sudoku-relic.legendary .sudoku-relic-icon::before{
+  inset:24px 20px 34px;
+  background:
+    linear-gradient(rgba(35,23,4,0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35,23,4,0.26) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.46) 0 4px, transparent 5px);
+  background-size:12px 12px, 12px 12px, 100% 100%;
+}
+
+.sudoku-relic.legendary .sudoku-relic-main::before{
+  height:3px;
+  background:linear-gradient(90deg, transparent, rgba(255,241,189,0.84), rgba(251,191,36,0.46), transparent);
+  box-shadow:0 0 30px rgba(251,191,36,0.32);
+  animation:sudokuLegendarySweep 4.5s ease-in-out infinite;
+}
+
+.sudoku-relic.legendary .sudoku-relic-main::after{
+  width:78px;
+  height:78px;
+  border-radius:18px;
+  border-color:rgba(255,241,189,0.42);
+  box-shadow:0 0 30px rgba(251,191,36,0.18);
+  opacity:0.7;
+  animation:sudokuLegendarySeal 7s ease-in-out infinite;
+}
+
+.sudoku-relic.legendary .sudoku-relic-rarity,
+.sudoku-relic.legendary .sudoku-relic-state{
+  color:#fff1bd;
+  border-color:rgba(251,191,36,0.44);
+  background:linear-gradient(135deg, rgba(251,191,36,0.2), rgba(2,6,23,0.78));
+  box-shadow:0 0 22px rgba(251,191,36,0.16), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
 .sudoku-common-v1,
 .achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 1){ border-radius:18px; }
 .sudoku-common-v2,
@@ -1484,6 +1663,32 @@ body.sudoku-screen-shake{
 .sudoku-rare-v8,
 .achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n){ border-radius:24px 14px 24px 14px; }
 
+.sudoku-epic-v1,
+.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 1){ border-radius:18px 26px 18px 26px; }
+.sudoku-epic-v2,
+.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 2){ grid-template-columns:124px minmax(0, 1fr); }
+.sudoku-epic-v3,
+.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 3){ background-size:100% 100%, 100% 100%, 100% 100%, 24px 24px, 100% 100%; }
+.sudoku-epic-v4,
+.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 4){ border-radius:26px 16px 26px 16px; }
+.sudoku-epic-v5,
+.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 5){ grid-template-columns:108px minmax(0, 1fr); }
+.sudoku-epic-v6,
+.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n){ border-radius:24px; }
+
+.sudoku-legendary-v1,
+.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 1){ border-radius:22px; }
+.sudoku-legendary-v2,
+.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 2){ grid-template-columns:128px minmax(0, 1fr); }
+.sudoku-legendary-v3,
+.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 3){ border-radius:28px 16px 28px 16px; }
+.sudoku-legendary-v4,
+.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 4){ background-size:100% 100%, 100% 100%, 100% 100%, 26px 26px, 100% 100%; }
+.sudoku-legendary-v5,
+.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 5){ grid-template-columns:112px minmax(0, 1fr); }
+.sudoku-legendary-v6,
+.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n){ border-radius:18px 30px 18px 30px; }
+
 @keyframes sudokuRelicSweep{
   0%,100%{ transform:translateX(-52%); opacity:0.14; }
   48%{ transform:translateX(8%); opacity:0.76; }
@@ -1509,6 +1714,43 @@ body.sudoku-screen-shake{
 @keyframes sudokuRareSeal{
   0%,100%{ transform:rotate(34deg) scale(0.92); opacity:0.3; }
   50%{ transform:rotate(50deg) scale(1.08); opacity:0.62; }
+}
+
+@keyframes sudokuEpicCoreFloat{
+  0%,100%{ transform:translateY(0) rotate(0deg); filter:brightness(1); }
+  50%{ transform:translateY(-5px) rotate(1deg); filter:brightness(1.1); }
+}
+
+@keyframes sudokuEpicIconRay{
+  0%,100%{ transform:translateX(-8px); opacity:0.36; }
+  50%{ transform:translateX(8px); opacity:0.92; }
+}
+
+@keyframes sudokuEpicCircuit{
+  0%,100%{ transform:translateX(-56%); opacity:0.18; }
+  46%{ transform:translateX(8%); opacity:0.96; }
+  72%{ transform:translateX(56%); opacity:0.26; }
+}
+
+@keyframes sudokuEpicOrbit{
+  0%,100%{ transform:rotate(36deg) scale(0.9); opacity:0.36; }
+  50%{ transform:rotate(54deg) scale(1.1); opacity:0.72; }
+}
+
+@keyframes sudokuLegendaryRise{
+  0%,100%{ transform:translateY(0) scale(1); filter:brightness(1); }
+  50%{ transform:translateY(-6px) scale(1.02); filter:brightness(1.12); }
+}
+
+@keyframes sudokuLegendarySweep{
+  0%,100%{ transform:translateX(-58%); opacity:0.18; }
+  42%{ transform:translateX(8%); opacity:1; }
+  72%{ transform:translateX(58%); opacity:0.3; }
+}
+
+@keyframes sudokuLegendarySeal{
+  0%,100%{ transform:rotate(42deg) scale(0.88); opacity:0.34; }
+  50%{ transform:rotate(58deg) scale(1.12); opacity:0.78; }
 }
 
 .achievement-grid.memory-relics{
@@ -6795,12 +7037,18 @@ body.sudoku-screen-shake{
   .sudoku-common-v8,
   .sudoku-rare-v2,
   .sudoku-rare-v5,
-  .sudoku-rare-v7{
+  .sudoku-rare-v7,
+  .sudoku-epic-v5,
+  .sudoku-legendary-v5{
     grid-template-columns:82px minmax(0, 1fr);
   }
 
   .sudoku-rare-v3,
-  .sudoku-rare-v8{
+  .sudoku-rare-v8,
+  .sudoku-epic-v2,
+  .sudoku-epic-v6,
+  .sudoku-legendary-v2,
+  .sudoku-legendary-v6{
     grid-template-columns:86px minmax(0, 1fr);
   }
 
@@ -6813,6 +7061,16 @@ body.sudoku-screen-shake{
   .sudoku-relic.rare .sudoku-relic-icon{
     width:72px;
     height:92px;
+  }
+
+  .sudoku-relic.epic .sudoku-relic-icon{
+    width:76px;
+    height:96px;
+  }
+
+  .sudoku-relic.legendary .sudoku-relic-icon{
+    width:78px;
+    height:98px;
   }
 
   .sudoku-relic-header{
@@ -7320,6 +7578,6 @@ body.sudoku-screen-shake{
   </div>
 </div>
 
-<script type="module" src="./juegos/js/perfil.js?v=sudoku-relic-reset-20260514"></script>
+<script type="module" src="./juegos/js/perfil.js?v=sudoku-epic-legendary-relics-20260514"></script>
 </body>
 </html>

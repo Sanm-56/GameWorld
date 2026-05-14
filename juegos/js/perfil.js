@@ -4581,6 +4581,20 @@ function obtenerVarianteRaraSudoku(achievement) {
   return `sudoku-rare-v${hash + 1}`
 }
 
+function obtenerVarianteEpicaSudoku(achievement) {
+  const texto = textoPlano(`${achievement.title || ''} ${achievement.description || ''} ${achievement.howTo || ''}`)
+  let hash = 0
+  for (let i = 0; i < texto.length; i += 1) hash = (hash + texto.charCodeAt(i) * (i + 5)) % 6
+  return `sudoku-epic-v${hash + 1}`
+}
+
+function obtenerVarianteLegendariaSudoku(achievement) {
+  const texto = textoPlano(`${achievement.title || ''} ${achievement.description || ''} ${achievement.howTo || ''}`)
+  let hash = 0
+  for (let i = 0; i < texto.length; i += 1) hash = (hash + texto.charCodeAt(i) * (i + 7)) % 6
+  return `sudoku-legendary-v${hash + 1}`
+}
+
 function renderLogroSudoku(achievement, stats) {
   const progress = obtenerProgresoSudoku(achievement, stats)
   const rarity = obtenerRarezaSudoku(progress, achievement)
@@ -4589,7 +4603,11 @@ function renderLogroSudoku(achievement, stats) {
     ? ` ${obtenerVarianteComunSudoku(achievement)}`
     : rarity === 'rare'
       ? ` ${obtenerVarianteRaraSudoku(achievement)}`
-      : ''
+      : rarity === 'epic'
+        ? ` ${obtenerVarianteEpicaSudoku(achievement)}`
+        : rarity === 'legendary'
+          ? ` ${obtenerVarianteLegendariaSudoku(achievement)}`
+          : ''
   const rarityLabel = {
     common: 'Comun',
     rare: 'Raro',
