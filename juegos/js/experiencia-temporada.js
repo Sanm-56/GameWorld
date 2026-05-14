@@ -10,7 +10,6 @@ export const JUEGOS_TEMPORADA = [
   { key: "esquivaobstaculos", label: "Esquiva Obstaculos" },
   { key: "torreinfinita", label: "Torre Infinita" },
   { key: "subelamontana", label: "Sube la Montana" },
-  { key: "basketballarcade", label: "Basketball Arcade" },
   { key: "ajedrez", label: "Ajedrez" },
   { key: "domino", label: "Domino" },
   { key: "damas", label: "Damas" },

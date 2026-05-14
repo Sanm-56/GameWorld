@@ -77,6 +77,10 @@ drop constraint if exists temporadas_nombres_temporada_check;
 alter table public.temporadas
 drop constraint if exists temporadas_bonus_juego_check;
 
+update public.temporadas
+set bonus_juego = 'sudoku'
+where bonus_juego = 'basketballarcade';
+
 alter table public.temporadas
 add constraint temporadas_bonus_juego_check
 check (
@@ -91,7 +95,6 @@ check (
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -229,7 +232,6 @@ create table if not exists public.bonus_temporada (
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -240,6 +242,9 @@ create table if not exists public.bonus_temporada (
 
 alter table public.bonus_temporada
 drop constraint if exists bonus_temporada_juego_check;
+
+delete from public.bonus_temporada
+where juego = 'basketballarcade';
 
 alter table public.bonus_temporada
 add constraint bonus_temporada_juego_check
@@ -253,7 +258,6 @@ check (juego in (
   'esquivaobstaculos',
   'torreinfinita',
   'subelamontana',
-  'basketballarcade',
   'ajedrez',
   'domino',
   'damas'
@@ -270,7 +274,6 @@ values
   ('esquivaobstaculos', 1.0),
   ('torreinfinita', 1.0),
   ('subelamontana', 1.0),
-  ('basketballarcade', 1.0),
   ('ajedrez', 1.0),
   ('domino', 1.0),
   ('damas', 1.0)
@@ -288,7 +291,6 @@ create table if not exists public.bonus_monedas_evento (
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -303,6 +305,12 @@ create table if not exists public.bonus_monedas_evento (
 alter table public.bonus_monedas_evento
 drop constraint if exists bonus_monedas_evento_juego_check;
 
+update public.bonus_monedas_evento
+set juego = 'sudoku',
+    activo = false,
+    updated_at = now()
+where juego = 'basketballarcade';
+
 alter table public.bonus_monedas_evento
 add constraint bonus_monedas_evento_juego_check
 check (juego in (
@@ -315,7 +323,6 @@ check (juego in (
   'esquivaobstaculos',
   'torreinfinita',
   'subelamontana',
-  'basketballarcade',
   'ajedrez',
   'domino',
   'damas'
@@ -352,7 +359,6 @@ begin
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -410,7 +416,6 @@ begin
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -536,7 +541,6 @@ begin
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'
@@ -771,7 +775,6 @@ begin
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'ajedrez',
     'domino',
     'damas'

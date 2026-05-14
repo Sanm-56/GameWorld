@@ -24,7 +24,6 @@ create table if not exists public.salas (
       'esquivaobstaculos',
       'torreinfinita',
       'subelamontana',
-      'basketballarcade',
       'sudoku'
     )
   ),
@@ -122,7 +121,6 @@ check (
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'sudoku'
   )
 );

@@ -28,7 +28,7 @@ import {
 } from "./bonus-monedas-evento.js"
 import { COSMETICOS, ORDEN_RAREZAS_TIENDA, rarezaEtiqueta, tiempoRestante } from "./tienda.js"
 
-const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch", "cricketarcade", "esquivaobstaculos", "torreinfinita", "subelamontana", "basketballarcade"])
+const JUEGOS_PUNTAJE = new Set(["matematicas", "flashmind", "numcatch", "cricketarcade", "esquivaobstaculos", "torreinfinita", "subelamontana"])
 const NUMCATCH_DEFAULT_COND = "multiplos_3"
 const TABLAS_RANKING_POR_JUEGO = {
   ajedrez: "ranking_ajedrez",

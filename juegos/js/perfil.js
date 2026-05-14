@@ -45,7 +45,6 @@ const GAMES = [
   { key: 'esquivaobstaculos', label: 'Esquiva Obstaculos', icon: 'E' },
   { key: 'torreinfinita', label: 'Torre Infinita', icon: 'T' },
   { key: 'subelamontana', label: 'Sube la Montana', icon: 'S' },
-  { key: 'basketballarcade', label: 'Basketball Arcade', icon: 'B' },
   { key: 'ajedrez', label: 'Ajedrez', icon: 'A' },
   { key: 'domino', label: 'Domino', icon: 'D' },
   { key: 'damas', label: 'Damas', icon: 'K' },

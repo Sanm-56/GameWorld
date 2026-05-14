@@ -12,7 +12,6 @@ const GAMES = [
   { key: "esquivaobstaculos", label: "Esquiva Obstaculos", mode: "points" },
   { key: "torreinfinita", label: "Torre Infinita", mode: "points" },
   { key: "subelamontana", label: "Sube la Montana", mode: "points" },
-  { key: "basketballarcade", label: "Basketball Arcade", mode: "points" },
   { key: "ajedrez", label: "Ajedrez", mode: "time" },
   { key: "domino", label: "Domino", mode: "time" },
   { key: "damas", label: "Damas", mode: "time" },

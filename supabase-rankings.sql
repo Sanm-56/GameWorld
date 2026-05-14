@@ -1232,8 +1232,8 @@ security definer
 set search_path = public
 as $$
 declare
-  es_puntaje boolean := p_juego in ('matematicas', 'flashmind', 'numcatch', 'cricketarcade', 'esquivaobstaculos', 'torreinfinita', 'subelamontana', 'basketballarcade');
-  orden text := case when p_juego in ('matematicas', 'flashmind', 'numcatch', 'cricketarcade', 'esquivaobstaculos', 'torreinfinita', 'subelamontana', 'basketballarcade') then 'desc' else 'asc' end;
+  es_puntaje boolean := p_juego in ('matematicas', 'flashmind', 'numcatch', 'cricketarcade', 'esquivaobstaculos', 'torreinfinita', 'subelamontana');
+  orden text := case when p_juego in ('matematicas', 'flashmind', 'numcatch', 'cricketarcade', 'esquivaobstaculos', 'torreinfinita', 'subelamontana') then 'desc' else 'asc' end;
   desde timestamptz := now() - interval '12 hours';
 begin
   if p_juego is null or btrim(p_juego) = '' then

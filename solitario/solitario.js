@@ -23,7 +23,6 @@ const MINI_TOURNAMENT_GAMES = [
   { key: "esquivaobstaculos", label: "Esquiva Obstaculos" },
   { key: "torreinfinita", label: "Torre Infinita" },
   { key: "subelamontana", label: "Sube la Montana" },
-  { key: "basketballarcade", label: "Basketball Arcade" },
   { key: "sudoku", label: "Sudoku" },
 ]
 
@@ -39,7 +38,6 @@ const GAME_NODE_ICONS = {
   esquivaobstaculos: "EO",
   torreinfinita: "TI",
   subelamontana: "SM",
-  basketballarcade: "BA",
   sudoku: "SU",
 }
 
@@ -197,7 +195,6 @@ function injectMiniTournamentStyles() {
     .game-option[data-game="esquivaobstaculos"]{background:linear-gradient(135deg,rgba(2,132,199,.78),rgba(225,29,72,.20))}
     .game-option[data-game="torreinfinita"]{background:linear-gradient(135deg,rgba(124,58,237,.76),rgba(16,185,129,.18))}
     .game-option[data-game="subelamontana"]{background:linear-gradient(135deg,rgba(217,119,6,.74),rgba(37,99,235,.20))}
-    .game-option[data-game="basketballarcade"]{background:linear-gradient(135deg,rgba(234,88,12,.76),rgba(6,182,212,.20))}
     .code-row{display:grid;grid-template-columns:1fr auto;gap:8px}
     .active-rooms{margin-bottom:16px}
     .active-room-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:12px;background:rgba(15,23,42,.64)}
@@ -1113,7 +1110,6 @@ function clearGameLaunchState(game) {
     esquivaobstaculos: ["esquivaobstaculos_activo"],
     torreinfinita: ["torreinfinita_activo"],
     subelamontana: ["subelamontana_activo"],
-    basketballarcade: ["basketballarcade_activo"],
   }
 
   const resultKeys = [
@@ -1131,17 +1127,14 @@ function clearGameLaunchState(game) {
     "esquivaobstaculos_puntos",
     "torreinfinita_puntos",
     "subelamontana_puntos",
-    "basketballarcade_puntos",
     "cricketarcade_elapsed",
     "esquivaobstaculos_elapsed",
     "torreinfinita_elapsed",
     "subelamontana_elapsed",
-    "basketballarcade_elapsed",
     "cricketarcade_combo",
     "esquivaobstaculos_combo",
     "torreinfinita_combo",
     "subelamontana_combo",
-    "basketballarcade_combo",
   ]
 
   ;(lockKeys[game] || []).forEach((key) => localStorage.removeItem(key))

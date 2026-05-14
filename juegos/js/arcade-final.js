@@ -20,7 +20,6 @@ const usaFallbackLocal = [
   "esquivaobstaculos",
   "torreinfinita",
   "subelamontana",
-  "basketballarcade",
 ].includes(gameKey)
 const runId = localStorage.getItem(`${gameKey}_run_id`)
 const finishedRunId = localStorage.getItem(`${gameKey}_finished_run_id`)
@@ -32,7 +31,6 @@ const requiereFinalValido = [
   "esquivaobstaculos",
   "torreinfinita",
   "subelamontana",
-  "basketballarcade",
 ].includes(gameKey)
 
 if (requiereFinalValido && (!resultadoLocalValido || !runId || runId !== finishedRunId || !resultadoReciente)) {
@@ -60,7 +58,6 @@ const restartBtn = usaFallbackLocal && ![
   "esquivaobstaculos",
   "torreinfinita",
   "subelamontana",
-  "basketballarcade",
 ].includes(gameKey) ? crearBotonReinicioArcade() : null
 
 els.title.textContent = config.label

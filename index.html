@@ -276,13 +276,11 @@ h1{
 .esquivaobstaculos{background:linear-gradient(135deg,#0284c7,#e11d48);}
 .torreinfinita{background:linear-gradient(135deg,#7c3aed,#10b981);}
 .subelamontana{background:linear-gradient(135deg,#d97706,#2563eb);}
-.basketballarcade{background:linear-gradient(135deg,#ea580c,#06b6d4);}
 
 .boton.cricketarcade,
 .boton.esquivaobstaculos,
 .boton.torreinfinita,
-.boton.subelamontana,
-.boton.basketballarcade{
+.boton.subelamontana{
   background:
     var(--card-detail),
     radial-gradient(circle at 84% 14%, rgba(255,255,255,0.20), transparent 22%),
@@ -320,14 +318,6 @@ h1{
   --card-glow:rgba(217,119,6,0.24);
   --card-detail:linear-gradient(145deg, transparent 0 58%, rgba(255,255,255,0.16) 59% 64%, transparent 65%);
   --card-pattern:repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 26px);
-}
-
-.boton.basketballarcade{
-  --card-a:#ea580c;
-  --card-b:#06b6d4;
-  --card-glow:rgba(234,88,12,0.26);
-  --card-detail:radial-gradient(circle at 82% 24%, transparent 0 24px, rgba(255,255,255,0.16) 25px 27px, transparent 28px);
-  --card-pattern:repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 18px);
 }
 
 .arcade-meta{
@@ -3258,12 +3248,6 @@ h1{
         <span class="titulo">Sube la Montana</span>
         <span class="detalle">Salta plataformas y escala con dificultad progresiva.</span>
         <span class="arcade-meta"><span>Aventura</span><span>Saltos</span><span>Ritmo</span></span>
-      </button>
-      <button class="boton basketballarcade" onclick="irArcade('basketballarcade')">
-        <span class="emoji">BA</span>
-        <span class="titulo">Basketball Arcade</span>
-        <span class="detalle">Lanza con ritmo arcade y busca la racha perfecta.</span>
-        <span class="arcade-meta"><span>Retro</span><span>Rachas</span><span>Puntos</span></span>
       </button>
     </section>
   </main>

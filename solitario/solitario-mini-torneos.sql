@@ -25,7 +25,6 @@ check (
     'esquivaobstaculos',
     'torreinfinita',
     'subelamontana',
-    'basketballarcade',
     'sudoku'
   )
 );

@@ -35,15 +35,6 @@ export const ARCADE_GAMES = [
     description: "Salta plataformas, evita caidas y escala antes de perder impulso.",
     type: "climb",
   },
-  {
-    key: "basketballarcade",
-    label: "Basketball Arcade",
-    icon: "BA",
-    accent: "#fb923c",
-    secondary: "#22d3ee",
-    description: "Calcula potencia y arco para meter canastas rapidas.",
-    type: "basket",
-  },
 ]
 
 export const ARCADE_GAME_KEYS = ARCADE_GAMES.map((game) => game.key)

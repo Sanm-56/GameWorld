@@ -13,7 +13,6 @@ const rutasJuego = {
   esquivaobstaculos: "esquivaobstaculos.html",
   torreinfinita: "torreinfinita.html",
   subelamontana: "subelamontana.html",
-  basketballarcade: "basketballarcade.html",
   ajedrez: "ajedrez.html",
   domino: "domino.html",
   damas: "damas.html",
