@@ -191,10 +191,18 @@ function injectMiniTournamentStyles() {
     .game-option::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(135deg,black,transparent 78%);pointer-events:none}
     .game-option:hover{transform:translateY(-2px);border-color:rgba(56,189,248,.46);box-shadow:0 18px 36px rgba(0,0,0,.24)}
     .game-option.active{border-color:rgba(250,204,21,.62);background:linear-gradient(135deg,rgba(250,204,21,.22),rgba(56,189,248,.12));box-shadow:0 18px 40px rgba(250,204,21,.10)}
+    .game-option[data-game="ajedrez"]{background:linear-gradient(135deg,rgba(51,65,85,.88),rgba(226,232,240,.16))}
+    .game-option[data-game="damas"]{background:linear-gradient(135deg,rgba(127,29,29,.82),rgba(248,113,113,.20))}
+    .game-option[data-game="domino"]{background:linear-gradient(135deg,rgba(30,41,59,.86),rgba(45,212,191,.18))}
+    .game-option[data-game="flashmind"]{background:linear-gradient(135deg,rgba(88,28,135,.82),rgba(244,114,182,.20))}
+    .game-option[data-game="matematicas"]{background:linear-gradient(135deg,rgba(133,77,14,.82),rgba(250,204,21,.20))}
+    .game-option[data-game="memoria"]{background:linear-gradient(135deg,rgba(6,95,70,.82),rgba(52,211,153,.20))}
+    .game-option[data-game="numcatch"]{background:linear-gradient(135deg,rgba(30,64,175,.84),rgba(56,189,248,.20))}
     .game-option[data-game="cricketarcade"]{background:linear-gradient(135deg,rgba(21,128,61,.78),rgba(250,204,21,.22))}
     .game-option[data-game="esquivaobstaculos"]{background:linear-gradient(135deg,rgba(2,132,199,.78),rgba(225,29,72,.20))}
     .game-option[data-game="torreinfinita"]{background:linear-gradient(135deg,rgba(124,58,237,.76),rgba(16,185,129,.18))}
     .game-option[data-game="subelamontana"]{background:linear-gradient(135deg,rgba(217,119,6,.74),rgba(37,99,235,.20))}
+    .game-option[data-game="sudoku"]{background:linear-gradient(135deg,rgba(79,70,229,.80),rgba(203,213,225,.18))}
     .code-row{display:grid;grid-template-columns:1fr auto;gap:8px}
     .active-rooms{margin-bottom:16px}
     .active-room-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.14);border-radius:8px;padding:12px;background:rgba(15,23,42,.64)}
