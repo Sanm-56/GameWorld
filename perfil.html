@@ -2949,7 +2949,7 @@ body.sudoku-screen-shake{
   left:-30%;
   right:-30%;
   top:6px;
-  height:1px;
+  height:2px;
   background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--chess-edge) 46%, transparent), transparent);
   transform:translateX(-40%);
 }
@@ -3056,91 +3056,71 @@ body.sudoku-screen-shake{
 }
 
 .ajedrez-relic.common .board-relic-main::before{
-  opacity:0.5;
-  animation:chessSoftLine 8s ease-in-out infinite;
+  opacity:0.62;
+  animation:chessSoftLine 6.8s ease-in-out infinite;
 }
 
 .ajedrez-relic.rare .board-relic-main::before{
-  opacity:0.72;
-  height:2px;
-  animation:chessMetalSweep 6.2s ease-in-out infinite;
+  opacity:0.9;
+  height:3px;
+  box-shadow:0 0 18px rgba(147,197,253,0.22);
+  animation:chessMetalSweep 4.8s ease-in-out infinite;
 }
 
 .ajedrez-relic.rare .board-relic-main::after{
-  opacity:0.32;
-  animation:chessRareRing 7.5s linear infinite;
+  opacity:0.5;
+  animation:chessRareRing 5.8s linear infinite;
 }
 
 .ajedrez-relic.epic .board-relic-main::before{
-  opacity:0.75;
-  height:2px;
+  opacity:0.92;
+  height:3px;
   background:linear-gradient(90deg, transparent, rgba(234,220,255,0.5), rgba(192,132,252,0.2), transparent);
-  animation:chessEpicWave 5.8s ease-in-out infinite;
+  box-shadow:0 0 20px rgba(192,132,252,0.24);
+  animation:chessEpicWave 4.8s ease-in-out infinite;
 }
 
 .ajedrez-relic.epic .board-relic-main::after{
-  opacity:0.42;
+  opacity:0.62;
   border-radius:9px;
   transform:rotate(45deg);
-  animation:chessEpicSigil 6.6s ease-in-out infinite;
+  animation:chessEpicSigil 5.2s ease-in-out infinite;
 }
 
 .ajedrez-relic.legendary .board-relic-main::before{
-  opacity:0.84;
-  height:2px;
+  opacity:1;
+  height:3px;
   background:linear-gradient(90deg, transparent, rgba(255,242,184,0.7), rgba(250,204,21,0.28), transparent);
-  animation:chessGoldenTrace 4.8s ease-in-out infinite;
+  box-shadow:0 0 24px rgba(250,204,21,0.28);
+  animation:chessGoldenTrace 3.9s ease-in-out infinite;
 }
 
 .ajedrez-relic.legendary .board-relic-main::after{
-  opacity:0.58;
+  opacity:0.76;
   width:66px;
   height:66px;
   border-radius:12px;
   transform:rotate(45deg);
-  animation:chessRoyalMark 6.4s ease-in-out infinite;
+  animation:chessRoyalMark 4.9s ease-in-out infinite;
 }
 
 .ajedrez-relic.mythic .board-relic-main::before,
 .ajedrez-relic.mitico .board-relic-main::before{
-  opacity:0.9;
-  height:2px;
+  opacity:1;
+  height:3px;
   background:linear-gradient(90deg, transparent, rgba(255,247,204,0.72), rgba(0,0,0,0.35), rgba(250,204,21,0.42), transparent);
-  animation:chessMythicVein 4.2s ease-in-out infinite;
+  box-shadow:0 0 28px rgba(250,204,21,0.32);
+  animation:chessMythicVein 3.4s ease-in-out infinite;
 }
 
 .ajedrez-relic.mythic .board-relic-main::after,
 .ajedrez-relic.mitico .board-relic-main::after{
-  opacity:0.7;
+  opacity:0.9;
   width:78px;
   height:78px;
   border-radius:50%;
   background:conic-gradient(from 0deg, rgba(250,204,21,0.18), transparent 22%, rgba(255,247,204,0.14), transparent 62%, rgba(250,204,21,0.18));
-  animation:chessMythicSeal 8s linear infinite;
-}
-
-.ajedrez-relic .piece-king{
-  animation-name:chessKingPulse;
-}
-
-.ajedrez-relic .piece-queen{
-  animation-name:chessQueenGlide;
-}
-
-.ajedrez-relic .piece-knight{
-  animation-name:chessKnightShadow;
-}
-
-.ajedrez-relic .piece-rook{
-  animation-name:chessRookWeight;
-}
-
-.ajedrez-relic .piece-bishop{
-  animation-name:chessBishopDiagonal;
-}
-
-.ajedrez-relic .piece-pawn{
-  animation-name:chessPawnRise;
+  animation:chessMythicSeal 5.8s linear infinite;
 }
 
 .ajedrez-relic.common .board-relic-icon,
@@ -3170,6 +3150,13 @@ body.sudoku-screen-shake{
     0 0 20px color-mix(in srgb, var(--chess-metal) 34%, transparent);
   opacity:1;
 }
+
+.ajedrez-relic .board-relic-icon.piece-king::before{ animation:chessKingPulse 5.8s ease-in-out infinite; }
+.ajedrez-relic .board-relic-icon.piece-queen::before{ animation:chessQueenGlide 6.2s ease-in-out infinite; }
+.ajedrez-relic .board-relic-icon.piece-knight::before{ animation:chessKnightShadow 5.4s ease-in-out infinite; }
+.ajedrez-relic .board-relic-icon.piece-rook::before{ animation:chessRookWeight 6.4s ease-in-out infinite; }
+.ajedrez-relic .board-relic-icon.piece-bishop::before{ animation:chessBishopDiagonal 5.9s ease-in-out infinite; }
+.ajedrez-relic .board-relic-icon.piece-pawn::before{ animation:chessPawnRise 6.6s ease-in-out infinite; }
 
 .ajedrez-relic .board-relic-icon::after{
   inset:auto 22px 20px;
