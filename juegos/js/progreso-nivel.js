@@ -436,6 +436,7 @@ export async function registrarXp({
   if (!xp) return null
 
   const key = accionKey || `${accion}:${Date.now()}:${Math.random().toString(16).slice(2)}`
+  if (accionKey && await existeRegistroXp(usuario, key)) return null
 
   const progresoAnterior = await obtenerProgresoNivel(usuario)
   const progresoConXp = aplicarXpAProgreso(progresoAnterior, xp)
