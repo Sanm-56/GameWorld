@@ -185,9 +185,9 @@ function injectMiniTournamentStyles() {
   const style = document.createElement("style")
   style.dataset.miniTournamentStyle = "true"
   style.textContent = `
-    .game-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-    .game-option{position:relative;overflow:hidden;min-height:76px;border:1px solid rgba(148,163,184,.16);background:linear-gradient(145deg,rgba(15,23,42,.86),rgba(2,6,23,.58));padding:12px;border-radius:16px;text-align:left;box-shadow:0 14px 30px rgba(0,0,0,.18);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
-    .game-option::before{content:"";position:absolute;inset:auto -24px -32px auto;width:92px;height:92px;border-radius:999px;background:rgba(255,255,255,.08)}
+    .game-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+    .game-option{position:relative;overflow:hidden;min-height:62px;border:1px solid rgba(148,163,184,.16);background:linear-gradient(145deg,rgba(15,23,42,.86),rgba(2,6,23,.58));padding:10px;border-radius:8px;text-align:left;box-shadow:0 12px 26px rgba(0,0,0,.16);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+    .game-option::before{content:"";position:absolute;inset:auto -28px -38px auto;width:92px;height:92px;border-radius:999px;background:rgba(255,255,255,.07)}
     .game-option::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(135deg,black,transparent 78%);pointer-events:none}
     .game-option:hover{transform:translateY(-2px);border-color:rgba(56,189,248,.46);box-shadow:0 18px 36px rgba(0,0,0,.24)}
     .game-option.active{border-color:rgba(250,204,21,.62);background:linear-gradient(135deg,rgba(250,204,21,.22),rgba(56,189,248,.12));box-shadow:0 18px 40px rgba(250,204,21,.10)}
@@ -197,7 +197,7 @@ function injectMiniTournamentStyles() {
     .game-option[data-game="subelamontana"]{background:linear-gradient(135deg,rgba(217,119,6,.74),rgba(37,99,235,.20))}
     .code-row{display:grid;grid-template-columns:1fr auto;gap:8px}
     .active-rooms{margin-bottom:16px}
-    .active-room-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:12px;background:rgba(15,23,42,.64)}
+    .active-room-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.14);border-radius:8px;padding:12px;background:rgba(15,23,42,.64)}
     .mini-player-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
     .mini-player-pill{border:1px solid rgba(148,163,184,.18);border-radius:999px;padding:4px 8px;color:#dbeafe;font-size:12px;background:rgba(15,23,42,.72)}
     .room-game-pill{display:inline-flex;margin-top:6px;border:1px solid rgba(56,189,248,.32);border-radius:999px;padding:5px 9px;color:#bfdbfe;font-size:13px;font-weight:800}
