@@ -1681,14 +1681,15 @@ body.sudoku-screen-shake{
 }
 
 .achievement-card.sudoku-relic.rare{
-  --sudoku-line:rgba(158,215,245,0.34);
-  --sudoku-soft:rgba(125,211,252,0.16);
+  --sudoku-line:rgba(141,221,255,0.48);
+  --sudoku-soft:rgba(56,189,248,0.22);
   --sudoku-ink:#f4fbff;
   --sudoku-muted:rgba(219,238,248,0.76);
-  border-color:rgba(125,211,252,0.34);
+  border-color:rgba(125,211,252,0.52);
   box-shadow:
     0 22px 54px rgba(0,0,0,0.44),
-    0 0 28px rgba(125,211,252,0.1),
+    0 0 34px rgba(125,211,252,0.18),
+    0 0 0 1px rgba(224,247,255,0.04),
     inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
@@ -1701,29 +1702,119 @@ body.sudoku-screen-shake{
   opacity:0.46;
 }
 
+.sudoku-relic.rare .sudoku-relic-header::before,
+.sudoku-relic.rare .sudoku-relic-header::after,
+.sudoku-relic.rare .sudoku-relic-main::before,
+.sudoku-relic.rare .sudoku-relic-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.sudoku-relic.rare .sudoku-relic-header::before{
+  left:6px;
+  top:72px;
+  width:54px;
+  height:104px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(224,247,255,0.86) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 50% 32%, rgba(125,211,252,0.74) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 50% 66%, rgba(224,247,255,0.76) 0 2px, transparent 3.5px),
+    linear-gradient(180deg, rgba(125,211,252,0.42), transparent 33%, rgba(224,247,255,0.3), transparent 72%);
+  opacity:0.58;
+  filter:drop-shadow(0 0 8px rgba(125,211,252,0.18));
+  animation:sudokuRareHeaderRoute 5.8s ease-in-out infinite;
+}
+
+.sudoku-relic.rare .sudoku-relic-header::after{
+  left:17px;
+  top:72px;
+  width:40px;
+  height:40px;
+  border:1px solid rgba(224,247,255,0.34);
+  border-radius:12px;
+  opacity:0.42;
+  transform:rotate(45deg);
+  animation:sudokuRareHeaderNode 6.6s ease-in-out infinite;
+}
+
+.sudoku-relic.rare .sudoku-relic-main::before{
+  left:-14px;
+  right:-12px;
+  top:0;
+  height:64px;
+  background:
+    radial-gradient(circle, rgba(224,247,255,0.72) 0 1.6px, transparent 3px),
+    linear-gradient(90deg, transparent, rgba(125,211,252,0.42), rgba(224,247,255,0.28), transparent),
+    linear-gradient(120deg, transparent 0 16%, rgba(125,211,252,0.3) 16.4% 17%, transparent 17.6% 58%, rgba(224,247,255,0.24) 58.4% 59%, transparent 59.6%);
+  background-size:15px 15px, 100% 100%, 100% 100%;
+  opacity:0.5;
+  mix-blend-mode:screen;
+  animation:sudokuRareRouteLines 6.2s ease-in-out infinite;
+}
+
+.sudoku-relic.rare .sudoku-relic-main::after{
+  right:0;
+  bottom:0;
+  width:104px;
+  height:52px;
+  background:
+    radial-gradient(circle at 10% 54%, rgba(224,247,255,0.86) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 36% 24%, rgba(125,211,252,0.66) 0 1.8px, transparent 3.2px),
+    radial-gradient(circle at 68% 72%, rgba(224,247,255,0.72) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 90% 36%, rgba(125,211,252,0.58) 0 1.6px, transparent 3px),
+    linear-gradient(115deg, transparent 0 15%, rgba(125,211,252,0.36) 15.5% 16.2%, transparent 16.8% 43%, rgba(224,247,255,0.28) 43.5% 44.2%, transparent 44.8% 72%, rgba(125,211,252,0.22) 72.5% 73.2%, transparent 73.8%);
+  opacity:0.54;
+  mix-blend-mode:screen;
+  animation:sudokuRareRouteDots 5.8s ease-in-out infinite;
+}
+
+.sudoku-relic.rare .sudoku-relic-title,
+.sudoku-relic.rare .sudoku-relic-prophecy,
+.sudoku-relic.rare .sudoku-objective,
+.sudoku-relic.rare .sudoku-progress{
+  position:relative;
+  z-index:1;
+}
+
 .sudoku-relic.rare .sudoku-relic-icon{
   background:
-    linear-gradient(rgba(219,242,255,0.075) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(219,242,255,0.065) 1px, transparent 1px),
-    linear-gradient(145deg, rgba(125,211,252,0.16), rgba(15,23,42,0.82));
-  background-size:18px 18px, 18px 18px, 100% 100%;
-  border-color:rgba(158,215,245,0.36);
+    linear-gradient(rgba(219,242,255,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(219,242,255,0.09) 1px, transparent 1px),
+    radial-gradient(circle at 30% 18%, rgba(224,247,255,0.2), transparent 26%),
+    linear-gradient(145deg, rgba(56,189,248,0.24), rgba(15,23,42,0.84));
+  background-size:18px 18px, 18px 18px, 100% 100%, 100% 100%;
+  border-color:rgba(158,215,245,0.56);
   box-shadow:
-    inset 0 0 22px rgba(125,211,252,0.08),
+    inset 0 0 24px rgba(125,211,252,0.13),
     0 14px 26px rgba(0,0,0,0.28),
-    0 0 22px rgba(125,211,252,0.1);
+    0 0 28px rgba(125,211,252,0.22);
+}
+
+.sudoku-relic.rare .sudoku-relic-icon::after{
+  content:"";
+  inset:7px;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(224,247,255,0.9) 0 1.8px, transparent 3px),
+    radial-gradient(circle at 72% 32%, rgba(125,211,252,0.66) 0 1.6px, transparent 3px),
+    radial-gradient(circle at 42% 74%, rgba(224,247,255,0.74) 0 1.8px, transparent 3px),
+    linear-gradient(120deg, transparent 0 24%, rgba(224,247,255,0.36) 24.5% 25.2%, transparent 25.8% 66%, rgba(125,211,252,0.28) 66.5% 67.2%, transparent 67.8%);
+  opacity:0.58;
+  mix-blend-mode:screen;
+  animation:sudokuRareIconPath 5.4s ease-in-out infinite;
 }
 
 .sudoku-relic.rare .sudoku-relic-rarity{
-  color:#dff6ff;
-  background:rgba(14,165,233,0.12);
-  border-color:rgba(125,211,252,0.36);
-  box-shadow:0 0 14px rgba(125,211,252,0.08);
+  color:#ecfbff;
+  background:rgba(14,165,233,0.18);
+  border-color:rgba(125,211,252,0.52);
+  box-shadow:0 0 18px rgba(125,211,252,0.16);
 }
 
 .sudoku-relic.rare .sudoku-progress-fill{
   background:linear-gradient(90deg, #7fb9d8, #e0f7ff);
-  box-shadow:0 0 18px rgba(125,211,252,0.24);
+  box-shadow:0 0 24px rgba(125,211,252,0.34);
 }
 
 .sudoku-rare-v1,
@@ -1960,6 +2051,32 @@ body.sudoku-screen-shake{
 @keyframes sudokuRareLine{
   0%,100%{ transform:translateX(-24px); opacity:0.18; }
   50%{ transform:translateX(24px); opacity:0.52; }
+}
+
+@keyframes sudokuRareHeaderRoute{
+  0%,100%{ opacity:0.42; transform:translateY(0); }
+  50%{ opacity:0.72; transform:translateY(-6px); }
+}
+
+@keyframes sudokuRareHeaderNode{
+  0%,100%{ opacity:0.3; transform:rotate(45deg) scale(0.92); }
+  50%{ opacity:0.58; transform:rotate(45deg) scale(1.1); }
+}
+
+@keyframes sudokuRareRouteLines{
+  0%,100%{ opacity:0.36; transform:translateX(-14px); }
+  42%{ opacity:0.64; transform:translateX(10px); }
+  74%{ opacity:0.46; transform:translateX(22px); }
+}
+
+@keyframes sudokuRareRouteDots{
+  0%,100%{ opacity:0.38; transform:translateY(0); }
+  50%{ opacity:0.68; transform:translateY(-5px); }
+}
+
+@keyframes sudokuRareIconPath{
+  0%,100%{ opacity:0.42; transform:translateX(-2px); }
+  50%{ opacity:0.72; transform:translateX(2px); }
 }
 
 .achievement-grid.memory-relics{
@@ -7772,6 +7889,6 @@ body.sudoku-screen-shake{
   </div>
 </div>
 
-<script type="module" src="./juegos/js/perfil.js?v=sudoku-route-20260514"></script>
+<script type="module" src="./juegos/js/perfil.js?v=sudoku-rare-route-20260514"></script>
 </body>
 </html>
