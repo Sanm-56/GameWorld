@@ -1334,6 +1334,39 @@ body.sudoku-screen-shake{
   border-color:rgba(184,211,232,0.28);
 }
 
+.sudoku-relic.common .sudoku-relic-header::before,
+.sudoku-relic.common .sudoku-relic-header::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.sudoku-relic.common .sudoku-relic-header::before{
+  left:8px;
+  top:74px;
+  width:48px;
+  height:96px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(226,239,248,0.7) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 38%, rgba(226,239,248,0.5) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 76%, rgba(226,239,248,0.62) 0 2px, transparent 3px),
+    linear-gradient(180deg, rgba(226,239,248,0.28), transparent 38%, rgba(226,239,248,0.2), transparent 78%);
+  opacity:0.42;
+  animation:sudokuCommonHeaderRoute 6.4s ease-in-out infinite;
+}
+
+.sudoku-relic.common .sudoku-relic-header::after{
+  left:22px;
+  top:74px;
+  width:34px;
+  height:34px;
+  border:1px solid rgba(226,239,248,0.22);
+  border-radius:10px;
+  opacity:0.32;
+  transform:rotate(45deg);
+  animation:sudokuCommonHeaderNode 7s ease-in-out infinite;
+}
+
 .sudoku-relic.common .sudoku-relic-main::before,
 .sudoku-relic.common .sudoku-relic-main::after{
   content:"";
@@ -1343,31 +1376,33 @@ body.sudoku-screen-shake{
 }
 
 .sudoku-relic.common .sudoku-relic-main::before{
-  left:-6px;
-  right:-6px;
-  top:2px;
-  height:42px;
+  left:-12px;
+  right:-12px;
+  top:0;
+  height:58px;
   background:
-    radial-gradient(circle, rgba(219,234,254,0.36) 0 1px, transparent 2px),
-    linear-gradient(90deg, transparent, rgba(219,234,254,0.22), transparent),
-    linear-gradient(120deg, transparent 0 18%, rgba(184,211,232,0.12) 18.4% 18.8%, transparent 19.2% 62%, rgba(184,211,232,0.09) 62.4% 62.8%, transparent 63.2%);
-  background-size:18px 18px, 100% 100%, 100% 100%;
-  opacity:0.2;
+    radial-gradient(circle, rgba(219,234,254,0.58) 0 1.4px, transparent 2.8px),
+    linear-gradient(90deg, transparent, rgba(219,234,254,0.34), transparent),
+    linear-gradient(120deg, transparent 0 18%, rgba(184,211,232,0.22) 18.4% 18.9%, transparent 19.4% 62%, rgba(184,211,232,0.18) 62.4% 62.9%, transparent 63.4%);
+  background-size:16px 16px, 100% 100%, 100% 100%;
+  opacity:0.38;
   transform:translateX(-10px);
+  mix-blend-mode:screen;
   animation:sudokuCommonRouteLines 7.4s ease-in-out infinite;
 }
 
 .sudoku-relic.common .sudoku-relic-main::after{
-  right:2px;
-  bottom:4px;
-  width:74px;
-  height:36px;
+  right:0;
+  bottom:2px;
+  width:92px;
+  height:46px;
   background:
-    radial-gradient(circle at 12% 54%, rgba(219,234,254,0.38) 0 1px, transparent 2px),
-    radial-gradient(circle at 42% 28%, rgba(219,234,254,0.28) 0 1px, transparent 2px),
-    radial-gradient(circle at 72% 68%, rgba(219,234,254,0.32) 0 1px, transparent 2px),
-    linear-gradient(115deg, transparent 0 18%, rgba(184,211,232,0.18) 18.5% 19%, transparent 19.5% 46%, rgba(184,211,232,0.12) 46.5% 47%, transparent 47.5%);
-  opacity:0.22;
+    radial-gradient(circle at 12% 54%, rgba(219,234,254,0.68) 0 1.8px, transparent 3px),
+    radial-gradient(circle at 42% 28%, rgba(219,234,254,0.48) 0 1.6px, transparent 3px),
+    radial-gradient(circle at 72% 68%, rgba(219,234,254,0.58) 0 1.8px, transparent 3px),
+    linear-gradient(115deg, transparent 0 18%, rgba(184,211,232,0.28) 18.5% 19.2%, transparent 19.8% 46%, rgba(184,211,232,0.22) 46.5% 47.2%, transparent 47.8%);
+  opacity:0.4;
+  mix-blend-mode:screen;
   animation:sudokuCommonRouteDots 6.6s ease-in-out infinite;
 }
 
@@ -1381,14 +1416,15 @@ body.sudoku-screen-shake{
 
 .sudoku-relic.common .sudoku-relic-icon::after{
   content:"";
-  inset:9px;
+  inset:7px;
   border-radius:inherit;
   background:
-    radial-gradient(circle at 20% 22%, rgba(219,234,254,0.42) 0 1px, transparent 2px),
-    radial-gradient(circle at 72% 34%, rgba(219,234,254,0.28) 0 1px, transparent 2px),
-    radial-gradient(circle at 44% 72%, rgba(219,234,254,0.34) 0 1px, transparent 2px),
-    linear-gradient(120deg, transparent 0 26%, rgba(219,234,254,0.16) 26.5% 27%, transparent 27.5% 68%, rgba(219,234,254,0.12) 68.5% 69%, transparent 69.5%);
-  opacity:0.26;
+    radial-gradient(circle at 20% 22%, rgba(219,234,254,0.74) 0 1.8px, transparent 3px),
+    radial-gradient(circle at 72% 34%, rgba(219,234,254,0.52) 0 1.6px, transparent 3px),
+    radial-gradient(circle at 44% 72%, rgba(219,234,254,0.62) 0 1.8px, transparent 3px),
+    linear-gradient(120deg, transparent 0 26%, rgba(219,234,254,0.26) 26.5% 27.2%, transparent 27.8% 68%, rgba(219,234,254,0.22) 68.5% 69.2%, transparent 69.8%);
+  opacity:0.48;
+  mix-blend-mode:screen;
   animation:sudokuCommonIconPath 6.2s ease-in-out infinite;
 }
 
@@ -1632,6 +1668,16 @@ body.sudoku-screen-shake{
 @keyframes sudokuCommonIconPath{
   0%,100%{ opacity:0.2; transform:translateX(-2px); }
   50%{ opacity:0.38; transform:translateX(2px); }
+}
+
+@keyframes sudokuCommonHeaderRoute{
+  0%,100%{ opacity:0.3; transform:translateY(0); }
+  50%{ opacity:0.54; transform:translateY(-5px); }
+}
+
+@keyframes sudokuCommonHeaderNode{
+  0%,100%{ opacity:0.22; transform:rotate(45deg) scale(0.92); }
+  50%{ opacity:0.46; transform:rotate(45deg) scale(1.08); }
 }
 
 .achievement-card.sudoku-relic.rare{
@@ -7726,6 +7772,6 @@ body.sudoku-screen-shake{
   </div>
 </div>
 
-<script type="module" src="./juegos/js/perfil.js?v=sudoku-visual-20260514"></script>
+<script type="module" src="./juegos/js/perfil.js?v=sudoku-route-20260514"></script>
 </body>
 </html>
