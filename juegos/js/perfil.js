@@ -4652,7 +4652,7 @@ function obtenerRarezaArcana(progress, achievement) {
 
 function obtenerRarezaCricket(achievement) {
   const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
-  const target = obtenerPrimerNumero(objetivoTexto) || 1
+  const target = obtenerNumeroCricket(objetivoTexto) || 1
 
   if (objetivoTexto.includes('torneo')) {
     if (target >= 100) return 'legendary'
@@ -4695,6 +4695,124 @@ function obtenerRarezaCricket(achievement) {
   }
 
   return achievement.unlocked ? 'rare' : 'common'
+}
+
+function obtenerNumeroCricket(texto) {
+  const limpio = String(texto || '').replace(/\./g, '').replace(/,/g, '')
+  const coincidencia = limpio.match(/\d+/)
+  return coincidencia ? Number(coincidencia[0]) : null
+}
+
+function obtenerProgresoCricket(achievement, stats, resultado) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  const objetivo = obtenerNumeroCricket(objetivoTexto) || 1
+  const golpesTotal = stats.cricket_golpes_total || 0
+  const mejorGolpesPartida = stats.cricket_mejor_golpes_partida || 0
+  const mejorRachaGolpes = Math.max(stats.cricket_mejor_racha_golpes || 0, stats.mejor_racha_completados || 0)
+  const mejorScore = Math.max(stats.cricket_mejor_puntaje || 0, Number(resultado?.tiempo || 0))
+  const victoriasTorneos = stats.victorias_torneos || 0
+  const tiempoJugadoHoras = Math.floor((stats.tiempo_jugado_total || 0) / 3600)
+  const partidasUnaVida = stats.cricket_partidas_una_vida || 0
+  const mejorTiempoUnaVida = stats.cricket_mejor_tiempo_una_vida || 0
+  const partidasSinPerderTodas = stats.cricket_partidas_sin_perder_todas_las_vidas || 0
+  const partidasDosVidas = stats.cricket_partidas_dos_vidas || 0
+
+  if (objetivoTexto.includes('torneo')) {
+    return { percent: limitarProgreso(victoriasTorneos, objetivo), label: describirNumero(victoriasTorneos, objetivo), target: objetivo }
+  }
+
+  if (objetivoTexto.includes('hora')) {
+    return { percent: limitarProgreso(tiempoJugadoHoras, objetivo), label: describirNumero(tiempoJugadoHoras, objetivo, 'h'), target: objetivo }
+  }
+
+  if (objetivoTexto.includes('punto')) {
+    return { percent: limitarProgreso(mejorScore, objetivo), label: describirNumero(mejorScore, objetivo, 'pts'), target: objetivo }
+  }
+
+  if (objetivoTexto.includes('5 minutos') && objetivoTexto.includes('1 vida')) {
+    const targetSeconds = 5 * 60
+    return { percent: limitarProgreso(mejorTiempoUnaVida, targetSeconds), label: describirNumero(mejorTiempoUnaVida, targetSeconds, 's'), target: targetSeconds }
+  }
+
+  if (objetivoTexto.includes('una sola vida') || objetivoTexto.includes('1 vida')) {
+    return { percent: limitarProgreso(partidasUnaVida, 1), label: describirNumero(partidasUnaVida, 1), target: 1 }
+  }
+
+  if (objetivoTexto.includes('solo 2 vidas')) {
+    return { percent: limitarProgreso(partidasDosVidas, 1), label: describirNumero(partidasDosVidas, 1), target: 1 }
+  }
+
+  if (objetivoTexto.includes('sin perder todas las vidas')) {
+    return { percent: limitarProgreso(partidasSinPerderTodas, 1), label: describirNumero(partidasSinPerderTodas, 1), target: 1 }
+  }
+
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('sin fallar')) {
+    return { percent: limitarProgreso(mejorRachaGolpes, objetivo), label: describirNumero(mejorRachaGolpes, objetivo), target: objetivo }
+  }
+
+  if (objetivoTexto.includes('una sola partida')) {
+    return { percent: limitarProgreso(mejorGolpesPartida, objetivo), label: describirNumero(mejorGolpesPartida, objetivo), target: objetivo }
+  }
+
+  if (objetivoTexto.includes('golpe')) {
+    return { percent: limitarProgreso(golpesTotal, objetivo), label: describirNumero(golpesTotal, objetivo), target: objetivo }
+  }
+
+  return { percent: achievement.unlocked ? 100 : 0, label: achievement.unlocked ? 'completo' : 'pendiente', target: 1 }
+}
+
+function obtenerIconoCricket(achievement) {
+  const objetivoTexto = textoPlano(achievement.howTo).toLowerCase()
+  if (objetivoTexto.includes('torneo')) return { label: 'CUP', className: 'crown' }
+  if (objetivoTexto.includes('hora')) return { label: 'TIME', className: 'speed' }
+  if (objetivoTexto.includes('punto')) return { label: 'SCORE', className: 'precision' }
+  if (objetivoTexto.includes('vida')) return { label: 'LIVE', className: 'rebound' }
+  if (objetivoTexto.includes('seguid') || objetivoTexto.includes('sin fallar')) return { label: 'CHAIN', className: 'streak' }
+  return { label: 'BAT', className: 'core' }
+}
+
+function renderLogroCricket(achievement, stats, resultado) {
+  const progress = obtenerProgresoCricket(achievement, stats, resultado)
+  const rarity = obtenerRarezaCricket(achievement)
+  const icon = obtenerIconoCricket(achievement)
+  const rarityLabel = {
+    common: 'Comun',
+    rare: 'Raro',
+    epic: 'Epico',
+    legendary: 'Legendario',
+  }[rarity]
+  const div = document.createElement('div')
+  div.className = `achievement-card arcane-relic ${rarity}${achievement.unlocked ? ' unlocked' : ' locked'}`
+  div.setAttribute('data-sigil', '22 55 85 CRICKET')
+  div.innerHTML = `
+    <div class="arcane-relic-header">
+      <div class="arcane-relic-icon ${escaparHtml(icon.className)}" aria-hidden="true">
+        <span>${escaparHtml(icon.label)}</span>
+      </div>
+      <div class="arcane-relic-badges">
+        <span class="arcane-relic-rarity">${rarityLabel}</span>
+        <span class="arcane-relic-state">${achievement.unlocked ? 'Coronado' : 'En espera'}</span>
+      </div>
+    </div>
+    <div class="arcane-relic-main">
+      <strong class="arcane-relic-title">${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p class="arcane-relic-prophecy">${escaparHtml(textoPlano(achievement.description))}</p>
+      <div class="arcane-objective">
+        <span>Estadio</span>
+        <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+      </div>
+      <div class="arcane-progress" aria-label="Progreso">
+        <div class="arcane-progress-meta">
+          <span>Progreso</span>
+          <span>${progress.percent}% - ${escaparHtml(progress.label)}</span>
+        </div>
+        <div class="arcane-progress-track">
+          <div class="arcane-progress-fill" style="width:${progress.percent}%"></div>
+        </div>
+      </div>
+    </div>
+  `
+  return div
 }
 
 function obtenerIconoArcano(gameKey, achievement) {
@@ -4993,7 +5111,7 @@ function renderLogros() {
   logrosListEl.classList.toggle('sudoku-relics', game.key === 'sudoku')
   logrosListEl.classList.toggle('memory-relics', game.key === 'memoria')
   logrosListEl.classList.toggle('math-relics', game.key === 'matematicas')
-  logrosListEl.classList.toggle('arcane-relics', game.key === 'flashmind' || game.key === 'numcatch')
+  logrosListEl.classList.toggle('arcane-relics', game.key === 'flashmind' || game.key === 'numcatch' || game.key === 'cricketarcade')
   logrosListEl.classList.toggle('board-relics', game.key === 'ajedrez' || game.key === 'domino' || game.key === 'damas')
 
   logros.forEach((achievement) => {
@@ -5014,6 +5132,11 @@ function renderLogros() {
 
     if (game.key === 'flashmind' || game.key === 'numcatch') {
       logrosListEl.appendChild(renderLogroArcano(achievement, estadisticasLogros[game.key] || {}, game.key))
+      return
+    }
+
+    if (game.key === 'cricketarcade') {
+      logrosListEl.appendChild(renderLogroCricket(achievement, estadisticasLogros.cricketarcade || {}, resultado))
       return
     }
 
