@@ -5473,8 +5473,27 @@ function obtenerRarezaTablero(progress, achievement) {
   return 'common'
 }
 
+function obtenerPiezaAjedrezLogro(achievement) {
+  const objetivoTexto = textoPlano(`${achievement.title || ''} ${achievement.howTo || ''}`).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  if (objetivoTexto.includes('reina')) return { label: 'Q', className: 'piece-queen' }
+  if (objetivoTexto.includes('rey')) return { label: 'K', className: 'piece-king' }
+  if (objetivoTexto.includes('caballo')) return { label: 'N', className: 'piece-knight' }
+  if (objetivoTexto.includes('torre')) return { label: 'R', className: 'piece-rook' }
+  if (objetivoTexto.includes('alfil')) return { label: 'B', className: 'piece-bishop' }
+  if (objetivoTexto.includes('peon') || objetivoTexto.includes('promocion') || objetivoTexto.includes('corona')) return { label: 'P', className: 'piece-pawn' }
+  if (objetivoTexto.includes('sacrificio') || objetivoTexto.includes('sacrificar')) return { label: 'Q', className: 'piece-queen' }
+  if (objetivoTexto.includes('mate') || objetivoTexto.includes('campeon') || objetivoTexto.includes('invicto') || objetivoTexto.includes('gana')) return { label: 'K', className: 'piece-king' }
+  if (objetivoTexto.includes('apertura') || objetivoTexto.includes('diagonal')) return { label: 'B', className: 'piece-bishop' }
+  if (objetivoTexto.includes('remont') || objetivoTexto.includes('ataque') || objetivoTexto.includes('jaque')) return { label: 'N', className: 'piece-knight' }
+  return { label: 'P', className: 'piece-pawn' }
+}
+
 function obtenerIconoTablero(gameKey, achievement) {
   const objetivoTexto = textoPlano(achievement.howTo).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  if (gameKey === 'ajedrez') {
+    const pieza = obtenerPiezaAjedrezLogro(achievement)
+    return { label: pieza.label, className: `chess-piece ${pieza.className}` }
+  }
   if (objetivoTexto.includes('menos de') || objetivoTexto.includes('tiempo')) return { label: 'TIME', className: 'clock' }
   if (objetivoTexto.includes('errores') || objetivoTexto.includes('detecta') || objetivoTexto.includes('sin perder')) return { label: 'EYE', className: 'eye' }
   if (objetivoTexto.includes('racha') || objetivoTexto.includes('consecutiv') || objetivoTexto.includes('seguid')) return { label: 'FIRE', className: 'flame' }
@@ -5645,6 +5664,54 @@ function mostrarPopupSudoku(achievement) {
   setTimeout(() => popup.remove(), 3000)
 }
 
+function reproducirSonidoAjedrez() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext
+    if (!AudioContext) return
+    const ctx = new AudioContext()
+    const gain = ctx.createGain()
+    const bell = ctx.createOscillator()
+    const low = ctx.createOscillator()
+    bell.type = 'triangle'
+    low.type = 'sine'
+    bell.frequency.setValueAtTime(520, ctx.currentTime)
+    bell.frequency.exponentialRampToValueAtTime(390, ctx.currentTime + 0.34)
+    low.frequency.setValueAtTime(132, ctx.currentTime)
+    low.frequency.exponentialRampToValueAtTime(88, ctx.currentTime + 0.52)
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.07, ctx.currentTime + 0.04)
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.68)
+    bell.connect(gain)
+    low.connect(gain)
+    gain.connect(ctx.destination)
+    bell.start()
+    low.start()
+    bell.stop(ctx.currentTime + 0.48)
+    low.stop(ctx.currentTime + 0.72)
+  } catch (error) {
+    // El navegador puede bloquear audio sin interaccion previa.
+  }
+}
+
+function mostrarPopupAjedrez(achievement) {
+  const pieza = obtenerPiezaAjedrezLogro(achievement)
+  const popup = document.createElement('div')
+  popup.className = `chess-unlock-popup ${escaparHtml(pieza.className)}`
+  popup.innerHTML = `
+    <div class="chess-unlock-panel">
+      <div class="chess-unlock-shield" aria-hidden="true">
+        <span>${escaparHtml(pieza.label)}</span>
+      </div>
+      <span class="chess-unlock-kicker">Logro de Ajedrez desbloqueado</span>
+      <strong>${escaparHtml(textoPlano(achievement.title))}</strong>
+      <p>"${escaparHtml(textoPlano(achievement.description))}"</p>
+    </div>
+  `
+  document.body.appendChild(popup)
+  reproducirSonidoAjedrez()
+  setTimeout(() => popup.remove(), 3600)
+}
+
 function notificarNuevosLogrosSudoku(logros) {
   if (!usuario) return
   const key = `sudoku_logros_vistos_${usuario}`
@@ -5654,6 +5721,17 @@ function notificarNuevosLogrosSudoku(logros) {
   if (!Array.isArray(previo)) return
   const nuevo = logros.find((achievement) => achievement.unlocked && !previo.includes(achievement.title))
   if (nuevo) mostrarPopupSudoku(nuevo)
+}
+
+function notificarNuevosLogrosAjedrez(logros) {
+  if (!usuario) return
+  const key = `ajedrez_logros_vistos_${usuario}`
+  const desbloqueados = logros.filter((achievement) => achievement.unlocked).map((achievement) => achievement.title)
+  const previo = JSON.parse(localStorage.getItem(key) || 'null')
+  localStorage.setItem(key, JSON.stringify(desbloqueados))
+  if (!Array.isArray(previo)) return
+  const nuevo = logros.find((achievement) => achievement.unlocked && !previo.includes(achievement.title))
+  if (nuevo) mostrarPopupAjedrez(nuevo)
 }
 
 function renderLogros() {
@@ -5722,6 +5800,7 @@ function renderLogros() {
   })
 
   if (game.key === 'sudoku') notificarNuevosLogrosSudoku(logros)
+  if (game.key === 'ajedrez') notificarNuevosLogrosAjedrez(logros)
 }
 
 async function sincronizarXpDeLogros() {
