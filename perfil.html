@@ -1097,29 +1097,38 @@ body.sudoku-screen-shake{
 
 .achievement-grid.sudoku-relics{
   gap:14px;
-  scrollbar-color:#b8d7ee #050816;
+  scrollbar-color:#9fb4c6 #050816;
 }
 
 .achievement-card.sudoku-relic{
-  --sudoku-line:rgba(196,213,226,0.22);
-  --sudoku-soft:rgba(186,215,236,0.12);
-  --sudoku-ink:#f8fbff;
-  --sudoku-muted:rgba(218,230,239,0.72);
+  --sudoku-metal:#7b8591;
+  --sudoku-metal-light:#d8e2ea;
+  --sudoku-bg:#070b12;
+  --sudoku-ink:#edf4f8;
+  --sudoku-glow:rgba(184,211,232,0.16);
   position:relative;
   display:grid;
-  grid-template-columns:72px minmax(0, 1fr);
-  gap:14px;
-  min-height:218px;
-  padding:16px;
-  border-radius:14px;
+  grid-template-columns:96px minmax(0, 1fr);
+  gap:16px;
+  min-height:232px;
+  padding:18px;
   overflow:hidden;
   isolation:isolate;
-  background:rgba(15,23,42,0.72);
-  border:1px solid rgba(173,193,208,0.2);
+  border:0;
+  border-radius:18px;
+  color:var(--sudoku-ink);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.065), transparent 24% 76%, rgba(255,255,255,0.028)),
+    linear-gradient(45deg, rgba(255,255,255,0.035) 25%, transparent 25% 50%, rgba(0,0,0,0.24) 50% 75%, transparent 75%),
+    radial-gradient(circle at 24% 12%, var(--sudoku-glow), transparent 30%),
+    linear-gradient(145deg, #04070c, var(--sudoku-bg) 46%, #151c25 74%, #05070b);
+  background-size:100% 100%, 38px 38px, 100% 100%, 100% 100%;
   box-shadow:
-    0 18px 38px rgba(0,0,0,0.34),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-  transition:transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+    0 20px 46px rgba(0,0,0,0.56),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px color-mix(in srgb, var(--sudoku-metal) 24%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.58);
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
 }
 
 .achievement-card.sudoku-relic::before,
@@ -1127,32 +1136,51 @@ body.sudoku-screen-shake{
   content:"";
   position:absolute;
   pointer-events:none;
+}
+
+.achievement-card.sudoku-relic::before{
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(rgba(255,255,255,0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(118deg, transparent 0 43%, color-mix(in srgb, var(--sudoku-metal-light) 9%, transparent) 43% 44%, transparent 44%);
+  background-size:34px 34px, 34px 34px, 100% 100%;
+  opacity:0.9;
+}
+
+.achievement-card.sudoku-relic::after{
+  right:16px;
+  bottom:16px;
   z-index:-1;
+  color:color-mix(in srgb, var(--sudoku-metal-light) 16%, transparent);
+  font-size:1rem;
+  font-weight:1000;
+  letter-spacing:0.18em;
+  content:"3 5 8";
 }
 
 .achievement-card.sudoku-relic:hover{
   transform:translateY(-2px);
-  border-color:rgba(210,230,244,0.34);
   box-shadow:
-    0 22px 48px rgba(0,0,0,0.42),
-    0 0 24px rgba(186,215,236,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.07);
+    0 24px 58px rgba(0,0,0,0.62),
+    0 0 30px var(--sudoku-glow),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 0 0 2px color-mix(in srgb, var(--sudoku-metal) 32%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.58);
 }
 
 .achievement-card.sudoku-relic.locked{
   opacity:0.72;
-  filter:saturate(0.82);
+  filter:saturate(0.8);
 }
 
 .sudoku-relic-header{
   position:relative;
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  justify-content:flex-start;
+  display:grid;
+  align-content:start;
   gap:10px;
   min-width:0;
-  padding:0;
 }
 
 .sudoku-relic-badges{
@@ -1164,24 +1192,23 @@ body.sudoku-screen-shake{
 
 .sudoku-relic-icon{
   position:relative;
-  width:68px;
-  height:68px;
+  width:88px;
+  height:112px;
   display:grid;
   place-items:center;
-  border-radius:12px;
-  color:var(--sudoku-ink);
-  font-size:0.68rem;
+  clip-path:polygon(12% 0, 88% 0, 100% 12%, 100% 76%, 50% 100%, 0 76%, 0 12%);
+  color:#111827;
+  font-size:0.72rem;
   font-weight:1000;
   letter-spacing:0.06em;
   background:
-    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.052) 1px, transparent 1px),
-    linear-gradient(145deg, rgba(234,242,248,0.11), rgba(15,23,42,0.8));
-  background-size:22px 22px, 22px 22px, 100% 100%;
-  border:1px solid var(--sudoku-line);
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.18), transparent 24%),
+    linear-gradient(145deg, #c8d0d8, #69717d 56%, #eef5f8);
   box-shadow:
-    inset 0 0 18px rgba(226,239,248,0.05),
-    0 10px 22px rgba(0,0,0,0.24);
+    0 16px 30px rgba(0,0,0,0.46),
+    0 0 22px var(--sudoku-glow),
+    inset 0 0 0 2px color-mix(in srgb, var(--sudoku-metal-light) 38%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.5);
 }
 
 .sudoku-relic-icon::before,
@@ -1189,13 +1216,33 @@ body.sudoku-screen-shake{
   content:"";
   position:absolute;
   pointer-events:none;
-  opacity:0.62;
+}
+
+.sudoku-relic-icon::before{
+  inset:22px 18px 30px;
+  background:
+    linear-gradient(rgba(10,18,28,0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,18,28,0.18) 1px, transparent 1px);
+  background-size:14px 14px;
+  border:1px solid rgba(15,23,42,0.22);
+  border-radius:5px;
+}
+
+.sudoku-relic-icon::after{
+  left:17px;
+  right:17px;
+  bottom:20px;
+  height:8px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, rgba(248,250,252,0.9), transparent);
+  opacity:0.7;
 }
 
 .sudoku-relic-icon span{
   position:relative;
   z-index:1;
-  text-shadow:0 1px 12px rgba(184,215,238,0.18);
+  margin-top:22px;
+  text-shadow:0 1px 0 rgba(255,255,255,0.24);
 }
 
 .sudoku-relic-main{
@@ -1203,880 +1250,265 @@ body.sudoku-screen-shake{
   min-width:0;
   display:grid;
   gap:9px;
-  padding:0;
+  overflow:hidden;
+}
+
+.sudoku-relic-main::before,
+.sudoku-relic-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.sudoku-relic-main::before{
+  left:-42%;
+  right:-42%;
+  top:4px;
+  height:2px;
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--sudoku-metal-light) 48%, transparent), rgba(255,255,255,0.18), transparent);
+  box-shadow:0 0 12px var(--sudoku-glow);
+  animation:sudokuRelicSweep 5.8s ease-in-out infinite;
+}
+
+.sudoku-relic-main::after{
+  right:4px;
+  bottom:4px;
+  width:52px;
+  height:52px;
+  border:1px solid color-mix(in srgb, var(--sudoku-metal-light) 22%, transparent);
+  border-radius:10px;
+  transform:rotate(45deg);
+  opacity:0.28;
+  animation:sudokuRelicMark 7s ease-in-out infinite;
+}
+
+.sudoku-relic-title,
+.sudoku-relic-prophecy,
+.sudoku-objective,
+.sudoku-progress{
+  position:relative;
+  z-index:1;
 }
 
 .sudoku-relic-title{
-  display:block;
-  color:var(--sudoku-ink);
-  font-size:1.08rem;
-  line-height:1.18;
+  color:#f4f8fb;
+  font-size:1.14rem;
+  line-height:1.12;
+  text-shadow:0 2px 16px rgba(0,0,0,0.4);
   overflow-wrap:anywhere;
 }
 
 .sudoku-relic-prophecy{
   margin:0;
-  color:var(--sudoku-muted);
-  font-size:0.9rem;
+  color:rgba(229,238,244,0.72);
+  font-size:0.92rem;
   line-height:1.42;
 }
 
 .sudoku-objective{
   display:grid;
   gap:5px;
-  padding:9px 11px;
-  border-radius:10px;
-  background:rgba(2,6,23,0.28);
-  border:1px solid rgba(173,193,208,0.16);
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--sudoku-metal-light) 20%, transparent);
+  background:linear-gradient(135deg, rgba(255,255,255,0.045), rgba(2,6,23,0.58));
 }
 
 .sudoku-objective span{
-  color:#dbeafe;
+  color:color-mix(in srgb, var(--sudoku-metal-light) 86%, white 8%);
   font-size:0.68rem;
-  font-weight:900;
-  letter-spacing:0.1em;
+  font-weight:1000;
+  letter-spacing:0.16em;
   text-transform:uppercase;
 }
 
 .sudoku-objective small{
-  color:rgba(226,236,244,0.84);
+  color:rgba(229,238,244,0.84);
   line-height:1.35;
 }
 
 .sudoku-progress{
   display:grid;
   gap:6px;
-  margin-top:12px;
 }
 
 .sudoku-progress-meta{
   display:flex;
-  align-items:center;
   justify-content:space-between;
   gap:10px;
-  color:rgba(218,230,239,0.74);
+  color:rgba(229,238,244,0.74);
   font-size:0.76rem;
   font-weight:800;
 }
 
 .sudoku-progress-track{
   height:8px;
+  padding:1px;
+  border-radius:4px;
   overflow:hidden;
-  border-radius:999px;
-  background:rgba(2,6,23,0.58);
-  border:1px solid rgba(173,193,208,0.14);
+  border:1px solid color-mix(in srgb, var(--sudoku-metal-light) 18%, transparent);
+  background:linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.9));
 }
 
 .sudoku-progress-fill{
   height:100%;
-  width:0%;
-  border-radius:inherit;
-  background:linear-gradient(90deg, #9eb2c1, #dbeafe);
-  box-shadow:0 0 12px rgba(186,215,236,0.16);
-  transition:width 0.7s ease;
+  border-radius:3px;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--sudoku-metal) 68%, #f8fafc), var(--sudoku-metal-light));
+  box-shadow:0 0 12px var(--sudoku-glow);
 }
 
 .sudoku-relic-rarity,
 .sudoku-relic-state{
   display:inline-flex;
   align-items:center;
-  min-height:22px;
-  padding:3px 7px;
-  border-radius:7px;
-  color:#dbeafe;
-  background:rgba(15,23,42,0.56);
-  border:1px solid rgba(173,193,208,0.18);
-  font-size:0.64rem;
-  font-weight:900;
-  letter-spacing:0.06em;
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:color-mix(in srgb, var(--sudoku-metal-light) 82%, white 8%);
+  border:1px solid color-mix(in srgb, var(--sudoku-metal-light) 24%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--sudoku-metal) 12%, transparent), rgba(2,6,23,0.72));
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
   text-transform:uppercase;
   white-space:nowrap;
 }
 
-.sudoku-relic.unlocked .sudoku-relic-state{
-  color:#e2e8f0;
-  border-color:rgba(203,213,225,0.24);
+.achievement-card.sudoku-relic.common,
+.achievement-grid.sudoku-relics .sudoku-relic.common{
+  --sudoku-metal:#7a8390;
+  --sudoku-metal-light:#d5dee6;
+  --sudoku-bg:#070b12;
+  --sudoku-glow:rgba(184,211,232,0.16);
 }
 
-.sudoku-relic.common,
-.sudoku-relic.rare,
-.sudoku-relic.epic,
-.sudoku-relic.legendary{
-  animation:none;
-}
-
-.sudoku-relic.common .sudoku-relic-rarity,
-.sudoku-relic.rare .sudoku-relic-rarity,
-.sudoku-relic.epic .sudoku-relic-rarity,
-.sudoku-relic.legendary .sudoku-relic-rarity{
-  color:#cbd5e1;
-  background:rgba(15,23,42,0.66);
-  border-color:rgba(148,163,184,0.16);
-}
-
-.achievement-card.sudoku-relic.common{
-  color:#f8fbff;
-  border-color:rgba(184,211,232,0.24);
-}
-
-.achievement-card.sudoku-relic.common::before{
-  inset:0;
-  opacity:0.86;
-}
-
-.achievement-card.sudoku-relic.common::after{
-  opacity:0.34;
-}
-
-.sudoku-relic.common .sudoku-relic-rarity{
-  color:#dbeafe;
-  background:rgba(184,211,232,0.1);
-  border-color:rgba(184,211,232,0.28);
-}
-
-.sudoku-relic.common .sudoku-relic-header::before,
-.sudoku-relic.common .sudoku-relic-header::after{
-  content:"";
-  position:absolute;
-  pointer-events:none;
-}
-
-.sudoku-relic.common .sudoku-relic-header::before{
-  left:8px;
-  top:74px;
-  width:48px;
-  height:96px;
+.achievement-card.sudoku-relic.rare,
+.achievement-grid.sudoku-relics .sudoku-relic.rare{
+  --sudoku-metal:#72b8d6;
+  --sudoku-metal-light:#e0f7ff;
+  --sudoku-bg:#06111a;
+  --sudoku-glow:rgba(125,211,252,0.3);
+  min-height:244px;
   background:
-    radial-gradient(circle at 50% 0, rgba(226,239,248,0.7) 0 2px, transparent 3px),
-    radial-gradient(circle at 50% 38%, rgba(226,239,248,0.5) 0 2px, transparent 3px),
-    radial-gradient(circle at 50% 76%, rgba(226,239,248,0.62) 0 2px, transparent 3px),
-    linear-gradient(180deg, rgba(226,239,248,0.28), transparent 38%, rgba(226,239,248,0.2), transparent 78%);
-  opacity:0.42;
-  animation:sudokuCommonHeaderRoute 6.4s ease-in-out infinite;
-}
-
-.sudoku-relic.common .sudoku-relic-header::after{
-  left:22px;
-  top:74px;
-  width:34px;
-  height:34px;
-  border:1px solid rgba(226,239,248,0.22);
-  border-radius:10px;
-  opacity:0.32;
-  transform:rotate(45deg);
-  animation:sudokuCommonHeaderNode 7s ease-in-out infinite;
-}
-
-.sudoku-relic.common .sudoku-relic-main::before,
-.sudoku-relic.common .sudoku-relic-main::after{
-  content:"";
-  position:absolute;
-  pointer-events:none;
-  z-index:0;
-}
-
-.sudoku-relic.common .sudoku-relic-main::before{
-  left:-12px;
-  right:-12px;
-  top:0;
-  height:58px;
-  background:
-    radial-gradient(circle, rgba(219,234,254,0.58) 0 1.4px, transparent 2.8px),
-    linear-gradient(90deg, transparent, rgba(219,234,254,0.34), transparent),
-    linear-gradient(120deg, transparent 0 18%, rgba(184,211,232,0.22) 18.4% 18.9%, transparent 19.4% 62%, rgba(184,211,232,0.18) 62.4% 62.9%, transparent 63.4%);
-  background-size:16px 16px, 100% 100%, 100% 100%;
-  opacity:0.38;
-  transform:translateX(-10px);
-  mix-blend-mode:screen;
-  animation:sudokuCommonRouteLines 7.4s ease-in-out infinite;
-}
-
-.sudoku-relic.common .sudoku-relic-main::after{
-  right:0;
-  bottom:2px;
-  width:92px;
-  height:46px;
-  background:
-    radial-gradient(circle at 12% 54%, rgba(219,234,254,0.68) 0 1.8px, transparent 3px),
-    radial-gradient(circle at 42% 28%, rgba(219,234,254,0.48) 0 1.6px, transparent 3px),
-    radial-gradient(circle at 72% 68%, rgba(219,234,254,0.58) 0 1.8px, transparent 3px),
-    linear-gradient(115deg, transparent 0 18%, rgba(184,211,232,0.28) 18.5% 19.2%, transparent 19.8% 46%, rgba(184,211,232,0.22) 46.5% 47.2%, transparent 47.8%);
-  opacity:0.4;
-  mix-blend-mode:screen;
-  animation:sudokuCommonRouteDots 6.6s ease-in-out infinite;
-}
-
-.sudoku-relic.common .sudoku-relic-title,
-.sudoku-relic.common .sudoku-relic-prophecy,
-.sudoku-relic.common .sudoku-objective,
-.sudoku-relic.common .sudoku-progress{
-  position:relative;
-  z-index:1;
-}
-
-.sudoku-relic.common .sudoku-relic-icon::after{
-  content:"";
-  inset:7px;
-  border-radius:inherit;
-  background:
-    radial-gradient(circle at 20% 22%, rgba(219,234,254,0.74) 0 1.8px, transparent 3px),
-    radial-gradient(circle at 72% 34%, rgba(219,234,254,0.52) 0 1.6px, transparent 3px),
-    radial-gradient(circle at 44% 72%, rgba(219,234,254,0.62) 0 1.8px, transparent 3px),
-    linear-gradient(120deg, transparent 0 26%, rgba(219,234,254,0.26) 26.5% 27.2%, transparent 27.8% 68%, rgba(219,234,254,0.22) 68.5% 69.2%, transparent 69.8%);
-  opacity:0.48;
-  mix-blend-mode:screen;
-  animation:sudokuCommonIconPath 6.2s ease-in-out infinite;
-}
-
-.sudoku-common-v1,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 1){
-  background:
-    linear-gradient(rgba(226,239,248,0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(226,239,248,0.04) 1px, transparent 1px),
-    linear-gradient(145deg, rgba(5,10,18,0.96), rgba(16,25,36,0.92));
-  background-size:34px 34px, 34px 34px, 100% 100%;
-}
-
-.sudoku-common-v1::before,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 1)::before{
-  background:
-    linear-gradient(90deg, transparent, rgba(219,234,254,0.18), transparent),
-    repeating-linear-gradient(90deg, transparent 0 32px, rgba(184,211,232,0.07) 32px 34px);
-  animation:sudokuGridScan 6.8s ease-in-out infinite;
-}
-
-.sudoku-common-v1 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 1) .sudoku-relic-icon{
-  border-radius:8px;
-  box-shadow:inset 0 0 0 2px rgba(219,234,254,0.08), 0 12px 22px rgba(0,0,0,0.24);
-}
-
-.sudoku-common-v2,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 2){
-  grid-template-columns:1fr;
-  background:
-    radial-gradient(circle at 82% 12%, rgba(219,234,254,0.14), transparent 32%),
-    linear-gradient(145deg, rgba(8,14,24,0.94), rgba(23,31,42,0.9));
-  border-radius:18px;
-}
-
-.sudoku-common-v2 .sudoku-relic-header,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 2) .sudoku-relic-header{
-  flex-direction:row;
-  align-items:center;
-}
-
-.sudoku-common-v2 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 2) .sudoku-relic-icon{
-  width:74px;
-  height:48px;
-  border-radius:999px;
-  backdrop-filter:blur(10px);
-}
-
-.sudoku-common-v2::after,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 2)::after{
-  content:"";
-  inset:14px;
-  border:1px solid rgba(219,234,254,0.1);
-  border-radius:16px;
-}
-
-.sudoku-common-v3,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 3){
-  grid-template-columns:82px minmax(0, 1fr);
-  background:
-    radial-gradient(circle at 14% 26%, rgba(226,239,248,0.16), transparent 28%),
-    linear-gradient(145deg, #050912, #111827 60%, #070b14);
-}
-
-.sudoku-common-v3 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 3) .sudoku-relic-icon{
-  height:82px;
-  border-radius:16px 16px 26px 16px;
-  transform:perspective(180px) rotateY(-8deg);
-}
-
-.sudoku-common-v3::before,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 3)::before{
-  right:auto;
-  width:104px;
-  top:0;
-  bottom:0;
-  background:linear-gradient(90deg, rgba(219,234,254,0.08), transparent);
-}
-
-.sudoku-common-v4,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 4){
-  grid-template-columns:68px minmax(0, 1fr);
-  border-radius:10px 18px 10px 18px;
-  background:
-    linear-gradient(135deg, rgba(226,239,248,0.08), transparent 30%),
-    linear-gradient(145deg, rgba(6,12,21,0.96), rgba(19,29,40,0.9));
-}
-
-.sudoku-common-v4 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 4) .sudoku-relic-icon{
-  clip-path:polygon(18% 0, 100% 0, 82% 100%, 0 100%);
-  border-radius:0;
-}
-
-.sudoku-common-v4::after,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 4)::after{
-  content:"";
-  width:72px;
-  height:72px;
-  right:14px;
-  bottom:14px;
-  border:1px solid rgba(219,234,254,0.14);
-  transform:rotate(45deg);
-}
-
-.sudoku-common-v5,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 5){
-  grid-template-columns:1fr;
-  background:
-    linear-gradient(90deg, rgba(219,234,254,0.08), transparent 34% 66%, rgba(219,234,254,0.05)),
-    linear-gradient(145deg, rgba(7,12,18,0.96), rgba(21,28,35,0.9));
-}
-
-.sudoku-common-v5 .sudoku-relic-header,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 5) .sudoku-relic-header{
-  flex-direction:row-reverse;
-  align-items:center;
-}
-
-.sudoku-common-v5 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 5) .sudoku-relic-icon{
-  border-radius:6px;
-  transform:rotate(-2deg);
-}
-
-.sudoku-common-v5::before,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 5)::before{
-  left:20px;
-  right:20px;
-  top:18px;
-  height:1px;
-  background:linear-gradient(90deg, transparent, rgba(219,234,254,0.26), transparent);
-  animation:sudokuQuietLine 5.8s ease-in-out infinite;
-}
-
-.sudoku-common-v6,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 6){
-  grid-template-columns:74px minmax(0, 1fr);
-  background:
-    radial-gradient(circle at 50% 28%, rgba(219,234,254,0.14), transparent 34%),
-    conic-gradient(from 45deg at 34px 34px, transparent 0 22%, rgba(219,234,254,0.08) 22% 23%, transparent 23%),
-    linear-gradient(145deg, rgba(5,11,19,0.96), rgba(16,27,38,0.9));
-}
-
-.sudoku-common-v6 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 6) .sudoku-relic-icon{
-  border-radius:50%;
-}
-
-.sudoku-common-v6 .sudoku-relic-icon::before,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 6) .sudoku-relic-icon::before{
-  content:"";
-  inset:8px;
-  border:1px solid rgba(219,234,254,0.18);
-  border-radius:50%;
-  animation:sudokuOrbitCalm 7.2s linear infinite;
-}
-
-.sudoku-common-v7,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 7){
-  background:
-    linear-gradient(180deg, rgba(226,239,248,0.08), transparent 42%),
-    repeating-linear-gradient(0deg, transparent 0 24px, rgba(184,211,232,0.04) 24px 25px),
-    linear-gradient(145deg, rgba(8,12,18,0.96), rgba(21,27,34,0.92));
-}
-
-.sudoku-common-v7 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 7) .sudoku-relic-icon{
-  height:76px;
-  border-radius:8px 8px 18px 18px;
-}
-
-.sudoku-common-v7::after,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 7)::after{
-  content:"1 4 9";
-  right:18px;
-  bottom:18px;
-  color:rgba(219,234,254,0.11);
-  font-size:2rem;
-  font-weight:1000;
-  letter-spacing:0.12em;
-}
-
-.sudoku-common-v8,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n){
-  grid-template-columns:86px minmax(0, 1fr);
-  background:
-    linear-gradient(120deg, rgba(219,234,254,0.1), transparent 28%),
-    radial-gradient(circle at 20% 78%, rgba(147,197,253,0.1), transparent 30%),
-    linear-gradient(145deg, rgba(4,9,16,0.96), rgba(14,23,34,0.92));
-}
-
-.sudoku-common-v8 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n) .sudoku-relic-icon{
-  width:78px;
-  border-radius:14px;
-  transform:perspective(180px) rotateX(5deg);
-}
-
-.sudoku-common-v8::before,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n)::before{
-  left:18px;
-  top:18px;
-  width:78px;
-  height:78px;
-  border:1px solid rgba(219,234,254,0.1);
-  border-radius:18px;
-  transform:rotate(8deg);
-}
-
-@keyframes sudokuGridScan{
-  0%,100%{ transform:translateX(-42%); opacity:0.12; }
-  48%{ transform:translateX(8%); opacity:0.44; }
-  74%{ transform:translateX(42%); opacity:0.18; }
-}
-
-@keyframes sudokuQuietLine{
-  0%,100%{ opacity:0.14; transform:translateX(-18px); }
-  50%{ opacity:0.42; transform:translateX(18px); }
-}
-
-@keyframes sudokuOrbitCalm{
-  0%{ transform:rotate(0deg); opacity:0.22; }
-  50%{ opacity:0.46; }
-  100%{ transform:rotate(360deg); opacity:0.22; }
-}
-
-@keyframes sudokuCommonRouteLines{
-  0%,100%{ opacity:0.14; transform:translateX(-12px); }
-  45%{ opacity:0.3; transform:translateX(8px); }
-  72%{ opacity:0.2; transform:translateX(18px); }
-}
-
-@keyframes sudokuCommonRouteDots{
-  0%,100%{ opacity:0.16; transform:translateY(0); }
-  50%{ opacity:0.32; transform:translateY(-4px); }
-}
-
-@keyframes sudokuCommonIconPath{
-  0%,100%{ opacity:0.2; transform:translateX(-2px); }
-  50%{ opacity:0.38; transform:translateX(2px); }
-}
-
-@keyframes sudokuCommonHeaderRoute{
-  0%,100%{ opacity:0.3; transform:translateY(0); }
-  50%{ opacity:0.54; transform:translateY(-5px); }
-}
-
-@keyframes sudokuCommonHeaderNode{
-  0%,100%{ opacity:0.22; transform:rotate(45deg) scale(0.92); }
-  50%{ opacity:0.46; transform:rotate(45deg) scale(1.08); }
-}
-
-.achievement-card.sudoku-relic.rare{
-  --sudoku-line:rgba(141,221,255,0.48);
-  --sudoku-soft:rgba(56,189,248,0.22);
-  --sudoku-ink:#f4fbff;
-  --sudoku-muted:rgba(219,238,248,0.76);
-  border-color:rgba(125,211,252,0.52);
+    linear-gradient(135deg, rgba(224,247,255,0.12), transparent 20% 72%, rgba(56,189,248,0.08)),
+    radial-gradient(circle at 78% 14%, rgba(125,211,252,0.22), transparent 32%),
+    linear-gradient(45deg, rgba(224,247,255,0.05) 25%, transparent 25% 50%, rgba(0,0,0,0.24) 50% 75%, transparent 75%),
+    linear-gradient(145deg, #030609, #06111a 44%, #132d3c 74%, #030507);
+  background-size:100% 100%, 100% 100%, 34px 34px, 100% 100%;
   box-shadow:
-    0 22px 54px rgba(0,0,0,0.44),
-    0 0 34px rgba(125,211,252,0.18),
-    0 0 0 1px rgba(224,247,255,0.04),
-    inset 0 1px 0 rgba(255,255,255,0.08);
-}
-
-.achievement-card.sudoku-relic.rare::before{
-  inset:0;
-  opacity:0.92;
-}
-
-.achievement-card.sudoku-relic.rare::after{
-  opacity:0.46;
-}
-
-.sudoku-relic.rare .sudoku-relic-header::before,
-.sudoku-relic.rare .sudoku-relic-header::after,
-.sudoku-relic.rare .sudoku-relic-main::before,
-.sudoku-relic.rare .sudoku-relic-main::after{
-  content:"";
-  position:absolute;
-  pointer-events:none;
-}
-
-.sudoku-relic.rare .sudoku-relic-header::before{
-  left:6px;
-  top:72px;
-  width:54px;
-  height:104px;
-  background:
-    radial-gradient(circle at 50% 0, rgba(224,247,255,0.86) 0 2px, transparent 3.5px),
-    radial-gradient(circle at 50% 32%, rgba(125,211,252,0.74) 0 2px, transparent 3.5px),
-    radial-gradient(circle at 50% 66%, rgba(224,247,255,0.76) 0 2px, transparent 3.5px),
-    linear-gradient(180deg, rgba(125,211,252,0.42), transparent 33%, rgba(224,247,255,0.3), transparent 72%);
-  opacity:0.58;
-  filter:drop-shadow(0 0 8px rgba(125,211,252,0.18));
-  animation:sudokuRareHeaderRoute 5.8s ease-in-out infinite;
-}
-
-.sudoku-relic.rare .sudoku-relic-header::after{
-  left:17px;
-  top:72px;
-  width:40px;
-  height:40px;
-  border:1px solid rgba(224,247,255,0.34);
-  border-radius:12px;
-  opacity:0.42;
-  transform:rotate(45deg);
-  animation:sudokuRareHeaderNode 6.6s ease-in-out infinite;
-}
-
-.sudoku-relic.rare .sudoku-relic-main::before{
-  left:-14px;
-  right:-12px;
-  top:0;
-  height:64px;
-  background:
-    radial-gradient(circle, rgba(224,247,255,0.72) 0 1.6px, transparent 3px),
-    linear-gradient(90deg, transparent, rgba(125,211,252,0.42), rgba(224,247,255,0.28), transparent),
-    linear-gradient(120deg, transparent 0 16%, rgba(125,211,252,0.3) 16.4% 17%, transparent 17.6% 58%, rgba(224,247,255,0.24) 58.4% 59%, transparent 59.6%);
-  background-size:15px 15px, 100% 100%, 100% 100%;
-  opacity:0.5;
-  mix-blend-mode:screen;
-  animation:sudokuRareRouteLines 6.2s ease-in-out infinite;
-}
-
-.sudoku-relic.rare .sudoku-relic-main::after{
-  right:0;
-  bottom:0;
-  width:104px;
-  height:52px;
-  background:
-    radial-gradient(circle at 10% 54%, rgba(224,247,255,0.86) 0 2px, transparent 3.5px),
-    radial-gradient(circle at 36% 24%, rgba(125,211,252,0.66) 0 1.8px, transparent 3.2px),
-    radial-gradient(circle at 68% 72%, rgba(224,247,255,0.72) 0 2px, transparent 3.5px),
-    radial-gradient(circle at 90% 36%, rgba(125,211,252,0.58) 0 1.6px, transparent 3px),
-    linear-gradient(115deg, transparent 0 15%, rgba(125,211,252,0.36) 15.5% 16.2%, transparent 16.8% 43%, rgba(224,247,255,0.28) 43.5% 44.2%, transparent 44.8% 72%, rgba(125,211,252,0.22) 72.5% 73.2%, transparent 73.8%);
-  opacity:0.54;
-  mix-blend-mode:screen;
-  animation:sudokuRareRouteDots 5.8s ease-in-out infinite;
-}
-
-.sudoku-relic.rare .sudoku-relic-title,
-.sudoku-relic.rare .sudoku-relic-prophecy,
-.sudoku-relic.rare .sudoku-objective,
-.sudoku-relic.rare .sudoku-progress{
-  position:relative;
-  z-index:1;
+    0 24px 58px rgba(0,0,0,0.62),
+    0 0 38px rgba(125,211,252,0.16),
+    inset 0 0 0 1px rgba(224,247,255,0.06),
+    inset 0 0 0 2px rgba(125,211,252,0.34),
+    inset 0 0 0 8px rgba(2,6,23,0.58);
 }
 
 .sudoku-relic.rare .sudoku-relic-icon{
+  width:96px;
+  height:122px;
   background:
-    linear-gradient(rgba(219,242,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(219,242,255,0.09) 1px, transparent 1px),
-    radial-gradient(circle at 30% 18%, rgba(224,247,255,0.2), transparent 26%),
-    linear-gradient(145deg, rgba(56,189,248,0.24), rgba(15,23,42,0.84));
-  background-size:18px 18px, 18px 18px, 100% 100%, 100% 100%;
-  border-color:rgba(158,215,245,0.56);
+    radial-gradient(circle at 50% 15%, rgba(255,255,255,0.28), transparent 24%),
+    linear-gradient(145deg, #e0f7ff, #72b8d6 52%, #183044);
   box-shadow:
-    inset 0 0 24px rgba(125,211,252,0.13),
-    0 14px 26px rgba(0,0,0,0.28),
-    0 0 28px rgba(125,211,252,0.22);
+    0 20px 38px rgba(0,0,0,0.5),
+    0 0 34px rgba(125,211,252,0.28),
+    inset 0 0 0 2px rgba(224,247,255,0.5),
+    inset 0 0 0 8px rgba(2,6,23,0.5);
+  animation:sudokuRareRelicFloat 5.2s ease-in-out infinite;
 }
 
-.sudoku-relic.rare .sudoku-relic-icon::after{
-  content:"";
-  inset:7px;
-  border-radius:inherit;
+.sudoku-relic.rare .sudoku-relic-icon::before{
   background:
-    radial-gradient(circle at 18% 22%, rgba(224,247,255,0.9) 0 1.8px, transparent 3px),
-    radial-gradient(circle at 72% 32%, rgba(125,211,252,0.66) 0 1.6px, transparent 3px),
-    radial-gradient(circle at 42% 74%, rgba(224,247,255,0.74) 0 1.8px, transparent 3px),
-    linear-gradient(120deg, transparent 0 24%, rgba(224,247,255,0.36) 24.5% 25.2%, transparent 25.8% 66%, rgba(125,211,252,0.28) 66.5% 67.2%, transparent 67.8%);
+    linear-gradient(rgba(3,15,24,0.24) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(3,15,24,0.22) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.28) 0 3px, transparent 4px);
+  background-size:13px 13px, 13px 13px, 100% 100%;
+  border-color:rgba(3,15,24,0.24);
+}
+
+.sudoku-relic.rare .sudoku-relic-main::before{
+  height:3px;
+  background:linear-gradient(90deg, transparent, rgba(224,247,255,0.7), rgba(125,211,252,0.32), transparent);
+  box-shadow:0 0 24px rgba(125,211,252,0.28);
+  animation:sudokuRareTrace 4.4s ease-in-out infinite;
+}
+
+.sudoku-relic.rare .sudoku-relic-main::after{
+  width:64px;
+  height:64px;
+  border-radius:12px;
+  border-color:rgba(224,247,255,0.34);
   opacity:0.58;
-  mix-blend-mode:screen;
-  animation:sudokuRareIconPath 5.4s ease-in-out infinite;
+  animation:sudokuRareSeal 6s ease-in-out infinite;
 }
 
-.sudoku-relic.rare .sudoku-relic-rarity{
-  color:#ecfbff;
-  background:rgba(14,165,233,0.18);
-  border-color:rgba(125,211,252,0.52);
-  box-shadow:0 0 18px rgba(125,211,252,0.16);
+.sudoku-relic.rare .sudoku-relic-rarity,
+.sudoku-relic.rare .sudoku-relic-state{
+  color:#e0f7ff;
+  border-color:rgba(125,211,252,0.38);
+  background:linear-gradient(135deg, rgba(125,211,252,0.16), rgba(2,6,23,0.76));
+  box-shadow:0 0 18px rgba(125,211,252,0.12), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
-.sudoku-relic.rare .sudoku-progress-fill{
-  background:linear-gradient(90deg, #7fb9d8, #e0f7ff);
-  box-shadow:0 0 24px rgba(125,211,252,0.34);
-}
+.sudoku-common-v1,
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 1){ border-radius:18px; }
+.sudoku-common-v2,
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 2){ border-radius:14px 22px 14px 22px; }
+.sudoku-common-v3,
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 3){ grid-template-columns:104px minmax(0, 1fr); }
+.sudoku-common-v4,
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 4){ border-radius:22px 14px 22px 14px; }
+.sudoku-common-v5,
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 5){ background-size:100% 100%, 46px 46px, 100% 100%, 100% 100%; }
+.sudoku-common-v6,
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 6){ grid-template-columns:90px minmax(0, 1fr); }
+.sudoku-common-v7,
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 7){ border-radius:16px; }
+.sudoku-common-v8,
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n){ grid-template-columns:104px minmax(0, 1fr); }
 
 .sudoku-rare-v1,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 1){
-  background:
-    linear-gradient(rgba(219,242,255,0.052) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(219,242,255,0.046) 1px, transparent 1px),
-    radial-gradient(circle at 78% 18%, rgba(125,211,252,0.2), transparent 32%),
-    linear-gradient(145deg, rgba(4,10,18,0.98), rgba(12,29,44,0.94));
-  background-size:28px 28px, 28px 28px, 100% 100%, 100% 100%;
-}
-
-.sudoku-rare-v1::before,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 1)::before{
-  background:
-    linear-gradient(90deg, transparent, rgba(224,247,255,0.24), transparent),
-    repeating-linear-gradient(0deg, transparent 0 27px, rgba(125,211,252,0.08) 27px 28px);
-  animation:sudokuRareScan 5.8s ease-in-out infinite;
-}
-
-.sudoku-rare-v1 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 1) .sudoku-relic-icon{
-  border-radius:9px;
-}
-
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 1){ border-radius:18px; }
 .sudoku-rare-v2,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 2){
-  grid-template-columns:90px minmax(0, 1fr);
-  background:
-    radial-gradient(circle at 20% 28%, rgba(224,247,255,0.22), transparent 28%),
-    linear-gradient(145deg, rgba(3,9,16,0.98), rgba(10,24,36,0.94));
-}
-
-.sudoku-rare-v2 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 2) .sudoku-relic-icon{
-  width:82px;
-  height:82px;
-  border-radius:18px;
-  transform:perspective(190px) rotateY(-10deg) rotateX(3deg);
-}
-
-.sudoku-rare-v2 .sudoku-relic-icon::before,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 2) .sudoku-relic-icon::before{
-  content:"";
-  inset:10px;
-  border:1px solid rgba(224,247,255,0.18);
-  border-radius:12px;
-}
-
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 2){ grid-template-columns:112px minmax(0, 1fr); }
 .sudoku-rare-v3,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 3){
-  grid-template-columns:1fr;
-  background:
-    radial-gradient(circle at 50% 8%, rgba(125,211,252,0.2), transparent 30%),
-    linear-gradient(145deg, rgba(6,14,23,0.98), rgba(16,32,45,0.94));
-}
-
-.sudoku-rare-v3 .sudoku-relic-header,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 3) .sudoku-relic-header{
-  flex-direction:row;
-  align-items:center;
-}
-
-.sudoku-rare-v3 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 3) .sudoku-relic-icon{
-  width:86px;
-  height:54px;
-  border-radius:999px;
-}
-
-.sudoku-rare-v3::after,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 3)::after{
-  content:"2 5 8";
-  right:20px;
-  bottom:16px;
-  color:rgba(224,247,255,0.12);
-  font-size:2.2rem;
-  font-weight:1000;
-  letter-spacing:0.16em;
-  animation:sudokuRareNumbers 6.4s ease-in-out infinite;
-}
-
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 3){ border-radius:22px 14px 22px 14px; }
 .sudoku-rare-v4,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 4){
-  border-radius:18px 8px 18px 8px;
-  background:
-    linear-gradient(135deg, rgba(224,247,255,0.11), transparent 32%),
-    linear-gradient(145deg, rgba(4,11,19,0.98), rgba(11,27,39,0.94));
-}
-
-.sudoku-rare-v4 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 4) .sudoku-relic-icon{
-  clip-path:polygon(14% 0, 100% 0, 86% 100%, 0 100%);
-  border-radius:0;
-}
-
-.sudoku-rare-v4::before,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 4)::before{
-  right:18px;
-  top:18px;
-  width:76px;
-  height:76px;
-  border:1px solid rgba(224,247,255,0.13);
-  transform:rotate(45deg);
-}
-
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 4){ border-radius:14px 24px 14px 24px; }
 .sudoku-rare-v5,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 5){
-  grid-template-columns:78px minmax(0, 1fr);
-  background:
-    linear-gradient(90deg, rgba(125,211,252,0.12), transparent 38%),
-    repeating-linear-gradient(135deg, transparent 0 24px, rgba(224,247,255,0.045) 24px 25px),
-    linear-gradient(145deg, rgba(5,12,20,0.98), rgba(15,29,40,0.94));
-}
-
-.sudoku-rare-v5 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 5) .sudoku-relic-icon{
-  height:90px;
-  border-radius:14px 14px 24px 24px;
-}
-
-.sudoku-rare-v5::after,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 5)::after{
-  content:"";
-  left:22px;
-  top:18px;
-  width:54px;
-  height:92px;
-  border:1px solid rgba(224,247,255,0.12);
-  border-radius:16px;
-  transform:translateX(8px);
-}
-
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 5){ grid-template-columns:108px minmax(0, 1fr); }
 .sudoku-rare-v6,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 6){
-  grid-template-columns:86px minmax(0, 1fr);
-  background:
-    conic-gradient(from 0deg at 43px 43px, rgba(125,211,252,0.16), transparent 18% 42%, rgba(224,247,255,0.1), transparent 62%),
-    linear-gradient(145deg, rgba(4,10,17,0.98), rgba(10,26,38,0.94));
-}
-
-.sudoku-rare-v6 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 6) .sudoku-relic-icon{
-  width:78px;
-  height:78px;
-  border-radius:50%;
-}
-
-.sudoku-rare-v6 .sudoku-relic-icon::before,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 6) .sudoku-relic-icon::before{
-  content:"";
-  inset:7px;
-  border:1px solid rgba(224,247,255,0.22);
-  border-radius:50%;
-  animation:sudokuRareOrbit 6.6s linear infinite;
-}
-
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 6){ border-radius:20px; }
 .sudoku-rare-v7,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 7){
-  grid-template-columns:1fr;
-  background:
-    linear-gradient(180deg, rgba(224,247,255,0.12), transparent 44%),
-    linear-gradient(145deg, rgba(6,13,21,0.98), rgba(18,32,43,0.94));
-}
-
-.sudoku-rare-v7 .sudoku-relic-header,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 7) .sudoku-relic-header{
-  flex-direction:row-reverse;
-  align-items:center;
-}
-
-.sudoku-rare-v7 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 7) .sudoku-relic-icon{
-  border-radius:10px;
-  transform:rotate(-2deg);
-}
-
-.sudoku-rare-v7::before,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 7)::before{
-  left:16px;
-  right:16px;
-  top:18px;
-  height:2px;
-  background:linear-gradient(90deg, transparent, rgba(224,247,255,0.34), transparent);
-  animation:sudokuRareLine 5.2s ease-in-out infinite;
-}
-
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 7){ grid-template-columns:112px minmax(0, 1fr); }
 .sudoku-rare-v8,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n){
-  grid-template-columns:92px minmax(0, 1fr);
-  background:
-    radial-gradient(circle at 16% 76%, rgba(125,211,252,0.18), transparent 30%),
-    linear-gradient(120deg, rgba(224,247,255,0.1), transparent 30%),
-    linear-gradient(145deg, rgba(3,9,16,0.98), rgba(11,25,37,0.94));
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n){ border-radius:24px 14px 24px 14px; }
+
+@keyframes sudokuRelicSweep{
+  0%,100%{ transform:translateX(-52%); opacity:0.14; }
+  48%{ transform:translateX(8%); opacity:0.76; }
+  74%{ transform:translateX(52%); opacity:0.2; }
 }
 
-.sudoku-rare-v8 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n) .sudoku-relic-icon{
-  width:84px;
-  height:70px;
-  border-radius:18px 10px 18px 10px;
-  transform:perspective(180px) rotateX(7deg);
+@keyframes sudokuRelicMark{
+  0%,100%{ transform:rotate(45deg) scale(0.92); opacity:0.2; }
+  50%{ transform:rotate(45deg) scale(1.08); opacity:0.42; }
 }
 
-.sudoku-rare-v8::after,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n)::after{
-  content:"";
-  left:22px;
-  top:22px;
-  width:84px;
-  height:70px;
-  border:1px solid rgba(224,247,255,0.14);
-  border-radius:18px 10px 18px 10px;
-  transform:translate(8px, 8px);
+@keyframes sudokuRareRelicFloat{
+  0%,100%{ transform:translateY(0); filter:brightness(1); }
+  50%{ transform:translateY(-4px); filter:brightness(1.08); }
 }
 
-@keyframes sudokuRareScan{
-  0%,100%{ transform:translateX(-48%); opacity:0.16; }
-  45%{ transform:translateX(10%); opacity:0.56; }
-  74%{ transform:translateX(48%); opacity:0.2; }
+@keyframes sudokuRareTrace{
+  0%,100%{ transform:translateX(-54%); opacity:0.16; }
+  44%{ transform:translateX(8%); opacity:0.92; }
+  72%{ transform:translateX(54%); opacity:0.24; }
 }
 
-@keyframes sudokuRareNumbers{
-  0%,100%{ transform:translateY(0); opacity:0.1; }
-  50%{ transform:translateY(-6px); opacity:0.22; }
-}
-
-@keyframes sudokuRareOrbit{
-  0%{ transform:rotate(0deg); opacity:0.28; }
-  50%{ opacity:0.58; }
-  100%{ transform:rotate(360deg); opacity:0.28; }
-}
-
-@keyframes sudokuRareLine{
-  0%,100%{ transform:translateX(-24px); opacity:0.18; }
-  50%{ transform:translateX(24px); opacity:0.52; }
-}
-
-@keyframes sudokuRareHeaderRoute{
-  0%,100%{ opacity:0.42; transform:translateY(0); }
-  50%{ opacity:0.72; transform:translateY(-6px); }
-}
-
-@keyframes sudokuRareHeaderNode{
-  0%,100%{ opacity:0.3; transform:rotate(45deg) scale(0.92); }
-  50%{ opacity:0.58; transform:rotate(45deg) scale(1.1); }
-}
-
-@keyframes sudokuRareRouteLines{
-  0%,100%{ opacity:0.36; transform:translateX(-14px); }
-  42%{ opacity:0.64; transform:translateX(10px); }
-  74%{ opacity:0.46; transform:translateX(22px); }
-}
-
-@keyframes sudokuRareRouteDots{
-  0%,100%{ opacity:0.38; transform:translateY(0); }
-  50%{ opacity:0.68; transform:translateY(-5px); }
-}
-
-@keyframes sudokuRareIconPath{
-  0%,100%{ opacity:0.42; transform:translateX(-2px); }
-  50%{ opacity:0.72; transform:translateX(2px); }
+@keyframes sudokuRareSeal{
+  0%,100%{ transform:rotate(34deg) scale(0.92); opacity:0.3; }
+  50%{ transform:rotate(50deg) scale(1.08); opacity:0.62; }
 }
 
 .achievement-grid.memory-relics{
@@ -7347,15 +6779,15 @@ body.sudoku-screen-shake{
   }
 
   .achievement-card.sudoku-relic{
-    grid-template-columns:64px minmax(0, 1fr);
-    gap:10px;
-    padding:12px;
+    grid-template-columns:74px minmax(0, 1fr);
+    gap:12px;
+    padding:14px;
     min-height:0;
+    border-radius:14px;
   }
 
   .sudoku-common-v2,
-  .sudoku-common-v5,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 5){
+  .sudoku-common-v5{
     grid-template-columns:1fr;
   }
 
@@ -7363,31 +6795,24 @@ body.sudoku-screen-shake{
   .sudoku-common-v8,
   .sudoku-rare-v2,
   .sudoku-rare-v5,
-  .sudoku-rare-v6,
-  .sudoku-rare-v8,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n){
-    grid-template-columns:68px minmax(0, 1fr);
+  .sudoku-rare-v7{
+    grid-template-columns:82px minmax(0, 1fr);
   }
 
   .sudoku-rare-v3,
-  .sudoku-rare-v7,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 7){
-    grid-template-columns:1fr;
+  .sudoku-rare-v8{
+    grid-template-columns:86px minmax(0, 1fr);
   }
 
   .sudoku-relic-icon{
-    width:58px;
-    height:58px;
-    font-size:0.64rem;
+    width:68px;
+    height:86px;
+    font-size:0.62rem;
   }
 
-  .sudoku-rare-v2 .sudoku-relic-icon,
-  .sudoku-rare-v5 .sudoku-relic-icon,
-  .sudoku-rare-v6 .sudoku-relic-icon,
-  .sudoku-rare-v8 .sudoku-relic-icon,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n) .sudoku-relic-icon{
-    width:58px;
-    height:58px;
+  .sudoku-relic.rare .sudoku-relic-icon{
+    width:72px;
+    height:92px;
   }
 
   .sudoku-relic-header{
@@ -7405,11 +6830,17 @@ body.sudoku-screen-shake{
 
   .sudoku-relic-rarity,
   .sudoku-relic-state{
-    font-size:0.64rem;
+    min-height:22px;
+    font-size:0.6rem;
+    padding:3px 6px;
   }
 
   .sudoku-relic-title{
     font-size:0.98rem;
+  }
+
+  .sudoku-relic-prophecy{
+    font-size:0.86rem;
   }
 
   .achievement-card.memory-relic{
@@ -7889,6 +7320,6 @@ body.sudoku-screen-shake{
   </div>
 </div>
 
-<script type="module" src="./juegos/js/perfil.js?v=sudoku-rare-route-20260514"></script>
+<script type="module" src="./juegos/js/perfil.js?v=sudoku-relic-reset-20260514"></script>
 </body>
 </html>
