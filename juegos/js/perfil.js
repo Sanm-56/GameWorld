@@ -5513,6 +5513,39 @@ function renderLogroTablero(achievement, stats, gameKey) {
     epic: 'Epico',
     legendary: 'Legendario',
   }[rarity]
+  if (gameKey === 'ajedrez') {
+    const div = document.createElement('div')
+    div.className = `achievement-card chess-relic chess-${rarity} ${icon.className}${achievement.unlocked ? ' unlocked' : ' locked'}`
+    div.innerHTML = `
+      <div class="chess-relic-frame" aria-hidden="true">
+        <div class="chess-relic-piece">
+          <span>${escaparHtml(icon.label)}</span>
+        </div>
+      </div>
+      <div class="chess-relic-content">
+        <div class="chess-relic-badges">
+          <span class="chess-relic-rarity">${rarityLabel}</span>
+          <span class="chess-relic-state">${achievement.unlocked ? 'Coronado' : 'Sellado'}</span>
+        </div>
+        <strong class="chess-relic-title">${escaparHtml(textoPlano(achievement.title))}</strong>
+        <p class="chess-relic-description">${escaparHtml(textoPlano(achievement.description))}</p>
+        <div class="chess-relic-objective">
+          <span>Desbloqueo</span>
+          <small>${escaparHtml(textoPlano(achievement.howTo || ''))}</small>
+        </div>
+        <div class="chess-relic-progress" aria-label="Progreso">
+          <div class="chess-relic-progress-meta">
+            <span>Progreso</span>
+            <span>${progress.percent}% - ${escaparHtml(progress.label)}</span>
+          </div>
+          <div class="chess-relic-progress-track">
+            <div class="chess-relic-progress-fill" style="width:${progress.percent}%"></div>
+          </div>
+        </div>
+      </div>
+    `
+    return div
+  }
   const gameCopy = gameKey === 'ajedrez'
     ? { stateOn: 'Coronado', stateOff: 'Sellado', objective: 'Desbloqueo', sigil: 'K Q R B N 64' }
     : gameKey === 'damas'
