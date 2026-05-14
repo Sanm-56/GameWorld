@@ -20,6 +20,7 @@
 }
 
 body {
+  position: relative;
   margin: 0;
   min-height: 100vh;
   font-family: Inter, Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -39,24 +40,27 @@ body::before {
   z-index: -1;
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 72px 72px;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(115deg, transparent 0 42%, rgba(56, 189, 248, 0.08) 48%, transparent 56%),
+    linear-gradient(245deg, transparent 0 38%, rgba(250, 204, 21, 0.065) 46%, transparent 54%);
+  background-size: 72px 72px, 72px 72px, 820px 820px, 920px 920px;
+  background-position: 0 0, 0 0, -180px -260px, 120% -160px;
   mask-image: linear-gradient(180deg, black, transparent 88%);
   pointer-events: none;
+  animation: soloGridDrift 28s linear infinite;
 }
 
 body::after {
   content: "";
   position: fixed;
-  left: 8%;
-  right: 8%;
-  top: 0;
+  inset: 0;
   z-index: -1;
-  height: 180px;
-  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.2), rgba(250, 204, 21, 0.14), transparent);
-  filter: blur(32px);
-  opacity: 0.9;
+  background:
+    repeating-linear-gradient(100deg, transparent 0 120px, rgba(56, 189, 248, 0.055) 121px 123px, transparent 124px 260px),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.05), transparent 18%, transparent 82%, rgba(56, 189, 248, 0.04));
+  opacity: 0.72;
   pointer-events: none;
+  animation: soloLightSweep 18s ease-in-out infinite alternate;
 }
 
 button,
@@ -105,9 +109,25 @@ p {
 }
 
 .solitario-shell {
+  position: relative;
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
   padding: 20px 0 28px;
+}
+
+.solitario-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(120deg, transparent 0 18%, rgba(56, 189, 248, 0.08) 23%, transparent 30% 62%, rgba(250, 204, 21, 0.065) 69%, transparent 76%),
+    repeating-linear-gradient(0deg, transparent 0 44px, rgba(148, 163, 184, 0.035) 45px 46px);
+  background-size: 140% 140%, 100% 92px;
+  background-position: 10% 0, 0 0;
+  transform: translateZ(0);
+  pointer-events: none;
+  animation: soloAtmosphereShift 22s ease-in-out infinite alternate;
 }
 
 .solitario-topbar {
@@ -144,6 +164,25 @@ p {
     radial-gradient(circle at 88% 4%, rgba(250, 204, 21, 0.1), transparent 26%),
     rgba(2, 6, 23, 0.36);
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.3);
+}
+
+.game-app::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.11), transparent),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 32%);
+  opacity: 0.7;
+  pointer-events: none;
+  animation: soloPanelSheen 12s ease-in-out infinite;
+}
+
+.game-app > * {
+  position: relative;
+  z-index: 1;
 }
 
 .back-link,
@@ -292,6 +331,7 @@ p {
   margin-bottom: -1px;
   background: linear-gradient(90deg, transparent, rgba(250, 204, 21, 0.45), transparent);
   pointer-events: none;
+  animation: soloRoutePulse 5.6s ease-in-out infinite;
 }
 
 .level-overview {
@@ -355,6 +395,7 @@ p {
   mask-image: linear-gradient(180deg, black, transparent 92%);
   opacity: 0.72;
   pointer-events: none;
+  animation: soloChapterScan 16s linear infinite;
 }
 
 .level-chapter.current {
@@ -1379,7 +1420,79 @@ p {
   100% { opacity: 0; transform: translate(-50%, -10px) scale(0.98); }
 }
 
+@keyframes soloGridDrift {
+  0% {
+    background-position: 0 0, 0 0, -180px -260px, 120% -160px;
+  }
+  100% {
+    background-position: 72px 72px, -72px 72px, 120px -80px, 82% 120px;
+  }
+}
+
+@keyframes soloLightSweep {
+  0% {
+    opacity: 0.48;
+    transform: translateX(-2%) skewY(-1deg);
+  }
+  50% {
+    opacity: 0.78;
+  }
+  100% {
+    opacity: 0.56;
+    transform: translateX(2%) skewY(1deg);
+  }
+}
+
+@keyframes soloAtmosphereShift {
+  0% {
+    background-position: 8% 0, 0 0;
+    opacity: 0.62;
+  }
+  100% {
+    background-position: 92% 100%, 0 92px;
+    opacity: 0.86;
+  }
+}
+
+@keyframes soloPanelSheen {
+  0%, 100% {
+    opacity: 0.42;
+    transform: translateX(-8%);
+  }
+  50% {
+    opacity: 0.76;
+    transform: translateX(8%);
+  }
+}
+
+@keyframes soloRoutePulse {
+  0%, 100% {
+    opacity: 0.36;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes soloChapterScan {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 64px 0, 0 64px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after,
+  .solitario-shell::before,
+  .game-app::before,
+  .level-map::before,
+  .level-chapter::before {
+    animation: none;
+  }
+
   .xp-reward-burst {
     animation: none;
   }
