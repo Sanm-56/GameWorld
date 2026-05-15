@@ -3405,6 +3405,7 @@ function crearLogrosMemoria(stats) {
   const mejorPartidas10Min = stats.memoria_mejor_partidas_10min || 0
   const falloUltimoPar = stats.memoria_fallo_ultimo_par || 0
   const aciertoTras5Fallos = stats.memoria_acierto_tras_5_fallos || 0
+  const aciertoTras6Fallos = stats.memoria_acierto_tras_6_fallos || 0
   const parMenos2s = stats.memoria_par_menos_2s || 0
   const parMenos20s = stats.memoria_par_menos_20s || 0
   const aciertoTras2Fallos = stats.memoria_acierto_tras_2_fallos || 0
@@ -3413,6 +3414,7 @@ function crearLogrosMemoria(stats) {
   const mejorasTiempo = stats.memoria_mejoras_tiempo || 0
   const maxIntentosPartida = stats.memoria_max_intentos_partida || 0
   const sinRepetirErrorPar = stats.memoria_sin_repetir_error_par || 0
+  const sinRepetirCombinacion3Veces = stats.memoria_sin_repetir_combinacion_3_veces || 0
   const primerMovimientoPar = stats.memoria_primer_movimiento_par || 0
   const lineal = stats.memoria_lineal || 0
   const sinPatronRepetido = stats.memoria_sin_patron_repetido || 0
@@ -3444,8 +3446,8 @@ function crearLogrosMemoria(stats) {
     {
       title: 'Visual fotografico',
       description: 'Lo vi una vez... y fue suficiente.',
-      howTo: 'Encuentra todos los pares en menos de 2 minutos.',
-      unlocked: mejorTiempo !== null && mejorTiempo < 120,
+      howTo: 'Encuentra todos los pares en menos de 2minutos y 30 segundos.',
+      unlocked: mejorTiempo !== null && mejorTiempo < 150,
     },
     {
       title: 'Confianza excesiva',
@@ -3648,8 +3650,8 @@ function crearLogrosMemoria(stats) {
     {
       title: 'Cambio de estrategia',
       description: 'Ok... asi no era.',
-      howTo: 'Encuentra un par inmediatamente despues de equivocarte 2 veces.',
-      unlocked: aciertoTras2Fallos >= 1,
+      howTo: 'Encuentra un par inmediatamente despues de equivocarte 6 veces.',
+      unlocked: aciertoTras6Fallos >= 1,
     },
     {
       title: 'Barrido perfecto',
@@ -3696,8 +3698,8 @@ function crearLogrosMemoria(stats) {
     {
       title: 'Lectura del tablero',
       description: 'No memorizo... entiendo.',
-      howTo: 'Completa la partida sin intentar dos veces la misma combinacion incorrecta.',
-      unlocked: sinRepetirErrorPar >= 1,
+      howTo: 'Completa la partida sin intentar 3 veces la misma combinacion incorrecta.',
+      unlocked: sinRepetirCombinacion3Veces >= 1,
     },
     {
       title: 'Velocidad pura',
@@ -3786,8 +3788,8 @@ function crearLogrosMemoria(stats) {
     {
       title: 'El inicio del fin',
       description: 'Aqui fue donde deje de contar.',
-      howTo: 'Completa 160 partidas seguidas.',
-      unlocked: mejorRachaCompletados >= 160,
+      howTo: 'Completa 168 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 168,
     },
     {
       title: 'Horizonte sin limite',
@@ -3852,8 +3854,8 @@ function crearLogrosMemoria(stats) {
     {
       title: 'El observador eterno',
       description: 'Siempre estoy... siempre veo.',
-      howTo: 'Completa 288 partidas seguidas.',
-      unlocked: mejorRachaCompletados >= 288,
+      howTo: 'Completa 269 partidas seguidas.',
+      unlocked: mejorRachaCompletados >= 269,
     },
     {
       title: 'El tablero te eligio',
@@ -3864,14 +3866,14 @@ function crearLogrosMemoria(stats) {
     {
       title: 'Sin principio ni final',
       description: 'No recuerdo cuando empezo.',
-      howTo: 'Completa 304 partidas consecutivas.',
-      unlocked: mejorRachaCompletados >= 304,
+      howTo: 'Completa 314 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 314,
     },
     {
       title: 'Ritual interminable',
       description: 'Siempre hay otra mas... siempre.',
-      howTo: 'Completa 320 partidas consecutivas.',
-      unlocked: mejorRachaCompletados >= 320,
+      howTo: 'Completa 340 partidas consecutivas.',
+      unlocked: mejorRachaCompletados >= 340,
     },
     {
       title: 'Conciencia del tablero',
@@ -4668,6 +4670,7 @@ function obtenerProgresoMemoria(achievement, stats) {
   const flags = [
     ['falloUltimoPar', stats.memoria_fallo_ultimo_par || 0, 'ultimo par'],
     ['aciertoTras5Fallos', stats.memoria_acierto_tras_5_fallos || 0, '5 intentos fallidos'],
+    ['aciertoTras6Fallos', stats.memoria_acierto_tras_6_fallos || 0, 'equivocarte 6 veces'],
     ['aciertoTras2Fallos', stats.memoria_acierto_tras_2_fallos || 0, 'fallar el mismo dos veces'],
     ['parSinVerPrevio', stats.memoria_par_sin_ver_previo || 0, 'sin haber volteado'],
     ['menos20Movimientos', stats.memoria_menos_20_movimientos || 0, 'menos de 20 movimientos'],
@@ -4678,6 +4681,7 @@ function obtenerProgresoMemoria(achievement, stats) {
     ['sinPatronRepetido', stats.memoria_sin_patron_repetido || 0, 'patron repetido'],
     ['anticipacion', stats.memoria_anticipacion || 0, 'ultimos 5 movimientos'],
     ['sinCartasFalladasRepetidas', stats.memoria_sin_cartas_falladas_repetidas || 0, 'carta fallada'],
+    ['sinRepetirCombinacion3Veces', stats.memoria_sin_repetir_combinacion_3_veces || 0, '3 veces la misma combinacion'],
     ['inicio4Pares', stats.memoria_inicio_4_pares || 0, 'al iniciar'],
     ['final4Pares', stats.memoria_final_4_pares || 0, 'ultimos 4 pares'],
   ]
@@ -4721,6 +4725,13 @@ function obtenerProgresoMemoria(achievement, stats) {
   if (objetivoTexto.includes('pares en menos de 1 minuto')) {
     const target = objetivo || 1
     return { percent: limitarProgreso(paresAntes1Minuto, target), label: describirNumero(paresAntes1Minuto, target), target }
+  }
+
+  if (objetivoTexto.includes('2minutos y 30 segundos') || objetivoTexto.includes('2 minutos y 30 segundos')) {
+    const targetSeconds = 150
+    const tiempoReferencia = objetivoTexto.includes('sin errores') ? mejorTiempoSinErrores : mejorTiempo
+    const percent = tiempoReferencia === null ? 0 : tiempoReferencia < targetSeconds ? 100 : Math.max(5, Math.min(95, Math.round((targetSeconds / tiempoReferencia) * 100)))
+    return { percent, label: tiempoReferencia === null ? '0 / 2:30' : `${formatearTiempo(tiempoReferencia)} / 2:30`, target: targetSeconds }
   }
 
   if (objetivoTexto.includes('menos de') && objetivoTexto.includes('minuto')) {

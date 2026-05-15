@@ -47,11 +47,13 @@ create table if not exists public.estadisticas_logros (
   memoria_mejoras_tiempo integer not null default 0,
   memoria_fallo_ultimo_par integer not null default 0,
   memoria_acierto_tras_5_fallos integer not null default 0,
+  memoria_acierto_tras_6_fallos integer not null default 0,
   memoria_par_menos_2s integer not null default 0,
   memoria_par_menos_20s integer not null default 0,
   memoria_acierto_tras_2_fallos integer not null default 0,
   memoria_par_sin_ver_previo integer not null default 0,
   memoria_sin_repetir_error_par integer not null default 0,
+  memoria_sin_repetir_combinacion_3_veces integer not null default 0,
   memoria_partidas_ventana_inicio text,
   memoria_partidas_ventana_actual integer not null default 0,
   memoria_mejor_partidas_10min integer not null default 0,
@@ -379,6 +381,9 @@ alter table public.estadisticas_logros
 add column if not exists memoria_acierto_tras_5_fallos integer not null default 0;
 
 alter table public.estadisticas_logros
+add column if not exists memoria_acierto_tras_6_fallos integer not null default 0;
+
+alter table public.estadisticas_logros
 add column if not exists memoria_par_menos_2s integer not null default 0;
 
 alter table public.estadisticas_logros
@@ -392,6 +397,9 @@ add column if not exists memoria_par_sin_ver_previo integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists memoria_sin_repetir_error_par integer not null default 0;
+
+alter table public.estadisticas_logros
+add column if not exists memoria_sin_repetir_combinacion_3_veces integer not null default 0;
 
 alter table public.estadisticas_logros
 add column if not exists memoria_partidas_ventana_inicio text;

@@ -82,10 +82,12 @@ let paresAntes1Minuto = 0
 let falloUltimoPar = false
 let aciertoTras5Fallos = false
 let aciertoTras2Fallos = false
+let aciertoTras6Fallos = false
 let parMenos2s = false
 let parMenos20s = false
 let parSinVerPrevio = false
 let repitioErrorMismoPar = false
+let repitioCombinacionTresVeces = false
 let primeraSeleccionTs = 0
 let primerMovimientoPar = false
 let ordenLineal = true
@@ -98,6 +100,7 @@ let final4Pares = true
 const volteosPorCarta = new Map()
 const ultimoMovimientoVista = new Map()
 const paresErrados = new Set()
+const intentosPorCombinacion = new Map()
 const fallosPorValor = new Map()
 const cartasFalladas = new Set()
 const patronesSeleccion = new Set()
@@ -211,6 +214,7 @@ registrarPatronSeleccion(c1, c2)
 if(c1.dataset.valor === c2.dataset.valor){
 
 if(rachaMala >= 5) aciertoTras5Fallos = true
+if(rachaMala >= 6) aciertoTras6Fallos = true
 if((fallosPorValor.get(c1.dataset.valor) || 0) >= 2) aciertoTras2Fallos = true
 if(performance.now() - primeraSeleccionTs <= 2000) parMenos2s = true
 if(performance.now() - primeraSeleccionTs <= 20000) parMenos20s = true
@@ -246,6 +250,9 @@ if(paresErrados.has(errorKey)){
 repitioErrorMismoPar = true
 }
 paresErrados.add(errorKey)
+const intentosCombinacion = (intentosPorCombinacion.get(errorKey) || 0) + 1
+intentosPorCombinacion.set(errorKey, intentosCombinacion)
+if(intentosCombinacion >= 3) repitioCombinacionTresVeces = true
 fallosPorValor.set(c1.dataset.valor, (fallosPorValor.get(c1.dataset.valor) || 0) + 1)
 fallosPorValor.set(c2.dataset.valor, (fallosPorValor.get(c2.dataset.valor) || 0) + 1)
 cartasFalladas.add(c1.dataset.indice)
@@ -454,11 +461,13 @@ memoria_menos_20_movimientos: (actual?.memoria_menos_20_movimientos || 0) + (com
 memoria_mejoras_tiempo: mejorasTiempo,
 memoria_fallo_ultimo_par: (actual?.memoria_fallo_ultimo_par || 0) + (completado && falloUltimoPar ? 1 : 0),
 memoria_acierto_tras_5_fallos: (actual?.memoria_acierto_tras_5_fallos || 0) + (completado && aciertoTras5Fallos ? 1 : 0),
+memoria_acierto_tras_6_fallos: (actual?.memoria_acierto_tras_6_fallos || 0) + (completado && aciertoTras6Fallos ? 1 : 0),
 memoria_par_menos_2s: (actual?.memoria_par_menos_2s || 0) + (parMenos2s ? 1 : 0),
 memoria_par_menos_20s: (actual?.memoria_par_menos_20s || 0) + (parMenos20s ? 1 : 0),
 memoria_acierto_tras_2_fallos: (actual?.memoria_acierto_tras_2_fallos || 0) + (completado && aciertoTras2Fallos ? 1 : 0),
 memoria_par_sin_ver_previo: (actual?.memoria_par_sin_ver_previo || 0) + (parSinVerPrevio ? 1 : 0),
 memoria_sin_repetir_error_par: (actual?.memoria_sin_repetir_error_par || 0) + (completado && !repitioErrorMismoPar ? 1 : 0),
+memoria_sin_repetir_combinacion_3_veces: (actual?.memoria_sin_repetir_combinacion_3_veces || 0) + (completado && !repitioCombinacionTresVeces ? 1 : 0),
 memoria_partidas_ventana_inicio: ventanaInicioIso,
 memoria_partidas_ventana_actual: ventanaActual,
 memoria_mejor_partidas_10min: Math.max(actual?.memoria_mejor_partidas_10min || 0, ventanaActual),
