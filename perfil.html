@@ -5831,6 +5831,416 @@ body.sudoku-screen-shake{
   50%{ box-shadow:0 30px 74px rgba(0,0,0,0.72), 0 0 48px rgba(250,204,21,0.32), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(254,249,195,0.42), inset 0 0 0 8px rgba(2,6,23,0.52); }
 }
 
+.achievement-card.torreinfinita-relic{
+  --tower-core:#38bdf8;
+  --tower-core-light:#e0f2fe;
+  --tower-beam:#67e8f9;
+  --tower-bg:#061224;
+  --tower-glow:rgba(56,189,248,0.3);
+  position:relative;
+  display:grid;
+  grid-template-columns:112px minmax(0, 1fr);
+  gap:16px;
+  min-height:232px;
+  padding:18px;
+  overflow:hidden;
+  isolation:isolate;
+  border:0;
+  border-radius:18px;
+  color:#effaff;
+  background:
+    radial-gradient(circle at 18% 14%, color-mix(in srgb, var(--tower-core) 16%, transparent), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(103,232,249,0.16), transparent 30%),
+    linear-gradient(rgba(224,242,254,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(224,242,254,0.03) 1px, transparent 1px),
+    linear-gradient(145deg, #02050d, var(--tower-bg) 44%, #0d2442 72%, #02050d);
+  background-size:100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
+  box-shadow:
+    0 22px 50px rgba(0,0,0,0.58),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px color-mix(in srgb, var(--tower-core) 24%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.52);
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  animation:towerCardPulse 7.2s ease-in-out infinite;
+}
+
+.achievement-card.torreinfinita-relic::before,
+.achievement-card.torreinfinita-relic::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.achievement-card.torreinfinita-relic::before{
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(90deg, transparent 0 16%, color-mix(in srgb, var(--tower-core-light) 10%, transparent) 17% 18%, transparent 19% 48%, color-mix(in srgb, var(--tower-core) 12%, transparent) 49% 51%, transparent 52%),
+    linear-gradient(0deg, transparent 0 18%, color-mix(in srgb, var(--tower-beam) 9%, transparent) 19% 20%, transparent 21% 44%, color-mix(in srgb, var(--tower-core-light) 7%, transparent) 45% 46%, transparent 47%),
+    radial-gradient(circle, color-mix(in srgb, var(--tower-core-light) 18%, transparent) 0 1px, transparent 2px);
+  background-size:100% 100%, 100% 100%, 34px 34px;
+  opacity:0.72;
+  animation:towerBlueprintDrift 7.6s ease-in-out infinite;
+}
+
+.achievement-card.torreinfinita-relic::after{
+  left:18px;
+  top:18px;
+  z-index:-1;
+  width:124px;
+  height:142px;
+  border-radius:16px;
+  border:1px solid color-mix(in srgb, var(--tower-core-light) 20%, transparent);
+  background:
+    linear-gradient(90deg, transparent 0 38%, color-mix(in srgb, var(--tower-beam) 34%, transparent) 39% 61%, transparent 62%),
+    repeating-linear-gradient(0deg, transparent 0 15px, color-mix(in srgb, var(--tower-core-light) 12%, transparent) 16px 17px),
+    linear-gradient(180deg, color-mix(in srgb, var(--tower-core) 12%, transparent), transparent);
+  opacity:0.46;
+  transform:perspective(180px) rotateX(10deg);
+  animation:towerCoreRise 5.8s ease-in-out infinite;
+}
+
+.achievement-card.torreinfinita-relic:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 26px 62px rgba(0,0,0,0.66),
+    0 0 34px var(--tower-glow),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 0 0 2px color-mix(in srgb, var(--tower-core) 38%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.52);
+}
+
+.torreinfinita-relic .arcade-theme-header{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  align-content:start;
+  gap:10px;
+  min-width:0;
+  padding:0;
+}
+
+.torreinfinita-relic .arcade-theme-badges{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  width:100%;
+}
+
+.torreinfinita-relic .arcade-theme-icon{
+  position:relative;
+  width:92px;
+  height:112px;
+  display:grid;
+  place-items:center;
+  border-radius:16px 16px 22px 22px;
+  color:#061224;
+  font-size:0.62rem;
+  font-weight:1000;
+  letter-spacing:0.07em;
+  background:
+    linear-gradient(90deg, transparent 0 34%, rgba(6,18,36,0.22) 35% 65%, transparent 66%),
+    repeating-linear-gradient(0deg, transparent 0 13px, rgba(6,18,36,0.18) 14px 15px),
+    conic-gradient(from 36deg, color-mix(in srgb, var(--tower-core) 74%, white), var(--tower-core-light), var(--tower-beam), #172554, color-mix(in srgb, var(--tower-core) 74%, white));
+  border:0;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,0.5),
+    0 0 28px var(--tower-glow),
+    inset 0 0 0 2px color-mix(in srgb, var(--tower-core-light) 42%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.44);
+  clip-path:polygon(50% 0, 88% 12%, 100% 52%, 86% 88%, 50% 100%, 14% 88%, 0 52%, 12% 12%);
+  animation:towerBadgeFloat 5.8s ease-in-out infinite;
+}
+
+.torreinfinita-relic .arcade-theme-icon::before,
+.torreinfinita-relic .arcade-theme-icon::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.torreinfinita-relic .arcade-theme-icon::before{
+  width:52px;
+  height:76px;
+  border-radius:8px 8px 4px 4px;
+  background:
+    linear-gradient(90deg, transparent 0 37%, rgba(255,255,255,0.7) 38% 62%, transparent 63%),
+    repeating-linear-gradient(0deg, rgba(6,18,36,0.2) 0 8px, rgba(255,255,255,0.24) 9px 10px),
+    linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0.12));
+  border:2px solid rgba(6,18,36,0.16);
+  box-shadow:0 0 18px color-mix(in srgb, var(--tower-beam) 34%, transparent);
+  transform:translateY(-8px);
+}
+
+.torreinfinita-relic .arcade-theme-icon::after{
+  width:10px;
+  height:68px;
+  border-radius:999px;
+  background:linear-gradient(180deg, transparent, rgba(255,255,255,0.95), transparent);
+  opacity:0.74;
+  transform:translateY(-8px);
+  animation:towerElevatorLight 3.8s ease-in-out infinite;
+}
+
+.torreinfinita-relic .arcade-theme-icon span{
+  position:relative;
+  z-index:1;
+  margin-top:38px;
+  min-width:42px;
+  min-height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  color:#061224;
+  background:rgba(255,255,255,0.68);
+  box-shadow:0 4px 12px rgba(6,18,36,0.22);
+  text-shadow:0 1px 0 rgba(255,255,255,0.38);
+}
+
+.torreinfinita-relic .arcade-theme-main{
+  position:relative;
+  min-width:0;
+  display:grid;
+  align-content:start;
+  gap:9px;
+  overflow:hidden;
+  padding:0;
+  text-align:center;
+}
+
+.torreinfinita-relic .arcade-theme-main::before,
+.torreinfinita-relic .arcade-theme-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.torreinfinita-relic .arcade-theme-main::before{
+  left:7%;
+  right:7%;
+  top:2px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--tower-core-light) 56%, transparent), transparent);
+  box-shadow:0 0 14px var(--tower-glow);
+  animation:towerLevelSweep 4.8s ease-in-out infinite;
+}
+
+.torreinfinita-relic .arcade-theme-main::after{
+  right:4px;
+  bottom:5px;
+  width:62px;
+  height:54px;
+  border-radius:8px;
+  border:1px solid color-mix(in srgb, var(--tower-core-light) 22%, transparent);
+  background:
+    linear-gradient(90deg, transparent 0 34%, color-mix(in srgb, var(--tower-beam) 24%, transparent) 35% 65%, transparent 66%),
+    repeating-linear-gradient(0deg, transparent 0 10px, color-mix(in srgb, var(--tower-core-light) 14%, transparent) 11px 12px),
+    linear-gradient(180deg, rgba(2,6,23,0.62), rgba(2,6,23,0.2));
+  opacity:0.34;
+  animation:towerMiniLift 3.8s ease-in-out infinite;
+}
+
+.torreinfinita-relic .arcade-theme-title,
+.torreinfinita-relic .arcade-theme-prophecy,
+.torreinfinita-relic .arcade-theme-objective,
+.torreinfinita-relic .arcade-theme-progress{
+  position:relative;
+  z-index:1;
+}
+
+.torreinfinita-relic .arcade-theme-title{
+  color:#effaff;
+  font-size:1.14rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 2px 18px rgba(0,0,0,0.44), 0 0 18px color-mix(in srgb, var(--tower-core) 14%, transparent);
+}
+
+.torreinfinita-relic .arcade-theme-prophecy{
+  margin:0;
+  color:rgba(224,242,254,0.76);
+  font-size:0.92rem;
+  line-height:1.42;
+}
+
+.torreinfinita-relic .arcade-theme-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--tower-core-light) 20%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--tower-core) 10%, transparent), rgba(2,6,23,0.6));
+  text-align:center;
+}
+
+.torreinfinita-relic .arcade-theme-objective span{
+  color:color-mix(in srgb, var(--tower-core-light) 88%, white 8%);
+  font-size:0.68rem;
+  font-weight:1000;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.torreinfinita-relic .arcade-theme-objective small{
+  color:rgba(224,242,254,0.86);
+  line-height:1.35;
+}
+
+.torreinfinita-relic .arcade-theme-progress{
+  display:grid;
+  gap:6px;
+  margin-top:0;
+}
+
+.torreinfinita-relic .arcade-theme-progress-meta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  color:rgba(224,242,254,0.76);
+  font-size:0.76rem;
+  font-weight:800;
+  text-align:center;
+}
+
+.torreinfinita-relic .arcade-theme-progress-track{
+  height:8px;
+  padding:1px;
+  overflow:hidden;
+  border-radius:4px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 14px, rgba(255,255,255,0.08) 15px 16px),
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--tower-core-light) 18%, transparent);
+}
+
+.torreinfinita-relic .arcade-theme-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:3px;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--tower-core) 72%, #0284c7), var(--tower-core-light));
+  box-shadow:0 0 16px var(--tower-glow);
+  transition:width 0.7s ease;
+}
+
+.torreinfinita-relic .arcade-theme-rarity,
+.torreinfinita-relic .arcade-theme-state{
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:color-mix(in srgb, var(--tower-core-light) 86%, white 8%);
+  border:1px solid color-mix(in srgb, var(--tower-core-light) 26%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--tower-core) 14%, transparent), rgba(2,6,23,0.76));
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
+}
+
+.torreinfinita-relic.common{
+  --tower-core:#cbd5e1;
+  --tower-core-light:#f8fafc;
+  --tower-beam:#94a3b8;
+  --tower-bg:#08101a;
+  --tower-glow:rgba(203,213,225,0.2);
+}
+
+.torreinfinita-relic.rare{
+  --tower-core:#38bdf8;
+  --tower-core-light:#e0f2fe;
+  --tower-beam:#67e8f9;
+  --tower-bg:#061224;
+  --tower-glow:rgba(56,189,248,0.34);
+}
+
+.torreinfinita-relic.epic{
+  --tower-core:#818cf8;
+  --tower-core-light:#e0e7ff;
+  --tower-beam:#22d3ee;
+  --tower-bg:#101336;
+  --tower-glow:rgba(129,140,248,0.36);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(129,140,248,0.2), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(34,211,238,0.18), transparent 30%),
+    linear-gradient(rgba(224,231,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(224,231,255,0.035) 1px, transparent 1px),
+    linear-gradient(145deg, #02030a, #101336 44%, #312e81 72%, #02030a);
+  background-size:100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
+}
+
+.torreinfinita-relic.legendary{
+  --tower-core:#facc15;
+  --tower-core-light:#fef9c3;
+  --tower-beam:#ffffff;
+  --tower-bg:#171104;
+  --tower-glow:rgba(250,204,21,0.34);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(254,249,195,0.28), transparent 30%),
+    radial-gradient(circle at 18% 14%, rgba(250,204,21,0.2), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(255,255,255,0.16), transparent 30%),
+    linear-gradient(rgba(254,249,195,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(254,249,195,0.035) 1px, transparent 1px),
+    linear-gradient(145deg, #070501, #171104 42%, #3f2d03 72%, #070501);
+  background-size:100% 100%, 100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
+  animation:towerLegendBeacon 6s ease-in-out infinite;
+}
+
+.torreinfinita-relic.rare .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #075985, #38bdf8, #e0f2fe);
+}
+
+.torreinfinita-relic.epic .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #3730a3, #818cf8, #22d3ee);
+}
+
+.torreinfinita-relic.legendary .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #854d0e, #facc15, #ffffff);
+}
+
+@keyframes towerCardPulse{
+  0%,100%{ box-shadow:0 22px 50px rgba(0,0,0,0.58), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--tower-core) 24%, transparent), inset 0 0 0 8px rgba(2,6,23,0.52); }
+  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.64), 0 0 28px var(--tower-glow), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--tower-core) 36%, transparent), inset 0 0 0 8px rgba(2,6,23,0.52); }
+}
+
+@keyframes towerBlueprintDrift{
+  0%,100%{ background-position:0 0, 0 0, 0 0; opacity:0.58; }
+  50%{ background-position:18px 0, 0 -16px, 17px -10px; opacity:0.84; }
+}
+
+@keyframes towerCoreRise{
+  0%,100%{ transform:perspective(180px) rotateX(10deg) translateY(0); opacity:0.3; }
+  50%{ transform:perspective(180px) rotateX(10deg) translateY(-6px); opacity:0.54; }
+}
+
+@keyframes towerBadgeFloat{
+  0%,100%{ transform:translateY(0); filter:brightness(1); }
+  50%{ transform:translateY(-4px); filter:brightness(1.08); }
+}
+
+@keyframes towerElevatorLight{
+  0%,100%{ transform:translateY(18px); opacity:0.28; }
+  50%{ transform:translateY(-22px); opacity:0.9; }
+}
+
+@keyframes towerLevelSweep{
+  0%,100%{ transform:scaleX(0.72); opacity:0.22; }
+  50%{ transform:scaleX(1); opacity:0.74; }
+}
+
+@keyframes towerMiniLift{
+  0%,100%{ opacity:0.2; filter:brightness(0.9); transform:translateY(2px); }
+  50%{ opacity:0.48; filter:brightness(1.18); transform:translateY(-3px); }
+}
+
+@keyframes towerLegendBeacon{
+  0%,100%{ box-shadow:0 24px 56px rgba(0,0,0,0.64), 0 0 24px rgba(250,204,21,0.14), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 0 2px rgba(250,204,21,0.24), inset 0 0 0 8px rgba(2,6,23,0.52); }
+  50%{ box-shadow:0 30px 74px rgba(0,0,0,0.72), 0 0 48px rgba(250,204,21,0.32), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(254,249,195,0.42), inset 0 0 0 8px rgba(2,6,23,0.52); }
+}
+
 .history-item{
   padding:16px;
   border-radius:16px;
@@ -9714,6 +10124,66 @@ body.sudoku-screen-shake{
   }
 
   .esquivaobstaculos-relic .arcade-theme-prophecy{
+    font-size:0.86rem;
+  }
+
+  .achievement-card.torreinfinita-relic{
+    grid-template-columns:82px minmax(0, 1fr);
+    gap:12px;
+    padding:14px;
+    min-height:0;
+    border-radius:14px;
+  }
+
+  .achievement-card.torreinfinita-relic::after{
+    left:10px;
+    top:12px;
+    width:96px;
+    height:112px;
+    border-radius:12px;
+  }
+
+  .torreinfinita-relic .arcade-theme-icon{
+    width:72px;
+    height:86px;
+    font-size:0.56rem;
+  }
+
+  .torreinfinita-relic .arcade-theme-icon::before{
+    width:40px;
+    height:58px;
+    transform:translateY(-6px);
+  }
+
+  .torreinfinita-relic .arcade-theme-icon::after{
+    height:52px;
+    transform:translateY(-6px);
+  }
+
+  .torreinfinita-relic .arcade-theme-icon span{
+    margin-top:28px;
+    min-width:34px;
+    min-height:22px;
+    border-radius:6px;
+  }
+
+  .torreinfinita-relic .arcade-theme-header,
+  .torreinfinita-relic .arcade-theme-main{
+    padding:0;
+  }
+
+  .torreinfinita-relic .arcade-theme-rarity,
+  .torreinfinita-relic .arcade-theme-state{
+    min-height:22px;
+    font-size:0.6rem;
+    padding:3px 6px;
+  }
+
+  .torreinfinita-relic .arcade-theme-title{
+    font-size:0.98rem;
+  }
+
+  .torreinfinita-relic .arcade-theme-prophecy{
     font-size:0.86rem;
   }
 
