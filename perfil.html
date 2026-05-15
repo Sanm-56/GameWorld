@@ -1108,7 +1108,7 @@ body.sudoku-screen-shake{
   --sudoku-glow:rgba(184,211,232,0.16);
   position:relative;
   display:grid;
-  grid-template-columns:96px minmax(0, 1fr);
+  grid-template-columns:118px minmax(0, 1fr);
   gap:16px;
   min-height:232px;
   padding:18px;
@@ -1178,6 +1178,7 @@ body.sudoku-screen-shake{
 .sudoku-relic-header{
   position:relative;
   display:grid;
+  justify-items:center;
   align-content:start;
   gap:10px;
   min-width:0;
@@ -1185,9 +1186,11 @@ body.sudoku-screen-shake{
 
 .sudoku-relic-badges{
   display:flex;
-  flex-direction:column;
-  align-items:flex-start;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
   gap:6px;
+  width:100%;
 }
 
 .sudoku-relic-icon{
@@ -1251,6 +1254,8 @@ body.sudoku-screen-shake{
   display:grid;
   gap:9px;
   overflow:hidden;
+  align-content:start;
+  text-align:center;
 }
 
 .sudoku-relic-main::before,
@@ -1312,6 +1317,7 @@ body.sudoku-screen-shake{
   border-radius:12px;
   border:1px solid color-mix(in srgb, var(--sudoku-metal-light) 20%, transparent);
   background:linear-gradient(135deg, rgba(255,255,255,0.045), rgba(2,6,23,0.58));
+  text-align:center;
 }
 
 .sudoku-objective span{
@@ -1334,11 +1340,13 @@ body.sudoku-screen-shake{
 
 .sudoku-progress-meta{
   display:flex;
-  justify-content:space-between;
+  justify-content:center;
+  flex-wrap:wrap;
   gap:10px;
   color:rgba(229,238,244,0.74);
   font-size:0.76rem;
   font-weight:800;
+  text-align:center;
 }
 
 .sudoku-progress-track{
@@ -1456,7 +1464,6 @@ body.sudoku-screen-shake{
   --sudoku-metal-light:#f2e7ff;
   --sudoku-bg:#10091f;
   --sudoku-glow:rgba(168,85,247,0.36);
-  grid-template-columns:112px minmax(0, 1fr);
   min-height:258px;
   background:
     radial-gradient(circle at 20% 18%, rgba(34,211,238,0.16), transparent 30%),
@@ -1555,7 +1562,6 @@ body.sudoku-screen-shake{
   --sudoku-metal-light:#fff1bd;
   --sudoku-bg:#150f05;
   --sudoku-glow:rgba(251,191,36,0.34);
-  grid-template-columns:118px minmax(0, 1fr);
   min-height:270px;
   border-radius:20px;
   background:
@@ -1634,58 +1640,58 @@ body.sudoku-screen-shake{
 .sudoku-common-v2,
 .achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 2){ border-radius:14px 22px 14px 22px; }
 .sudoku-common-v3,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 3){ grid-template-columns:104px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 3){ border-radius:20px 16px 20px 16px; }
 .sudoku-common-v4,
 .achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 4){ border-radius:22px 14px 22px 14px; }
 .sudoku-common-v5,
 .achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 5){ background-size:100% 100%, 46px 46px, 100% 100%, 100% 100%; }
 .sudoku-common-v6,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 6){ grid-template-columns:90px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 6){ border-radius:16px 20px 16px 20px; }
 .sudoku-common-v7,
 .achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n + 7){ border-radius:16px; }
 .sudoku-common-v8,
-.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n){ grid-template-columns:104px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.common:nth-child(8n){ border-radius:20px; }
 
 .sudoku-rare-v1,
 .achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 1){ border-radius:18px; }
 .sudoku-rare-v2,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 2){ grid-template-columns:112px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 2){ border-radius:18px 24px 18px 24px; }
 .sudoku-rare-v3,
 .achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 3){ border-radius:22px 14px 22px 14px; }
 .sudoku-rare-v4,
 .achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 4){ border-radius:14px 24px 14px 24px; }
 .sudoku-rare-v5,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 5){ grid-template-columns:108px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 5){ border-radius:20px; }
 .sudoku-rare-v6,
 .achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 6){ border-radius:20px; }
 .sudoku-rare-v7,
-.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 7){ grid-template-columns:112px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n + 7){ border-radius:18px 24px 18px 24px; }
 .sudoku-rare-v8,
 .achievement-grid.sudoku-relics .sudoku-relic.rare:nth-child(8n){ border-radius:24px 14px 24px 14px; }
 
 .sudoku-epic-v1,
 .achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 1){ border-radius:18px 26px 18px 26px; }
 .sudoku-epic-v2,
-.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 2){ grid-template-columns:124px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 2){ border-radius:24px 18px 24px 18px; }
 .sudoku-epic-v3,
 .achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 3){ background-size:100% 100%, 100% 100%, 100% 100%, 24px 24px, 100% 100%; }
 .sudoku-epic-v4,
 .achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 4){ border-radius:26px 16px 26px 16px; }
 .sudoku-epic-v5,
-.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 5){ grid-template-columns:108px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n + 5){ border-radius:18px 24px 18px 24px; }
 .sudoku-epic-v6,
 .achievement-grid.sudoku-relics .sudoku-relic.epic:nth-child(6n){ border-radius:24px; }
 
 .sudoku-legendary-v1,
 .achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 1){ border-radius:22px; }
 .sudoku-legendary-v2,
-.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 2){ grid-template-columns:128px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 2){ border-radius:24px 18px 24px 18px; }
 .sudoku-legendary-v3,
 .achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 3){ border-radius:28px 16px 28px 16px; }
 .sudoku-legendary-v4,
 .achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 4){ background-size:100% 100%, 100% 100%, 100% 100%, 26px 26px, 100% 100%; }
 .sudoku-legendary-v5,
-.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 5){ grid-template-columns:112px minmax(0, 1fr); }
+.achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n + 5){ border-radius:18px 24px 18px 24px; }
 .sudoku-legendary-v6,
 .achievement-grid.sudoku-relics .sudoku-relic.legendary:nth-child(6n){ border-radius:18px 30px 18px 30px; }
 
@@ -1766,7 +1772,7 @@ body.sudoku-screen-shake{
   --memory-glow:rgba(168,185,214,0.18);
   position:relative;
   display:grid;
-  grid-template-columns:96px minmax(0, 1fr);
+  grid-template-columns:108px minmax(0, 1fr);
   gap:16px;
   min-height:232px;
   padding:18px;
@@ -1841,6 +1847,7 @@ body.sudoku-screen-shake{
 .memory-relic-header{
   position:relative;
   display:grid;
+  justify-items:center;
   align-content:start;
   gap:10px;
   min-width:0;
@@ -1848,9 +1855,11 @@ body.sudoku-screen-shake{
 
 .memory-relic-badges{
   display:flex;
-  flex-direction:column;
-  align-items:flex-start;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
   gap:6px;
+  width:100%;
 }
 
 .memory-relic-icon{
@@ -1874,6 +1883,49 @@ body.sudoku-screen-shake{
     inset 0 0 0 2px color-mix(in srgb, var(--memory-metal-light) 38%, transparent),
     inset 0 0 0 8px rgba(2,6,23,0.48);
   animation:memoryCardFloat 6s ease-in-out infinite;
+}
+
+.memory-relic-icon.pair::before{
+  inset:24px 18px 30px;
+  border-radius:8px;
+  background:
+    linear-gradient(112deg, transparent 0 12%, rgba(15,23,42,0.2) 12% 14%, transparent 14%),
+    linear-gradient(68deg, transparent 0 44%, rgba(15,23,42,0.18) 44% 46%, transparent 46%),
+    linear-gradient(145deg, rgba(255,255,255,0.52), rgba(15,23,42,0.08));
+  border:1px solid rgba(15,23,42,0.24);
+  box-shadow:
+    -7px -5px 0 rgba(255,255,255,0.18),
+    7px 5px 0 rgba(15,23,42,0.18);
+}
+
+.memory-relic-icon.speed::before{
+  border-radius:50%;
+  background:
+    conic-gradient(from -90deg, rgba(17,24,39,0.3) 0 28%, transparent 28%),
+    radial-gradient(circle, transparent 0 42%, rgba(17,24,39,0.22) 43% 46%, transparent 47%);
+}
+
+.memory-relic-icon.perfect::before{
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(17,24,39,0.28) 0 8px, transparent 9px),
+    radial-gradient(ellipse at 50% 50%, transparent 0 44%, rgba(17,24,39,0.22) 45% 48%, transparent 49%);
+}
+
+.memory-relic-icon.streak::before{
+  clip-path:polygon(46% 0, 78% 0, 58% 34%, 82% 34%, 36% 100%, 46% 54%, 20% 54%);
+  border:0;
+  background:linear-gradient(180deg, rgba(17,24,39,0.34), rgba(17,24,39,0.12));
+}
+
+.memory-relic-icon.error::before{
+  inset:24px 20px 34px;
+  border-radius:8px;
+  background:
+    linear-gradient(45deg, transparent 0 44%, rgba(127,29,29,0.42) 44% 56%, transparent 56%),
+    linear-gradient(-45deg, transparent 0 44%, rgba(127,29,29,0.42) 44% 56%, transparent 56%),
+    rgba(255,255,255,0.22);
+  border:1px solid rgba(127,29,29,0.28);
 }
 
 .memory-relic-icon::before,
@@ -1920,6 +1972,8 @@ body.sudoku-screen-shake{
   display:grid;
   gap:9px;
   overflow:hidden;
+  align-content:start;
+  text-align:center;
 }
 
 .memory-relic-main::before,
@@ -1983,6 +2037,7 @@ body.sudoku-screen-shake{
   border-radius:12px;
   border:1px solid color-mix(in srgb, var(--memory-metal-light) 20%, transparent);
   background:linear-gradient(135deg, rgba(255,255,255,0.045), rgba(2,6,23,0.58));
+  text-align:center;
 }
 
 .memory-objective span{
@@ -2007,11 +2062,13 @@ body.sudoku-screen-shake{
 .memory-progress-meta{
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:center;
+  flex-wrap:wrap;
   gap:10px;
   color:rgba(229,237,255,0.74);
   font-size:0.76rem;
   font-weight:800;
+  text-align:center;
 }
 
 .memory-progress-track{
@@ -2062,22 +2119,66 @@ body.sudoku-screen-shake{
   --memory-glow:rgba(168,185,214,0.2);
 }
 
+.achievement-card.memory-relic.rare,
+.achievement-grid.memory-relics .memory-relic.rare{
+  --memory-metal:#62b6d9;
+  --memory-metal-light:#d8f3ff;
+  --memory-bg:#07121f;
+  --memory-glow:rgba(98,182,217,0.28);
+  animation:memoryRareBreath 6.8s ease-in-out infinite;
+}
+
+.achievement-card.memory-relic.epic,
+.achievement-grid.memory-relics .memory-relic.epic{
+  --memory-metal:#a78bfa;
+  --memory-metal-light:#efe7ff;
+  --memory-bg:#120b1f;
+  --memory-glow:rgba(167,139,250,0.32);
+  animation:memoryEpicBreath 6.4s ease-in-out infinite;
+}
+
+.achievement-card.memory-relic.legendary,
+.achievement-grid.memory-relics .memory-relic.legendary{
+  --memory-metal:#f4c95d;
+  --memory-metal-light:#fff2bd;
+  --memory-bg:#171106;
+  --memory-glow:rgba(244,201,93,0.34);
+  animation:memoryLegendBreath 6s ease-in-out infinite;
+}
+
+.memory-relic.rare .memory-relic-icon{
+  width:94px;
+  height:118px;
+}
+
+.memory-relic.epic .memory-relic-icon,
+.memory-relic.legendary .memory-relic-icon{
+  width:98px;
+  height:124px;
+}
+
+.memory-relic.rare .memory-relic-icon::after,
+.memory-relic.epic .memory-relic-icon::after,
+.memory-relic.legendary .memory-relic-icon::after{
+  animation-duration:4.8s;
+}
+
 .memory-common-v1,
 .achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 1){ border-radius:18px; }
 .memory-common-v2,
 .achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 2){ border-radius:14px 22px 14px 22px; }
 .memory-common-v3,
-.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 3){ grid-template-columns:104px minmax(0, 1fr); }
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 3){ border-radius:20px 16px 20px 16px; }
 .memory-common-v4,
 .achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 4){ border-radius:22px 14px 22px 14px; }
 .memory-common-v5,
 .achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 5){ background-size:100% 100%, 100% 100%, 100% 100%, 100% 100%; }
 .memory-common-v6,
-.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 6){ grid-template-columns:90px minmax(0, 1fr); }
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 6){ border-radius:16px 20px 16px 20px; }
 .memory-common-v7,
 .achievement-grid.memory-relics .memory-relic.common:nth-child(8n + 7){ border-radius:16px 24px 16px 24px; }
 .memory-common-v8,
-.achievement-grid.memory-relics .memory-relic.common:nth-child(8n){ grid-template-columns:104px minmax(0, 1fr); }
+.achievement-grid.memory-relics .memory-relic.common:nth-child(8n){ border-radius:20px; }
 
 @keyframes memoryMindPoints{
   0%,100%{ background-position:0 0, 0 0, 0 0, 0 0; opacity:0.58; }
@@ -2108,6 +2209,21 @@ body.sudoku-screen-shake{
 @keyframes memoryRecallMark{
   0%,100%{ transform:rotate(42deg) scale(0.92); opacity:0.2; }
   50%{ transform:rotate(50deg) scale(1.08); opacity:0.42; }
+}
+
+@keyframes memoryRareBreath{
+  0%,100%{ box-shadow:0 20px 46px rgba(0,0,0,0.56), 0 0 18px rgba(98,182,217,0.08), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 26%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  50%{ box-shadow:0 22px 52px rgba(0,0,0,0.6), 0 0 28px rgba(98,182,217,0.16), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 34%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+}
+
+@keyframes memoryEpicBreath{
+  0%,100%{ box-shadow:0 20px 46px rgba(0,0,0,0.56), 0 0 20px rgba(167,139,250,0.08), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 26%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.62), 0 0 34px rgba(167,139,250,0.18), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 36%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+}
+
+@keyframes memoryLegendBreath{
+  0%,100%{ box-shadow:0 20px 46px rgba(0,0,0,0.56), 0 0 22px rgba(244,201,93,0.1), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 30%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  50%{ box-shadow:0 26px 64px rgba(0,0,0,0.66), 0 0 40px rgba(244,201,93,0.2), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 40%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
 }
 
 .achievement-grid.math-relics{
@@ -2675,7 +2791,7 @@ body.sudoku-screen-shake{
   --chess-glow:rgba(200,206,214,0.16);
   position:relative;
   display:grid;
-  grid-template-columns:104px minmax(0, 1fr);
+  grid-template-columns:118px minmax(0, 1fr);
   gap:16px;
   min-height:236px;
   padding:18px;
@@ -2728,6 +2844,7 @@ body.sudoku-screen-shake{
 .chess-relic-frame{
   position:relative;
   align-self:start;
+  justify-self:center;
   width:96px;
   height:118px;
   display:grid;
@@ -2807,6 +2924,8 @@ body.sudoku-screen-shake{
   display:grid;
   gap:9px;
   overflow:hidden;
+  align-content:start;
+  text-align:center;
 }
 
 .chess-relic-content::before{
@@ -2841,7 +2960,7 @@ body.sudoku-screen-shake{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-  justify-content:flex-end;
+  justify-content:center;
 }
 
 .chess-relic-rarity,
@@ -2882,6 +3001,7 @@ body.sudoku-screen-shake{
   border-radius:12px;
   border:1px solid rgba(200,206,214,0.2);
   background:linear-gradient(135deg, rgba(255,255,255,0.045), rgba(2,6,23,0.58));
+  text-align:center;
 }
 
 .chess-relic-objective span{
@@ -2904,11 +3024,13 @@ body.sudoku-screen-shake{
 
 .chess-relic-progress-meta{
   display:flex;
-  justify-content:space-between;
+  justify-content:center;
+  flex-wrap:wrap;
   gap:10px;
   color:rgba(229,231,235,0.74);
   font-size:0.76rem;
   font-weight:800;
+  text-align:center;
 }
 
 .chess-relic-progress-track{
@@ -7124,7 +7246,7 @@ body.sudoku-screen-shake{
   }
 
   .achievement-card.chess-relic{
-    grid-template-columns:78px minmax(0, 1fr);
+    grid-template-columns:86px minmax(0, 1fr);
     gap:12px;
     min-height:0;
     padding:14px;
@@ -7173,7 +7295,7 @@ body.sudoku-screen-shake{
   }
 
   .chess-relic-badges{
-    justify-content:flex-start;
+    justify-content:center;
     gap:6px;
   }
 
@@ -7193,7 +7315,7 @@ body.sudoku-screen-shake{
   }
 
   .achievement-card.sudoku-relic{
-    grid-template-columns:74px minmax(0, 1fr);
+    grid-template-columns:86px minmax(0, 1fr);
     gap:12px;
     padding:14px;
     min-height:0;
@@ -7202,7 +7324,7 @@ body.sudoku-screen-shake{
 
   .sudoku-common-v2,
   .sudoku-common-v5{
-    grid-template-columns:1fr;
+    grid-template-columns:86px minmax(0, 1fr);
   }
 
   .sudoku-common-v3,
@@ -7212,7 +7334,7 @@ body.sudoku-screen-shake{
   .sudoku-rare-v7,
   .sudoku-epic-v5,
   .sudoku-legendary-v5{
-    grid-template-columns:82px minmax(0, 1fr);
+    grid-template-columns:86px minmax(0, 1fr);
   }
 
   .sudoku-rare-v3,
@@ -7274,7 +7396,7 @@ body.sudoku-screen-shake{
   }
 
   .achievement-card.memory-relic{
-    grid-template-columns:74px minmax(0, 1fr);
+    grid-template-columns:78px minmax(0, 1fr);
     gap:12px;
     padding:14px;
     min-height:0;
@@ -7283,18 +7405,25 @@ body.sudoku-screen-shake{
 
   .memory-common-v2,
   .memory-common-v5{
-    grid-template-columns:1fr;
+    grid-template-columns:78px minmax(0, 1fr);
   }
 
   .memory-common-v3,
   .memory-common-v8{
-    grid-template-columns:82px minmax(0, 1fr);
+    grid-template-columns:78px minmax(0, 1fr);
   }
 
   .memory-relic-icon{
     width:68px;
     height:86px;
     font-size:0.62rem;
+  }
+
+  .memory-relic.rare .memory-relic-icon,
+  .memory-relic.epic .memory-relic-icon,
+  .memory-relic.legendary .memory-relic-icon{
+    width:70px;
+    height:88px;
   }
 
   .memory-relic-header{
