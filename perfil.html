@@ -6241,6 +6241,409 @@ body.sudoku-screen-shake{
   50%{ box-shadow:0 30px 74px rgba(0,0,0,0.72), 0 0 48px rgba(250,204,21,0.32), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(254,249,195,0.42), inset 0 0 0 8px rgba(2,6,23,0.52); }
 }
 
+.achievement-card.subelamontana-relic{
+  --mount-core:#34d399;
+  --mount-core-light:#ecfdf5;
+  --mount-snow:#e0f2fe;
+  --mount-bg:#08140f;
+  --mount-glow:rgba(52,211,153,0.3);
+  position:relative;
+  display:grid;
+  grid-template-columns:112px minmax(0, 1fr);
+  gap:16px;
+  min-height:232px;
+  padding:18px;
+  overflow:hidden;
+  isolation:isolate;
+  border:0;
+  border-radius:18px;
+  color:#f0fdf4;
+  background:
+    radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--mount-core) 16%, transparent), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(224,242,254,0.16), transparent 30%),
+    linear-gradient(160deg, transparent 0 52%, rgba(255,255,255,0.035) 53% 55%, transparent 56%),
+    linear-gradient(145deg, #020604, var(--mount-bg) 44%, #123225 72%, #020604);
+  box-shadow:
+    0 22px 50px rgba(0,0,0,0.58),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px color-mix(in srgb, var(--mount-core) 24%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.52);
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  animation:mountCardBreath 7.4s ease-in-out infinite;
+}
+
+.achievement-card.subelamontana-relic::before,
+.achievement-card.subelamontana-relic::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.achievement-card.subelamontana-relic::before{
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(150deg, transparent 0 34%, color-mix(in srgb, var(--mount-snow) 12%, transparent) 35% 36%, transparent 37%),
+    linear-gradient(22deg, transparent 0 42%, color-mix(in srgb, var(--mount-core-light) 8%, transparent) 43% 44%, transparent 45%),
+    radial-gradient(circle, color-mix(in srgb, var(--mount-snow) 18%, transparent) 0 1px, transparent 2px);
+  background-size:100% 100%, 100% 100%, 34px 34px;
+  opacity:0.72;
+  animation:mountWindDrift 7.8s ease-in-out infinite;
+}
+
+.achievement-card.subelamontana-relic::after{
+  left:16px;
+  bottom:14px;
+  z-index:-1;
+  width:136px;
+  height:104px;
+  border-radius:18px;
+  background:
+    linear-gradient(135deg, transparent 0 38%, color-mix(in srgb, var(--mount-snow) 34%, transparent) 39% 43%, transparent 44%),
+    linear-gradient(45deg, transparent 0 48%, color-mix(in srgb, var(--mount-core) 22%, transparent) 49% 52%, transparent 53%),
+    linear-gradient(135deg, transparent 0 18%, color-mix(in srgb, var(--mount-core-light) 14%, transparent) 19% 20%, transparent 21%),
+    linear-gradient(135deg, transparent 0 28%, color-mix(in srgb, var(--mount-core) 20%, transparent) 29% 72%, transparent 73%),
+    linear-gradient(45deg, transparent 0 24%, color-mix(in srgb, var(--mount-snow) 16%, transparent) 25% 70%, transparent 71%);
+  opacity:0.48;
+  animation:mountHorizonGlow 6.2s ease-in-out infinite;
+}
+
+.achievement-card.subelamontana-relic:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 26px 62px rgba(0,0,0,0.66),
+    0 0 34px var(--mount-glow),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 0 0 2px color-mix(in srgb, var(--mount-core) 38%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.52);
+}
+
+.subelamontana-relic .arcade-theme-header{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  align-content:start;
+  gap:10px;
+  min-width:0;
+  padding:0;
+}
+
+.subelamontana-relic .arcade-theme-badges{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  width:100%;
+}
+
+.subelamontana-relic .arcade-theme-icon{
+  position:relative;
+  width:92px;
+  height:108px;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  color:#062015;
+  font-size:0.62rem;
+  font-weight:1000;
+  letter-spacing:0.07em;
+  background:
+    linear-gradient(135deg, transparent 0 38%, rgba(6,32,21,0.2) 39% 43%, transparent 44%),
+    conic-gradient(from 36deg, color-mix(in srgb, var(--mount-core) 74%, white), var(--mount-core-light), var(--mount-snow), #14532d, color-mix(in srgb, var(--mount-core) 74%, white));
+  border:0;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,0.5),
+    0 0 28px var(--mount-glow),
+    inset 0 0 0 2px color-mix(in srgb, var(--mount-core-light) 42%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.44);
+  clip-path:polygon(50% 0, 88% 12%, 100% 52%, 86% 88%, 50% 100%, 14% 88%, 0 52%, 12% 12%);
+  animation:mountBadgeFloat 5.8s ease-in-out infinite;
+}
+
+.subelamontana-relic .arcade-theme-icon::before,
+.subelamontana-relic .arcade-theme-icon::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.subelamontana-relic .arcade-theme-icon::before{
+  width:62px;
+  height:60px;
+  bottom:28px;
+  clip-path:polygon(50% 0, 100% 100%, 0 100%);
+  background:
+    linear-gradient(135deg, transparent 0 42%, rgba(255,255,255,0.78) 43% 58%, transparent 59%),
+    linear-gradient(45deg, transparent 0 45%, rgba(6,32,21,0.2) 46% 51%, transparent 52%),
+    linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.1));
+  filter:drop-shadow(0 10px 12px rgba(0,0,0,0.28));
+}
+
+.subelamontana-relic .arcade-theme-icon::after{
+  width:52px;
+  height:52px;
+  bottom:27px;
+  border-radius:50%;
+  background:
+    conic-gradient(from 210deg, transparent 0 18%, rgba(255,255,255,0.82) 19% 23%, transparent 24% 44%, rgba(255,255,255,0.74) 45% 49%, transparent 50% 100%);
+  opacity:0.76;
+  animation:mountTrailRise 4.4s ease-in-out infinite;
+}
+
+.subelamontana-relic .arcade-theme-icon span{
+  position:relative;
+  z-index:1;
+  margin-top:38px;
+  min-width:42px;
+  min-height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  color:#062015;
+  background:rgba(255,255,255,0.68);
+  box-shadow:0 4px 12px rgba(6,32,21,0.22);
+  text-shadow:0 1px 0 rgba(255,255,255,0.38);
+}
+
+.subelamontana-relic .arcade-theme-main{
+  position:relative;
+  min-width:0;
+  display:grid;
+  align-content:start;
+  gap:9px;
+  overflow:hidden;
+  padding:0;
+  text-align:center;
+}
+
+.subelamontana-relic .arcade-theme-main::before,
+.subelamontana-relic .arcade-theme-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.subelamontana-relic .arcade-theme-main::before{
+  left:7%;
+  right:7%;
+  top:2px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--mount-core-light) 56%, transparent), transparent);
+  box-shadow:0 0 14px var(--mount-glow);
+  animation:mountSummitLine 4.8s ease-in-out infinite;
+}
+
+.subelamontana-relic .arcade-theme-main::after{
+  right:4px;
+  bottom:5px;
+  width:76px;
+  height:42px;
+  border-radius:8px;
+  border:1px solid color-mix(in srgb, var(--mount-core-light) 22%, transparent);
+  background:
+    linear-gradient(135deg, transparent 0 42%, color-mix(in srgb, var(--mount-snow) 26%, transparent) 43% 48%, transparent 49%),
+    linear-gradient(45deg, transparent 0 50%, color-mix(in srgb, var(--mount-core) 22%, transparent) 51% 56%, transparent 57%),
+    linear-gradient(180deg, rgba(2,6,23,0.62), rgba(2,6,23,0.2));
+  opacity:0.34;
+  animation:mountMiniPeak 3.8s ease-in-out infinite;
+}
+
+.subelamontana-relic .arcade-theme-title,
+.subelamontana-relic .arcade-theme-prophecy,
+.subelamontana-relic .arcade-theme-objective,
+.subelamontana-relic .arcade-theme-progress{
+  position:relative;
+  z-index:1;
+}
+
+.subelamontana-relic .arcade-theme-title{
+  color:#f0fdf4;
+  font-size:1.14rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 2px 18px rgba(0,0,0,0.44), 0 0 18px color-mix(in srgb, var(--mount-core) 14%, transparent);
+}
+
+.subelamontana-relic .arcade-theme-prophecy{
+  margin:0;
+  color:rgba(236,253,245,0.76);
+  font-size:0.92rem;
+  line-height:1.42;
+}
+
+.subelamontana-relic .arcade-theme-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--mount-core-light) 20%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--mount-core) 10%, transparent), rgba(2,6,23,0.6));
+  text-align:center;
+}
+
+.subelamontana-relic .arcade-theme-objective span{
+  color:color-mix(in srgb, var(--mount-core-light) 88%, white 8%);
+  font-size:0.68rem;
+  font-weight:1000;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.subelamontana-relic .arcade-theme-objective small{
+  color:rgba(236,253,245,0.86);
+  line-height:1.35;
+}
+
+.subelamontana-relic .arcade-theme-progress{
+  display:grid;
+  gap:6px;
+  margin-top:0;
+}
+
+.subelamontana-relic .arcade-theme-progress-meta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  color:rgba(236,253,245,0.76);
+  font-size:0.76rem;
+  font-weight:800;
+  text-align:center;
+}
+
+.subelamontana-relic .arcade-theme-progress-track{
+  height:8px;
+  padding:1px;
+  overflow:hidden;
+  border-radius:999px;
+  background:
+    linear-gradient(135deg, transparent 0 26%, rgba(255,255,255,0.08) 27% 31%, transparent 32%),
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--mount-core-light) 18%, transparent);
+}
+
+.subelamontana-relic .arcade-theme-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--mount-core) 72%, #059669), var(--mount-core-light));
+  box-shadow:0 0 16px var(--mount-glow);
+  transition:width 0.7s ease;
+}
+
+.subelamontana-relic .arcade-theme-rarity,
+.subelamontana-relic .arcade-theme-state{
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:color-mix(in srgb, var(--mount-core-light) 86%, white 8%);
+  border:1px solid color-mix(in srgb, var(--mount-core-light) 26%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--mount-core) 14%, transparent), rgba(2,6,23,0.76));
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
+}
+
+.subelamontana-relic.common{
+  --mount-core:#cbd5e1;
+  --mount-core-light:#f8fafc;
+  --mount-snow:#e2e8f0;
+  --mount-bg:#0b1118;
+  --mount-glow:rgba(203,213,225,0.2);
+}
+
+.subelamontana-relic.rare{
+  --mount-core:#34d399;
+  --mount-core-light:#ecfdf5;
+  --mount-snow:#e0f2fe;
+  --mount-bg:#08140f;
+  --mount-glow:rgba(52,211,153,0.34);
+}
+
+.subelamontana-relic.epic{
+  --mount-core:#60a5fa;
+  --mount-core-light:#dbeafe;
+  --mount-snow:#f0f9ff;
+  --mount-bg:#071426;
+  --mount-glow:rgba(96,165,250,0.36);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(96,165,250,0.2), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(240,249,255,0.18), transparent 30%),
+    linear-gradient(160deg, transparent 0 52%, rgba(255,255,255,0.045) 53% 55%, transparent 56%),
+    linear-gradient(145deg, #02040a, #071426 44%, #1e3a8a 72%, #02040a);
+}
+
+.subelamontana-relic.legendary{
+  --mount-core:#facc15;
+  --mount-core-light:#fef9c3;
+  --mount-snow:#ffffff;
+  --mount-bg:#171104;
+  --mount-glow:rgba(250,204,21,0.34);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(254,249,195,0.28), transparent 30%),
+    radial-gradient(circle at 18% 12%, rgba(250,204,21,0.2), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(255,255,255,0.16), transparent 30%),
+    linear-gradient(160deg, transparent 0 52%, rgba(255,255,255,0.05) 53% 55%, transparent 56%),
+    linear-gradient(145deg, #070501, #171104 42%, #3f2d03 72%, #070501);
+  animation:mountLegendSummit 6s ease-in-out infinite;
+}
+
+.subelamontana-relic.rare .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #065f46, #34d399, #ecfdf5);
+}
+
+.subelamontana-relic.epic .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #1d4ed8, #60a5fa, #f0f9ff);
+}
+
+.subelamontana-relic.legendary .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #854d0e, #facc15, #ffffff);
+}
+
+@keyframes mountCardBreath{
+  0%,100%{ box-shadow:0 22px 50px rgba(0,0,0,0.58), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--mount-core) 24%, transparent), inset 0 0 0 8px rgba(2,6,23,0.52); }
+  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.64), 0 0 28px var(--mount-glow), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--mount-core) 36%, transparent), inset 0 0 0 8px rgba(2,6,23,0.52); }
+}
+
+@keyframes mountWindDrift{
+  0%,100%{ background-position:0 0, 0 0, 0 0; opacity:0.56; }
+  50%{ background-position:20px 0, -14px 0, 17px -10px; opacity:0.84; }
+}
+
+@keyframes mountHorizonGlow{
+  0%,100%{ transform:translateY(0); opacity:0.28; }
+  50%{ transform:translateY(-4px); opacity:0.5; }
+}
+
+@keyframes mountBadgeFloat{
+  0%,100%{ transform:translateY(0); filter:brightness(1); }
+  50%{ transform:translateY(-4px); filter:brightness(1.08); }
+}
+
+@keyframes mountTrailRise{
+  0%,100%{ transform:rotate(-8deg) translateY(8px); opacity:0.32; }
+  50%{ transform:rotate(-8deg) translateY(-8px); opacity:0.82; }
+}
+
+@keyframes mountSummitLine{
+  0%,100%{ transform:scaleX(0.72); opacity:0.22; }
+  50%{ transform:scaleX(1); opacity:0.74; }
+}
+
+@keyframes mountMiniPeak{
+  0%,100%{ opacity:0.2; filter:brightness(0.9); transform:translateY(2px); }
+  50%{ opacity:0.48; filter:brightness(1.18); transform:translateY(-3px); }
+}
+
+@keyframes mountLegendSummit{
+  0%,100%{ box-shadow:0 24px 56px rgba(0,0,0,0.64), 0 0 24px rgba(250,204,21,0.14), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 0 2px rgba(250,204,21,0.24), inset 0 0 0 8px rgba(2,6,23,0.52); }
+  50%{ box-shadow:0 30px 74px rgba(0,0,0,0.72), 0 0 48px rgba(250,204,21,0.32), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(254,249,195,0.42), inset 0 0 0 8px rgba(2,6,23,0.52); }
+}
+
 .history-item{
   padding:16px;
   border-radius:16px;
@@ -10184,6 +10587,67 @@ body.sudoku-screen-shake{
   }
 
   .torreinfinita-relic .arcade-theme-prophecy{
+    font-size:0.86rem;
+  }
+
+  .achievement-card.subelamontana-relic{
+    grid-template-columns:82px minmax(0, 1fr);
+    gap:12px;
+    padding:14px;
+    min-height:0;
+    border-radius:14px;
+  }
+
+  .achievement-card.subelamontana-relic::after{
+    left:8px;
+    bottom:10px;
+    width:100px;
+    height:78px;
+    border-radius:14px;
+  }
+
+  .subelamontana-relic .arcade-theme-icon{
+    width:72px;
+    height:84px;
+    font-size:0.56rem;
+  }
+
+  .subelamontana-relic .arcade-theme-icon::before{
+    width:48px;
+    height:46px;
+    bottom:22px;
+  }
+
+  .subelamontana-relic .arcade-theme-icon::after{
+    width:42px;
+    height:42px;
+    bottom:22px;
+  }
+
+  .subelamontana-relic .arcade-theme-icon span{
+    margin-top:28px;
+    min-width:34px;
+    min-height:22px;
+    border-radius:6px;
+  }
+
+  .subelamontana-relic .arcade-theme-header,
+  .subelamontana-relic .arcade-theme-main{
+    padding:0;
+  }
+
+  .subelamontana-relic .arcade-theme-rarity,
+  .subelamontana-relic .arcade-theme-state{
+    min-height:22px;
+    font-size:0.6rem;
+    padding:3px 6px;
+  }
+
+  .subelamontana-relic .arcade-theme-title{
+    font-size:0.98rem;
+  }
+
+  .subelamontana-relic .arcade-theme-prophecy{
     font-size:0.86rem;
   }
 
