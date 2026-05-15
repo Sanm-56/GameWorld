@@ -2111,38 +2111,100 @@ body.sudoku-screen-shake{
   border-color:rgba(229,237,255,0.28);
 }
 
+.memory-relic.rare .memory-relic-rarity,
+.memory-relic.rare .memory-relic-state{
+  color:#b7ffe2;
+  border-color:rgba(16,185,129,0.46);
+  background:linear-gradient(135deg, rgba(16,185,129,0.18), rgba(1,22,16,0.78));
+  box-shadow:0 0 16px rgba(16,185,129,0.14);
+}
+
+.memory-relic.epic .memory-relic-rarity,
+.memory-relic.epic .memory-relic-state{
+  color:#f0e7ff;
+  border-color:rgba(139,92,246,0.48);
+  background:linear-gradient(135deg, rgba(139,92,246,0.2), rgba(7,3,20,0.8));
+  box-shadow:0 0 18px rgba(139,92,246,0.16);
+}
+
+.memory-relic.legendary .memory-relic-rarity,
+.memory-relic.legendary .memory-relic-state{
+  color:#fff3b0;
+  border-color:rgba(246,195,67,0.5);
+  background:linear-gradient(135deg, rgba(246,195,67,0.22), rgba(20,11,1,0.82));
+  box-shadow:0 0 20px rgba(246,195,67,0.18);
+}
+
+.memory-relic.rare .memory-progress-fill{
+  background:linear-gradient(90deg, #047857, #34d399, #b7ffe2);
+  box-shadow:0 0 18px rgba(16,185,129,0.32);
+}
+
+.memory-relic.epic .memory-progress-fill{
+  background:linear-gradient(90deg, #4c1d95, #8b5cf6, #22d3ee);
+  box-shadow:0 0 20px rgba(139,92,246,0.34);
+}
+
+.memory-relic.legendary .memory-progress-fill{
+  background:linear-gradient(90deg, #92400e, #f6c343, #fff3b0);
+  box-shadow:0 0 22px rgba(246,195,67,0.38);
+}
+
 .achievement-card.memory-relic.common,
 .achievement-grid.memory-relics .memory-relic.common{
-  --memory-metal:#8fa3c7;
-  --memory-metal-light:#e5edff;
-  --memory-bg:#080b16;
-  --memory-glow:rgba(168,185,214,0.2);
+  --memory-metal:#b9c1cb;
+  --memory-metal-light:#f5f8fb;
+  --memory-bg:#070a10;
+  --memory-glow:rgba(226,232,240,0.2);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(248,250,252,0.16), transparent 30%),
+    radial-gradient(circle at 82% 8%, rgba(148,163,184,0.13), transparent 32%),
+    linear-gradient(135deg, rgba(255,255,255,0.072), transparent 24% 76%, rgba(255,255,255,0.026)),
+    linear-gradient(145deg, #030507, #070a10 46%, #151a22 74%, #030407);
 }
 
 .achievement-card.memory-relic.rare,
 .achievement-grid.memory-relics .memory-relic.rare{
-  --memory-metal:#62b6d9;
-  --memory-metal-light:#d8f3ff;
-  --memory-bg:#07121f;
-  --memory-glow:rgba(98,182,217,0.28);
+  --memory-metal:#10b981;
+  --memory-metal-light:#b7ffe2;
+  --memory-bg:#03130e;
+  --memory-glow:rgba(16,185,129,0.34);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(52,211,153,0.18), transparent 30%),
+    radial-gradient(circle at 82% 8%, rgba(6,95,70,0.28), transparent 34%),
+    linear-gradient(135deg, rgba(183,255,226,0.08), transparent 24% 76%, rgba(16,185,129,0.035)),
+    linear-gradient(145deg, #010504, #03130e 42%, #083b2c 74%, #010605);
   animation:memoryRareBreath 6.8s ease-in-out infinite;
 }
 
 .achievement-card.memory-relic.epic,
 .achievement-grid.memory-relics .memory-relic.epic{
-  --memory-metal:#a78bfa;
-  --memory-metal-light:#efe7ff;
-  --memory-bg:#120b1f;
-  --memory-glow:rgba(167,139,250,0.32);
+  --memory-metal:#8b5cf6;
+  --memory-metal-light:#f0e7ff;
+  --memory-bg:#090316;
+  --memory-glow:rgba(139,92,246,0.38);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(34,211,238,0.14), transparent 30%),
+    radial-gradient(circle at 84% 12%, rgba(168,85,247,0.28), transparent 34%),
+    radial-gradient(circle at 50% -8%, rgba(240,231,255,0.18), transparent 28%),
+    radial-gradient(circle, rgba(240,231,255,0.18) 0 1px, transparent 2px),
+    linear-gradient(145deg, #030108, #090316 38%, #21103f 72%, #030108);
+  background-size:100% 100%, 100% 100%, 100% 100%, 34px 34px, 100% 100%;
   animation:memoryEpicBreath 6.4s ease-in-out infinite;
 }
 
 .achievement-card.memory-relic.legendary,
 .achievement-grid.memory-relics .memory-relic.legendary{
-  --memory-metal:#f4c95d;
-  --memory-metal-light:#fff2bd;
-  --memory-bg:#171106;
-  --memory-glow:rgba(244,201,93,0.34);
+  --memory-metal:#f6c343;
+  --memory-metal-light:#fff3b0;
+  --memory-bg:#160d02;
+  --memory-glow:rgba(246,195,67,0.4);
+  background:
+    radial-gradient(circle at 50% -4%, rgba(255,243,176,0.26), transparent 30%),
+    radial-gradient(circle at 18% 18%, rgba(250,204,21,0.2), transparent 30%),
+    radial-gradient(circle at 86% 12%, rgba(180,83,9,0.24), transparent 34%),
+    linear-gradient(135deg, rgba(255,243,176,0.12), transparent 24% 76%, rgba(246,195,67,0.04)),
+    linear-gradient(145deg, #050200, #160d02 40%, #3a2608 74%, #050200);
   animation:memoryLegendBreath 6s ease-in-out infinite;
 }
 
@@ -2212,18 +2274,18 @@ body.sudoku-screen-shake{
 }
 
 @keyframes memoryRareBreath{
-  0%,100%{ box-shadow:0 20px 46px rgba(0,0,0,0.56), 0 0 18px rgba(98,182,217,0.08), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 26%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
-  50%{ box-shadow:0 22px 52px rgba(0,0,0,0.6), 0 0 28px rgba(98,182,217,0.16), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 34%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  0%,100%{ box-shadow:0 20px 46px rgba(0,0,0,0.58), 0 0 18px rgba(16,185,129,0.1), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 30%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  50%{ box-shadow:0 22px 52px rgba(0,0,0,0.62), 0 0 34px rgba(16,185,129,0.2), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 42%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
 }
 
 @keyframes memoryEpicBreath{
-  0%,100%{ box-shadow:0 20px 46px rgba(0,0,0,0.56), 0 0 20px rgba(167,139,250,0.08), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 26%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
-  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.62), 0 0 34px rgba(167,139,250,0.18), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 36%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  0%,100%{ box-shadow:0 20px 46px rgba(0,0,0,0.6), 0 0 22px rgba(139,92,246,0.1), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 30%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.66), 0 0 38px rgba(139,92,246,0.22), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 44%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
 }
 
 @keyframes memoryLegendBreath{
-  0%,100%{ box-shadow:0 20px 46px rgba(0,0,0,0.56), 0 0 22px rgba(244,201,93,0.1), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 30%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
-  50%{ box-shadow:0 26px 64px rgba(0,0,0,0.66), 0 0 40px rgba(244,201,93,0.2), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 40%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  0%,100%{ box-shadow:0 22px 52px rgba(0,0,0,0.62), 0 0 24px rgba(246,195,67,0.14), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 34%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
+  50%{ box-shadow:0 28px 70px rgba(0,0,0,0.7), 0 0 48px rgba(246,195,67,0.28), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px color-mix(in srgb, var(--memory-metal) 48%, transparent), inset 0 0 0 8px rgba(2,6,23,0.58); }
 }
 
 .achievement-grid.math-relics{
