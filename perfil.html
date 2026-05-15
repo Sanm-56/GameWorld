@@ -3706,6 +3706,407 @@ body.sudoku-screen-shake{
   50%{ box-shadow:0 30px 74px rgba(0,0,0,0.72), 0 0 48px rgba(250,204,21,0.32), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(254,249,195,0.42), inset 0 0 0 8px rgba(2,6,23,0.52); }
 }
 
+.achievement-card.cricket-relic{
+  --cricket-core:#bef264;
+  --cricket-core-light:#f7fee7;
+  --cricket-field:#0f2a14;
+  --cricket-glow:rgba(190,242,100,0.26);
+  position:relative;
+  display:grid;
+  grid-template-columns:112px minmax(0, 1fr);
+  gap:16px;
+  min-height:232px;
+  padding:18px;
+  overflow:hidden;
+  isolation:isolate;
+  border:0;
+  border-radius:18px;
+  color:#fbfff0;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(255,255,255,0.16), transparent 22%),
+    radial-gradient(circle at 84% 8%, color-mix(in srgb, var(--cricket-core) 16%, transparent), transparent 32%),
+    linear-gradient(180deg, rgba(15,23,42,0.88) 0 28%, transparent 29%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 18px),
+    linear-gradient(145deg, #030509, #07120d 36%, var(--cricket-field) 70%, #040604);
+  box-shadow:
+    0 22px 50px rgba(0,0,0,0.58),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px color-mix(in srgb, var(--cricket-core) 22%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.52);
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  animation:cricketStadiumBreath 7s ease-in-out infinite;
+}
+
+.achievement-card.cricket-relic::before,
+.achievement-card.cricket-relic::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.achievement-card.cricket-relic::before{
+  inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.34) 0 2px, transparent 3px),
+    radial-gradient(circle at 22% 14%, rgba(255,255,255,0.26) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 16%, rgba(255,255,255,0.3) 0 2px, transparent 3px),
+    radial-gradient(circle at 88% 20%, rgba(255,255,255,0.24) 0 2px, transparent 3px),
+    linear-gradient(110deg, transparent 0 26%, color-mix(in srgb, var(--cricket-core-light) 10%, transparent) 27% 28%, transparent 29% 68%, color-mix(in srgb, var(--cricket-core) 8%, transparent) 69% 70%, transparent 71%);
+  opacity:0.72;
+  animation:cricketLightsPulse 4.8s ease-in-out infinite;
+}
+
+.achievement-card.cricket-relic::after{
+  right:14px;
+  bottom:14px;
+  z-index:-1;
+  width:124px;
+  height:78px;
+  border:1px solid color-mix(in srgb, var(--cricket-core-light) 20%, transparent);
+  border-radius:52% 52% 18px 18px;
+  background:
+    radial-gradient(ellipse at 50% 100%, transparent 0 36%, color-mix(in srgb, var(--cricket-core) 12%, transparent) 37% 39%, transparent 40%),
+    repeating-radial-gradient(ellipse at 50% 100%, transparent 0 18px, color-mix(in srgb, var(--cricket-core-light) 8%, transparent) 19px 20px),
+    linear-gradient(180deg, color-mix(in srgb, var(--cricket-core) 8%, transparent), transparent);
+  opacity:0.44;
+  animation:cricketArcDrift 6.4s ease-in-out infinite;
+}
+
+.achievement-card.cricket-relic:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 26px 62px rgba(0,0,0,0.66),
+    0 0 34px var(--cricket-glow),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 0 0 2px color-mix(in srgb, var(--cricket-core) 36%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.52);
+}
+
+.cricket-relic .arcane-relic-header{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  align-content:start;
+  gap:10px;
+  min-width:0;
+  padding:0;
+}
+
+.cricket-relic .arcane-relic-badges{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  width:100%;
+}
+
+.cricket-relic .arcane-relic-icon{
+  position:relative;
+  width:92px;
+  height:108px;
+  display:grid;
+  place-items:center;
+  border-radius:20px 20px 28px 28px;
+  color:#172006;
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
+  background:
+    radial-gradient(circle at 52% 30%, rgba(255,255,255,0.9) 0 14px, transparent 15px),
+    linear-gradient(90deg, transparent 43%, rgba(23,32,6,0.22) 44% 47%, transparent 48% 52%, rgba(23,32,6,0.22) 53% 56%, transparent 57%),
+    conic-gradient(from 38deg, color-mix(in srgb, var(--cricket-core) 72%, white), var(--cricket-core-light), #84cc16, #064e3b, color-mix(in srgb, var(--cricket-core) 72%, white));
+  border:0;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,0.5),
+    0 0 28px var(--cricket-glow),
+    inset 0 0 0 2px color-mix(in srgb, var(--cricket-core-light) 42%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.44);
+  clip-path:polygon(50% 0, 90% 14%, 100% 48%, 86% 86%, 50% 100%, 14% 86%, 0 48%, 10% 14%);
+  animation:cricketMedalFloat 5.8s ease-in-out infinite;
+}
+
+.cricket-relic .arcane-relic-icon::before,
+.cricket-relic .arcane-relic-icon::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.cricket-relic .arcane-relic-icon::before{
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(23,32,6,0.12) 0 13px, transparent 14px),
+    repeating-linear-gradient(68deg, transparent 0 12px, rgba(23,32,6,0.18) 13px 14px);
+  border:2px solid rgba(23,32,6,0.16);
+  transform:translateY(-8px);
+}
+
+.cricket-relic .arcane-relic-icon::after{
+  width:58px;
+  height:12px;
+  bottom:24px;
+  border-radius:999px;
+  background:
+    linear-gradient(90deg, rgba(23,32,6,0.18), rgba(255,255,255,0.72), rgba(23,32,6,0.18));
+  transform:rotate(-16deg);
+  opacity:0.78;
+  animation:cricketBatShine 4.8s ease-in-out infinite;
+}
+
+.cricket-relic .arcane-relic-icon span{
+  position:relative;
+  z-index:1;
+  margin-top:34px;
+  min-width:40px;
+  min-height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  color:#172006;
+  background:rgba(255,255,255,0.66);
+  box-shadow:0 4px 12px rgba(23,32,6,0.2);
+  text-shadow:0 1px 0 rgba(255,255,255,0.38);
+}
+
+.cricket-relic .arcane-relic-main{
+  position:relative;
+  min-width:0;
+  display:grid;
+  align-content:start;
+  gap:9px;
+  overflow:hidden;
+  padding:0;
+  text-align:center;
+}
+
+.cricket-relic .arcane-relic-main::before,
+.cricket-relic .arcane-relic-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.cricket-relic .arcane-relic-main::before{
+  left:7%;
+  right:7%;
+  top:2px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--cricket-core-light) 56%, transparent), transparent);
+  box-shadow:0 0 14px var(--cricket-glow);
+  animation:cricketScoreSweep 5s ease-in-out infinite;
+}
+
+.cricket-relic .arcane-relic-main::after{
+  right:4px;
+  bottom:5px;
+  width:72px;
+  height:34px;
+  border-radius:8px;
+  border:1px solid color-mix(in srgb, var(--cricket-core-light) 22%, transparent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--cricket-core) 18%, transparent) 0 18%, transparent 19% 32%, color-mix(in srgb, var(--cricket-core-light) 14%, transparent) 33% 50%, transparent 51% 64%, color-mix(in srgb, var(--cricket-core) 16%, transparent) 65% 82%, transparent 83%),
+    linear-gradient(180deg, rgba(2,6,23,0.62), rgba(2,6,23,0.2));
+  opacity:0.34;
+  animation:cricketScoreFlicker 3.8s ease-in-out infinite;
+}
+
+.cricket-relic .arcane-relic-title,
+.cricket-relic .arcane-relic-prophecy,
+.cricket-relic .arcane-objective,
+.cricket-relic .arcane-progress{
+  position:relative;
+  z-index:1;
+}
+
+.cricket-relic .arcane-relic-title{
+  color:#fbfff0;
+  font-size:1.14rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 2px 18px rgba(0,0,0,0.44), 0 0 18px color-mix(in srgb, var(--cricket-core) 14%, transparent);
+}
+
+.cricket-relic .arcane-relic-prophecy{
+  margin:0;
+  color:rgba(247,254,231,0.76);
+  font-size:0.92rem;
+  line-height:1.42;
+}
+
+.cricket-relic .arcane-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--cricket-core-light) 20%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--cricket-core) 10%, transparent), rgba(2,6,23,0.6));
+  text-align:center;
+}
+
+.cricket-relic .arcane-objective span{
+  color:color-mix(in srgb, var(--cricket-core-light) 88%, white 8%);
+  font-size:0.68rem;
+  font-weight:1000;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.cricket-relic .arcane-objective small{
+  color:rgba(247,254,231,0.86);
+  line-height:1.35;
+}
+
+.cricket-relic .arcane-progress{
+  display:grid;
+  gap:6px;
+  margin-top:0;
+}
+
+.cricket-relic .arcane-progress-meta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  color:rgba(247,254,231,0.76);
+  font-size:0.76rem;
+  font-weight:800;
+  text-align:center;
+}
+
+.cricket-relic .arcane-progress-track{
+  height:8px;
+  padding:1px;
+  overflow:hidden;
+  border-radius:4px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 16px, rgba(255,255,255,0.08) 17px 18px),
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--cricket-core-light) 18%, transparent);
+}
+
+.cricket-relic .arcane-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:3px;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--cricket-core) 72%, #65a30d), var(--cricket-core-light));
+  box-shadow:0 0 16px var(--cricket-glow);
+  transition:width 0.7s ease;
+}
+
+.cricket-relic .arcane-relic-rarity,
+.cricket-relic .arcane-relic-state{
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:color-mix(in srgb, var(--cricket-core-light) 86%, white 8%);
+  border:1px solid color-mix(in srgb, var(--cricket-core-light) 26%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--cricket-core) 14%, transparent), rgba(2,6,23,0.76));
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
+}
+
+.cricket-relic.common{
+  --cricket-core:#d1d5db;
+  --cricket-core-light:#f9fafb;
+  --cricket-field:#101820;
+  --cricket-glow:rgba(209,213,219,0.2);
+}
+
+.cricket-relic.rare{
+  --cricket-core:#84cc16;
+  --cricket-core-light:#ecfccb;
+  --cricket-field:#10230c;
+  --cricket-glow:rgba(132,204,22,0.34);
+}
+
+.cricket-relic.epic{
+  --cricket-core:#38bdf8;
+  --cricket-core-light:#e0f2fe;
+  --cricket-field:#071a30;
+  --cricket-glow:rgba(56,189,248,0.36);
+  background:
+    radial-gradient(circle at 16% 12%, rgba(255,255,255,0.16), transparent 22%),
+    radial-gradient(circle at 84% 8%, rgba(56,189,248,0.24), transparent 32%),
+    linear-gradient(180deg, rgba(15,23,42,0.9) 0 28%, transparent 29%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 18px),
+    linear-gradient(145deg, #02040a, #071a30 38%, #0f3460 72%, #02040a);
+}
+
+.cricket-relic.legendary{
+  --cricket-core:#facc15;
+  --cricket-core-light:#fef9c3;
+  --cricket-field:#211604;
+  --cricket-glow:rgba(250,204,21,0.34);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(254,249,195,0.28), transparent 30%),
+    radial-gradient(circle at 16% 12%, rgba(255,255,255,0.16), transparent 22%),
+    radial-gradient(circle at 84% 8%, rgba(250,204,21,0.22), transparent 32%),
+    linear-gradient(180deg, rgba(15,23,42,0.88) 0 28%, transparent 29%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 18px),
+    linear-gradient(145deg, #070501, #211604 38%, #4a3204 72%, #070501);
+  animation:cricketChampionGlow 6s ease-in-out infinite;
+}
+
+.cricket-relic.rare .arcane-progress-fill{
+  background:linear-gradient(90deg, #365314, #84cc16, #ecfccb);
+}
+
+.cricket-relic.epic .arcane-progress-fill{
+  background:linear-gradient(90deg, #075985, #38bdf8, #ecfccb);
+}
+
+.cricket-relic.legendary .arcane-progress-fill{
+  background:linear-gradient(90deg, #854d0e, #facc15, #fef9c3);
+}
+
+@keyframes cricketStadiumBreath{
+  0%,100%{ box-shadow:0 22px 50px rgba(0,0,0,0.58), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--cricket-core) 22%, transparent), inset 0 0 0 8px rgba(2,6,23,0.52); }
+  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.64), 0 0 28px var(--cricket-glow), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--cricket-core) 34%, transparent), inset 0 0 0 8px rgba(2,6,23,0.52); }
+}
+
+@keyframes cricketLightsPulse{
+  0%,100%{ opacity:0.5; filter:brightness(0.92); }
+  50%{ opacity:0.88; filter:brightness(1.22); }
+}
+
+@keyframes cricketArcDrift{
+  0%,100%{ transform:translateY(0) scale(0.96); opacity:0.28; }
+  50%{ transform:translateY(-4px) scale(1.04); opacity:0.48; }
+}
+
+@keyframes cricketMedalFloat{
+  0%,100%{ transform:translateY(0); filter:brightness(1); }
+  50%{ transform:translateY(-4px); filter:brightness(1.08); }
+}
+
+@keyframes cricketBatShine{
+  0%,100%{ opacity:0.42; transform:rotate(-16deg) translateX(-8px); }
+  50%{ opacity:0.88; transform:rotate(-16deg) translateX(8px); }
+}
+
+@keyframes cricketScoreSweep{
+  0%,100%{ transform:scaleX(0.72); opacity:0.22; }
+  50%{ transform:scaleX(1); opacity:0.74; }
+}
+
+@keyframes cricketScoreFlicker{
+  0%,100%{ opacity:0.2; filter:brightness(0.92); }
+  50%{ opacity:0.46; filter:brightness(1.18); }
+}
+
+@keyframes cricketChampionGlow{
+  0%,100%{ box-shadow:0 24px 56px rgba(0,0,0,0.64), 0 0 24px rgba(250,204,21,0.14), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 0 2px rgba(250,204,21,0.24), inset 0 0 0 8px rgba(2,6,23,0.52); }
+  50%{ box-shadow:0 30px 74px rgba(0,0,0,0.72), 0 0 48px rgba(250,204,21,0.32), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(254,249,195,0.42), inset 0 0 0 8px rgba(2,6,23,0.52); }
+}
+
 .achievement-grid.board-relics{
   gap:12px;
 }
@@ -5025,6 +5426,409 @@ body.sudoku-screen-shake{
   color:#cbd5e1;
   background:rgba(15,23,42,0.66);
   border-color:rgba(148,163,184,0.16);
+}
+
+.achievement-card.esquivaobstaculos-relic{
+  --dodge-core:#fb7185;
+  --dodge-core-light:#ffe4e6;
+  --dodge-warning:#facc15;
+  --dodge-bg:#13070c;
+  --dodge-glow:rgba(251,113,133,0.3);
+  position:relative;
+  display:grid;
+  grid-template-columns:112px minmax(0, 1fr);
+  gap:16px;
+  min-height:232px;
+  padding:18px;
+  overflow:hidden;
+  isolation:isolate;
+  border:0;
+  border-radius:18px;
+  color:#fff1f2;
+  background:
+    radial-gradient(circle at 16% 14%, color-mix(in srgb, var(--dodge-core) 16%, transparent), transparent 28%),
+    radial-gradient(circle at 86% 10%, rgba(250,204,21,0.14), transparent 30%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 16px),
+    linear-gradient(145deg, #050206, var(--dodge-bg) 44%, #24101a 72%, #050206);
+  box-shadow:
+    0 22px 50px rgba(0,0,0,0.58),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px color-mix(in srgb, var(--dodge-core) 24%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.52);
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  animation:dodgeCardPulse 7s ease-in-out infinite;
+}
+
+.achievement-card.esquivaobstaculos-relic::before,
+.achievement-card.esquivaobstaculos-relic::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.achievement-card.esquivaobstaculos-relic::before{
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(105deg, transparent 0 14%, color-mix(in srgb, var(--dodge-warning) 14%, transparent) 15% 17%, transparent 18% 34%, color-mix(in srgb, var(--dodge-core-light) 10%, transparent) 35% 36%, transparent 37%),
+    linear-gradient(90deg, transparent 0 18%, color-mix(in srgb, var(--dodge-core) 12%, transparent) 19% 21%, transparent 22% 47%, color-mix(in srgb, var(--dodge-warning) 10%, transparent) 48% 50%, transparent 51%),
+    radial-gradient(circle, color-mix(in srgb, var(--dodge-core-light) 18%, transparent) 0 1px, transparent 2px);
+  background-size:100% 100%, 100% 100%, 34px 34px;
+  opacity:0.7;
+  animation:dodgeHazardDrift 6.8s ease-in-out infinite;
+}
+
+.achievement-card.esquivaobstaculos-relic::after{
+  left:16px;
+  top:22px;
+  z-index:-1;
+  width:126px;
+  height:126px;
+  border-radius:26px;
+  border:1px solid color-mix(in srgb, var(--dodge-core-light) 18%, transparent);
+  background:
+    linear-gradient(135deg, transparent 0 18%, color-mix(in srgb, var(--dodge-warning) 22%, transparent) 19% 26%, transparent 27% 42%, color-mix(in srgb, var(--dodge-core) 18%, transparent) 43% 52%, transparent 53%),
+    linear-gradient(90deg, transparent 47%, color-mix(in srgb, var(--dodge-core-light) 18%, transparent) 48% 52%, transparent 53%),
+    repeating-linear-gradient(0deg, transparent 0 16px, color-mix(in srgb, var(--dodge-core-light) 8%, transparent) 17px 18px);
+  opacity:0.5;
+  transform:rotate(8deg);
+  animation:dodgeRouteFloat 5.8s ease-in-out infinite;
+}
+
+.achievement-card.esquivaobstaculos-relic:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 26px 62px rgba(0,0,0,0.66),
+    0 0 34px var(--dodge-glow),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 0 0 2px color-mix(in srgb, var(--dodge-core) 38%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.52);
+}
+
+.esquivaobstaculos-relic .arcade-theme-header{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  align-content:start;
+  gap:10px;
+  min-width:0;
+  padding:0;
+}
+
+.esquivaobstaculos-relic .arcade-theme-badges{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  width:100%;
+}
+
+.esquivaobstaculos-relic .arcade-theme-icon{
+  position:relative;
+  width:92px;
+  height:108px;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  color:#24070d;
+  font-size:0.62rem;
+  font-weight:1000;
+  letter-spacing:0.07em;
+  background:
+    linear-gradient(135deg, transparent 0 16%, rgba(36,7,13,0.18) 17% 24%, transparent 25% 44%, rgba(36,7,13,0.16) 45% 52%, transparent 53%),
+    conic-gradient(from 34deg, color-mix(in srgb, var(--dodge-core) 74%, white), var(--dodge-core-light), var(--dodge-warning), #3f0f1b, color-mix(in srgb, var(--dodge-core) 74%, white));
+  border:0;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,0.5),
+    0 0 28px var(--dodge-glow),
+    inset 0 0 0 2px color-mix(in srgb, var(--dodge-core-light) 42%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.44);
+  clip-path:polygon(50% 0, 88% 12%, 100% 38%, 88% 86%, 50% 100%, 12% 86%, 0 38%, 12% 12%);
+  animation:dodgeBadgeFloat 5.6s ease-in-out infinite;
+}
+
+.esquivaobstaculos-relic .arcade-theme-icon::before,
+.esquivaobstaculos-relic .arcade-theme-icon::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.esquivaobstaculos-relic .arcade-theme-icon::before{
+  width:56px;
+  height:62px;
+  border-radius:14px;
+  background:
+    linear-gradient(135deg, transparent 0 36%, rgba(36,7,13,0.24) 37% 43%, transparent 44%),
+    linear-gradient(90deg, rgba(36,7,13,0.2) 0 16%, transparent 17% 40%, rgba(36,7,13,0.18) 41% 58%, transparent 59% 82%, rgba(36,7,13,0.2) 83%),
+    rgba(255,255,255,0.2);
+  border:2px solid rgba(36,7,13,0.16);
+  transform:translateY(-7px);
+}
+
+.esquivaobstaculos-relic .arcade-theme-icon::after{
+  width:58px;
+  height:18px;
+  border-radius:999px;
+  background:
+    linear-gradient(90deg, transparent 0 8%, rgba(255,255,255,0.85) 9% 42%, transparent 43% 58%, rgba(255,255,255,0.72) 59% 90%, transparent 91%);
+  transform:rotate(-28deg) translateY(7px);
+  box-shadow:0 0 14px rgba(255,255,255,0.22);
+  opacity:0.8;
+  animation:dodgeTrailSlide 3.8s ease-in-out infinite;
+}
+
+.esquivaobstaculos-relic .arcade-theme-icon span{
+  position:relative;
+  z-index:1;
+  margin-top:35px;
+  min-width:42px;
+  min-height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  color:#24070d;
+  background:rgba(255,255,255,0.68);
+  box-shadow:0 4px 12px rgba(36,7,13,0.22);
+  text-shadow:0 1px 0 rgba(255,255,255,0.38);
+}
+
+.esquivaobstaculos-relic .arcade-theme-main{
+  position:relative;
+  min-width:0;
+  display:grid;
+  align-content:start;
+  gap:9px;
+  overflow:hidden;
+  padding:0;
+  text-align:center;
+}
+
+.esquivaobstaculos-relic .arcade-theme-main::before,
+.esquivaobstaculos-relic .arcade-theme-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.esquivaobstaculos-relic .arcade-theme-main::before{
+  left:7%;
+  right:7%;
+  top:2px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--dodge-core-light) 56%, transparent), transparent);
+  box-shadow:0 0 14px var(--dodge-glow);
+  animation:dodgeEscapeLine 4.8s ease-in-out infinite;
+}
+
+.esquivaobstaculos-relic .arcade-theme-main::after{
+  right:4px;
+  bottom:5px;
+  width:74px;
+  height:34px;
+  border-radius:8px;
+  border:1px solid color-mix(in srgb, var(--dodge-core-light) 22%, transparent);
+  background:
+    linear-gradient(135deg, transparent 0 20%, color-mix(in srgb, var(--dodge-warning) 24%, transparent) 21% 34%, transparent 35% 52%, color-mix(in srgb, var(--dodge-core) 22%, transparent) 53% 66%, transparent 67%),
+    linear-gradient(180deg, rgba(2,6,23,0.62), rgba(2,6,23,0.2));
+  opacity:0.34;
+  animation:dodgeObstacleBlink 3.6s ease-in-out infinite;
+}
+
+.esquivaobstaculos-relic .arcade-theme-title,
+.esquivaobstaculos-relic .arcade-theme-prophecy,
+.esquivaobstaculos-relic .arcade-theme-objective,
+.esquivaobstaculos-relic .arcade-theme-progress{
+  position:relative;
+  z-index:1;
+}
+
+.esquivaobstaculos-relic .arcade-theme-title{
+  color:#fff1f2;
+  font-size:1.14rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 2px 18px rgba(0,0,0,0.44), 0 0 18px color-mix(in srgb, var(--dodge-core) 14%, transparent);
+}
+
+.esquivaobstaculos-relic .arcade-theme-prophecy{
+  margin:0;
+  color:rgba(255,228,230,0.76);
+  font-size:0.92rem;
+  line-height:1.42;
+}
+
+.esquivaobstaculos-relic .arcade-theme-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--dodge-core-light) 20%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--dodge-core) 10%, transparent), rgba(2,6,23,0.6));
+  text-align:center;
+}
+
+.esquivaobstaculos-relic .arcade-theme-objective span{
+  color:color-mix(in srgb, var(--dodge-core-light) 88%, white 8%);
+  font-size:0.68rem;
+  font-weight:1000;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.esquivaobstaculos-relic .arcade-theme-objective small{
+  color:rgba(255,228,230,0.86);
+  line-height:1.35;
+}
+
+.esquivaobstaculos-relic .arcade-theme-progress{
+  display:grid;
+  gap:6px;
+  margin-top:0;
+}
+
+.esquivaobstaculos-relic .arcade-theme-progress-meta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  color:rgba(255,228,230,0.76);
+  font-size:0.76rem;
+  font-weight:800;
+  text-align:center;
+}
+
+.esquivaobstaculos-relic .arcade-theme-progress-track{
+  height:8px;
+  padding:1px;
+  overflow:hidden;
+  border-radius:999px;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 10px, rgba(255,255,255,0.08) 11px 12px),
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--dodge-core-light) 18%, transparent);
+}
+
+.esquivaobstaculos-relic .arcade-theme-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--dodge-core) 72%, #e11d48), var(--dodge-core-light));
+  box-shadow:0 0 16px var(--dodge-glow);
+  transition:width 0.7s ease;
+}
+
+.esquivaobstaculos-relic .arcade-theme-rarity,
+.esquivaobstaculos-relic .arcade-theme-state{
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:color-mix(in srgb, var(--dodge-core-light) 86%, white 8%);
+  border:1px solid color-mix(in srgb, var(--dodge-core-light) 26%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--dodge-core) 14%, transparent), rgba(2,6,23,0.76));
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
+}
+
+.esquivaobstaculos-relic.common{
+  --dodge-core:#cbd5e1;
+  --dodge-core-light:#f8fafc;
+  --dodge-warning:#94a3b8;
+  --dodge-bg:#080f18;
+  --dodge-glow:rgba(203,213,225,0.2);
+}
+
+.esquivaobstaculos-relic.rare{
+  --dodge-core:#fb7185;
+  --dodge-core-light:#ffe4e6;
+  --dodge-warning:#facc15;
+  --dodge-bg:#13070c;
+  --dodge-glow:rgba(251,113,133,0.34);
+}
+
+.esquivaobstaculos-relic.epic{
+  --dodge-core:#a78bfa;
+  --dodge-core-light:#ede9fe;
+  --dodge-warning:#38bdf8;
+  --dodge-bg:#120820;
+  --dodge-glow:rgba(167,139,250,0.36);
+  background:
+    radial-gradient(circle at 16% 14%, rgba(167,139,250,0.2), transparent 28%),
+    radial-gradient(circle at 86% 10%, rgba(56,189,248,0.18), transparent 30%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 16px),
+    linear-gradient(145deg, #030208, #120820 44%, #2e1065 72%, #030208);
+}
+
+.esquivaobstaculos-relic.legendary{
+  --dodge-core:#facc15;
+  --dodge-core-light:#fef9c3;
+  --dodge-warning:#fb7185;
+  --dodge-bg:#171104;
+  --dodge-glow:rgba(250,204,21,0.34);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(254,249,195,0.28), transparent 30%),
+    radial-gradient(circle at 16% 14%, rgba(250,204,21,0.18), transparent 28%),
+    radial-gradient(circle at 86% 10%, rgba(251,113,133,0.16), transparent 30%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 16px),
+    linear-gradient(145deg, #070501, #171104 42%, #3f2d03 72%, #070501);
+  animation:dodgeLegendGlow 6s ease-in-out infinite;
+}
+
+.esquivaobstaculos-relic.rare .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #9f1239, #fb7185, #ffe4e6);
+}
+
+.esquivaobstaculos-relic.epic .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #5b21b6, #a78bfa, #38bdf8);
+}
+
+.esquivaobstaculos-relic.legendary .arcade-theme-progress-fill{
+  background:linear-gradient(90deg, #854d0e, #facc15, #fef9c3);
+}
+
+@keyframes dodgeCardPulse{
+  0%,100%{ box-shadow:0 22px 50px rgba(0,0,0,0.58), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--dodge-core) 24%, transparent), inset 0 0 0 8px rgba(2,6,23,0.52); }
+  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.64), 0 0 28px var(--dodge-glow), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--dodge-core) 36%, transparent), inset 0 0 0 8px rgba(2,6,23,0.52); }
+}
+
+@keyframes dodgeHazardDrift{
+  0%,100%{ background-position:0 0, 0 0, 0 0; opacity:0.56; }
+  50%{ background-position:22px 0, -18px 0, 17px -10px; opacity:0.84; }
+}
+
+@keyframes dodgeRouteFloat{
+  0%,100%{ transform:rotate(8deg) translateY(0); opacity:0.3; }
+  50%{ transform:rotate(8deg) translateY(-5px); opacity:0.54; }
+}
+
+@keyframes dodgeBadgeFloat{
+  0%,100%{ transform:translateY(0); filter:brightness(1); }
+  50%{ transform:translateY(-4px); filter:brightness(1.08); }
+}
+
+@keyframes dodgeTrailSlide{
+  0%,100%{ opacity:0.38; transform:rotate(-28deg) translate(-9px, 7px); }
+  50%{ opacity:0.88; transform:rotate(-28deg) translate(9px, 7px); }
+}
+
+@keyframes dodgeEscapeLine{
+  0%,100%{ transform:scaleX(0.72); opacity:0.22; }
+  50%{ transform:scaleX(1); opacity:0.74; }
+}
+
+@keyframes dodgeObstacleBlink{
+  0%,100%{ opacity:0.2; filter:brightness(0.9); }
+  50%{ opacity:0.46; filter:brightness(1.18); }
+}
+
+@keyframes dodgeLegendGlow{
+  0%,100%{ box-shadow:0 24px 56px rgba(0,0,0,0.64), 0 0 24px rgba(250,204,21,0.14), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 0 2px rgba(250,204,21,0.24), inset 0 0 0 8px rgba(2,6,23,0.52); }
+  50%{ box-shadow:0 30px 74px rgba(0,0,0,0.72), 0 0 48px rgba(250,204,21,0.32), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(254,249,195,0.42), inset 0 0 0 8px rgba(2,6,23,0.52); }
 }
 
 .history-item{
@@ -8791,6 +9595,125 @@ body.sudoku-screen-shake{
   }
 
   .numcatch-relic .arcane-relic-prophecy{
+    font-size:0.86rem;
+  }
+
+  .achievement-card.cricket-relic{
+    grid-template-columns:82px minmax(0, 1fr);
+    gap:12px;
+    padding:14px;
+    min-height:0;
+    border-radius:14px;
+  }
+
+  .achievement-card.cricket-relic::after{
+    right:8px;
+    bottom:10px;
+    width:94px;
+    height:58px;
+  }
+
+  .cricket-relic .arcane-relic-icon{
+    width:72px;
+    height:84px;
+    font-size:0.58rem;
+  }
+
+  .cricket-relic .arcane-relic-icon::before{
+    width:42px;
+    height:42px;
+    transform:translateY(-6px);
+  }
+
+  .cricket-relic .arcane-relic-icon::after{
+    width:44px;
+    bottom:18px;
+  }
+
+  .cricket-relic .arcane-relic-icon span{
+    margin-top:26px;
+    min-width:34px;
+    min-height:22px;
+    border-radius:6px;
+  }
+
+  .cricket-relic .arcane-relic-header,
+  .cricket-relic .arcane-relic-main{
+    padding:0;
+  }
+
+  .cricket-relic .arcane-relic-rarity,
+  .cricket-relic .arcane-relic-state{
+    min-height:22px;
+    font-size:0.6rem;
+    padding:3px 6px;
+  }
+
+  .cricket-relic .arcane-relic-title{
+    font-size:0.98rem;
+  }
+
+  .cricket-relic .arcane-relic-prophecy{
+    font-size:0.86rem;
+  }
+
+  .achievement-card.esquivaobstaculos-relic{
+    grid-template-columns:82px minmax(0, 1fr);
+    gap:12px;
+    padding:14px;
+    min-height:0;
+    border-radius:14px;
+  }
+
+  .achievement-card.esquivaobstaculos-relic::after{
+    left:8px;
+    top:14px;
+    width:98px;
+    height:98px;
+    border-radius:20px;
+  }
+
+  .esquivaobstaculos-relic .arcade-theme-icon{
+    width:72px;
+    height:84px;
+    font-size:0.56rem;
+  }
+
+  .esquivaobstaculos-relic .arcade-theme-icon::before{
+    width:42px;
+    height:48px;
+    transform:translateY(-5px);
+  }
+
+  .esquivaobstaculos-relic .arcade-theme-icon::after{
+    width:44px;
+    height:14px;
+  }
+
+  .esquivaobstaculos-relic .arcade-theme-icon span{
+    margin-top:26px;
+    min-width:34px;
+    min-height:22px;
+    border-radius:6px;
+  }
+
+  .esquivaobstaculos-relic .arcade-theme-header,
+  .esquivaobstaculos-relic .arcade-theme-main{
+    padding:0;
+  }
+
+  .esquivaobstaculos-relic .arcade-theme-rarity,
+  .esquivaobstaculos-relic .arcade-theme-state{
+    min-height:22px;
+    font-size:0.6rem;
+    padding:3px 6px;
+  }
+
+  .esquivaobstaculos-relic .arcade-theme-title{
+    font-size:0.98rem;
+  }
+
+  .esquivaobstaculos-relic .arcade-theme-prophecy{
     font-size:0.86rem;
   }
 
