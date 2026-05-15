@@ -4293,6 +4293,424 @@ body.sudoku-screen-shake{
   border-color:rgba(148,163,184,0.16);
 }
 
+.achievement-card.domino-relic{
+  --domino-core:#e7e5e4;
+  --domino-core-light:#fff7ed;
+  --domino-table:#10120f;
+  --domino-pip:#111827;
+  --domino-glow:rgba(231,229,228,0.24);
+  position:relative;
+  display:grid;
+  grid-template-columns:116px minmax(0, 1fr);
+  gap:16px;
+  min-height:236px;
+  padding:18px;
+  overflow:hidden;
+  isolation:isolate;
+  border:0;
+  border-radius:18px;
+  color:#fffaf0;
+  background:
+    radial-gradient(circle at 18% 14%, color-mix(in srgb, var(--domino-core-light) 12%, transparent), transparent 28%),
+    radial-gradient(circle at 84% 10%, color-mix(in srgb, var(--domino-core) 14%, transparent), transparent 30%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 18px),
+    linear-gradient(145deg, #050403, var(--domino-table) 44%, #211b15 72%, #050403);
+  box-shadow:
+    0 22px 50px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px color-mix(in srgb, var(--domino-core) 24%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.5);
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  animation:dominoTableBreath 7.4s ease-in-out infinite;
+}
+
+.achievement-card.domino-relic::before,
+.achievement-card.domino-relic::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.achievement-card.domino-relic::before{
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(135deg, transparent 0 18%, color-mix(in srgb, var(--domino-core-light) 9%, transparent) 19% 20%, transparent 21% 42%, color-mix(in srgb, var(--domino-core) 8%, transparent) 43% 44%, transparent 45%),
+    radial-gradient(circle, color-mix(in srgb, var(--domino-core-light) 18%, transparent) 0 1px, transparent 2px),
+    repeating-linear-gradient(90deg, transparent 0 34px, rgba(255,255,255,0.035) 35px 36px);
+  background-size:100% 100%, 34px 34px, 100% 100%;
+  opacity:0.74;
+  animation:dominoCascadeDrift 8s ease-in-out infinite;
+}
+
+.achievement-card.domino-relic::after{
+  right:14px;
+  bottom:14px;
+  z-index:-1;
+  width:138px;
+  height:86px;
+  border-radius:18px;
+  border:1px solid color-mix(in srgb, var(--domino-core-light) 16%, transparent);
+  background:
+    radial-gradient(circle at 22% 32%, color-mix(in srgb, var(--domino-core-light) 20%, transparent) 0 4px, transparent 5px),
+    radial-gradient(circle at 38% 68%, color-mix(in srgb, var(--domino-core-light) 16%, transparent) 0 4px, transparent 5px),
+    radial-gradient(circle at 66% 32%, color-mix(in srgb, var(--domino-core) 18%, transparent) 0 4px, transparent 5px),
+    radial-gradient(circle at 82% 68%, color-mix(in srgb, var(--domino-core-light) 18%, transparent) 0 4px, transparent 5px),
+    linear-gradient(90deg, transparent 48%, color-mix(in srgb, var(--domino-core-light) 18%, transparent) 49% 51%, transparent 52%),
+    linear-gradient(135deg, color-mix(in srgb, var(--domino-core) 10%, transparent), transparent);
+  opacity:0.38;
+  transform:rotate(-8deg);
+  animation:dominoGhostTile 6.2s ease-in-out infinite;
+}
+
+.achievement-card.domino-relic:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 26px 62px rgba(0,0,0,0.68),
+    0 0 34px var(--domino-glow),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 0 0 2px color-mix(in srgb, var(--domino-core) 38%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.5);
+}
+
+.domino-relic .board-relic-header{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  align-content:start;
+  gap:10px;
+  min-width:0;
+  padding:0;
+}
+
+.domino-relic .board-relic-badges{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  width:100%;
+}
+
+.domino-relic .board-relic-icon{
+  position:relative;
+  width:92px;
+  height:118px;
+  display:grid;
+  place-items:center;
+  border-radius:16px;
+  color:var(--domino-pip);
+  font-size:0.62rem;
+  font-weight:1000;
+  letter-spacing:0.07em;
+  background:
+    radial-gradient(circle at 30% 22%, var(--domino-pip) 0 4px, transparent 5px),
+    radial-gradient(circle at 70% 22%, var(--domino-pip) 0 4px, transparent 5px),
+    radial-gradient(circle at 30% 38%, var(--domino-pip) 0 4px, transparent 5px),
+    radial-gradient(circle at 70% 38%, var(--domino-pip) 0 4px, transparent 5px),
+    radial-gradient(circle at 30% 66%, var(--domino-pip) 0 4px, transparent 5px),
+    radial-gradient(circle at 70% 66%, var(--domino-pip) 0 4px, transparent 5px),
+    radial-gradient(circle at 30% 82%, var(--domino-pip) 0 4px, transparent 5px),
+    radial-gradient(circle at 70% 82%, var(--domino-pip) 0 4px, transparent 5px),
+    linear-gradient(180deg, transparent 49%, rgba(17,24,39,0.24) 50% 52%, transparent 53%),
+    linear-gradient(145deg, var(--domino-core-light), var(--domino-core) 52%, color-mix(in srgb, var(--domino-core) 72%, #0f172a));
+  border:0;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,0.52),
+    0 0 28px var(--domino-glow),
+    inset 0 0 0 2px rgba(255,255,255,0.42),
+    inset 0 0 0 8px rgba(15,23,42,0.16);
+  transform:rotate(-3deg);
+  animation:dominoTileFloat 5.8s ease-in-out infinite;
+}
+
+.domino-relic .board-relic-icon::before,
+.domino-relic .board-relic-icon::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.domino-relic .board-relic-icon::before{
+  inset:8px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.42);
+  box-shadow:inset 0 0 0 1px rgba(17,24,39,0.1);
+}
+
+.domino-relic .board-relic-icon::after{
+  left:14px;
+  right:14px;
+  top:50%;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, rgba(17,24,39,0.42), transparent);
+  box-shadow:0 0 14px rgba(255,255,255,0.24);
+  animation:dominoPipShine 4.8s ease-in-out infinite;
+}
+
+.domino-relic .board-relic-icon span{
+  position:relative;
+  z-index:1;
+  min-width:42px;
+  min-height:24px;
+  display:grid;
+  place-items:center;
+  margin-top:24px;
+  border-radius:7px;
+  color:var(--domino-pip);
+  background:rgba(255,255,255,0.56);
+  box-shadow:0 4px 12px rgba(17,24,39,0.22);
+  text-shadow:0 1px 0 rgba(255,255,255,0.38);
+}
+
+.domino-relic .board-relic-main{
+  position:relative;
+  min-width:0;
+  display:grid;
+  align-content:start;
+  gap:9px;
+  overflow:hidden;
+  padding:0;
+  text-align:center;
+}
+
+.domino-relic .board-relic-main::before,
+.domino-relic .board-relic-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.domino-relic .board-relic-main::before{
+  left:7%;
+  right:7%;
+  top:2px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--domino-core-light) 56%, transparent), transparent);
+  box-shadow:0 0 14px var(--domino-glow);
+  animation:dominoHonorSweep 4.8s ease-in-out infinite;
+}
+
+.domino-relic .board-relic-main::after{
+  right:4px;
+  bottom:5px;
+  width:74px;
+  height:36px;
+  border-radius:9px;
+  border:1px solid color-mix(in srgb, var(--domino-core-light) 22%, transparent);
+  background:
+    radial-gradient(circle at 24% 30%, color-mix(in srgb, var(--domino-core-light) 36%, transparent) 0 3px, transparent 4px),
+    radial-gradient(circle at 42% 70%, color-mix(in srgb, var(--domino-core) 26%, transparent) 0 3px, transparent 4px),
+    radial-gradient(circle at 68% 30%, color-mix(in srgb, var(--domino-core-light) 28%, transparent) 0 3px, transparent 4px),
+    linear-gradient(90deg, transparent 48%, color-mix(in srgb, var(--domino-core-light) 18%, transparent) 49% 51%, transparent 52%),
+    linear-gradient(180deg, rgba(2,6,23,0.62), rgba(2,6,23,0.2));
+  opacity:0.32;
+  animation:dominoMiniTileGlow 3.8s ease-in-out infinite;
+}
+
+.domino-relic .board-relic-title,
+.domino-relic .board-relic-prophecy,
+.domino-relic .board-objective,
+.domino-relic .board-progress{
+  position:relative;
+  z-index:1;
+}
+
+.domino-relic .board-relic-title{
+  color:#fffaf0;
+  font-size:1.14rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 2px 18px rgba(0,0,0,0.46), 0 0 18px color-mix(in srgb, var(--domino-core) 16%, transparent);
+}
+
+.domino-relic .board-relic-prophecy{
+  margin:0;
+  color:rgba(255,247,237,0.76);
+  font-size:0.92rem;
+  line-height:1.42;
+}
+
+.domino-relic .board-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--domino-core-light) 20%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--domino-core) 10%, transparent), rgba(2,6,23,0.6));
+  text-align:center;
+}
+
+.domino-relic .board-objective span{
+  color:color-mix(in srgb, var(--domino-core-light) 88%, white 8%);
+  font-size:0.68rem;
+  font-weight:1000;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.domino-relic .board-objective small{
+  color:rgba(255,247,237,0.86);
+  line-height:1.35;
+}
+
+.domino-relic .board-progress{
+  display:grid;
+  gap:6px;
+  margin-top:0;
+}
+
+.domino-relic .board-progress-meta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  color:rgba(255,247,237,0.76);
+  font-size:0.76rem;
+  font-weight:800;
+  text-align:center;
+}
+
+.domino-relic .board-progress-track{
+  height:8px;
+  padding:1px;
+  overflow:hidden;
+  border-radius:999px;
+  background:
+    linear-gradient(90deg, transparent 0 46%, rgba(255,255,255,0.1) 47% 53%, transparent 54%),
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--domino-core-light) 18%, transparent);
+}
+
+.domino-relic .board-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--domino-core) 72%, #78716c), var(--domino-core-light));
+  box-shadow:0 0 16px var(--domino-glow);
+  transition:width 0.7s ease;
+}
+
+.domino-relic .board-relic-rarity,
+.domino-relic .board-relic-state{
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:color-mix(in srgb, var(--domino-core-light) 86%, white 8%);
+  border:1px solid color-mix(in srgb, var(--domino-core-light) 26%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--domino-core) 14%, transparent), rgba(2,6,23,0.76));
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
+}
+
+.domino-relic.common{
+  --domino-core:#d6d3d1;
+  --domino-core-light:#fff7ed;
+  --domino-table:#10120f;
+  --domino-pip:#111827;
+  --domino-glow:rgba(214,211,209,0.22);
+}
+
+.domino-relic.rare{
+  --domino-core:#10b981;
+  --domino-core-light:#d1fae5;
+  --domino-table:#03150f;
+  --domino-pip:#022c22;
+  --domino-glow:rgba(16,185,129,0.34);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(16,185,129,0.18), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(209,250,229,0.16), transparent 30%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 18px),
+    linear-gradient(145deg, #020604, #03150f 42%, #064e3b 72%, #020604);
+}
+
+.domino-relic.epic{
+  --domino-core:#8b5cf6;
+  --domino-core-light:#ede9fe;
+  --domino-table:#11051f;
+  --domino-pip:#1e1b4b;
+  --domino-glow:rgba(139,92,246,0.38);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(139,92,246,0.24), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(14,165,233,0.14), transparent 30%),
+    radial-gradient(circle, rgba(237,233,254,0.18) 0 1px, transparent 2px),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 18px),
+    linear-gradient(145deg, #030108, #11051f 42%, #2e1065 72%, #030108);
+  background-size:100% 100%, 100% 100%, 36px 36px, 100% 100%, 100% 100%;
+}
+
+.domino-relic.legendary{
+  --domino-core:#f59e0b;
+  --domino-core-light:#fff7ed;
+  --domino-table:#1f1302;
+  --domino-pip:#451a03;
+  --domino-glow:rgba(245,158,11,0.44);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(255,255,255,0.32), transparent 30%),
+    radial-gradient(circle at 18% 14%, rgba(251,191,36,0.28), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(255,247,237,0.24), transparent 30%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 18px),
+    linear-gradient(145deg, #090501, #1f1302 38%, #7c4a03 70%, #2f1b02);
+  animation:dominoLegendCrown 6s ease-in-out infinite;
+}
+
+.domino-relic.rare .board-progress-fill{
+  background:linear-gradient(90deg, #065f46, #10b981, #d1fae5);
+}
+
+.domino-relic.epic .board-progress-fill{
+  background:linear-gradient(90deg, #581c87, #8b5cf6, #38bdf8);
+}
+
+.domino-relic.legendary .board-progress-fill{
+  background:linear-gradient(90deg, #92400e, #f59e0b, #fef3c7, #ffffff);
+}
+
+@keyframes dominoTableBreath{
+  0%,100%{ box-shadow:0 22px 50px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--domino-core) 24%, transparent), inset 0 0 0 8px rgba(2,6,23,0.5); }
+  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.66), 0 0 28px var(--domino-glow), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--domino-core) 36%, transparent), inset 0 0 0 8px rgba(2,6,23,0.5); }
+}
+
+@keyframes dominoCascadeDrift{
+  0%,100%{ background-position:0 0, 0 0, 0 0; opacity:0.58; }
+  50%{ background-position:22px 0, 17px -10px, 0 10px; opacity:0.84; }
+}
+
+@keyframes dominoGhostTile{
+  0%,100%{ transform:rotate(-8deg) translateY(0); opacity:0.24; }
+  50%{ transform:rotate(-8deg) translateY(-5px); opacity:0.46; }
+}
+
+@keyframes dominoTileFloat{
+  0%,100%{ transform:rotate(-3deg) translateY(0); filter:brightness(1); }
+  50%{ transform:rotate(-1deg) translateY(-4px); filter:brightness(1.08); }
+}
+
+@keyframes dominoPipShine{
+  0%,100%{ transform:translateX(-8px); opacity:0.42; }
+  50%{ transform:translateX(8px); opacity:0.9; }
+}
+
+@keyframes dominoHonorSweep{
+  0%,100%{ transform:scaleX(0.72); opacity:0.22; }
+  50%{ transform:scaleX(1); opacity:0.74; }
+}
+
+@keyframes dominoMiniTileGlow{
+  0%,100%{ opacity:0.2; filter:brightness(0.9); transform:translateY(2px); }
+  50%{ opacity:0.46; filter:brightness(1.18); transform:translateY(-3px); }
+}
+
+@keyframes dominoLegendCrown{
+  0%,100%{ box-shadow:0 24px 56px rgba(0,0,0,0.64), 0 0 26px rgba(245,158,11,0.2), inset 0 0 0 1px rgba(255,255,255,0.07), inset 0 0 0 2px rgba(245,158,11,0.34), inset 0 0 0 8px rgba(2,6,23,0.46); filter:brightness(1); }
+  50%{ box-shadow:0 30px 76px rgba(0,0,0,0.72), 0 0 56px rgba(245,158,11,0.44), 0 0 22px rgba(255,255,255,0.18), inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 0 0 2px rgba(254,243,199,0.56), inset 0 0 0 8px rgba(2,6,23,0.42); filter:brightness(1.08); }
+}
+
 .achievement-card.chess-relic{
   --chess-metal:#737b86;
   --chess-metal-light:#c8ced6;
@@ -10336,6 +10754,61 @@ body.sudoku-screen-shake{
   .board-relic-title,
   .arcade-theme-title{
     font-size:0.98rem;
+  }
+
+  .achievement-card.domino-relic{
+    grid-template-columns:82px minmax(0, 1fr);
+    gap:12px;
+    padding:14px;
+    min-height:0;
+    border-radius:14px;
+  }
+
+  .achievement-card.domino-relic::after{
+    right:8px;
+    bottom:10px;
+    width:98px;
+    height:62px;
+    border-radius:14px;
+  }
+
+  .domino-relic .board-relic-icon{
+    width:68px;
+    height:88px;
+    font-size:0.56rem;
+    border-radius:13px;
+  }
+
+  .domino-relic .board-relic-icon::before{
+    inset:6px;
+    border-radius:10px;
+  }
+
+  .domino-relic .board-relic-icon span{
+    min-width:34px;
+    min-height:22px;
+    margin-top:18px;
+    border-radius:6px;
+  }
+
+  .domino-relic .board-relic-header,
+  .domino-relic .board-relic-main{
+    padding:0;
+  }
+
+  .domino-relic .board-relic-rarity,
+  .domino-relic .board-relic-state{
+    min-height:22px;
+    font-size:0.6rem;
+    padding:3px 6px;
+  }
+
+  .domino-relic .board-relic-title{
+    font-size:0.98rem;
+  }
+
+  .domino-relic .board-relic-prophecy{
+    font-size:0.86rem;
   }
 
   .achievement-card.flashmind-relic{
