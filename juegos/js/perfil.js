@@ -118,6 +118,8 @@ const chatConfirmTitleEl = document.getElementById('chatConfirmTitle')
 const chatConfirmMessageEl = document.getElementById('chatConfirmMessage')
 const chatConfirmCancelEl = document.getElementById('chatConfirmCancel')
 const chatConfirmAcceptEl = document.getElementById('chatConfirmAccept')
+const profileScrollDockEl = document.getElementById('profileScrollDock')
+const profileScrollProgressEl = document.getElementById('profileScrollProgress')
 const CHAT_GLOBAL_TABLA = 'chat_global'
 const CHAT_PRIVADO_TABLA = 'chat_privado'
 const CHAT_LIMITE = 60
@@ -6558,6 +6560,68 @@ function renderHistorial(resultados) {
   })
 }
 
+function instalarScrollMovilPerfil() {
+  if (!profileScrollDockEl) return
+
+  const botones = Array.from(profileScrollDockEl.querySelectorAll('[data-profile-scroll]'))
+  const botonArriba = botones.find((button) => button.dataset.profileScroll === 'up')
+  const botonAbajo = botones.find((button) => button.dataset.profileScroll === 'down')
+  const mediaMovil = window.matchMedia('(max-width: 560px)')
+  let raf = null
+
+  const obtenerMaxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+
+  const actualizar = () => {
+    raf = null
+    const maxScroll = obtenerMaxScroll()
+    const scrollActual = Math.min(maxScroll, Math.max(0, window.scrollY || document.documentElement.scrollTop || 0))
+    const porcentaje = maxScroll > 0 ? (scrollActual / maxScroll) * 100 : 0
+    const mostrar = mediaMovil.matches && maxScroll > 80
+
+    profileScrollDockEl.hidden = !mostrar
+    if (profileScrollProgressEl) profileScrollProgressEl.style.height = `${porcentaje}%`
+    if (botonArriba) botonArriba.disabled = scrollActual <= 8
+    if (botonAbajo) botonAbajo.disabled = scrollActual >= maxScroll - 8
+  }
+
+  const solicitarActualizacion = () => {
+    if (raf) return
+    raf = requestAnimationFrame(actualizar)
+  }
+
+  const obtenerSecciones = () => Array.from(document.querySelectorAll(
+    '.hero, .stats, .layout > article, .social-grid, .rewards-achievements-layout, .history-card'
+  )).filter((elemento) => elemento.offsetParent !== null)
+
+  const desplazar = (direccion) => {
+    const actual = window.scrollY || document.documentElement.scrollTop || 0
+    const margen = 18
+    const secciones = obtenerSecciones()
+    const objetivo = direccion > 0
+      ? secciones.find((elemento) => elemento.getBoundingClientRect().top > 72)
+      : secciones.slice().reverse().find((elemento) => elemento.getBoundingClientRect().top < -72)
+    const destino = objetivo
+      ? actual + objetivo.getBoundingClientRect().top - margen
+      : actual + (window.innerHeight * 0.78 * direccion)
+
+    window.scrollTo({
+      top: Math.min(obtenerMaxScroll(), Math.max(0, destino)),
+      behavior: 'smooth',
+    })
+  }
+
+  botones.forEach((button) => {
+    button.addEventListener('click', () => {
+      desplazar(button.dataset.profileScroll === 'up' ? -1 : 1)
+    })
+  })
+
+  window.addEventListener('scroll', solicitarActualizacion, { passive: true })
+  window.addEventListener('resize', solicitarActualizacion)
+  mediaMovil.addEventListener?.('change', solicitarActualizacion)
+  actualizar()
+}
+
 window.recargarPerfil = cargarPerfil
 window.seleccionarJuegoLogros = seleccionarJuegoLogros
 window.volverMenu = function () {
@@ -6576,6 +6640,7 @@ window.cerrarSesion = async function () {
 
 cargarPerfil()
 instalarChatSocial()
+instalarScrollMovilPerfil()
 
 if (usuario) {
   iniciarSincronizacionRecompensasUsuario(usuario, async (evento) => {

@@ -10472,6 +10472,14 @@ body.sudoku-screen-shake{
   to{ opacity:1; transform:translateY(0); }
 }
 
+.mobile-scroll-dock{
+  display:none;
+}
+
+.mobile-scroll-dock[hidden]{
+  display:none;
+}
+
 @media (max-width:900px){
   .hero,
   .layout,
@@ -10563,6 +10571,84 @@ body.sudoku-screen-shake{
     grid-template-columns:minmax(0, 1fr);
     gap:10px;
     margin-bottom:16px;
+  }
+
+  .mobile-scroll-dock{
+    position:fixed;
+    right:max(8px, env(safe-area-inset-right));
+    top:50%;
+    z-index:70;
+    display:grid;
+    justify-items:center;
+    gap:7px;
+    padding:7px 5px;
+    border:1px solid rgba(var(--rank-rgb),0.32);
+    border-radius:999px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(var(--rank-rgb),0.22), transparent 48%),
+      linear-gradient(180deg, rgba(15,23,42,0.82), rgba(2,6,23,0.9));
+    box-shadow:0 18px 42px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.08);
+    transform:translateY(-50%);
+    backdrop-filter:blur(12px);
+    pointer-events:none;
+  }
+
+  .mobile-scroll-dock[hidden]{
+    display:none;
+  }
+
+  .mobile-scroll-btn{
+    width:36px;
+    height:36px;
+    display:grid;
+    place-items:center;
+    border:1px solid rgba(255,255,255,0.16);
+    border-radius:50%;
+    color:#f8fafc;
+    background:
+      radial-gradient(circle at 35% 22%, rgba(255,255,255,0.22), transparent 34%),
+      linear-gradient(145deg, rgba(var(--rank-rgb),0.34), rgba(15,23,42,0.96));
+    box-shadow:0 8px 18px rgba(0,0,0,0.28), 0 0 18px var(--rank-glow-soft);
+    font-size:1.05rem;
+    font-weight:1000;
+    line-height:1;
+    cursor:pointer;
+    pointer-events:auto;
+    transition:transform 0.18s ease, opacity 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .mobile-scroll-btn:active{
+    transform:scale(0.94);
+  }
+
+  .mobile-scroll-btn:disabled{
+    opacity:0.38;
+    cursor:default;
+    filter:saturate(0.6);
+    box-shadow:0 6px 14px rgba(0,0,0,0.22);
+  }
+
+  .mobile-scroll-rail{
+    position:relative;
+    width:4px;
+    height:82px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(15,23,42,0.88);
+    border:1px solid rgba(255,255,255,0.1);
+    box-shadow:inset 0 0 10px rgba(0,0,0,0.42);
+  }
+
+  .mobile-scroll-progress{
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    height:0%;
+    border-radius:inherit;
+    background:linear-gradient(180deg, var(--rank-primary), var(--rank-accent));
+    box-shadow:0 0 14px var(--rank-glow);
+    transition:height 0.16s ease;
   }
 
   .btn{
@@ -11944,6 +12030,12 @@ body.sudoku-screen-shake{
     </article>
   </section>
 </div>
+
+<nav class="mobile-scroll-dock" id="profileScrollDock" aria-label="Navegacion rapida del perfil" hidden>
+  <button class="mobile-scroll-btn" type="button" data-profile-scroll="up" aria-label="Subir en el perfil">↑</button>
+  <span class="mobile-scroll-rail" aria-hidden="true"><span class="mobile-scroll-progress" id="profileScrollProgress"></span></span>
+  <button class="mobile-scroll-btn" type="button" data-profile-scroll="down" aria-label="Bajar en el perfil">↓</button>
+</nav>
 
 <div class="chat-confirm-overlay" id="chatConfirmOverlay" aria-hidden="true">
   <div class="chat-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="chatConfirmTitle" aria-describedby="chatConfirmMessage">
