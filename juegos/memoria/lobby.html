@@ -82,27 +82,17 @@ h1,#mensaje,button{overflow-wrap:anywhere;}
 <div class="container">
 <h1>🎮 Torneo de Juegos</h1>
 <p id="mensaje">Esperando que el torneo inicie...</p>
-<button class="musica-btn" onclick="reproducirMusica()">🎵 Música</button>
+<button class="musica-btn" onclick="manejarClickMusicaMemoria(event)" ondblclick="abrirMenuMusicaMemoria(event)">🎵 Música</button>
 </div>
 
-<audio loop>
+<audio id="memoriaMusicAudio">
   <source src="./music/musicamemoria.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 
 <script type="module" src="../js/lobby.js"></script>
 
-<script>
-/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
-function reproducirMusica(){
-  const audio = document.querySelector('audio');
-  if (audio.paused) {
-    audio.play();
-  } else {
-    audio.pause();
-  }
-}
-</script>
+<script src="./js/memoria-music.js"></script>
 
 </body>
 
