@@ -23,7 +23,7 @@ import {
   obtenerTituloNivel,
   registrarXpPorLogros,
 } from './progreso-nivel.js'
-import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js'
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js?v=chat-visual-fix-20260515'
 import {
   calcularBonusRango,
   guardarRangoEquipado as guardarRangoEquipadoBonus,

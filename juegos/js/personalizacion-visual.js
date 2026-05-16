@@ -7,6 +7,12 @@ export async function aplicarPersonalizacionUsuario(elemento, usuario) {
 
   const solicitud = (solicitudesPersonalizacion.get(elemento) || 0) + 1
   solicitudesPersonalizacion.set(elemento, solicitud)
+  const esChat = elemento.classList.contains("chat-message") || elemento.classList.contains("chat-conversation")
+  if (esChat) {
+    limpiarPersonalizacion(elemento)
+    return
+  }
+
   const esPerfil = elemento.classList.contains("profile-card") || elemento.classList.contains("hero") || elemento.classList.contains("season-pass")
   const fondo = await obtenerCosmeticoEquipado(usuario, "fondo")
   const marco = esPerfil ? await obtenerCosmeticoEquipado(usuario, "marco") : null
