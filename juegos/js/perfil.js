@@ -6196,7 +6196,6 @@ function renderMensajesChat(contenedor, mensajes, privado = false) {
       </div>
     `
     contenedor.appendChild(div)
-    aplicarPersonalizacionUsuario(div, autor)
   })
 
   contenedor.scrollTop = contenedor.scrollHeight
@@ -6255,7 +6254,6 @@ function renderConversacionesChat(mensajes) {
       </span>
     `
     chatConversationListEl.appendChild(button)
-    aplicarPersonalizacionUsuario(button, item.destino)
   })
 }
 

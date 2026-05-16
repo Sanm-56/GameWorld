@@ -10442,6 +10442,16 @@ body.sudoku-screen-shake{
   animation:chatIn 0.18s ease both;
 }
 
+.chat-message.cosmetic-card,
+.chat-conversation.cosmetic-card{
+  background-image:none !important;
+}
+
+.chat-message::after,
+.chat-conversation::after{
+  display:none !important;
+}
+
 .chat-message.own{
   justify-self:end;
   border-radius:18px 18px 6px 18px;
@@ -12239,6 +12249,6 @@ body.sudoku-screen-shake{
   </div>
 </div>
 
-<script type="module" src="./juegos/js/perfil.js?v=profile-mobile-scroll-20260515"></script>
+<script type="module" src="./juegos/js/perfil.js?v=chat-visual-isolation-20260515"></script>
 </body>
 </html>
