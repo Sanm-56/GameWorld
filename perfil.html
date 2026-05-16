@@ -4731,6 +4731,420 @@ body.sudoku-screen-shake{
   50%{ box-shadow:0 30px 76px rgba(0,0,0,0.72), 0 0 56px rgba(245,158,11,0.44), 0 0 22px rgba(255,255,255,0.18), inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 0 0 2px rgba(254,243,199,0.56), inset 0 0 0 8px rgba(2,6,23,0.42); filter:brightness(1.08); }
 }
 
+.achievement-card.damas-relic{
+  --checkers-metal:#b8c0cc;
+  --checkers-metal-light:#f8fafc;
+  --checkers-ink:#111827;
+  --checkers-bg:#090b10;
+  --checkers-glow:rgba(203,213,225,0.26);
+  position:relative;
+  display:grid;
+  grid-template-columns:116px minmax(0, 1fr);
+  gap:16px;
+  min-height:236px;
+  padding:18px;
+  overflow:hidden;
+  isolation:isolate;
+  border:0;
+  border-radius:18px;
+  color:#f8fafc;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.07), transparent 24% 76%, rgba(255,255,255,0.028)),
+    linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25% 50%, rgba(0,0,0,0.28) 50% 75%, transparent 75%),
+    radial-gradient(circle at 20% 14%, color-mix(in srgb, var(--checkers-metal-light) 12%, transparent), transparent 30%),
+    linear-gradient(145deg, #040506, var(--checkers-bg) 46%, #171b24 74%, #050608);
+  background-size:100% 100%, 42px 42px, 100% 100%, 100% 100%;
+  box-shadow:
+    0 22px 50px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 0 2px color-mix(in srgb, var(--checkers-metal) 24%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.56);
+  transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  animation:checkersMedalBreath 7s ease-in-out infinite;
+}
+
+.achievement-card.damas-relic::before,
+.achievement-card.damas-relic::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.achievement-card.damas-relic::before{
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(135deg, transparent 0 40%, color-mix(in srgb, var(--checkers-metal-light) 9%, transparent) 41% 42%, transparent 43%),
+    linear-gradient(45deg, transparent 0 58%, color-mix(in srgb, var(--checkers-metal) 8%, transparent) 59% 60%, transparent 61%);
+  background-size:34px 34px, 34px 34px, 100% 100%, 100% 100%;
+  opacity:0.92;
+  animation:checkersBoardShift 8s ease-in-out infinite;
+}
+
+.achievement-card.damas-relic::after{
+  content:"CROWNED";
+  right:16px;
+  bottom:18px;
+  z-index:-1;
+  color:color-mix(in srgb, var(--checkers-metal-light) 13%, transparent);
+  font-size:0.92rem;
+  font-weight:1000;
+  letter-spacing:0.2em;
+  animation:checkersMarkGlow 6s ease-in-out infinite;
+}
+
+.achievement-card.damas-relic:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 26px 62px rgba(0,0,0,0.68),
+    0 0 34px var(--checkers-glow),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 0 0 2px color-mix(in srgb, var(--checkers-metal) 38%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.56);
+}
+
+.damas-relic .board-relic-header{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  align-content:start;
+  gap:10px;
+  min-width:0;
+  padding:0;
+}
+
+.damas-relic .board-relic-badges{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  width:100%;
+}
+
+.damas-relic .board-relic-icon{
+  position:relative;
+  width:96px;
+  height:118px;
+  display:grid;
+  place-items:center;
+  border-radius:0;
+  color:var(--checkers-ink);
+  font-size:0.62rem;
+  font-weight:1000;
+  letter-spacing:0.07em;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.16), transparent 22%),
+    linear-gradient(145deg, color-mix(in srgb, var(--checkers-metal) 72%, #1f2937), #080a0f 62%, color-mix(in srgb, var(--checkers-metal) 36%, #111827));
+  border:0;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,0.52),
+    0 0 28px var(--checkers-glow),
+    inset 0 0 0 2px color-mix(in srgb, var(--checkers-metal-light) 32%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.56);
+  clip-path:polygon(13% 0, 87% 0, 100% 13%, 100% 76%, 50% 100%, 0 76%, 0 13%);
+  animation:checkersShieldFloat 5.8s ease-in-out infinite;
+}
+
+.damas-relic .board-relic-icon::before,
+.damas-relic .board-relic-icon::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.damas-relic .board-relic-icon::before{
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--checkers-metal-light) 84%, white) 0 11px, transparent 12px),
+    radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--checkers-metal) 78%, #111827) 0 24px, transparent 25px),
+    linear-gradient(180deg, color-mix(in srgb, var(--checkers-metal-light) 88%, white), var(--checkers-metal) 58%, color-mix(in srgb, var(--checkers-metal) 72%, #111827));
+  border:1px solid color-mix(in srgb, var(--checkers-metal-light) 44%, transparent);
+  box-shadow:
+    0 12px 18px rgba(0,0,0,0.36),
+    inset 0 2px 0 rgba(255,255,255,0.46),
+    inset 0 -12px 16px rgba(0,0,0,0.18);
+  transform:translateY(-6px);
+}
+
+.damas-relic .board-relic-icon::after{
+  width:44px;
+  height:24px;
+  top:24px;
+  clip-path:polygon(0 72%, 12% 28%, 30% 58%, 50% 0, 70% 58%, 88% 28%, 100% 72%, 100% 100%, 0 100%);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--checkers-metal-light) 96%, white), var(--checkers-metal));
+  box-shadow:0 0 16px color-mix(in srgb, var(--checkers-metal-light) 26%, transparent);
+  animation:checkersCrownShine 4.8s ease-in-out infinite;
+}
+
+.damas-relic .board-relic-icon span{
+  position:relative;
+  z-index:1;
+  min-width:42px;
+  min-height:24px;
+  display:grid;
+  place-items:center;
+  margin-top:62px;
+  border-radius:7px;
+  color:var(--checkers-ink);
+  background:rgba(255,255,255,0.58);
+  box-shadow:0 4px 12px rgba(17,24,39,0.22);
+  text-shadow:0 1px 0 rgba(255,255,255,0.38);
+}
+
+.damas-relic .board-relic-main{
+  position:relative;
+  min-width:0;
+  display:grid;
+  align-content:start;
+  gap:9px;
+  overflow:hidden;
+  padding:0;
+  text-align:center;
+}
+
+.damas-relic .board-relic-main::before,
+.damas-relic .board-relic-main::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.damas-relic .board-relic-main::before{
+  left:7%;
+  right:7%;
+  top:2px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--checkers-metal-light) 56%, transparent), transparent);
+  box-shadow:0 0 14px var(--checkers-glow);
+  animation:checkersCrownSweep 5s ease-in-out infinite;
+}
+
+.damas-relic .board-relic-main::after{
+  right:4px;
+  bottom:5px;
+  width:70px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid color-mix(in srgb, var(--checkers-metal-light) 22%, transparent);
+  background:
+    radial-gradient(circle at 36% 52%, color-mix(in srgb, var(--checkers-metal-light) 34%, transparent) 0 12px, transparent 13px),
+    radial-gradient(circle at 60% 52%, color-mix(in srgb, var(--checkers-metal) 26%, transparent) 0 12px, transparent 13px),
+    linear-gradient(135deg, transparent 0 40%, color-mix(in srgb, var(--checkers-metal-light) 16%, transparent) 41% 46%, transparent 47%),
+    linear-gradient(180deg, rgba(2,6,23,0.62), rgba(2,6,23,0.2));
+  opacity:0.32;
+  animation:checkersStackGlow 4s ease-in-out infinite;
+}
+
+.damas-relic .board-relic-title,
+.damas-relic .board-relic-prophecy,
+.damas-relic .board-objective,
+.damas-relic .board-progress{
+  position:relative;
+  z-index:1;
+}
+
+.damas-relic .board-relic-title{
+  color:#f8fafc;
+  font-size:1.14rem;
+  line-height:1.12;
+  overflow-wrap:anywhere;
+  text-shadow:0 2px 18px rgba(0,0,0,0.46), 0 0 18px color-mix(in srgb, var(--checkers-metal) 16%, transparent);
+}
+
+.damas-relic .board-relic-prophecy{
+  margin:0;
+  color:rgba(226,232,240,0.78);
+  font-size:0.92rem;
+  line-height:1.42;
+}
+
+.damas-relic .board-objective{
+  display:grid;
+  gap:5px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--checkers-metal-light) 20%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--checkers-metal) 10%, transparent), rgba(2,6,23,0.6));
+  text-align:center;
+}
+
+.damas-relic .board-objective span{
+  color:color-mix(in srgb, var(--checkers-metal-light) 88%, white 8%);
+  font-size:0.68rem;
+  font-weight:1000;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+}
+
+.damas-relic .board-objective small{
+  color:rgba(226,232,240,0.88);
+  line-height:1.35;
+}
+
+.damas-relic .board-progress{
+  display:grid;
+  gap:6px;
+  margin-top:0;
+}
+
+.damas-relic .board-progress-meta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  color:rgba(226,232,240,0.78);
+  font-size:0.76rem;
+  font-weight:800;
+  text-align:center;
+}
+
+.damas-relic .board-progress-track{
+  height:8px;
+  padding:1px;
+  overflow:hidden;
+  border-radius:999px;
+  background:
+    linear-gradient(135deg, transparent 0 42%, rgba(255,255,255,0.1) 43% 56%, transparent 57%),
+    linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.9));
+  border:1px solid color-mix(in srgb, var(--checkers-metal-light) 18%, transparent);
+}
+
+.damas-relic .board-progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--checkers-metal) 72%, #64748b), var(--checkers-metal-light));
+  box-shadow:0 0 16px var(--checkers-glow);
+  transition:width 0.7s ease;
+}
+
+.damas-relic .board-relic-rarity,
+.damas-relic .board-relic-state{
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:color-mix(in srgb, var(--checkers-metal-light) 86%, white 8%);
+  border:1px solid color-mix(in srgb, var(--checkers-metal-light) 26%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--checkers-metal) 14%, transparent), rgba(2,6,23,0.76));
+  font-size:0.66rem;
+  font-weight:1000;
+  letter-spacing:0.08em;
+}
+
+.damas-relic.common{
+  --checkers-metal:#94a3b8;
+  --checkers-metal-light:#f8fafc;
+  --checkers-ink:#111827;
+  --checkers-bg:#090b10;
+  --checkers-glow:rgba(203,213,225,0.24);
+}
+
+.damas-relic.rare{
+  --checkers-metal:#b91c1c;
+  --checkers-metal-light:#fee2e2;
+  --checkers-ink:#450a0a;
+  --checkers-bg:#140707;
+  --checkers-glow:rgba(248,113,113,0.34);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.075), transparent 24% 76%, rgba(255,255,255,0.028)),
+    linear-gradient(45deg, rgba(185,28,28,0.07) 25%, transparent 25% 50%, rgba(0,0,0,0.28) 50% 75%, transparent 75%),
+    radial-gradient(circle at 20% 14%, rgba(254,226,226,0.16), transparent 30%),
+    linear-gradient(145deg, #050202, #140707 46%, #4c1111 74%, #050202);
+  background-size:100% 100%, 42px 42px, 100% 100%, 100% 100%;
+}
+
+.damas-relic.epic{
+  --checkers-metal:#7c3aed;
+  --checkers-metal-light:#ede9fe;
+  --checkers-ink:#1e1b4b;
+  --checkers-bg:#10051e;
+  --checkers-glow:rgba(124,58,237,0.38);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.075), transparent 24% 76%, rgba(255,255,255,0.028)),
+    linear-gradient(45deg, rgba(124,58,237,0.07) 25%, transparent 25% 50%, rgba(0,0,0,0.28) 50% 75%, transparent 75%),
+    radial-gradient(circle at 20% 14%, rgba(237,233,254,0.18), transparent 30%),
+    radial-gradient(circle at 80% 16%, rgba(14,165,233,0.1), transparent 26%),
+    linear-gradient(145deg, #030108, #10051e 46%, #2e1065 74%, #030108);
+  background-size:100% 100%, 42px 42px, 100% 100%, 100% 100%, 100% 100%;
+}
+
+.damas-relic.legendary{
+  --checkers-metal:#f59e0b;
+  --checkers-metal-light:#fff7ed;
+  --checkers-ink:#451a03;
+  --checkers-bg:#1f1302;
+  --checkers-glow:rgba(245,158,11,0.44);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(255,255,255,0.3), transparent 30%),
+    linear-gradient(135deg, rgba(255,255,255,0.09), transparent 24% 76%, rgba(255,255,255,0.04)),
+    linear-gradient(45deg, rgba(251,191,36,0.075) 25%, transparent 25% 50%, rgba(0,0,0,0.24) 50% 75%, transparent 75%),
+    radial-gradient(circle at 20% 14%, rgba(255,247,237,0.24), transparent 30%),
+    linear-gradient(145deg, #090501, #1f1302 40%, #7c4a03 72%, #2f1b02);
+  background-size:100% 100%, 100% 100%, 42px 42px, 100% 100%, 100% 100%;
+  animation:checkersLegendCrown 6s ease-in-out infinite;
+}
+
+.damas-relic.rare .board-progress-fill{
+  background:linear-gradient(90deg, #7f1d1d, #b91c1c, #fee2e2);
+}
+
+.damas-relic.epic .board-progress-fill{
+  background:linear-gradient(90deg, #4c1d95, #7c3aed, #a5b4fc);
+}
+
+.damas-relic.legendary .board-progress-fill{
+  background:linear-gradient(90deg, #92400e, #f59e0b, #fef3c7, #ffffff);
+}
+
+@keyframes checkersMedalBreath{
+  0%,100%{ box-shadow:0 22px 50px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 0 2px color-mix(in srgb, var(--checkers-metal) 24%, transparent), inset 0 0 0 8px rgba(2,6,23,0.56); }
+  50%{ box-shadow:0 24px 58px rgba(0,0,0,0.66), 0 0 28px var(--checkers-glow), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 0 2px color-mix(in srgb, var(--checkers-metal) 36%, transparent), inset 0 0 0 8px rgba(2,6,23,0.56); }
+}
+
+@keyframes checkersBoardShift{
+  0%,100%{ background-position:0 0, 0 0, 0 0, 0 0; opacity:0.72; }
+  50%{ background-position:16px -16px, -16px 16px, 0 0, 0 0; opacity:0.92; }
+}
+
+@keyframes checkersMarkGlow{
+  0%,100%{ opacity:0.24; filter:brightness(0.9); }
+  50%{ opacity:0.52; filter:brightness(1.22); }
+}
+
+@keyframes checkersShieldFloat{
+  0%,100%{ transform:translateY(0); filter:brightness(1); }
+  50%{ transform:translateY(-4px); filter:brightness(1.08); }
+}
+
+@keyframes checkersCrownShine{
+  0%,100%{ transform:translateX(-6px); opacity:0.48; }
+  50%{ transform:translateX(6px); opacity:0.96; }
+}
+
+@keyframes checkersCrownSweep{
+  0%,100%{ transform:scaleX(0.72); opacity:0.22; }
+  50%{ transform:scaleX(1); opacity:0.74; }
+}
+
+@keyframes checkersStackGlow{
+  0%,100%{ opacity:0.2; filter:brightness(0.9); transform:translateY(2px); }
+  50%{ opacity:0.48; filter:brightness(1.18); transform:translateY(-3px); }
+}
+
+@keyframes checkersLegendCrown{
+  0%,100%{ box-shadow:0 24px 56px rgba(0,0,0,0.64), 0 0 26px rgba(245,158,11,0.2), inset 0 0 0 1px rgba(255,255,255,0.07), inset 0 0 0 2px rgba(245,158,11,0.34), inset 0 0 0 8px rgba(2,6,23,0.46); filter:brightness(1); }
+  50%{ box-shadow:0 30px 76px rgba(0,0,0,0.72), 0 0 56px rgba(245,158,11,0.44), 0 0 22px rgba(255,255,255,0.18), inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 0 0 2px rgba(254,243,199,0.56), inset 0 0 0 8px rgba(2,6,23,0.42); filter:brightness(1.08); }
+}
+
 .achievement-card.chess-relic{
   --chess-metal:#737b86;
   --chess-metal-light:#c8ced6;
@@ -10830,6 +11244,66 @@ body.sudoku-screen-shake{
   }
 
   .domino-relic .board-relic-prophecy{
+    font-size:0.86rem;
+  }
+
+  .achievement-card.damas-relic{
+    grid-template-columns:82px minmax(0, 1fr);
+    gap:12px;
+    padding:14px;
+    min-height:0;
+    border-radius:14px;
+  }
+
+  .achievement-card.damas-relic::after{
+    right:8px;
+    bottom:10px;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+  }
+
+  .damas-relic .board-relic-icon{
+    width:68px;
+    height:88px;
+    font-size:0.56rem;
+  }
+
+  .damas-relic .board-relic-icon::before{
+    width:46px;
+    height:46px;
+    transform:translateY(-4px);
+  }
+
+  .damas-relic .board-relic-icon::after{
+    width:34px;
+    height:18px;
+    top:19px;
+  }
+
+  .damas-relic .board-relic-icon span{
+    min-width:34px;
+    min-height:22px;
+    margin-top:48px;
+    border-radius:6px;
+  }
+
+  .damas-relic .board-relic-header,
+  .damas-relic .board-relic-main{
+    padding:0;
+  }
+
+  .damas-relic .board-relic-rarity,
+  .damas-relic .board-relic-state{
+    min-height:22px;
+    font-size:0.6rem;
+    padding:3px 6px;
+  }
+
+  .damas-relic .board-relic-title{
+    font-size:0.98rem;
+  }
+
+  .damas-relic .board-relic-prophecy{
     font-size:0.86rem;
   }
 
