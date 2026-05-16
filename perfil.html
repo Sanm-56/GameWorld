@@ -10181,6 +10181,7 @@ body.sudoku-screen-shake{
 }
 
 .chat-conversation{
+  --chat-node-rgb:var(--node-rgb, var(--rank-rgb, 56,189,248));
   width:100%;
   min-width:0;
   display:grid;
@@ -10188,13 +10189,13 @@ body.sudoku-screen-shake{
   gap:11px;
   align-items:center;
   padding:11px;
-  border:1px solid rgba(var(--node-rgb),0.16);
+  border:1px solid rgba(var(--chat-node-rgb),0.16);
   border-radius:15px;
   color:#e5e7eb;
   text-align:left;
   background:
-    radial-gradient(circle at 8% 8%, rgba(var(--node-rgb),0.18), transparent 34%),
-    linear-gradient(135deg, rgba(15,23,42,0.82), rgba(2,6,23,0.68));
+    radial-gradient(circle at 8% 8%, rgba(var(--chat-node-rgb),0.18), transparent 34%),
+    linear-gradient(135deg, rgba(15,23,42,0.82), rgba(2,6,23,0.68)) !important;
   box-shadow:0 10px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.04);
   transition:border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
@@ -10202,24 +10203,25 @@ body.sudoku-screen-shake{
 .chat-conversation:hover,
 .chat-conversation.active{
   transform:translateY(-1px);
-  border-color:rgba(var(--node-rgb),0.5);
+  border-color:rgba(var(--chat-node-rgb),0.5);
   background:
-    radial-gradient(circle at 8% 8%, rgba(var(--node-rgb),0.28), transparent 36%),
-    linear-gradient(135deg, rgba(15,23,42,0.92), rgba(2,6,23,0.76));
-  box-shadow:0 14px 30px rgba(0,0,0,0.24), 0 0 20px rgba(var(--node-rgb),0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+    radial-gradient(circle at 8% 8%, rgba(var(--chat-node-rgb),0.28), transparent 36%),
+    linear-gradient(135deg, rgba(15,23,42,0.92), rgba(2,6,23,0.76)) !important;
+  box-shadow:0 14px 30px rgba(0,0,0,0.24), 0 0 20px rgba(var(--chat-node-rgb),0.12), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
 .chat-conversation-avatar,
 .chat-avatar{
+  --chat-node-rgb:var(--node-rgb, var(--rank-rgb, 56,189,248));
   display:grid;
   place-items:center;
   flex:0 0 auto;
-  border:1px solid rgba(var(--node-rgb),0.32);
+  border:1px solid rgba(var(--chat-node-rgb),0.32);
   border-radius:12px;
   color:#f8fafc;
   background:
-    radial-gradient(circle at 35% 20%, rgba(var(--node-rgb),0.42), transparent 40%),
-    rgba(2,6,23,0.88);
+    radial-gradient(circle at 35% 20%, rgba(var(--chat-node-rgb),0.42), transparent 40%),
+    rgba(2,6,23,0.88) !important;
   font-weight:900;
   text-transform:uppercase;
 }
@@ -10423,6 +10425,7 @@ body.sudoku-screen-shake{
 }
 
 .chat-message{
+  --chat-node-rgb:var(--node-rgb, var(--rank-rgb, 56,189,248));
   width:min(82%, 760px);
   display:grid;
   grid-template-columns:auto minmax(0, 1fr);
@@ -10430,10 +10433,10 @@ body.sudoku-screen-shake{
   justify-self:start;
   padding:12px 14px;
   border-radius:18px 18px 18px 6px;
-  border:1px solid rgba(var(--node-rgb),0.24);
+  border:1px solid rgba(var(--chat-node-rgb),0.24);
   background:
-    radial-gradient(circle at 92% 0%, rgba(var(--node-rgb),0.16), transparent 30%),
-    linear-gradient(145deg, rgba(15,23,42,0.86), rgba(2,6,23,0.72));
+    radial-gradient(circle at 92% 0%, rgba(var(--chat-node-rgb),0.16), transparent 30%),
+    linear-gradient(145deg, rgba(15,23,42,0.86), rgba(2,6,23,0.72)) !important;
   box-shadow:0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.05);
   animation:chatIn 0.18s ease both;
 }
@@ -10441,11 +10444,11 @@ body.sudoku-screen-shake{
 .chat-message.own{
   justify-self:end;
   border-radius:18px 18px 6px 18px;
-  border-color:rgba(var(--node-rgb),0.48);
+  border-color:rgba(var(--chat-node-rgb),0.48);
   background:
-    radial-gradient(circle at 92% 0%, rgba(var(--node-rgb),0.28), transparent 32%),
-    linear-gradient(145deg, rgba(var(--node-rgb),0.12), rgba(2,6,23,0.88));
-  box-shadow:0 14px 30px rgba(0,0,0,0.26), 0 0 22px rgba(var(--node-rgb),0.1), inset 0 1px 0 rgba(255,255,255,0.06);
+    radial-gradient(circle at 92% 0%, rgba(var(--chat-node-rgb),0.28), transparent 32%),
+    linear-gradient(145deg, rgba(var(--chat-node-rgb),0.12), rgba(2,6,23,0.88)) !important;
+  box-shadow:0 14px 30px rgba(0,0,0,0.26), 0 0 22px rgba(var(--chat-node-rgb),0.1), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
 .chat-avatar{
