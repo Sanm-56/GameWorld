@@ -6177,13 +6177,10 @@ function renderMensajesChat(contenedor, mensajes, privado = false) {
 
   mensajes.forEach((mensaje) => {
     const titulo = mensaje.rango || obtenerTituloNivel(mensaje.nivel || 1)
-    const visual = obtenerVisualRango(titulo)
     const autor = usuarioMensajeChat(mensaje)
     const esPropio = mensaje.usuario === usuario || mensaje.usuario_id === usuario || mensaje.remitente === usuario
     const div = document.createElement('div')
     div.className = `chat-message${esPropio ? ' own' : ''}`
-    div.dataset.rankTier = visual.tier
-    div.setAttribute('style', estiloVisualRango(visual))
     div.innerHTML = `
       <div class="chat-avatar" aria-hidden="true">${escaparHtml(inicialesChat(autor))}</div>
       <div class="chat-message-body">
@@ -6235,13 +6232,10 @@ function renderConversacionesChat(mensajes) {
   items.forEach((item) => {
     const ultimo = item.ultimo || {}
     const titulo = ultimo.rango || obtenerTituloNivel(ultimo.nivel || 1)
-    const visual = obtenerVisualRango(titulo)
     const button = document.createElement('button')
     button.type = 'button'
     button.className = `chat-conversation${item.destino === chatPrivadoDestino ? ' active' : ''}`
     button.dataset.chatUser = item.destino
-    button.dataset.rankTier = visual.tier
-    button.setAttribute('style', estiloVisualRango(visual))
     button.innerHTML = `
       <span class="chat-conversation-avatar">${escaparHtml(inicialesChat(item.destino))}</span>
       <span class="chat-conversation-main">
