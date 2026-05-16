@@ -7748,6 +7748,71 @@ body.sudoku-screen-shake{
   color:color-mix(in srgb, var(--node-primary) 78%, white 12%);
 }
 
+.rank-route-entry{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto;
+  gap:14px;
+  align-items:center;
+  min-width:0;
+  padding:16px;
+  border:1px solid rgba(var(--rank-rgb),0.24);
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 8% 16%, rgba(var(--rank-rgb),0.2), transparent 34%),
+    linear-gradient(145deg, rgba(15,23,42,0.86), rgba(2,6,23,0.9));
+  box-shadow:0 14px 34px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.rank-route-entry strong{
+  display:block;
+  color:#fff;
+  font-size:1.1rem;
+  line-height:1.18;
+}
+
+.rank-route-entry small{
+  display:block;
+  margin-top:4px;
+  color:#cbd5e1;
+  line-height:1.4;
+}
+
+.rank-route-kicker{
+  display:block;
+  margin-bottom:5px;
+  color:color-mix(in srgb, var(--rank-primary) 82%, white 10%);
+  font-size:0.72rem;
+  font-weight:1000;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+
+.rank-route-button{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 14px;
+  border:1px solid rgba(var(--rank-rgb),0.34);
+  border-radius:12px;
+  color:#f8fafc;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255,255,255,0.18), transparent 32%),
+    linear-gradient(135deg, rgba(var(--rank-rgb),0.34), rgba(15,23,42,0.92));
+  box-shadow:0 12px 26px rgba(0,0,0,0.24), 0 0 22px rgba(var(--rank-rgb),0.14);
+  font-size:0.86rem;
+  font-weight:1000;
+  text-decoration:none;
+  white-space:nowrap;
+  transition:transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.rank-route-button:hover{
+  transform:translateY(-1px);
+  border-color:rgba(var(--rank-rgb),0.58);
+  box-shadow:0 16px 32px rgba(0,0,0,0.28), 0 0 28px rgba(var(--rank-rgb),0.2);
+}
+
 .rank-path{
   display:grid;
   gap:14px;
@@ -11759,6 +11824,14 @@ body.sudoku-screen-shake{
     text-align:left;
   }
 
+  .rank-route-entry{
+    grid-template-columns:1fr;
+  }
+
+  .rank-route-button{
+    width:100%;
+  }
+
   .rank-node{
     flex-basis:82%;
     min-height:120px;
@@ -11878,12 +11951,13 @@ body.sudoku-screen-shake{
           <span id="rangoBonusBarra"></span>
         </div>
       </div>
-      <div class="rank-path">
-        <div class="rank-path-title">
-          <span>Ruta de rangos</span>
-          <span id="rangoProgresoTexto">24 niveles restantes para Amateur</span>
+      <div class="rank-route-entry">
+        <div>
+          <span class="rank-route-kicker">Camino competitivo</span>
+          <strong>Ruta de rangos</strong>
+          <small>Abre la ruta completa en una pantalla separada para revisar y equipar tus rangos sin cargar el perfil.</small>
         </div>
-        <div class="rank-path-list" id="rangoRutaList"></div>
+        <a class="rank-route-button" href="ruta-rangos.html">Abrir ruta</a>
       </div>
       <div class="reward-preview">
         <small>Proxima recompensa</small>
