@@ -33,25 +33,16 @@
 
 </div>
 
-<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
+<button class="btn musica musica-pos" onclick="manejarClickMusicaMatematicas(event)" ondblclick="abrirMenuMusicaMatematicas(event)">🎵 Música</button>
 
-<audio loop>
+<audio id="matematicasMusicAudio">
   <source src="./music/musicamatematicas.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 
 <script type="module" src="./js/matematicas.js"></script>
 
-<script>
-function reproducirMusica(){
-  const audio = document.querySelector('audio');
-  if (audio.paused) {
-    audio.play();
-  } else {
-    audio.pause();
-  }
-}
-</script>
+<script src="./js/matematicas-music.js"></script>
 
 </body>
 </html>
