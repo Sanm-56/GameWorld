@@ -415,6 +415,137 @@ h1{
   transition:opacity 0.22s ease;
 }
 
+.music-menu{
+  position:fixed;
+  left:clamp(14px, 2vw, 24px);
+  top:142px;
+  z-index:45;
+  display:none;
+  width:min(300px, calc(100vw - 28px));
+  overflow:hidden;
+  border:1px solid rgba(45,212,191,0.24);
+  border-radius:16px;
+  background:rgba(8,15,29,0.97);
+  box-shadow:0 22px 56px rgba(0,0,0,0.38);
+}
+
+.music-menu.abierto{
+  display:block;
+}
+
+.music-menu-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 12px 10px;
+  border-bottom:1px solid rgba(148,163,184,0.12);
+}
+
+.music-menu-title{
+  min-width:0;
+}
+
+.music-menu-title strong{
+  display:block;
+  color:white;
+  font-size:14px;
+  line-height:1.2;
+}
+
+.music-menu-title span{
+  display:block;
+  overflow:hidden;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.music-menu-close{
+  flex:0 0 auto;
+  width:30px;
+  height:30px;
+  border:1px solid rgba(148,163,184,0.16);
+  border-radius:10px;
+  color:white;
+  background:rgba(148,163,184,0.12);
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+}
+
+.music-menu-controls{
+  padding:10px 12px;
+  border-bottom:1px solid rgba(148,163,184,0.1);
+}
+
+.music-shuffle{
+  width:100%;
+  border:1px solid rgba(45,212,191,0.24);
+  border-radius:12px;
+  padding:9px 10px;
+  color:#ccfbf1;
+  background:rgba(15,23,42,0.86);
+  cursor:pointer;
+  font:inherit;
+  font-size:13px;
+  font-weight:800;
+}
+
+.music-shuffle.activo{
+  border-color:rgba(45,212,191,0.56);
+  background:rgba(20,184,166,0.22);
+  color:white;
+}
+
+.music-list{
+  display:grid;
+  gap:6px;
+  max-height:min(330px, calc(100vh - 270px));
+  overflow:auto;
+  padding:10px 12px 12px;
+}
+
+.music-track{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
+  min-height:40px;
+  border:1px solid rgba(148,163,184,0.12);
+  border-radius:12px;
+  padding:9px 10px;
+  color:rgba(255,255,255,0.88);
+  background:rgba(15,23,42,0.58);
+  cursor:pointer;
+  font:inherit;
+  font-size:13px;
+  text-align:left;
+}
+
+.music-track.activo{
+  border-color:rgba(45,212,191,0.48);
+  background:rgba(20,184,166,0.16);
+  color:white;
+}
+
+.music-track span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.music-track small{
+  flex:0 0 auto;
+  color:#99f6e4;
+  font-size:11px;
+  font-weight:900;
+}
+
 .rules-launch{
   display:flex;
   justify-content:center;
@@ -2718,6 +2849,13 @@ h1{
     box-shadow:none;
   }
 
+  .music-menu{
+    top:92px;
+    left:12px;
+    right:12px;
+    width:auto;
+  }
+
   .mobile-admin-btn{
     display:block;
     opacity:0.72;
@@ -3165,7 +3303,7 @@ h1{
       <button class="boton rankings-btn" data-open-rankings>Rankings</button>
       <button class="boton store-btn" data-open-store>Tienda</button>
       <button class="boton rules-btn" data-open-rules>Reglas</button>
-      <button class="boton music-btn" onclick="reproducirMusica()">Música</button>
+      <button class="boton music-btn" onclick="manejarClickMusica(event)" ondblclick="abrirMenuMusica(event)">Música</button>
       <button class="boton mobile-admin-btn" onclick="irAdmin()">Admin</button>
     </div>
     <button class="boton admin-btn" onclick="irAdmin()">Admin</button>
@@ -3406,7 +3544,21 @@ h1{
   </section>
 </div>
 
-<audio loop>
+<div class="music-menu" id="musicMenu" aria-hidden="true">
+  <div class="music-menu-head">
+    <div class="music-menu-title">
+      <strong>Lista de musica</strong>
+      <span id="musicCurrent">Sin reproduccion</span>
+    </div>
+    <button class="music-menu-close" type="button" data-close-music aria-label="Cerrar musica">&times;</button>
+  </div>
+  <div class="music-menu-controls">
+    <button class="music-shuffle" type="button" id="musicShuffle">Aleatorio: OFF</button>
+  </div>
+  <div class="music-list" id="musicList" role="listbox" aria-label="Musicas disponibles"></div>
+</div>
+
+<audio id="mainMusic">
   <source src="music/musicainicio.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
@@ -3496,14 +3648,180 @@ document.addEventListener('keydown', function(e){
   }
 })
 
+const musicTracks = [
+  { title: 'Musica inicio', src: 'music/musicainicio.mp3' },
+  { title: 'Pulso Fantasma', src: 'music/Pulso Fantasma.mp3' },
+  { title: 'Pulso de Helado', src: 'music/Pulso de Helado.mp3' },
+  { title: 'Pulso de Hielo', src: 'music/Pulso de Hielo.mp3' },
+  { title: 'Corazon Misk', src: 'music/Corazon Misk.mp3' },
+  { title: 'Corazon Glitch', src: 'music/Coraz\u00f3n Glitch.mp3' },
+  { title: 'Bajo Tu Pulso', src: 'music/Bajo Tu Pulso.mp3' },
+  { title: 'Pulso Alob', src: 'music/Pulso Alob.mp3' },
+  { title: 'Pulso Suave', src: 'music/Pulso Suave.mp3' }
+]
+
+const musicState = {
+  currentIndex: 0,
+  shuffle: false,
+  clickTimer: null
+}
+
+function getMusicAudio(){
+  return document.getElementById('mainMusic') || document.querySelector('audio')
+}
+
+function actualizarMenuMusica(){
+  const current = document.getElementById('musicCurrent')
+  const shuffleButton = document.getElementById('musicShuffle')
+
+  if(current){
+    current.textContent = musicTracks[musicState.currentIndex]?.title || 'Sin reproduccion'
+  }
+
+  if(shuffleButton){
+    shuffleButton.textContent = musicState.shuffle ? 'Aleatorio: ON' : 'Aleatorio: OFF'
+    shuffleButton.classList.toggle('activo', musicState.shuffle)
+    shuffleButton.setAttribute('aria-pressed', String(musicState.shuffle))
+  }
+
+  document.querySelectorAll('[data-music-index]').forEach((button) => {
+    const active = Number(button.dataset.musicIndex) === musicState.currentIndex
+    button.classList.toggle('activo', active)
+    button.setAttribute('aria-selected', String(active))
+  })
+}
+
+function cargarCancion(index, playNow){
+  const audio = getMusicAudio()
+  const track = musicTracks[index]
+  if(!audio || !track) return
+
+  const nextSrc = new URL(track.src, window.location.href).href
+  if(audio.src !== nextSrc){
+    audio.pause()
+    audio.src = track.src
+    audio.load()
+  }
+
+  musicState.currentIndex = index
+  actualizarMenuMusica()
+
+  if(playNow){
+    audio.play().catch(() => {})
+  }
+}
+
+function obtenerSiguienteCancion(){
+  if(musicTracks.length <= 1) return 0
+
+  if(musicState.shuffle){
+    let nextIndex = musicState.currentIndex
+    while(nextIndex === musicState.currentIndex){
+      nextIndex = Math.floor(Math.random() * musicTracks.length)
+    }
+    return nextIndex
+  }
+
+  return (musicState.currentIndex + 1) % musicTracks.length
+}
+
+function reproducirSiguienteCancion(){
+  cargarCancion(obtenerSiguienteCancion(), true)
+}
+
+function seleccionarCancionManual(index){
+  const audio = getMusicAudio()
+  if(audio && index === musicState.currentIndex){
+    audio.currentTime = 0
+  }
+  cargarCancion(index, true)
+}
+
 function reproducirMusica(){
-  const audio = document.querySelector('audio')
-  if (audio.paused) {
-    audio.play()
+  const audio = getMusicAudio()
+  if(!audio) return
+
+  if(audio.paused){
+    cargarCancion(musicState.currentIndex, true)
   } else {
     audio.pause()
   }
 }
+
+function manejarClickMusica(event){
+  if(event?.detail > 1){
+    clearTimeout(musicState.clickTimer)
+    return
+  }
+
+  clearTimeout(musicState.clickTimer)
+  musicState.clickTimer = setTimeout(reproducirMusica, 220)
+}
+
+function abrirMenuMusica(event){
+  event?.preventDefault()
+  clearTimeout(musicState.clickTimer)
+
+  const menu = document.getElementById('musicMenu')
+  if(!menu) return
+
+  menu.classList.toggle('abierto')
+  menu.setAttribute('aria-hidden', String(!menu.classList.contains('abierto')))
+  actualizarMenuMusica()
+}
+
+function cerrarMenuMusica(){
+  const menu = document.getElementById('musicMenu')
+  if(!menu) return
+  menu.classList.remove('abierto')
+  menu.setAttribute('aria-hidden', 'true')
+}
+
+function inicializarMusicaInicio(){
+  const audio = getMusicAudio()
+  const list = document.getElementById('musicList')
+  const shuffleButton = document.getElementById('musicShuffle')
+
+  if(!audio || !list) return
+
+  audio.loop = false
+  audio.addEventListener('ended', reproducirSiguienteCancion)
+
+  list.innerHTML = ''
+  musicTracks.forEach((track, index) => {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'music-track'
+    button.dataset.musicIndex = String(index)
+    button.setAttribute('role', 'option')
+    button.innerHTML = `<span>${track.title}</span><small>${index + 1}</small>`
+    button.addEventListener('click', () => seleccionarCancionManual(index))
+    list.appendChild(button)
+  })
+
+  shuffleButton?.addEventListener('click', () => {
+    musicState.shuffle = !musicState.shuffle
+    actualizarMenuMusica()
+  })
+
+  document.querySelector('[data-close-music]')?.addEventListener('click', cerrarMenuMusica)
+
+  document.addEventListener('click', (event) => {
+    const menu = document.getElementById('musicMenu')
+    const musicButton = document.querySelector('.music-btn')
+    if(!menu?.classList.contains('abierto')) return
+    if(menu.contains(event.target) || musicButton?.contains(event.target)) return
+    cerrarMenuMusica()
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if(event.key === 'Escape') cerrarMenuMusica()
+  })
+
+  cargarCancion(0, false)
+}
+
+inicializarMusicaInicio()
 </script>
 <script type="module" src="juegos/js/rankings-modal.js"></script>
 <script type="module" src="juegos/js/evento-temporada-ui.js"></script>
