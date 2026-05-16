@@ -605,6 +605,136 @@ body[data-rank-tier="ascendido"]{ --rank-primary:#67e8f9; --rank-secondary:#f0ab
   box-shadow:0 0 22px var(--rank-glow-soft);
 }
 
+/* Competitive summary isolation: stats, medals and ranking use a fixed profile skin. */
+.profile-summary-stats,
+.layout > .medals-panel,
+.layout > .ranking-panel{
+  --summary-accent:125,211,252;
+  --summary-accent-2:45,212,191;
+  --summary-gold:250,204,21;
+  --summary-panel:rgba(8,13,28,0.92);
+}
+
+.profile-summary-stats .stat-card,
+.layout > .medals-panel,
+.layout > .ranking-panel{
+  border:1px solid rgba(var(--summary-accent),0.18);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(var(--summary-accent),0.14), transparent 34%),
+    radial-gradient(circle at 92% 0%, rgba(var(--summary-accent-2),0.1), transparent 30%),
+    linear-gradient(145deg, rgba(15,23,42,0.94), rgba(3,7,18,0.94)) !important;
+  box-shadow:0 20px 48px rgba(0,0,0,0.32), 0 0 28px rgba(var(--summary-accent),0.07), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.profile-summary-stats .stat-card::before,
+.layout > .medals-panel::before,
+.layout > .ranking-panel::before{
+  background:
+    linear-gradient(120deg, transparent 0 42%, rgba(255,255,255,0.045) 42.5%, transparent 43.3%),
+    linear-gradient(rgba(var(--summary-accent),0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--summary-accent),0.02) 1px, transparent 1px);
+  background-size:auto, 32px 32px, 32px 32px;
+  opacity:1;
+}
+
+.profile-summary-stats .stat-card::after{
+  border-color:rgba(var(--summary-accent),0.22);
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255,255,255,0.2), transparent 32%),
+    linear-gradient(145deg, rgba(var(--summary-accent),0.22), rgba(15,23,42,0.9));
+  box-shadow:0 0 24px rgba(var(--summary-accent),0.13), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.profile-summary-stats .stat-card:hover{
+  border-color:rgba(var(--summary-accent),0.34);
+  box-shadow:0 24px 56px rgba(0,0,0,0.38), 0 0 32px rgba(var(--summary-accent),0.11), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.profile-summary-stats .stat-icon{
+  color:#ecfeff;
+  border-color:rgba(var(--summary-accent),0.28);
+  background:
+    radial-gradient(circle at 32% 20%, rgba(255,255,255,0.18), transparent 32%),
+    linear-gradient(145deg, rgba(var(--summary-accent),0.28), rgba(15,23,42,0.9));
+  box-shadow:0 12px 24px rgba(0,0,0,0.22), 0 0 18px rgba(var(--summary-accent),0.12);
+}
+
+.profile-summary-stats .stat-value{
+  color:#f8fafc;
+  text-shadow:0 0 18px rgba(var(--summary-accent),0.12);
+}
+
+.profile-summary-stats .stat-label,
+.layout > .medals-panel .empty,
+.layout > .ranking-panel .empty{
+  color:#a9b8ca;
+}
+
+.layout > .medals-panel .section-title,
+.layout > .ranking-panel .section-title{
+  color:#f8fafc;
+  text-shadow:0 0 18px rgba(var(--summary-accent),0.12);
+}
+
+.layout > .medals-panel .medal{
+  border-color:rgba(var(--summary-accent),0.16);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(var(--summary-accent),0.12), transparent 32%),
+    linear-gradient(145deg, rgba(15,23,42,0.92), rgba(3,7,18,0.86)) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.layout > .medals-panel .medal-icon{
+  border:1px solid rgba(255,255,255,0.16);
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255,255,255,0.2), transparent 32%),
+    linear-gradient(145deg, rgba(var(--summary-accent),0.26), rgba(15,23,42,0.9));
+}
+
+.layout > .medals-panel .gold{
+  color:#fef3c7;
+  background:linear-gradient(145deg, rgba(var(--summary-gold),0.34), rgba(92,53,12,0.86)) !important;
+}
+
+.layout > .medals-panel .silver{
+  color:#f8fafc;
+  background:linear-gradient(145deg, rgba(203,213,225,0.32), rgba(51,65,85,0.88)) !important;
+}
+
+.layout > .medals-panel .bronze{
+  color:#ffedd5;
+  background:linear-gradient(145deg, rgba(251,146,60,0.34), rgba(67,32,12,0.88)) !important;
+}
+
+.layout > .ranking-panel .level-ranking{
+  gap:12px;
+}
+
+.layout > .ranking-panel .level-row{
+  border:1px solid rgba(var(--summary-accent),0.16);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(var(--summary-accent),0.12), transparent 32%),
+    linear-gradient(145deg, rgba(15,23,42,0.94), rgba(3,7,18,0.86)) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.layout > .ranking-panel .level-row.current{
+  border-color:rgba(var(--summary-accent-2),0.56);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(var(--summary-accent-2),0.18), transparent 32%),
+    linear-gradient(145deg, rgba(13,56,52,0.58), rgba(3,7,18,0.9)) !important;
+  box-shadow:0 0 26px rgba(var(--summary-accent-2),0.12), 0 14px 32px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.layout > .ranking-panel .level-rank-pos{
+  color:#7dd3fc;
+  text-shadow:0 0 14px rgba(var(--summary-accent),0.22);
+}
+
+.layout > .ranking-panel .level-rank-score{
+  color:#f8fafc;
+}
+
 .layout{
   display:grid;
   grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
@@ -12203,7 +12333,7 @@ body.sudoku-screen-shake{
     </div>
   </section>
 
-  <section class="stats">
+  <section class="stats profile-summary-stats">
     <article class="card profile-card stat-card">
       <div class="stat-icon">JG</div>
       <div>
@@ -12235,12 +12365,12 @@ body.sudoku-screen-shake{
   </section>
 
   <section class="layout">
-    <article class="card profile-card">
+    <article class="card profile-card medals-panel">
       <h2 class="section-title">Medallas obtenidas</h2>
       <div class="medal-grid" id="medallasList"></div>
     </article>
 
-    <article class="card profile-card">
+    <article class="card profile-card ranking-panel">
       <h2 class="section-title">Ranking por nivel</h2>
       <div class="level-ranking" id="rankingNivelList"></div>
     </article>
@@ -12364,6 +12494,6 @@ body.sudoku-screen-shake{
   </div>
 </div>
 
-<script type="module" src="./juegos/js/perfil.js?v=chat-clean-redesign-20260515"></script>
+<script type="module" src="./juegos/js/perfil.js?v=summary-clean-redesign-20260515"></script>
 </body>
 </html>

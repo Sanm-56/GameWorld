@@ -6004,12 +6004,8 @@ async function renderRankingNivel() {
   rankingNivelListEl.innerHTML = ''
   ranking.forEach((item, index) => {
     const tituloNivel = obtenerTituloNivel(item.nivel)
-    const visual = obtenerVisualRango(item.usuario_id === usuario ? rangoEquipadoActual : tituloNivel)
     const div = document.createElement('div')
     div.className = `level-row${item.usuario_id === usuario ? ' current' : ''}`
-    div.dataset.rankTier = visual.tier
-    div.dataset.rankMotif = visual.motif || 'core'
-    div.setAttribute('style', estiloVisualRango(visual))
     div.innerHTML = `
       <div class="level-rank-pos">#${index + 1}</div>
       <div class="level-rank-user">
@@ -6020,7 +6016,6 @@ async function renderRankingNivel() {
       <div class="level-rank-score">Nivel ${item.nivel}</div>
     `
     rankingNivelListEl.appendChild(div)
-    aplicarPersonalizacionUsuario(div, item.usuario_id)
   })
 }
 
