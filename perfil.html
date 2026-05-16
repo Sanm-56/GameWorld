@@ -4311,10 +4311,12 @@ body.sudoku-screen-shake{
   border-radius:18px;
   color:#fffaf0;
   background:
-    radial-gradient(circle at 18% 14%, color-mix(in srgb, var(--domino-core-light) 12%, transparent), transparent 28%),
-    radial-gradient(circle at 84% 10%, color-mix(in srgb, var(--domino-core) 14%, transparent), transparent 30%),
-    repeating-linear-gradient(115deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 18px),
-    linear-gradient(145deg, #050403, var(--domino-table) 44%, #211b15 72%, #050403);
+    linear-gradient(135deg, rgba(255,255,255,0.07), transparent 24% 76%, rgba(255,255,255,0.028)),
+    linear-gradient(45deg, rgba(255,255,255,0.035) 25%, transparent 25% 50%, rgba(0,0,0,0.24) 50% 75%, transparent 75%),
+    radial-gradient(circle at 18% 14%, color-mix(in srgb, var(--domino-core-light) 14%, transparent), transparent 28%),
+    radial-gradient(circle at 84% 10%, color-mix(in srgb, var(--domino-core) 16%, transparent), transparent 30%),
+    linear-gradient(145deg, #040403, var(--domino-table) 44%, #211b15 72%, #050403);
+  background-size:100% 100%, 42px 42px, 100% 100%, 100% 100%, 100% 100%;
   box-shadow:
     0 22px 50px rgba(0,0,0,0.6),
     inset 0 0 0 1px rgba(255,255,255,0.04),
@@ -4335,32 +4337,32 @@ body.sudoku-screen-shake{
   inset:0;
   z-index:-2;
   background:
-    linear-gradient(135deg, transparent 0 18%, color-mix(in srgb, var(--domino-core-light) 9%, transparent) 19% 20%, transparent 21% 42%, color-mix(in srgb, var(--domino-core) 8%, transparent) 43% 44%, transparent 45%),
-    radial-gradient(circle, color-mix(in srgb, var(--domino-core-light) 18%, transparent) 0 1px, transparent 2px),
-    repeating-linear-gradient(90deg, transparent 0 34px, rgba(255,255,255,0.035) 35px 36px);
-  background-size:100% 100%, 34px 34px, 100% 100%;
-  opacity:0.74;
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(118deg, transparent 0 43%, color-mix(in srgb, var(--domino-core-light) 8%, transparent) 43% 44%, transparent 44%),
+    radial-gradient(circle at 78% 26%, color-mix(in srgb, var(--domino-core-light) 7%, transparent), transparent 26%);
+  background-size:34px 34px, 34px 34px, 100% 100%, 100% 100%;
+  opacity:0.96;
   animation:dominoCascadeDrift 8s ease-in-out infinite;
 }
 
 .achievement-card.domino-relic::after{
-  right:14px;
-  bottom:14px;
+  content:"DOUBLE  SIX";
+  right:16px;
+  bottom:18px;
   z-index:-1;
-  width:138px;
-  height:86px;
-  border-radius:18px;
-  border:1px solid color-mix(in srgb, var(--domino-core-light) 16%, transparent);
-  background:
-    radial-gradient(circle at 22% 32%, color-mix(in srgb, var(--domino-core-light) 20%, transparent) 0 4px, transparent 5px),
-    radial-gradient(circle at 38% 68%, color-mix(in srgb, var(--domino-core-light) 16%, transparent) 0 4px, transparent 5px),
-    radial-gradient(circle at 66% 32%, color-mix(in srgb, var(--domino-core) 18%, transparent) 0 4px, transparent 5px),
-    radial-gradient(circle at 82% 68%, color-mix(in srgb, var(--domino-core-light) 18%, transparent) 0 4px, transparent 5px),
-    linear-gradient(90deg, transparent 48%, color-mix(in srgb, var(--domino-core-light) 18%, transparent) 49% 51%, transparent 52%),
-    linear-gradient(135deg, color-mix(in srgb, var(--domino-core) 10%, transparent), transparent);
-  opacity:0.38;
-  transform:rotate(-8deg);
-  animation:dominoGhostTile 6.2s ease-in-out infinite;
+  width:auto;
+  height:auto;
+  border:0;
+  border-radius:0;
+  color:color-mix(in srgb, var(--domino-core-light) 14%, transparent);
+  background:none;
+  font-size:0.92rem;
+  font-weight:1000;
+  letter-spacing:0.2em;
+  opacity:0.9;
+  transform:none;
+  animation:dominoWatermarkPulse 6.2s ease-in-out infinite;
 }
 
 .achievement-card.domino-relic:hover{
@@ -4394,33 +4396,25 @@ body.sudoku-screen-shake{
 
 .domino-relic .board-relic-icon{
   position:relative;
-  width:92px;
+  width:96px;
   height:118px;
   display:grid;
   place-items:center;
-  border-radius:16px;
+  border-radius:0;
   color:var(--domino-pip);
   font-size:0.62rem;
   font-weight:1000;
   letter-spacing:0.07em;
   background:
-    radial-gradient(circle at 30% 22%, var(--domino-pip) 0 4px, transparent 5px),
-    radial-gradient(circle at 70% 22%, var(--domino-pip) 0 4px, transparent 5px),
-    radial-gradient(circle at 30% 38%, var(--domino-pip) 0 4px, transparent 5px),
-    radial-gradient(circle at 70% 38%, var(--domino-pip) 0 4px, transparent 5px),
-    radial-gradient(circle at 30% 66%, var(--domino-pip) 0 4px, transparent 5px),
-    radial-gradient(circle at 70% 66%, var(--domino-pip) 0 4px, transparent 5px),
-    radial-gradient(circle at 30% 82%, var(--domino-pip) 0 4px, transparent 5px),
-    radial-gradient(circle at 70% 82%, var(--domino-pip) 0 4px, transparent 5px),
-    linear-gradient(180deg, transparent 49%, rgba(17,24,39,0.24) 50% 52%, transparent 53%),
-    linear-gradient(145deg, var(--domino-core-light), var(--domino-core) 52%, color-mix(in srgb, var(--domino-core) 72%, #0f172a));
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.16), transparent 22%),
+    linear-gradient(145deg, color-mix(in srgb, var(--domino-core) 72%, #1f2937), #080a0f 62%, color-mix(in srgb, var(--domino-core) 36%, #111827));
   border:0;
   box-shadow:
     0 18px 34px rgba(0,0,0,0.52),
     0 0 28px var(--domino-glow),
-    inset 0 0 0 2px rgba(255,255,255,0.42),
-    inset 0 0 0 8px rgba(15,23,42,0.16);
-  transform:rotate(-3deg);
+    inset 0 0 0 2px color-mix(in srgb, var(--domino-core-light) 32%, transparent),
+    inset 0 0 0 8px rgba(2,6,23,0.56);
+  clip-path:polygon(13% 0, 87% 0, 100% 13%, 100% 76%, 50% 100%, 0 76%, 0 13%);
   animation:dominoTileFloat 5.8s ease-in-out infinite;
 }
 
@@ -4432,20 +4426,36 @@ body.sudoku-screen-shake{
 }
 
 .domino-relic .board-relic-icon::before{
-  inset:8px;
-  border-radius:12px;
+  width:54px;
+  height:78px;
+  border-radius:10px;
+  background:
+    radial-gradient(circle at 32% 18%, var(--domino-pip) 0 3px, transparent 4px),
+    radial-gradient(circle at 68% 18%, var(--domino-pip) 0 3px, transparent 4px),
+    radial-gradient(circle at 32% 34%, var(--domino-pip) 0 3px, transparent 4px),
+    radial-gradient(circle at 68% 34%, var(--domino-pip) 0 3px, transparent 4px),
+    radial-gradient(circle at 32% 66%, var(--domino-pip) 0 3px, transparent 4px),
+    radial-gradient(circle at 68% 66%, var(--domino-pip) 0 3px, transparent 4px),
+    radial-gradient(circle at 32% 82%, var(--domino-pip) 0 3px, transparent 4px),
+    radial-gradient(circle at 68% 82%, var(--domino-pip) 0 3px, transparent 4px),
+    linear-gradient(180deg, transparent 49%, rgba(17,24,39,0.26) 50% 52%, transparent 53%),
+    linear-gradient(145deg, var(--domino-core-light), var(--domino-core) 56%, color-mix(in srgb, var(--domino-core) 74%, #0f172a));
   border:1px solid rgba(255,255,255,0.42);
-  box-shadow:inset 0 0 0 1px rgba(17,24,39,0.1);
+  box-shadow:
+    0 12px 18px rgba(0,0,0,0.36),
+    inset 0 1px 0 rgba(255,255,255,0.48),
+    inset 0 -10px 16px rgba(0,0,0,0.16);
+  transform:translateY(-5px);
 }
 
 .domino-relic .board-relic-icon::after{
-  left:14px;
-  right:14px;
-  top:50%;
-  height:2px;
+  left:18px;
+  right:18px;
+  bottom:20px;
+  height:8px;
   border-radius:999px;
-  background:linear-gradient(90deg, transparent, rgba(17,24,39,0.42), transparent);
-  box-shadow:0 0 14px rgba(255,255,255,0.24);
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.86), transparent);
+  box-shadow:0 0 16px color-mix(in srgb, var(--domino-core-light) 34%, transparent);
   animation:dominoPipShine 4.8s ease-in-out infinite;
 }
 
@@ -4456,7 +4466,7 @@ body.sudoku-screen-shake{
   min-height:24px;
   display:grid;
   place-items:center;
-  margin-top:24px;
+  margin-top:62px;
   border-radius:7px;
   color:var(--domino-pip);
   background:rgba(255,255,255,0.56);
@@ -4623,10 +4633,12 @@ body.sudoku-screen-shake{
   --domino-pip:#022c22;
   --domino-glow:rgba(16,185,129,0.34);
   background:
-    radial-gradient(circle at 18% 14%, rgba(16,185,129,0.18), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,0.07), transparent 24% 76%, rgba(255,255,255,0.028)),
+    linear-gradient(45deg, rgba(16,185,129,0.055) 25%, transparent 25% 50%, rgba(0,0,0,0.24) 50% 75%, transparent 75%),
+    radial-gradient(circle at 18% 14%, rgba(16,185,129,0.2), transparent 28%),
     radial-gradient(circle at 84% 10%, rgba(209,250,229,0.16), transparent 30%),
-    repeating-linear-gradient(115deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 18px),
     linear-gradient(145deg, #020604, #03150f 42%, #064e3b 72%, #020604);
+  background-size:100% 100%, 42px 42px, 100% 100%, 100% 100%, 100% 100%;
 }
 
 .domino-relic.epic{
@@ -4636,12 +4648,13 @@ body.sudoku-screen-shake{
   --domino-pip:#1e1b4b;
   --domino-glow:rgba(139,92,246,0.38);
   background:
-    radial-gradient(circle at 18% 14%, rgba(139,92,246,0.24), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,0.07), transparent 24% 76%, rgba(255,255,255,0.028)),
+    linear-gradient(45deg, rgba(139,92,246,0.055) 25%, transparent 25% 50%, rgba(0,0,0,0.24) 50% 75%, transparent 75%),
+    radial-gradient(circle at 18% 14%, rgba(139,92,246,0.26), transparent 28%),
     radial-gradient(circle at 84% 10%, rgba(14,165,233,0.14), transparent 30%),
     radial-gradient(circle, rgba(237,233,254,0.18) 0 1px, transparent 2px),
-    repeating-linear-gradient(115deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 18px),
     linear-gradient(145deg, #030108, #11051f 42%, #2e1065 72%, #030108);
-  background-size:100% 100%, 100% 100%, 36px 36px, 100% 100%, 100% 100%;
+  background-size:100% 100%, 42px 42px, 100% 100%, 100% 100%, 36px 36px, 100% 100%;
 }
 
 .domino-relic.legendary{
@@ -4652,10 +4665,12 @@ body.sudoku-screen-shake{
   --domino-glow:rgba(245,158,11,0.44);
   background:
     radial-gradient(circle at 50% -8%, rgba(255,255,255,0.32), transparent 30%),
-    radial-gradient(circle at 18% 14%, rgba(251,191,36,0.28), transparent 28%),
-    radial-gradient(circle at 84% 10%, rgba(255,247,237,0.24), transparent 30%),
-    repeating-linear-gradient(115deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 18px),
+    linear-gradient(135deg, rgba(255,255,255,0.09), transparent 24% 76%, rgba(255,255,255,0.04)),
+    linear-gradient(45deg, rgba(251,191,36,0.07) 25%, transparent 25% 50%, rgba(0,0,0,0.22) 50% 75%, transparent 75%),
+    radial-gradient(circle at 18% 14%, rgba(251,191,36,0.3), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(255,247,237,0.25), transparent 30%),
     linear-gradient(145deg, #090501, #1f1302 38%, #7c4a03 70%, #2f1b02);
+  background-size:100% 100%, 100% 100%, 42px 42px, 100% 100%, 100% 100%, 100% 100%;
   animation:dominoLegendCrown 6s ease-in-out infinite;
 }
 
@@ -4686,9 +4701,14 @@ body.sudoku-screen-shake{
   50%{ transform:rotate(-8deg) translateY(-5px); opacity:0.46; }
 }
 
+@keyframes dominoWatermarkPulse{
+  0%,100%{ opacity:0.28; filter:brightness(0.9); }
+  50%{ opacity:0.54; filter:brightness(1.22); }
+}
+
 @keyframes dominoTileFloat{
-  0%,100%{ transform:rotate(-3deg) translateY(0); filter:brightness(1); }
-  50%{ transform:rotate(-1deg) translateY(-4px); filter:brightness(1.08); }
+  0%,100%{ transform:translateY(0); filter:brightness(1); }
+  50%{ transform:translateY(-4px); filter:brightness(1.08); }
 }
 
 @keyframes dominoPipShine{
@@ -10780,14 +10800,16 @@ body.sudoku-screen-shake{
   }
 
   .domino-relic .board-relic-icon::before{
-    inset:6px;
+    inset:auto;
+    width:40px;
+    height:58px;
     border-radius:10px;
   }
 
   .domino-relic .board-relic-icon span{
     min-width:34px;
     min-height:22px;
-    margin-top:18px;
+    margin-top:48px;
     border-radius:6px;
   }
 
