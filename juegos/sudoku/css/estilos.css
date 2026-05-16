@@ -104,6 +104,135 @@ bottom:20px;
 left:20px;
 }
 
+.sudoku-music-menu{
+position:fixed;
+left:14px;
+bottom:78px;
+z-index:1200;
+display:none;
+width:min(300px, calc(100vw - 28px));
+overflow:hidden;
+border:1px solid rgba(139,92,246,0.34);
+border-radius:14px;
+background:rgba(15,23,42,0.97);
+box-shadow:0 18px 48px rgba(0,0,0,0.4);
+text-align:left;
+}
+
+.sudoku-music-menu.abierto{
+display:block;
+}
+
+.sudoku-music-menu-head{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+padding:12px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.sudoku-music-title{
+min-width:0;
+}
+
+.sudoku-music-title strong{
+display:block;
+font-size:14px;
+line-height:1.2;
+}
+
+.sudoku-music-title span{
+display:block;
+overflow:hidden;
+color:#cbd5e1;
+font-size:12px;
+line-height:1.35;
+text-overflow:ellipsis;
+white-space:nowrap;
+}
+
+.sudoku-music-close{
+flex:0 0 auto;
+width:30px;
+height:30px;
+border:1px solid rgba(255,255,255,0.14);
+border-radius:10px;
+color:white;
+background:rgba(255,255,255,0.1);
+cursor:pointer;
+font-size:18px;
+line-height:1;
+}
+
+.sudoku-music-controls{
+padding:10px 12px;
+border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.sudoku-music-shuffle{
+width:100%;
+border:1px solid rgba(139,92,246,0.38);
+border-radius:12px;
+padding:9px 10px;
+color:white;
+background:rgba(30,41,59,0.9);
+cursor:pointer;
+font:inherit;
+font-size:13px;
+font-weight:700;
+}
+
+.sudoku-music-shuffle.activo{
+border-color:rgba(196,181,253,0.78);
+background:rgba(124,58,237,0.36);
+}
+
+.sudoku-music-list{
+display:grid;
+gap:6px;
+max-height:min(300px, calc(100vh - 220px));
+overflow:auto;
+padding:10px 12px 12px;
+}
+
+.sudoku-music-track{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+width:100%;
+min-height:40px;
+border:1px solid rgba(255,255,255,0.1);
+border-radius:12px;
+padding:9px 10px;
+color:white;
+background:rgba(30,41,59,0.74);
+cursor:pointer;
+font:inherit;
+font-size:13px;
+text-align:left;
+}
+
+.sudoku-music-track.activo{
+border-color:rgba(196,181,253,0.78);
+background:rgba(124,58,237,0.24);
+}
+
+.sudoku-music-track span{
+min-width:0;
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
+}
+
+.sudoku-music-track small{
+flex:0 0 auto;
+color:#ddd6fe;
+font-size:11px;
+font-weight:800;
+}
+
 /* EFECTO */
 .btn:hover{
 transform:translateY(-2px) scale(1.05);

@@ -28,26 +28,16 @@
 </div>
 
 <!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
-<button class="btn musica musica-pos" onclick="reproducirMusica()">🎵 Música</button>
+<button class="btn musica musica-pos" onclick="manejarClickMusicaSudoku(event)" ondblclick="abrirMenuMusicaSudoku(event)">🎵 Música</button>
 
-<audio loop>
+<audio id="sudokuMusicAudio">
   <source src="./music/musicasudoku.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 
 <script type="module" src="./js/sudoku.js"></script>
 
-<script>
-/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
-function reproducirMusica(){
-  const audio = document.querySelector('audio');
-  if (audio.paused) {
-    audio.play();
-  } else {
-    audio.pause();
-  }
-}
-</script>
+<script src="./js/sudoku-music.js"></script>
 
 </body>
 </html>
