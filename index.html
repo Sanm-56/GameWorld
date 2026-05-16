@@ -546,6 +546,76 @@ h1{
   font-weight:900;
 }
 
+.music-menu{
+  width:min(340px, calc(100vw - 24px));
+  max-height:calc(100dvh - 32px);
+  border-radius:14px;
+  box-shadow:0 24px 70px rgba(0,0,0,0.46), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.music-menu-head{
+  padding:14px;
+}
+
+.music-menu-title strong{
+  font-size:15px;
+}
+
+.music-menu-close{
+  min-width:34px;
+  min-height:34px;
+}
+
+.music-menu-controls{
+  padding:12px 14px;
+}
+
+.music-shuffle{
+  min-height:42px;
+  border-radius:10px;
+}
+
+.music-list{
+  gap:8px;
+  max-height:min(360px, calc(100dvh - 210px));
+  padding:12px 14px 14px;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(45,212,191,0.52) rgba(15,23,42,0.42);
+}
+
+.music-list::-webkit-scrollbar{
+  width:8px;
+}
+
+.music-list::-webkit-scrollbar-track{
+  background:rgba(15,23,42,0.42);
+  border-radius:999px;
+}
+
+.music-list::-webkit-scrollbar-thumb{
+  border-radius:999px;
+  background:rgba(45,212,191,0.52);
+}
+
+.music-track{
+  min-height:46px;
+  border-radius:10px;
+  padding:10px 12px;
+}
+
+.music-track:hover{
+  border-color:rgba(45,212,191,0.34);
+  background:rgba(30,41,59,0.78);
+}
+
+.music-track:focus-visible,
+.music-shuffle:focus-visible,
+.music-menu-close:focus-visible{
+  outline:2px solid rgba(45,212,191,0.72);
+  outline-offset:2px;
+}
+
 .rules-launch{
   display:flex;
   justify-content:center;
@@ -2854,6 +2924,17 @@ h1{
     left:12px;
     right:12px;
     width:auto;
+    max-height:calc(100dvh - 104px);
+    border-radius:14px;
+  }
+
+  .music-list{
+    max-height:calc(100dvh - 276px);
+  }
+
+  .music-track{
+    min-height:48px;
+    font-size:14px;
   }
 
   .mobile-admin-btn{
@@ -3663,7 +3744,8 @@ const musicTracks = [
 const musicState = {
   currentIndex: 0,
   shuffle: false,
-  clickTimer: null
+  clickTimer: null,
+  lastClickAt: 0
 }
 
 function getMusicAudio(){
@@ -3749,12 +3831,21 @@ function reproducirMusica(){
 }
 
 function manejarClickMusica(event){
+  const now = Date.now()
+  const isDoubleTap = now - musicState.lastClickAt < 320
+  musicState.lastClickAt = now
+
   if(event?.detail > 1){
     clearTimeout(musicState.clickTimer)
     return
   }
 
   clearTimeout(musicState.clickTimer)
+  if(isDoubleTap){
+    abrirMenuMusica(event)
+    return
+  }
+
   musicState.clickTimer = setTimeout(reproducirMusica, 220)
 }
 

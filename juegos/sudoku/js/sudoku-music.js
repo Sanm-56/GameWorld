@@ -14,6 +14,7 @@ const sudokuMusicState = {
   currentIndex: 0,
   shuffle: false,
   clickTimer: null,
+  lastClickAt: 0,
   restored: false
 }
 
@@ -125,12 +126,21 @@ function reproducirMusica(){
 }
 
 function manejarClickMusicaSudoku(event){
+  const now = Date.now()
+  const isDoubleTap = now - sudokuMusicState.lastClickAt < 320
+  sudokuMusicState.lastClickAt = now
+
   if(event?.detail > 1){
     clearTimeout(sudokuMusicState.clickTimer)
     return
   }
 
   clearTimeout(sudokuMusicState.clickTimer)
+  if(isDoubleTap){
+    abrirMenuMusicaSudoku(event)
+    return
+  }
+
   sudokuMusicState.clickTimer = setTimeout(reproducirMusica, 220)
 }
 
