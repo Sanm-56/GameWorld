@@ -6566,7 +6566,7 @@ function instalarScrollMovilPerfil() {
   const botones = Array.from(profileScrollDockEl.querySelectorAll('[data-profile-scroll]'))
   const botonArriba = botones.find((button) => button.dataset.profileScroll === 'up')
   const botonAbajo = botones.find((button) => button.dataset.profileScroll === 'down')
-  const mediaMovil = window.matchMedia('(max-width: 560px)')
+  const mediaMovil = window.matchMedia('(max-width: 900px)')
   let raf = null
 
   const obtenerMaxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight)

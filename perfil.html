@@ -10561,18 +10561,7 @@ body.sudoku-screen-shake{
   }
 }
 
-@media (max-width:560px){
-  .page{
-    padding:16px 12px 36px;
-  }
-
-  .topbar{
-    display:grid;
-    grid-template-columns:minmax(0, 1fr);
-    gap:10px;
-    margin-bottom:16px;
-  }
-
+@media (max-width:900px){
   .mobile-scroll-dock{
     position:fixed;
     right:max(8px, env(safe-area-inset-right));
@@ -10649,6 +10638,19 @@ body.sudoku-screen-shake{
     background:linear-gradient(180deg, var(--rank-primary), var(--rank-accent));
     box-shadow:0 0 14px var(--rank-glow);
     transition:height 0.16s ease;
+  }
+}
+
+@media (max-width:560px){
+  .page{
+    padding:16px 12px 36px;
+  }
+
+  .topbar{
+    display:grid;
+    grid-template-columns:minmax(0, 1fr);
+    gap:10px;
+    margin-bottom:16px;
   }
 
   .btn{
@@ -12051,6 +12053,6 @@ body.sudoku-screen-shake{
   </div>
 </div>
 
-<script type="module" src="./juegos/js/perfil.js?v=memory-common-relics-20260514"></script>
+<script type="module" src="./juegos/js/perfil.js?v=profile-mobile-scroll-20260515"></script>
 </body>
 </html>
