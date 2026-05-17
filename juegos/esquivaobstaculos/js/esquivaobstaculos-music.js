@@ -49,6 +49,10 @@ function asegurarEstilosMusicaDodge(){
 .dodge-music-btn{position:fixed;left:14px;bottom:14px;z-index:1180;min-height:44px;max-width:calc(100vw - 28px);border:1px solid rgba(125,211,252,0.38);border-radius:14px;padding:10px 16px;color:#e0f2fe;background:linear-gradient(135deg,#0369a1,#fb7185);box-shadow:0 16px 34px rgba(0,0,0,0.28),0 0 26px rgba(56,189,248,0.16);cursor:pointer;font:inherit;font-size:14px;font-weight:900;line-height:1;transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
 .dodge-music-btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 18px 38px rgba(0,0,0,0.34),0 0 30px rgba(251,113,133,0.18);}
 .dodge-music-btn:active{transform:translateY(1px) scale(.99);}
+.arcade-music-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin-top:18px;}
+.arcade-music-actions .back,.arcade-music-actions #volverMenuBtn,.arcade-music-actions .dodge-music-btn{width:auto;min-width:min(220px,100%);margin:0 !important;}
+.arcade-music-actions .dodge-music-btn,.side .dodge-music-btn{position:static !important;max-width:100%;min-height:48px;}
+.side .dodge-music-btn{width:100%;margin:0;}
 .dodge-music-menu{position:fixed;left:14px;bottom:72px;z-index:1190;display:none;width:min(350px, calc(100vw - 28px));max-height:calc(100dvh - 92px);overflow:hidden;border:1px solid rgba(125,211,252,0.36);border-radius:16px;background:rgba(7,17,31,0.98);box-shadow:0 24px 70px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.07);text-align:left;}
 .dodge-music-menu.abierto{display:block;}
 .dodge-music-menu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;border-bottom:1px solid rgba(125,211,252,0.14);background:linear-gradient(135deg,rgba(56,189,248,0.14),rgba(251,113,133,0.08));}
@@ -70,6 +74,7 @@ function asegurarEstilosMusicaDodge(){
 .dodge-music-track small{flex:0 0 auto;color:#bae6fd;font-size:11px;font-weight:900;}
 .dodge-music-btn:focus-visible,.dodge-music-track:focus-visible,.dodge-music-shuffle:focus-visible,.dodge-music-close:focus-visible{outline:2px solid rgba(125,211,252,0.82);outline-offset:2px;}
 @media (max-width:520px){.dodge-music-btn{left:12px;bottom:12px;min-height:42px;padding:10px 14px;font-size:13px;}.dodge-music-menu{left:12px;right:12px;bottom:66px;width:auto;max-height:calc(100dvh - 82px);}.dodge-music-list{max-height:calc(100dvh - 232px);}.dodge-music-track{min-height:48px;font-size:14px;}}
+@media (max-width:520px){.arcade-music-actions{gap:8px;}.arcade-music-actions .back,.arcade-music-actions #volverMenuBtn,.arcade-music-actions .dodge-music-btn{width:100%;}}
 @media (prefers-reduced-motion:reduce){.dodge-music-btn{transition:none;}}
 `
   document.head.appendChild(style)
@@ -229,12 +234,54 @@ function crearMenuMusicaDodge(){
   document.body.appendChild(menu)
 }
 
+function ubicarBotonMusicaDodge(){
+  const button = document.querySelector(".dodge-music-btn")
+  if(!button) return
+
+  const backButton = document.getElementById("volverMenuBtn") || document.getElementById("backBtn")
+  if(backButton?.parentElement){
+    let wrapper = backButton.parentElement.classList.contains("arcade-music-actions")
+      ? backButton.parentElement
+      : null
+
+    if(!wrapper){
+      wrapper = document.createElement("div")
+      wrapper.className = "arcade-music-actions"
+      backButton.parentElement.insertBefore(wrapper, backButton)
+      wrapper.appendChild(backButton)
+    }
+
+    if(button.parentElement !== wrapper){
+      wrapper.appendChild(button)
+    }
+    return
+  }
+
+  const side = document.querySelector(".side")
+  const status = document.getElementById("status")
+  if(side && button.parentElement !== side){
+    side.insertBefore(button, status || null)
+  }
+}
+
+function observarUbicacionBotonMusicaDodge(){
+  ubicarBotonMusicaDodge()
+
+  const observer = new MutationObserver(() => ubicarBotonMusicaDodge())
+  observer.observe(document.body, { childList: true, subtree: true })
+  setTimeout(() => {
+    ubicarBotonMusicaDodge()
+    observer.disconnect()
+  }, 1200)
+}
+
 function inicializarMusicaDodge(){
   const audio = obtenerAudioDodge()
   if(!audio) return
 
   asegurarEstilosMusicaDodge()
   crearMenuMusicaDodge()
+  observarUbicacionBotonMusicaDodge()
 
   const saved = leerEstadoMusicaDodge()
   const savedIndex = Number(saved.currentIndex)
