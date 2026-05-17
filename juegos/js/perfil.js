@@ -6392,7 +6392,8 @@ async function borrarMensajesPropiosChatPrivado() {
   }
   const confirmado = await confirmarAccionChat({
     titulo: 'Borrar mensajes propios',
-    mensaje: 'Seguro que deseas borrar tus mensajes enviados en esta conversacion?',
+    mensaje: 'Seguro que deseas borrar tus mensajes enviados en esta conversacion? Los mensajes recibidos se conservaran.',
+    textoAceptar: 'Borrar',
   })
   if (!confirmado) return
 
@@ -6416,6 +6417,7 @@ async function borrarMensajePrivado(id) {
   const confirmado = await confirmarAccionChat({
     titulo: 'Borrar mensaje',
     mensaje: 'Seguro que deseas borrar este mensaje?',
+    textoAceptar: 'Borrar',
   })
   if (!confirmado) return
 
@@ -6439,9 +6441,11 @@ async function borrarConversacionChatPrivado() {
     chatPrivateStatusEl.innerText = 'Abre una conversacion para borrar.'
     return
   }
+  const destino = chatPrivadoDestino
   const confirmado = await confirmarAccionChat({
     titulo: 'Borrar conversacion',
-    mensaje: `Seguro que deseas borrar la conversacion con ${chatPrivadoDestino}?`,
+    mensaje: `Seguro que deseas borrar toda la conversacion con ${destino}?`,
+    textoAceptar: 'Borrar todo',
   })
   if (!confirmado) return
 
@@ -6450,18 +6454,20 @@ async function borrarConversacionChatPrivado() {
       .from(CHAT_PRIVADO_TABLA)
       .delete()
       .eq('remitente', usuario)
-      .eq('destinatario', chatPrivadoDestino),
+      .eq('destinatario', destino),
     supabase
       .from(CHAT_PRIVADO_TABLA)
       .delete()
-      .eq('remitente', chatPrivadoDestino)
+      .eq('remitente', destino)
       .eq('destinatario', usuario),
   ])
 
   if (propios.error || recibidos.error) {
-    ocultarConversacionLocal(chatPrivadoDestino)
-    chatPrivateListEl.innerHTML = '<div class="empty">Conversacion oculta en este dispositivo.</div>'
-    chatPrivateStatusEl.innerText = 'No hubo permiso para borrar todo en Supabase; se limpio la vista local.'
+    ocultarConversacionLocal(destino)
+    chatPrivateListEl.innerHTML = '<div class="empty">Conversacion eliminada de tu vista.</div>'
+    chatPrivateStatusEl.innerText = 'No hubo permiso para borrar todo en Supabase; se elimino de tu vista local.'
+    chatPrivadoDestino = ''
+    if (chatPrivateTargetEl) chatPrivateTargetEl.innerText = 'Sin conversacion abierta'
     await cargarConversacionesPrivadas()
     return
   }

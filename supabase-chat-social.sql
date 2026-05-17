@@ -61,6 +61,13 @@ create policy "chat_privado_insert_all"
   on public.chat_privado for insert
   with check (true);
 
+drop policy if exists "chat_privado_delete_all" on public.chat_privado;
+create policy "chat_privado_delete_all"
+  on public.chat_privado for delete
+  using (true);
+
+grant delete on table public.chat_privado to anon, authenticated;
+
 do $$
 begin
   alter publication supabase_realtime add table public.chat_privado;
