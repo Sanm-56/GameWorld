@@ -1,2 +1,278 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lobby Torre Infinita</title><link rel="stylesheet" href="../css/arcade.css"></head><body><main class="final-card container"><h1>Torre Infinita - Torneo</h1><p id="mensaje">Esperando que el torneo inicie...</p></main><button class="musica-btn tower-music-btn" type="button" onclick="manejarClickMusicaTower(event)" ondblclick="abrirMenuMusicaTower(event)">Musica</button><audio id="towerMusicAudio"><source src="./music/Upbet.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio><script type="module" src="../js/lobby.js"></script><script src="./js/torreinfinita-music.js"></script></body></html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lobby Torre Infinita</title>
+  <link rel="stylesheet" href="../css/arcade.css">
+  <style>
+    body{
+      --accent:#a78bfa;
+      --secondary:#34d399;
+      background:
+        radial-gradient(circle at 16% 12%, rgba(167,139,250,.22), transparent 30%),
+        radial-gradient(circle at 86% 82%, rgba(52,211,153,.18), transparent 30%),
+        linear-gradient(150deg, #070b18, #14142d 56%, #07111f);
+    }
+
+    body::before{
+      background:
+        linear-gradient(90deg, rgba(167,139,250,.08) 1px, transparent 1px),
+        linear-gradient(rgba(52,211,153,.045) 1px, transparent 1px);
+      background-size:54px 54px;
+      mask-image:linear-gradient(180deg, black, transparent 84%);
+    }
+
+    .container.tower-lobby{
+      width:min(960px, 100%);
+      max-width:960px;
+      min-width:0;
+      padding:0;
+      border:1px solid rgba(196,181,253,.26);
+      border-radius:26px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 12% 0, rgba(167,139,250,.2), transparent 30%),
+        radial-gradient(circle at 90% 86%, rgba(52,211,153,.16), transparent 30%),
+        linear-gradient(145deg, rgba(16,14,39,.96), rgba(2,6,23,.9));
+      box-shadow:0 30px 90px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    .tower-lobby-layout{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) minmax(300px, .98fr);
+      align-items:stretch;
+      position:relative;
+      z-index:1;
+    }
+
+    .tower-copy{
+      padding:clamp(26px, 4vw, 48px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      text-align:left;
+      min-width:0;
+    }
+
+    .lobby-kicker{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border:1px solid rgba(196,181,253,.38);
+      border-radius:999px;
+      color:#ddd6fe;
+      background:rgba(91,33,182,.3);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:18px 0 10px;
+      font-size:clamp(2rem, 5vw, 4.3rem);
+      line-height:.95;
+      overflow-wrap:anywhere;
+    }
+
+    .subtitle{
+      max-width:520px;
+      margin:0 0 20px;
+      color:#d1fae5;
+      font-size:clamp(.98rem, 2vw, 1.08rem);
+      line-height:1.55;
+    }
+
+    .status-card{
+      width:100%;
+      max-width:520px;
+      margin:0 0 18px;
+      padding:14px 16px;
+      border:1px solid rgba(196,181,253,.2);
+      border-radius:16px;
+      background:rgba(2,6,23,.34);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    #mensaje{
+      margin:0;
+      color:#ddd6fe;
+      font-weight:900;
+      line-height:1.45;
+      overflow-wrap:anywhere;
+    }
+
+    .tower-scene{
+      position:relative;
+      min-height:440px;
+      display:grid;
+      place-items:center;
+      padding:clamp(24px, 4vw, 44px);
+      border-left:1px solid rgba(196,181,253,.16);
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 86%, rgba(52,211,153,.18), transparent 34%),
+        linear-gradient(180deg, rgba(167,139,250,.12), transparent 34%),
+        linear-gradient(180deg, #090d22, #070b18);
+    }
+
+    .tower-scene::before{
+      content:"";
+      position:absolute;
+      left:10%;
+      right:10%;
+      bottom:7%;
+      height:20%;
+      border-radius:50%;
+      background:radial-gradient(ellipse, rgba(52,211,153,.18), transparent 68%);
+      filter:blur(8px);
+    }
+
+    .tower-stack{
+      position:relative;
+      width:min(350px, 100%);
+      height:340px;
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:24px;
+      overflow:hidden;
+      background:
+        linear-gradient(90deg, rgba(167,139,250,.1) 1px, transparent 1px),
+        linear-gradient(rgba(52,211,153,.045) 1px, transparent 1px),
+        rgba(15,23,42,.54);
+      background-size:42px 42px;
+      box-shadow:0 24px 70px rgba(2,6,23,.44), 0 0 34px rgba(167,139,250,.16);
+      transform:rotate(2deg);
+    }
+
+    .tower-block{
+      position:absolute;
+      left:50%;
+      height:44px;
+      border-radius:10px;
+      transform:translateX(-50%);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.18), transparent 34%),
+        linear-gradient(135deg, #a78bfa, #34d399);
+      box-shadow:0 18px 34px rgba(0,0,0,.34), 0 0 24px rgba(167,139,250,.2);
+    }
+
+    .base{bottom:30px;width:250px;opacity:.75;}
+    .mid-a{bottom:82px;width:204px;}
+    .mid-b{bottom:134px;width:172px;background:linear-gradient(135deg,#34d399,#60a5fa);}
+    .mid-c{bottom:186px;width:138px;}
+    .active-block{
+      top:48px;
+      width:174px;
+      background:linear-gradient(135deg,#f8fafc,#a78bfa);
+      animation:blockSlide 2.8s ease-in-out infinite;
+    }
+
+    .scan-line{
+      position:absolute;
+      left:14%;
+      right:14%;
+      height:2px;
+      border-radius:999px;
+      background:linear-gradient(90deg, transparent, rgba(196,181,253,.82), transparent);
+      box-shadow:0 0 18px rgba(167,139,250,.5);
+      animation:scanMove 3.2s linear infinite;
+    }
+
+    .scan-a{top:24%;}
+    .scan-b{top:62%;animation-delay:1.4s;}
+
+    .tower-chip{
+      position:absolute;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:66px;
+      height:42px;
+      padding:0 12px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:14px;
+      background:rgba(15,23,42,.76);
+      color:#ddd6fe;
+      font-weight:1000;
+      box-shadow:0 16px 32px rgba(0,0,0,.26);
+      animation:chipFloat 5s ease-in-out infinite;
+    }
+
+    .chip-a{top:40px;right:30px;}
+    .chip-b{bottom:52px;left:24px;color:#bbf7d0;animation-delay:-1.8s;}
+    .chip-c{bottom:96px;right:42px;color:#bae6fd;animation-delay:-3.1s;}
+
+    @keyframes blockSlide{
+      0%,100%{transform:translateX(-78%);}
+      50%{transform:translateX(-22%);}
+    }
+
+    @keyframes scanMove{
+      0%{transform:translateY(-36px);opacity:.25;}
+      50%{opacity:.9;}
+      100%{transform:translateY(36px);opacity:.25;}
+    }
+
+    @keyframes chipFloat{
+      0%,100%{transform:translateY(0) rotate(0);}
+      50%{transform:translateY(-12px) rotate(5deg);}
+    }
+
+    @media (max-width:760px){
+      body{align-items:flex-start;padding:14px;}
+      .tower-lobby-layout{grid-template-columns:1fr;}
+      .tower-copy{align-items:center;text-align:center;padding:28px 18px 18px;}
+      .subtitle{max-width:440px;}
+      .tower-scene{min-height:350px;border-left:0;border-top:1px solid rgba(196,181,253,.16);padding:32px 18px 38px;}
+      .tower-stack{width:min(292px, 92vw);height:292px;transform:rotate(0);}
+      .base{width:214px;}
+      .mid-a{width:178px;}
+      .mid-b{width:148px;}
+      .mid-c{width:120px;}
+      .active-block{width:148px;}
+      .tower-chip{min-width:54px;height:36px;font-size:14px;}
+      .chip-a{top:18px;right:16px;}
+      .chip-b{bottom:18px;left:16px;}
+      .chip-c{display:none;}
+    }
+  </style>
+</head>
+<body data-game="torreinfinita">
+  <main class="final-card container tower-lobby" aria-label="Lobby de espera Torre Infinita">
+    <div class="tower-lobby-layout">
+      <section class="tower-copy">
+        <span class="lobby-kicker">Lobby de espera</span>
+        <h1>Torre Infinita</h1>
+        <p class="subtitle">El siguiente bloque se alinea arriba. Mide el ritmo, calcula el centro y espera el inicio.</p>
+        <div class="status-card">
+          <p id="mensaje">Esperando que el torneo inicie...</p>
+        </div>
+      </section>
+
+      <section class="tower-scene" aria-hidden="true">
+        <span class="tower-chip chip-a">ALT +12</span>
+        <span class="tower-chip chip-b">STACK</span>
+        <span class="tower-chip chip-c">PERFECT</span>
+        <div class="tower-stack">
+          <span class="scan-line scan-a"></span>
+          <span class="scan-line scan-b"></span>
+          <span class="tower-block active-block"></span>
+          <span class="tower-block mid-c"></span>
+          <span class="tower-block mid-b"></span>
+          <span class="tower-block mid-a"></span>
+          <span class="tower-block base"></span>
+        </div>
+      </section>
+    </div>
+  </main>
+  <button class="musica-btn tower-music-btn" type="button" onclick="manejarClickMusicaTower(event)" ondblclick="abrirMenuMusicaTower(event)">Musica</button>
+  <audio id="towerMusicAudio">
+    <source src="./music/Upbet.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <script type="module" src="../js/lobby.js"></script>
+  <script src="./js/torreinfinita-music.js"></script>
+</body>
+</html>

@@ -5,11 +5,306 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lobby Cricket Arcade</title>
   <link rel="stylesheet" href="../css/arcade.css">
+  <style>
+    :root{
+      --cricket-field:#0d3f29;
+      --cricket-deep:#061b16;
+      --cricket-light:#facc15;
+      --cricket-green:#22c55e;
+      --cricket-ball:#ef4444;
+      --cricket-cream:#fff7d6;
+    }
+
+    body{
+      --accent:#22c55e;
+      --secondary:#facc15;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(250,204,21,.2), transparent 28%),
+        radial-gradient(circle at 82% 82%, rgba(34,197,94,.2), transparent 30%),
+        linear-gradient(150deg, #04130e, #0b2a1d 56%, #07111f);
+    }
+
+    body::before{
+      background:
+        radial-gradient(circle, rgba(255,247,214,.055) 1px, transparent 2px),
+        linear-gradient(90deg, rgba(34,197,94,.055) 1px, transparent 1px);
+      background-size:34px 34px, 78px 78px;
+      mask-image:linear-gradient(180deg, black, transparent 86%);
+    }
+
+    .container.cricket-lobby{
+      width:min(960px, 100%);
+      max-width:960px;
+      min-width:0;
+      padding:0;
+      border:1px solid rgba(250,204,21,.24);
+      border-radius:26px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 12% 0, rgba(250,204,21,.18), transparent 30%),
+        radial-gradient(circle at 88% 85%, rgba(34,197,94,.16), transparent 30%),
+        linear-gradient(145deg, rgba(7,45,31,.96), rgba(2,6,23,.9));
+      box-shadow:0 30px 90px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    .cricket-lobby-layout{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) minmax(300px, .98fr);
+      align-items:stretch;
+      position:relative;
+      z-index:1;
+    }
+
+    .cricket-copy{
+      padding:clamp(26px, 4vw, 48px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      text-align:left;
+      min-width:0;
+    }
+
+    .lobby-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border:1px solid rgba(250,204,21,.36);
+      border-radius:999px;
+      color:#fef3c7;
+      background:rgba(113,63,18,.28);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:18px 0 10px;
+      font-size:clamp(2rem, 5vw, 4.35rem);
+      line-height:.95;
+      overflow-wrap:anywhere;
+    }
+
+    .subtitle{
+      max-width:520px;
+      margin:0 0 20px;
+      color:#dcfce7;
+      font-size:clamp(.98rem, 2vw, 1.08rem);
+      line-height:1.55;
+    }
+
+    .status-card{
+      width:100%;
+      max-width:520px;
+      margin:0 0 18px;
+      padding:14px 16px;
+      border:1px solid rgba(250,204,21,.2);
+      border-radius:16px;
+      background:rgba(2,6,23,.34);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    #mensaje{
+      margin:0;
+      color:#fde68a;
+      font-weight:900;
+      line-height:1.45;
+      overflow-wrap:anywhere;
+    }
+
+    .cricket-scene{
+      position:relative;
+      min-height:430px;
+      display:grid;
+      place-items:center;
+      padding:clamp(24px, 4vw, 44px);
+      border-left:1px solid rgba(250,204,21,.16);
+      overflow:hidden;
+      background:
+        radial-gradient(ellipse at 50% 82%, rgba(250,204,21,.2), transparent 36%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent 28%),
+        linear-gradient(180deg, #0c3f27, #071f18);
+    }
+
+    .stadium-lights-lobby{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(ellipse at 18% 6%, rgba(255,255,255,.66), transparent 13%),
+        radial-gradient(ellipse at 50% 4%, rgba(255,247,214,.5), transparent 14%),
+        radial-gradient(ellipse at 82% 6%, rgba(255,255,255,.62), transparent 13%);
+      opacity:.76;
+    }
+
+    .pitch-card{
+      position:relative;
+      width:min(350px, 100%);
+      height:320px;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:24px;
+      overflow:hidden;
+      background:
+        repeating-radial-gradient(ellipse at 50% 100%, rgba(255,255,255,.08) 0 2px, transparent 2px 30px),
+        linear-gradient(180deg, #208849, #0d5a34);
+      box-shadow:0 24px 70px rgba(2,6,23,.44), 0 0 34px rgba(250,204,21,.14);
+      transform:rotate(-2deg);
+    }
+
+    .pitch-strip{
+      position:absolute;
+      left:42%;
+      top:15%;
+      bottom:13%;
+      width:16%;
+      border-radius:999px;
+      background:linear-gradient(180deg, #d8b36a, #8f6b35);
+      box-shadow:inset 0 0 24px rgba(255,255,255,.12), 0 0 0 2px rgba(255,255,255,.12);
+    }
+
+    .crease{
+      position:absolute;
+      left:35%;
+      right:35%;
+      height:2px;
+      background:rgba(255,255,255,.82);
+      z-index:2;
+    }
+
+    .crease.top{top:25%;}
+    .crease.bottom{bottom:23%;}
+
+    .wicket-lobby{
+      position:absolute;
+      left:50%;
+      width:26px;
+      height:62px;
+      transform:translateX(-50%);
+      border-left:4px solid var(--cricket-cream);
+      border-right:4px solid var(--cricket-cream);
+      z-index:3;
+    }
+
+    .wicket-lobby::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:0;
+      width:4px;
+      height:100%;
+      transform:translateX(-50%);
+      background:var(--cricket-cream);
+    }
+
+    .wicket-a{top:14%;}
+    .wicket-b{bottom:10%;}
+
+    .bat-lobby{
+      position:absolute;
+      left:32%;
+      bottom:22%;
+      width:92px;
+      height:20px;
+      border-radius:999px;
+      background:linear-gradient(135deg, #fef3c7, #f59e0b);
+      transform:rotate(-28deg);
+      box-shadow:0 14px 28px rgba(0,0,0,.28);
+      animation:batReady 3.5s ease-in-out infinite;
+    }
+
+    .ball-lobby{
+      position:absolute;
+      right:26%;
+      top:29%;
+      width:46px;
+      height:46px;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 32% 28%, #fff7ed, transparent 22%),
+        linear-gradient(135deg, #f43f5e, #7f1d1d);
+      box-shadow:0 18px 36px rgba(0,0,0,.32), 0 0 28px rgba(250,204,21,.34);
+      animation:ballDrift 3.2s ease-in-out infinite;
+    }
+
+    .score-chip{
+      position:absolute;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:62px;
+      height:42px;
+      padding:0 12px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:14px;
+      background:rgba(15,23,42,.76);
+      color:#fef3c7;
+      font-weight:1000;
+      box-shadow:0 16px 32px rgba(0,0,0,.26);
+      animation:chipFloat 5s ease-in-out infinite;
+    }
+
+    .chip-a{top:40px;right:30px;}
+    .chip-b{bottom:52px;left:24px;color:#bbf7d0;animation-delay:-1.8s;}
+    .chip-c{bottom:96px;right:42px;color:#fecaca;animation-delay:-3.1s;}
+
+    @keyframes ballDrift{
+      0%,100%{transform:translate(0,0) scale(1);}
+      50%{transform:translate(-42px,52px) scale(1.08);}
+    }
+
+    @keyframes batReady{
+      0%,100%{transform:rotate(-28deg);}
+      50%{transform:rotate(-12deg) translateX(8px);}
+    }
+
+    @keyframes chipFloat{
+      0%,100%{transform:translateY(0) rotate(0);}
+      50%{transform:translateY(-12px) rotate(5deg);}
+    }
+
+    @media (max-width:760px){
+      body{align-items:flex-start;padding:14px;}
+      .cricket-lobby-layout{grid-template-columns:1fr;}
+      .cricket-copy{align-items:center;text-align:center;padding:28px 18px 18px;}
+      .subtitle{max-width:440px;}
+      .cricket-scene{min-height:340px;border-left:0;border-top:1px solid rgba(250,204,21,.16);padding:32px 18px 38px;}
+      .pitch-card{width:min(292px, 92vw);height:280px;transform:rotate(0);}
+      .score-chip{min-width:52px;height:36px;font-size:14px;}
+      .chip-a{top:18px;right:16px;}
+      .chip-b{bottom:18px;left:16px;}
+      .chip-c{display:none;}
+    }
+  </style>
 </head>
-<body>
-  <main class="final-card container">
-    <h1>Cricket Arcade - Torneo</h1>
-    <p id="mensaje">Esperando que el torneo inicie...</p>
+<body data-game="cricketarcade">
+  <main class="final-card container cricket-lobby" aria-label="Lobby de espera Cricket Arcade">
+    <div class="cricket-lobby-layout">
+      <section class="cricket-copy">
+        <span class="lobby-kicker">Lobby de espera</span>
+        <h1>Cricket Arcade</h1>
+        <p class="subtitle">El estadio esta encendido. Ajusta el timing del bateo y espera el lanzamiento del torneo.</p>
+        <div class="status-card">
+          <p id="mensaje">Esperando que el torneo inicie...</p>
+        </div>
+      </section>
+
+      <section class="cricket-scene" aria-hidden="true">
+        <div class="stadium-lights-lobby"></div>
+        <span class="score-chip chip-a">6 RUN</span>
+        <span class="score-chip chip-b">TIMING</span>
+        <span class="score-chip chip-c">OUT?</span>
+        <div class="pitch-card">
+          <div class="pitch-strip"></div>
+          <span class="crease top"></span>
+          <span class="crease bottom"></span>
+          <span class="wicket-lobby wicket-a"></span>
+          <span class="wicket-lobby wicket-b"></span>
+          <span class="bat-lobby"></span>
+          <span class="ball-lobby"></span>
+        </div>
+      </section>
+    </div>
   </main>
   <button class="musica-btn cricket-music-btn" type="button" onclick="manejarClickMusicaCricket(event)" ondblclick="abrirMenuMusicaCricket(event)">Musica</button>
   <audio id="cricketMusicAudio">
