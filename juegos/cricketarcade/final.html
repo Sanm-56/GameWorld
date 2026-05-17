@@ -20,6 +20,12 @@
     <section class="final-layout"><div class="podium" id="podio"></div><div class="ranking" id="ranking"></div></section>
     <button class="back" id="backBtn">Volver</button>
   </main>
+  <button class="btn musica musica-pos cricket-music-btn" type="button" onclick="manejarClickMusicaCricket(event)" ondblclick="abrirMenuMusicaCricket(event)">Musica</button>
+  <audio id="cricketMusicAudio">
+    <source src="./musicc/Thrill.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
   <script type="module" src="../js/arcade-final.js"></script>
+  <script src="./js/cricketarcade-music.js"></script>
 </body>
 </html>
