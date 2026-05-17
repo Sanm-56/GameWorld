@@ -233,24 +233,14 @@ h3{
 <button onclick="volverLobby()">Volver al lobby</button>
 </div>
 <!-- BOTÓN DE MÚSICA EN INFERIOR IZQUIERDA -->
-<button class="btn musica musica-pos" onclick="reproducirMusica()">Musica</button>
+<button class="btn musica musica-pos" onclick="manejarClickMusicaAjedrez(event)" ondblclick="abrirMenuMusicaAjedrez(event)">Musica</button>
 
-<audio loop>
+<audio id="ajedrezMusicAudio">
   <source src="./music/ajedrezmusic.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 
 <script type="module" src="./js/final.js"></script>
-<script>
-/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
-function reproducirMusica(){
-  const audio = document.querySelector('audio');
-  if (audio.paused) {
-    audio.play();
-  } else {
-    audio.pause();
-  }
-}
-</script>
+<script src="./js/ajedrez-music.js"></script>
 </body>
 </html>

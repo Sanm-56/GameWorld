@@ -251,8 +251,8 @@ max-width:calc(100vw - 28px);
 <div class="result" id="result" style="display:none;margin-top:20px;"></div>
 </div>
 
-<button class="btn musica musica-pos" onclick="reproducirMusica()">Musica</button>
-<audio loop>
+<button class="btn musica musica-pos" onclick="manejarClickMusicaAjedrez(event)" ondblclick="abrirMenuMusicaAjedrez(event)">Musica</button>
+<audio id="ajedrezMusicAudio">
   <source src="./music/ajedrezmusic.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
@@ -287,16 +287,6 @@ max-width:calc(100vw - 28px);
 <script src="vendor/chessboard.js" defer></script>
 <script src="vendor/chess.min.js" defer></script>
 <script type="module" src="./js/ajedrez.js"></script>
-<script>
-/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
-function reproducirMusica(){
-  const audio = document.querySelector('audio');
-  if (audio.paused) {
-    audio.play();
-  } else {
-    audio.pause();
-  }
-}
-</script>
+<script src="./js/ajedrez-music.js"></script>
 </body>
 </html>

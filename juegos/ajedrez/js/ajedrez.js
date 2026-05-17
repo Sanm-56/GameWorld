@@ -1266,20 +1266,11 @@ function resign() {
   }, 1400)
 }
 
-function reproducirMusica() {
-  const audio = document.querySelector('audio')
-  if (!audio) return
-
-  if (audio.paused) {
-    audio.play()
-  } else {
-    audio.pause()
-  }
-}
-
 window.resetGame = resetGame
 window.resign = resign
-window.reproducirMusica = reproducirMusica
+if (window.reproducirMusicaAjedrez) {
+  window.reproducirMusica = window.reproducirMusicaAjedrez
+}
 
 promotionOptionEls.forEach((button) => {
   button.addEventListener('click', () => {
