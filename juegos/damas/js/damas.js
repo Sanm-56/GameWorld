@@ -663,19 +663,10 @@ function resign() {
   finishGame('Rendición. El bot gana.', false)
 }
 
-function reproducirMusica() {
-  const audio = document.querySelector('audio')
-  if (!audio) return
-
-  if (audio.paused) {
-    audio.play()
-  } else {
-    audio.pause()
-  }
-}
-
 window.resign = resign
-window.reproducirMusica = reproducirMusica
+if (window.reproducirMusicaDamas) {
+  window.reproducirMusica = window.reproducirMusicaDamas
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   if (!iniciarBloqueoPestana()) {

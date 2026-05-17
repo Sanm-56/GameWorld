@@ -619,20 +619,11 @@ function resign() {
   finishGame('Te has rendido sin posicion.', false)
 }
 
-function reproducirMusica() {
-  const audio = document.querySelector('audio')
-  if (!audio) return
-
-  if (audio.paused) {
-    audio.play()
-  } else {
-    audio.pause()
-  }
-}
-
 window.passTurn = passTurn
 window.resign = resign
-window.reproducirMusica = reproducirMusica
+if (window.reproducirMusicaDomino) {
+  window.reproducirMusica = window.reproducirMusicaDomino
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   if (!iniciarBloqueoPestana()) {
