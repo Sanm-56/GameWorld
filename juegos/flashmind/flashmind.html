@@ -336,23 +336,13 @@ max-width:calc(100vw - 28px);
       </div>
     </div>
   </div>
-  <button class="btn musica" style="position:fixed; bottom:18px; left:18px;" onclick="reproducirMusica()">🎵 Música</button>
-  <audio loop>
+  <button class="btn musica" style="position:fixed; bottom:18px; left:18px;" onclick="manejarClickMusicaFlashMind(event)" ondblclick="abrirMenuMusicaFlashMind(event)">🎵 Música</button>
+  <audio id="flashmindMusicAudio">
     <source src="./musicc/flashmindmusic.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
   <script type="module" src="./js/flashmind.js"></script>
-  <script>
-    /* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
-    function reproducirMusica(){
-      const audio = document.querySelector('audio');
-      if (audio.paused) {
-        audio.play();
-      } else {
-        audio.pause();
-      }
-    }
-  </script>
+  <script src="./js/flashmind-music.js"></script>
 </body>
 </html>

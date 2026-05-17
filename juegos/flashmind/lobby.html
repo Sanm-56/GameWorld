@@ -67,20 +67,14 @@
   <div class="container">
     <h1>⚡ FlashMind - Torneo</h1>
     <p id="mensaje">Esperando que el torneo inicie...</p>
-    <button class="musica-btn" onclick="reproducirMusica()">🎵 Música</button>
+    <button class="musica-btn" onclick="manejarClickMusicaFlashMind(event)" ondblclick="abrirMenuMusicaFlashMind(event)">🎵 Música</button>
   </div>
 
-  <audio loop>
+  <audio id="flashmindMusicAudio">
     <source src="./musicc/flashmindmusic.mp3" type="audio/mpeg" />
   </audio>
 
   <script type="module" src="../js/lobby.js"></script>
-  <script>
-    function reproducirMusica(){
-      const audio = document.querySelector('audio');
-      if (audio.paused) audio.play();
-      else audio.pause();
-    }
-  </script>
+  <script src="./js/flashmind-music.js"></script>
 </body>
 </html>

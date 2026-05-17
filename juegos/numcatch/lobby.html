@@ -67,24 +67,14 @@
   <div class="container">
     <h1>🔢 NumCatch - Torneo</h1>
     <p id="mensaje">Esperando que el torneo inicie...</p>
-    <button class="musica-btn" onclick="reproducirMusica()">🎵 Música</button>
+    <button class="musica-btn" onclick="manejarClickMusicaNumCatch(event)" ondblclick="abrirMenuMusicaNumCatch(event)">🎵 Música</button>
   </div>
 
-  <audio loop>
+  <audio id="numcatchMusicAudio">
     <source src="./musicc/numcatch.mp3" type="audio/mpeg" />
   </audio>
 
   <script type="module" src="../js/lobby.js"></script>
-  <script>
-/* FUNCIÓN PARA REPRODUCIR/PAUSAR MÚSICA */
-function reproducirMusica(){
-  const audio = document.querySelector('audio');
-  if (audio.paused) {
-    audio.play();
-  } else {
-    audio.pause();
-  }
-}
-</script>
+  <script src="./js/numcatch-music.js"></script>
 </body>
 </html>
