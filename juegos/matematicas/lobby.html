@@ -4,85 +4,375 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lobby Torneo</title>
+<title>Lobby Matematicas</title>
 
+<link rel="stylesheet" href="../css/responsive-desktop.css">
 <style>
+:root{
+--bg:#061512;
+--panel:#0b1f1a;
+--text:#f8fafc;
+--muted:#b9c9c3;
+--green:#22c55e;
+--lime:#bef264;
+--orange:#fb923c;
+--cyan:#38bdf8;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+width:100%;
+max-width:100%;
+min-height:100%;
+overflow-x:hidden;
+}
+
 body{
-font-family: Arial;
+font-family:Arial, Helvetica, sans-serif;
 text-align:center;
-background:#0f172a;
-color:white;
+background:
+radial-gradient(circle at 18% 18%, rgba(34,197,94,0.2), transparent 30%),
+radial-gradient(circle at 82% 22%, rgba(251,146,60,0.18), transparent 26%),
+linear-gradient(135deg, #04100d 0%, var(--bg) 48%, #111827 100%);
+color:var(--text);
 display:flex;
 justify-content:center;
 align-items:center;
 min-height:100vh;
 min-height:100dvh;
 margin:0;
-padding:16px;
-box-sizing:border-box;
-overflow-x:hidden;
+padding:18px;
+position:relative;
+isolation:isolate;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+z-index:-2;
+background:
+linear-gradient(120deg, rgba(190,242,100,0.08), transparent 32%),
+repeating-linear-gradient(90deg, transparent 0 52px, rgba(255,255,255,0.035) 52px 53px);
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+z-index:-1;
+background:
+radial-gradient(circle at 50% 90%, rgba(56,189,248,0.14), transparent 34%),
+linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.055) 48%, transparent 64%);
+animation:mathGlow 8s ease-in-out infinite;
 }
 
 .container{
-background:#1e293b;
-padding:30px;
-border-radius:15px;
-box-sizing:border-box;
-max-width:100%;
+width:min(100%, 880px);
+max-width:880px;
+min-width:0;
+padding:0;
+border:1px solid rgba(187,247,208,0.2);
+border-radius:22px;
+background:linear-gradient(145deg, rgba(6,26,22,0.96), rgba(8,16,28,0.94));
+box-shadow:0 30px 90px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08);
+overflow:hidden;
+position:relative;
+}
+
+.container::before{
+content:"";
+position:absolute;
+inset:0;
+pointer-events:none;
+background:
+radial-gradient(circle at 12% 12%, rgba(34,197,94,0.16), transparent 28%),
+radial-gradient(circle at 92% 88%, rgba(251,146,60,0.14), transparent 30%);
+}
+
+.lobby-layout{
+position:relative;
+display:grid;
+grid-template-columns:minmax(0, 1fr) minmax(270px, 0.96fr);
+align-items:stretch;
+}
+
+.lobby-copy{
+padding:clamp(26px, 4vw, 46px);
+display:flex;
+flex-direction:column;
+align-items:flex-start;
+justify-content:center;
+text-align:left;
+min-width:0;
+}
+
+.lobby-kicker{
+display:inline-flex;
+align-items:center;
+gap:8px;
+padding:7px 10px;
+border:1px solid rgba(190,242,100,0.34);
+border-radius:999px;
+background:rgba(20,83,45,0.36);
+color:#dcfce7;
+font-size:12px;
+font-weight:800;
+letter-spacing:0.04em;
+text-transform:uppercase;
 }
 
 h1{
-margin-bottom:10px;
+margin:18px 0 10px;
+font-size:clamp(2rem, 5vw, 4.35rem);
+line-height:0.95;
+letter-spacing:0;
+overflow-wrap:anywhere;
+}
+
+.subtitle{
+max-width:520px;
+margin:0 0 20px;
+color:#d1fae5;
+font-size:clamp(0.98rem, 2vw, 1.08rem);
+line-height:1.55;
+}
+
+.status-card{
+width:100%;
+max-width:520px;
+margin:0 0 18px;
+padding:14px 16px;
+border:1px solid rgba(187,247,208,0.18);
+border-radius:16px;
+background:rgba(2,6,23,0.32);
+box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 #mensaje{
-margin-top:10px;
-color:#94a3b8;
+margin:0;
+color:#bbf7d0;
+font-weight:800;
+line-height:1.45;
+overflow-wrap:anywhere;
+}
+
+.actions{
+display:flex;
+flex-wrap:wrap;
+gap:12px;
+align-items:center;
+width:100%;
+}
+
+.musica-btn,
+#volverMenuBtn{
+max-width:100%;
+min-height:48px;
+padding:12px 18px;
+border:none;
+border-radius:12px;
+font-size:15px;
+font-weight:800;
+cursor:pointer;
+transition:transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+box-shadow:0 12px 26px rgba(0,0,0,0.26);
+color:white;
+overflow-wrap:anywhere;
 }
 
 .musica-btn{
-padding:12px 20px;
-border:none;
+background:linear-gradient(135deg, #16a34a, #0d9488);
+}
+
+.musica-btn:hover,
+#volverMenuBtn:hover{
+transform:translateY(-2px);
+filter:brightness(1.08);
+box-shadow:0 16px 34px rgba(0,0,0,0.34);
+}
+
+.math-stage{
+position:relative;
+min-height:420px;
+display:grid;
+place-items:center;
+padding:clamp(24px, 4vw, 44px);
+background:
+radial-gradient(circle at center, rgba(34,197,94,0.14), transparent 58%),
+linear-gradient(180deg, rgba(6,78,59,0.12), rgba(2,6,23,0.24));
+border-left:1px solid rgba(187,247,208,0.14);
+overflow:hidden;
+}
+
+.math-orbit{
+position:absolute;
+width:min(350px, 86%);
+aspect-ratio:1;
+border:1px solid rgba(187,247,208,0.16);
+border-radius:50%;
+animation:mathSpin 14s linear infinite;
+}
+
+.math-orbit::before,
+.math-orbit::after{
+content:"";
+position:absolute;
+width:14px;
+height:14px;
+border-radius:50%;
+background:var(--lime);
+box-shadow:0 0 24px rgba(190,242,100,0.7);
+}
+
+.math-orbit::before{top:18%;left:9%;}
+.math-orbit::after{right:12%;bottom:18%;background:var(--orange);box-shadow:0 0 24px rgba(251,146,60,0.62);}
+
+.calculator-panel{
+position:relative;
+width:min(335px, 100%);
+padding:18px;
+border:1px solid rgba(255,255,255,0.16);
+border-radius:20px;
+background:linear-gradient(160deg, rgba(15,23,42,0.92), rgba(6,78,59,0.76));
+box-shadow:0 24px 70px rgba(2,6,23,0.44), 0 0 34px rgba(34,197,94,0.16);
+transform:rotate(2deg);
+}
+
+.screen{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+min-height:72px;
+padding:14px 16px;
+border-radius:14px;
+background:#dcfce7;
+color:#052e16;
+font-size:clamp(1.25rem, 5vw, 2rem);
+font-weight:900;
+box-shadow:inset 0 2px 10px rgba(0,0,0,0.16);
+}
+
+.screen small{
+font-size:0.5em;
+color:#166534;
+font-weight:900;
+}
+
+.key-grid{
+display:grid;
+grid-template-columns:repeat(4, 1fr);
+gap:10px;
+margin-top:14px;
+}
+
+.key{
+display:grid;
+place-items:center;
+aspect-ratio:1.1;
 border-radius:12px;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-transition:all 0.2s ease;
-box-shadow:0 4px 10px rgba(0,0,0,0.3);
-background:linear-gradient(135deg, #8b5cf6, #7c3aed);
-color:white;
-margin-top:20px;
+border:1px solid rgba(255,255,255,0.12);
+background:rgba(15,23,42,0.76);
+color:#ecfccb;
+font-size:clamp(1rem, 3vw, 1.35rem);
+font-weight:900;
+box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
-.musica-btn:hover{
-transform:translateY(-2px) scale(1.05);
-box-shadow:0 6px 15px rgba(0,0,0,0.4);
+.key.operator{color:#fed7aa;background:rgba(154,52,18,0.34);}
+.key.equal{grid-column:span 2;background:linear-gradient(135deg, #16a34a, #0d9488);color:white;}
+.key.zero{grid-column:span 2;}
+
+.formula{
+position:absolute;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+min-width:66px;
+height:42px;
+padding:0 12px;
+border-radius:14px;
+border:1px solid rgba(255,255,255,0.18);
+background:rgba(15,23,42,0.72);
+color:#fef9c3;
+font-weight:900;
+box-shadow:0 16px 32px rgba(0,0,0,0.26);
+animation:mathFloat 5.2s ease-in-out infinite;
 }
 
-@media (max-width:500px){
-.container{
-padding:22px 16px;
-width:100%;
-max-width:min(420px, 100%);
+.f1{top:42px;right:30px;}
+.f2{bottom:54px;left:24px;animation-delay:-1.8s;color:#bbf7d0;}
+.f3{bottom:96px;right:42px;animation-delay:-3.1s;color:#bae6fd;}
+
+@keyframes mathFloat{
+0%,100%{transform:translateY(0) rotate(0deg);}
+50%{transform:translateY(-12px) rotate(-4deg);}
 }
+
+@keyframes mathSpin{
+to{transform:rotate(360deg);}
+}
+
+@keyframes mathGlow{
+0%,100%{opacity:0.45;transform:translateX(-18%);}
+50%{opacity:0.75;transform:translateX(18%);}
+}
+
+@media (max-width:760px){
+body{align-items:flex-start;padding:14px;}
+.lobby-layout{grid-template-columns:1fr;}
+.lobby-copy{align-items:center;text-align:center;padding:28px 18px 18px;}
+.subtitle{max-width:440px;}
+.actions{justify-content:center;}
+.math-stage{min-height:320px;border-left:none;border-top:1px solid rgba(187,247,208,0.14);padding:30px 18px 36px;}
+.calculator-panel{width:min(292px, 92vw);transform:rotate(0deg);}
+.formula{min-width:54px;height:36px;font-size:14px;}
+.f1{top:18px;right:16px;}
+.f2{bottom:18px;left:16px;}
+.f3{display:none;}
+}
+
+@media (prefers-reduced-motion:reduce){
+*,*::before,*::after{animation:none!important;transition:none!important;}
 }
 </style>
-<style>
-html, body{width:100%;max-width:100%;overflow-x:hidden;}
-.container{width:100%;max-width:420px;min-width:0;}
-h1,#mensaje,button{overflow-wrap:anywhere;}
-.musica-btn{max-width:100%;}
-</style>
-<link rel="stylesheet" href="../css/responsive-desktop.css">
 </head>
 
 <body>
 
-<div class="container">
-<h1>🎮 Torneo de Juegos</h1>
-<p id="mensaje">Esperando que el torneo inicie...</p>
-<button class="musica-btn" onclick="manejarClickMusicaMatematicas(event)" ondblclick="abrirMenuMusicaMatematicas(event)">🎵 Música</button>
-</div>
+<main class="container" aria-label="Lobby de espera Matematicas">
+  <div class="lobby-layout">
+    <section class="lobby-copy">
+      <span class="lobby-kicker">Lobby de espera</span>
+      <h1>Matematicas</h1>
+      <p class="subtitle">Prepara la mente para una ronda rapida. Cada segundo cuenta cuando empiece el torneo.</p>
+      <div class="status-card">
+        <p id="mensaje">Esperando que el torneo inicie...</p>
+      </div>
+      <div class="actions">
+        <button class="musica-btn" onclick="manejarClickMusicaMatematicas(event)" ondblclick="abrirMenuMusicaMatematicas(event)">Musica</button>
+      </div>
+    </section>
+
+    <section class="math-stage" aria-hidden="true">
+      <div class="math-orbit"></div>
+      <span class="formula f1">8 x 7</span>
+      <span class="formula f2">42 + 9</span>
+      <span class="formula f3">144 / 12</span>
+      <div class="calculator-panel">
+        <div class="screen"><span>56</span><small>READY</small></div>
+        <div class="key-grid">
+          <span class="key">7</span><span class="key">8</span><span class="key">9</span><span class="key operator">x</span>
+          <span class="key">4</span><span class="key">5</span><span class="key">6</span><span class="key operator">+</span>
+          <span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key operator">-</span>
+          <span class="key zero">0</span><span class="key equal">=</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
 
 <audio id="matematicasMusicAudio">
   <source src="./music/musicamatematicas.mp3" type="audio/mpeg">
@@ -90,7 +380,6 @@ h1,#mensaje,button{overflow-wrap:anywhere;}
 </audio>
 
 <script type="module" src="../js/lobby.js"></script>
-
 <script src="./js/matematicas-music.js"></script>
 
 </body>

@@ -6,83 +6,338 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lobby Ajedrez</title>
 
+<link rel="stylesheet" href="../css/responsive-desktop.css">
 <style>
+:root{
+--bg:#101419;
+--panel:#141820;
+--text:#f9fafb;
+--muted:#c8d0d9;
+--ivory:#f8f1df;
+--steel:#94a3b8;
+--gold:#d6b48d;
+--red:#ef4444;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+width:100%;
+max-width:100%;
+min-height:100%;
+overflow-x:hidden;
+}
+
 body{
-  font-family: Arial;
-  text-align:center;
-  background:#0f172a;
-  color:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  min-height:100dvh;
-  margin:0;
-  padding:16px;
-  box-sizing:border-box;
-  overflow-x:hidden;
+font-family:Arial, Helvetica, sans-serif;
+text-align:center;
+background:
+radial-gradient(circle at 20% 18%, rgba(214,180,141,0.18), transparent 30%),
+radial-gradient(circle at 82% 24%, rgba(148,163,184,0.15), transparent 28%),
+linear-gradient(135deg, #06070a 0%, var(--bg) 52%, #1d1712 100%);
+color:var(--text);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+min-height:100dvh;
+margin:0;
+padding:18px;
+position:relative;
+isolation:isolate;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+z-index:-2;
+background:
+linear-gradient(90deg, rgba(248,241,223,0.04) 50%, transparent 50%),
+linear-gradient(rgba(248,241,223,0.03) 50%, transparent 50%);
+background-size:72px 72px;
+mask-image:linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0.2));
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+z-index:-1;
+background:linear-gradient(120deg, transparent 20%, rgba(214,180,141,0.08) 46%, transparent 66%);
+animation:chessSweep 9s ease-in-out infinite;
 }
 
 .container{
-  background:#1e293b;
-  padding:30px;
-  border-radius:15px;
-  box-sizing:border-box;
-  max-width:100%;
+width:min(100%, 910px);
+max-width:910px;
+min-width:0;
+padding:0;
+border:1px solid rgba(214,180,141,0.24);
+border-radius:22px;
+background:linear-gradient(145deg, rgba(20,24,32,0.96), rgba(8,10,14,0.95));
+box-shadow:0 30px 90px rgba(0,0,0,0.46), inset 0 1px 0 rgba(255,255,255,0.08);
+overflow:hidden;
+position:relative;
+}
+
+.container::before{
+content:"";
+position:absolute;
+inset:0;
+pointer-events:none;
+background:
+radial-gradient(circle at 12% 12%, rgba(214,180,141,0.14), transparent 28%),
+radial-gradient(circle at 92% 86%, rgba(239,68,68,0.1), transparent 30%);
+}
+
+.lobby-layout{
+position:relative;
+display:grid;
+grid-template-columns:minmax(0, 1.02fr) minmax(285px, 1fr);
+align-items:stretch;
+}
+
+.lobby-copy{
+padding:clamp(26px, 4vw, 46px);
+display:flex;
+flex-direction:column;
+align-items:flex-start;
+justify-content:center;
+text-align:left;
+min-width:0;
+}
+
+.lobby-kicker{
+display:inline-flex;
+align-items:center;
+gap:8px;
+padding:7px 10px;
+border:1px solid rgba(214,180,141,0.38);
+border-radius:999px;
+background:rgba(120,53,15,0.25);
+color:#fed7aa;
+font-size:12px;
+font-weight:800;
+letter-spacing:0.04em;
+text-transform:uppercase;
 }
 
 h1{
-  margin-bottom:10px;
+margin:18px 0 10px;
+font-size:clamp(2rem, 5vw, 4.55rem);
+line-height:0.95;
+letter-spacing:0;
+overflow-wrap:anywhere;
+}
+
+.subtitle{
+max-width:520px;
+margin:0 0 20px;
+color:#e5e7eb;
+font-size:clamp(0.98rem, 2vw, 1.08rem);
+line-height:1.55;
+}
+
+.status-card{
+width:100%;
+max-width:520px;
+margin:0 0 18px;
+padding:14px 16px;
+border:1px solid rgba(214,180,141,0.18);
+border-radius:16px;
+background:rgba(2,6,23,0.32);
+box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 #mensaje{
-  margin-top:10px;
-  color:#94a3b8;
+margin:0;
+color:#fed7aa;
+font-weight:800;
+line-height:1.45;
+overflow-wrap:anywhere;
+}
+
+.actions{
+display:flex;
+flex-wrap:wrap;
+gap:12px;
+align-items:center;
+width:100%;
+}
+
+.musica-btn,
+#volverMenuBtn{
+max-width:100%;
+min-height:48px;
+padding:12px 18px;
+border:none;
+border-radius:12px;
+font-size:15px;
+font-weight:800;
+cursor:pointer;
+transition:transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+box-shadow:0 12px 26px rgba(0,0,0,0.26);
+color:white;
+overflow-wrap:anywhere;
 }
 
 .musica-btn{
-  padding:12px 20px;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:all 0.2s ease;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3);
-  background:linear-gradient(135deg, #8b5cf6, #7c3aed);
-  color:white;
-  margin-top:20px;
+background:linear-gradient(135deg, #92400e, #334155);
 }
 
-.musica-btn:hover{
-  transform:translateY(-2px) scale(1.05);
-  box-shadow:0 6px 15px rgba(0,0,0,0.4);
+.musica-btn:hover,
+#volverMenuBtn:hover{
+transform:translateY(-2px);
+filter:brightness(1.08);
+box-shadow:0 16px 34px rgba(0,0,0,0.34);
 }
 
-@media (max-width:500px){
-  .container{
-    padding:22px 16px;
-    width:100%;
-    max-width:min(420px, 100%);
-  }
+.chess-stage{
+position:relative;
+min-height:440px;
+display:grid;
+place-items:center;
+padding:clamp(24px, 4vw, 44px);
+background:
+radial-gradient(circle at center, rgba(214,180,141,0.13), transparent 58%),
+linear-gradient(180deg, rgba(30,41,59,0.16), rgba(2,6,23,0.24));
+border-left:1px solid rgba(214,180,141,0.16);
+overflow:hidden;
+}
+
+.chess-board{
+position:relative;
+width:min(340px, 100%);
+aspect-ratio:1;
+display:grid;
+grid-template-columns:repeat(8, 1fr);
+grid-template-rows:repeat(8, 1fr);
+padding:10px;
+border:1px solid rgba(255,255,255,0.18);
+border-radius:18px;
+background:linear-gradient(145deg, rgba(214,180,141,0.34), rgba(51,65,85,0.74));
+box-shadow:0 24px 70px rgba(2,6,23,0.44), 0 0 34px rgba(214,180,141,0.14);
+transform:rotate(2deg);
+}
+
+.square{
+display:grid;
+place-items:center;
+min-width:0;
+color:#111827;
+font-size:clamp(1rem, 4vw, 1.7rem);
+font-weight:900;
+}
+
+.square.light{background:var(--ivory);}
+.square.dark{background:#64748b;color:#f8fafc;}
+.square:nth-child(1){border-top-left-radius:10px;}
+.square:nth-child(8){border-top-right-radius:10px;}
+.square:nth-child(57){border-bottom-left-radius:10px;}
+.square:nth-child(64){border-bottom-right-radius:10px;}
+.square.focus{box-shadow:inset 0 0 0 4px rgba(239,68,68,0.72);}
+
+.piece{
+position:absolute;
+display:grid;
+place-items:center;
+width:64px;
+height:64px;
+border-radius:50%;
+border:1px solid rgba(255,255,255,0.2);
+background:rgba(15,23,42,0.78);
+color:#fff7ed;
+font-size:34px;
+font-weight:900;
+box-shadow:0 18px 38px rgba(0,0,0,0.34);
+animation:pieceFloat 5.2s ease-in-out infinite;
+}
+
+.queen{top:36px;right:28px;}
+.knight{bottom:48px;left:26px;animation-delay:-1.8s;color:#fed7aa;}
+.rook{bottom:96px;right:44px;animation-delay:-3.1s;color:#e5e7eb;}
+
+.move-line{
+position:absolute;
+width:210px;
+height:2px;
+background:linear-gradient(90deg, transparent, rgba(239,68,68,0.95), transparent);
+transform:rotate(-32deg);
+box-shadow:0 0 18px rgba(239,68,68,0.5);
+animation:movePulse 2.8s ease-in-out infinite;
+}
+
+@keyframes pieceFloat{
+0%,100%{transform:translateY(0) rotate(0deg);}
+50%{transform:translateY(-12px) rotate(-4deg);}
+}
+
+@keyframes movePulse{
+0%,100%{opacity:0.28;}
+50%{opacity:0.9;}
+}
+
+@keyframes chessSweep{
+0%,100%{transform:translateX(-20%);opacity:0.45;}
+50%{transform:translateX(18%);opacity:0.78;}
+}
+
+@media (max-width:760px){
+body{align-items:flex-start;padding:14px;}
+.lobby-layout{grid-template-columns:1fr;}
+.lobby-copy{align-items:center;text-align:center;padding:28px 18px 18px;}
+.subtitle{max-width:440px;}
+.actions{justify-content:center;}
+.chess-stage{min-height:340px;border-left:none;border-top:1px solid rgba(214,180,141,0.16);padding:32px 18px 38px;}
+.chess-board{width:min(292px, 92vw);transform:rotate(0deg);padding:8px;}
+.piece{width:50px;height:50px;font-size:27px;}
+.queen{top:18px;right:16px;}
+.knight{bottom:18px;left:16px;}
+.rook{display:none;}
+.move-line{width:160px;}
+}
+
+@media (prefers-reduced-motion:reduce){
+*,*::before,*::after{animation:none!important;transition:none!important;}
 }
 </style>
-<style>
-html, body{width:100%;max-width:100%;overflow-x:hidden;}
-.container{width:100%;max-width:420px;min-width:0;}
-h1,#mensaje,button{overflow-wrap:anywhere;}
-.musica-btn{max-width:100%;}
-</style>
-<link rel="stylesheet" href="../css/responsive-desktop.css">
 </head>
 
 <body>
 
-<div class="container">
-<h1>♟️ Lobby Ajedrez</h1>
-<p id="mensaje">Esperando que el torneo inicie...</p>
-<button class="musica-btn" onclick="manejarClickMusicaAjedrez(event)" ondblclick="abrirMenuMusicaAjedrez(event)">🎵 Música</button>
-</div>
+<main class="container" aria-label="Lobby de espera Ajedrez">
+  <div class="lobby-layout">
+    <section class="lobby-copy">
+      <span class="lobby-kicker">Lobby de espera</span>
+      <h1>Ajedrez</h1>
+      <p class="subtitle">La partida aun no empieza. Lee el tablero, prepara la defensa y espera el primer movimiento.</p>
+      <div class="status-card">
+        <p id="mensaje">Esperando que el torneo inicie...</p>
+      </div>
+      <div class="actions">
+        <button class="musica-btn" onclick="manejarClickMusicaAjedrez(event)" ondblclick="abrirMenuMusicaAjedrez(event)">Musica</button>
+      </div>
+    </section>
+
+    <section class="chess-stage" aria-hidden="true">
+      <span class="piece queen">Q</span>
+      <span class="piece knight">N</span>
+      <span class="piece rook">R</span>
+      <span class="move-line"></span>
+      <div class="chess-board">
+        <span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span>
+        <span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light focus">K</span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span>
+        <span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark focus">N</span><span class="square light"></span><span class="square dark"></span>
+        <span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span>
+        <span class="square light"></span><span class="square dark"></span><span class="square light focus">Q</span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span>
+        <span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span>
+        <span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span>
+        <span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span><span class="square dark"></span><span class="square light"></span>
+      </div>
+    </section>
+  </div>
+</main>
 
 <audio id="ajedrezMusicAudio">
   <source src="./music/ajedrezmusic.mp3" type="audio/mpeg">
