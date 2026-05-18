@@ -1,5 +1,6 @@
 export const SOLITARIO_LEVEL_CONTEXT_KEY = "solitario_nivel_context"
 export const SOLITARIO_LEVEL_RESULT_KEY = "solitario_nivel_resultado"
+export const SOLITARIO_LEVEL_CHECKPOINT_KEY = "solitario_nivel_checkpoint"
 export const SOLITARIO_MAX_LEVEL = 500
 
 const GAME_CONFIG = {
@@ -229,6 +230,7 @@ export function startLevel(level, usuario) {
   if (!level || !usuario) return
 
   localStorage.removeItem(SOLITARIO_LEVEL_RESULT_KEY)
+  localStorage.removeItem(SOLITARIO_LEVEL_CHECKPOINT_KEY)
   localStorage.setItem(SOLITARIO_LEVEL_CONTEXT_KEY, JSON.stringify({
     id: level.id,
     game: level.game,
@@ -261,8 +263,49 @@ export function saveLastLevelResult(payload) {
   }))
 }
 
+export function registrarCheckpointNivel(juego, valor, modo, extra = {}) {
+  const context = getLevelContext()
+  if (!context || context.game !== juego) return null
+
+  const level = LEVELS.find((item) => item.id === Number(context.id))
+  if (!level) return null
+
+  const elapsed = Number.isFinite(Number(extra.elapsed))
+    ? Math.max(0, Math.round(Number(extra.elapsed)))
+    : elapsedDesdeInicio(context.startedAt)
+  const result = normalizeResult({
+    juego,
+    valor,
+    modo,
+    posicion: extra.posicion ?? null,
+    invalido: false,
+    motivo: "",
+    startedAt: context.startedAt,
+    elapsedOverride: elapsed,
+  })
+
+  if (!checkMission(level, result)) return null
+
+  const checkpointActual = readJson(SOLITARIO_LEVEL_CHECKPOINT_KEY, null)
+  if (checkpointActual?.contextStartedAt === context.startedAt && checkpointActual?.levelId === level.id) {
+    return checkpointActual
+  }
+
+  const checkpoint = {
+    levelId: level.id,
+    game: juego,
+    usuario: context.usuario,
+    contextStartedAt: context.startedAt,
+    result,
+    completedAt: new Date().toISOString(),
+  }
+  localStorage.setItem(SOLITARIO_LEVEL_CHECKPOINT_KEY, JSON.stringify(checkpoint))
+  return checkpoint
+}
+
 export function clearLevelContext({ keepResult = false } = {}) {
   localStorage.removeItem(SOLITARIO_LEVEL_CONTEXT_KEY)
+  localStorage.removeItem(SOLITARIO_LEVEL_CHECKPOINT_KEY)
   if (!keepResult) localStorage.removeItem(SOLITARIO_LEVEL_RESULT_KEY)
   if (localStorage.getItem("solitario_origen") === "nivel") {
     localStorage.removeItem("solitario_origen")
@@ -278,7 +321,9 @@ export async function reportLevelResult(supabase, { usuario, juego, valor, modo,
   if (!level) return null
 
   const result = normalizeResult({ juego, valor, modo, posicion, invalido, motivo, startedAt: context.startedAt })
-  const completed = checkMission(level, result)
+  const checkpoint = getValidCheckpoint(context, level)
+  const missionResult = !invalido && checkpoint?.result ? checkpoint.result : result
+  const completed = !invalido && (Boolean(checkpoint?.result) || checkMission(level, result))
   const previousProgress = getLevelProgress(usuario)
   const wasCompleted = previousProgress.done.includes(level.id)
   const previousBest = Number(previousProgress.bestByLevel[String(level.id)] || 0)
@@ -295,7 +340,7 @@ export async function reportLevelResult(supabase, { usuario, juego, valor, modo,
     personalRecord: newBest > previousBest,
     progress,
     missionText: missionLabel(level),
-    progressItems: missionProgress(level, result),
+    progressItems: missionProgress(level, missionResult),
     failureMessage: completed ? "" : missionFailureMessage(level, result),
     endedAt: new Date().toISOString(),
   }
@@ -391,12 +436,11 @@ function uniqueConditions(conditions) {
   })
 }
 
-function normalizeResult({ juego, valor, modo, posicion, invalido, motivo, startedAt }) {
+function normalizeResult({ juego, valor, modo, posicion, invalido, motivo, startedAt, elapsedOverride = null }) {
   const value = Number(valor || 0)
   const time = modo === "time" ? value : null
   const score = modo === "points" ? value : Math.max(0, 600 - Number(time || 600))
-  const started = Date.parse(startedAt)
-  const elapsed = Number.isFinite(started) ? Math.max(0, Math.round((Date.now() - started) / 1000)) : null
+  const elapsed = Number.isFinite(Number(elapsedOverride)) ? Math.max(0, Math.round(Number(elapsedOverride))) : elapsedDesdeInicio(startedAt)
 
   return {
     game: juego,
@@ -409,6 +453,20 @@ function normalizeResult({ juego, valor, modo, posicion, invalido, motivo, start
     elapsed,
     win: !invalido && (modo === "points" ? value > 0 : value > 0 && value < 9999),
   }
+}
+
+function getValidCheckpoint(context, level) {
+  const checkpoint = readJson(SOLITARIO_LEVEL_CHECKPOINT_KEY, null)
+  if (!checkpoint || checkpoint.levelId !== level.id) return null
+  if (checkpoint.game !== level.game || checkpoint.usuario !== context.usuario) return null
+  if (checkpoint.contextStartedAt !== context.startedAt) return null
+  if (!checkpoint.result || checkpoint.result.game !== level.game) return null
+  return checkMission(level, checkpoint.result) ? checkpoint : null
+}
+
+function elapsedDesdeInicio(startedAt) {
+  const started = Date.parse(startedAt)
+  return Number.isFinite(started) ? Math.max(0, Math.round((Date.now() - started) / 1000)) : null
 }
 
 function evaluateCondition(condition, result) {

@@ -1,5 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
+import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
@@ -280,6 +281,7 @@ const segundosRespuesta = (performance.now() - preguntaInicioMs) / 1000
 
 if(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= 0.01){
 correctas++
+registrarCheckpointNivel(JUEGO_ACTUAL, correctas * 10, "points")
 rachaCorrectas++
 mejorRachaCorrectas = Math.max(mejorRachaCorrectas, rachaCorrectas)
 

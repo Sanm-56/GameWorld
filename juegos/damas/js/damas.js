@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 
 // =============================
@@ -503,20 +503,7 @@ function limpiarTurnoBot() {
 }
 
 async function obtenerTiempo() {
-  const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
-
-  if (!inicioTorneo) {
-    return 9999
-  }
-
-  const { data: horaServer, error: horaError } = await supabase.rpc('ahora_servidor')
-  if (horaError) {
-    return 9999
-  }
-
-  const inicio = Date.parse(inicioTorneo)
-  const ahora = Date.parse(horaServer)
-  return Math.max(0, Math.floor((ahora - inicio) / 1000))
+  return await obtenerTiempoTranscurridoTorneo(supabase, JUEGO_ACTUAL, DURACION) ?? 9999
 }
 
 async function guardarResultado(tiempo, sospechoso = false, invalido = false, motivo = '') {

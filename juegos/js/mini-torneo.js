@@ -139,6 +139,27 @@ export async function obtenerTiempoRestanteTorneo(supabase, juego, duracionSegun
   return restante
 }
 
+export async function obtenerTiempoTranscurridoTorneo(supabase, juego, duracionSegundos = null) {
+  const inicioTorneo = await obtenerInicioTorneo(supabase, juego)
+  if (!inicioTorneo) return null
+
+  const { data: horaServer, error } = await supabase.rpc("ahora_servidor")
+  if (error) {
+    console.warn(`[Solitario] No se pudo leer hora del servidor para ${juego}; usando reloj local.`, error)
+  }
+
+  const inicio = Date.parse(inicioTorneo)
+  const ahoraServidor = Date.parse(horaServer)
+  const ahora = Number.isFinite(ahoraServidor) ? ahoraServidor : Date.now()
+  const transcurrido = Math.floor((ahora - inicio) / 1000)
+
+  if (!Number.isFinite(transcurrido)) return null
+  const seguro = Math.max(0, transcurrido)
+  return Number.isFinite(Number(duracionSegundos))
+    ? Math.min(Number(duracionSegundos), seguro)
+    : seguro
+}
+
 export async function debeSalirDelTorneo(supabase, juego) {
   if (esMiniTorneo(juego)) {
     const salaId = localStorage.getItem("solitario_sala_id")

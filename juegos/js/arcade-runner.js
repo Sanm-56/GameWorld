@@ -1,5 +1,6 @@
 import { supabase } from "./supabase.js"
 import { registrarPartidaDesdeRanking } from "./partidas.js"
+import { registrarCheckpointNivel } from "./solitario-niveles.js"
 import {
   bloquearFinalizacionInicialSolitario,
   debeSalirDelTorneo,
@@ -324,6 +325,9 @@ function addScore(points) {
   combo += 1
   bestCombo = Math.max(bestCombo, combo)
   level = Math.max(1, Math.floor(score / 180) + 1)
+  registrarCheckpointNivel(gameKey, getCompetitiveValue(), "points", {
+    elapsed: Math.max(0, Math.round((performance.now() - startMs) / 1000)),
+  })
   setStatus(`+${gained} puntos`)
   renderHud()
 }

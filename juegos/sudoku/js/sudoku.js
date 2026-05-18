@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerInicioTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
 const pestana = "sudoku_activo"
@@ -457,15 +457,8 @@ return
 
 clearInterval(intervalo)
 
-const inicioTorneo = await obtenerInicioTorneo(supabase, JUEGO_ACTUAL)
-
-let { data: horaServer } = await supabase
-.rpc("ahora_servidor")
-
-const inicio = Date.parse(inicioTorneo)
-const ahora = Date.parse(horaServer)
-
-let tiempo = Math.floor((ahora - inicio) / 1000)
+let tiempo = await obtenerTiempoTranscurridoTorneo(supabase, JUEGO_ACTUAL, DURACION)
+if(tiempo === null) tiempo = DURACION
 
 let sospechoso = false
 let invalido = false

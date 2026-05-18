@@ -1,5 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
+import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 
@@ -170,6 +171,7 @@ function elegir(key) {
 
   if (ok) {
     aciertos++
+    registrarCheckpointNivel(JUEGO_ACTUAL, aciertos, "points")
     rachaCorrectas++
     mejorRachaCorrectas = Math.max(mejorRachaCorrectas, rachaCorrectas)
     sumaMs += rt
