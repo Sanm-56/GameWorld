@@ -684,6 +684,28 @@ th:last-child{
   font-weight:800;
 }
 
+.reward-admin-block textarea{
+  width:100%;
+  resize:vertical;
+  min-height:76px;
+  border:1px solid rgba(148,163,184,0.2);
+  border-radius:10px;
+  padding:10px 11px;
+  color:#e5e7eb;
+  background:rgba(15,23,42,0.72);
+  font:inherit;
+}
+
+.reward-admin-block .toggle-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.reward-admin-block .toggle-row input{
+  width:auto;
+}
+
 .reward-user-results,
 .reward-history-list{
   display:grid;
@@ -1028,6 +1050,85 @@ th:last-child{
         </div>
       </div>
       <p class="export-note">El acceso VIP se guarda por RPC con clave admin y se valida en la Zona VIP con usuario y codigo del login actual.</p>
+    </div>
+
+    <div class="section reward-admin-panel" id="adminVipEventsPanel">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Programacion premium</span>
+          <h3>Eventos VIP</h3>
+        </div>
+        <button class="ghost" onclick="cargarEventosVipAdmin()">Actualizar eventos</button>
+      </div>
+
+      <div class="reward-admin-grid">
+        <div class="reward-admin-block">
+          <h4 id="vipEventFormTitle">Crear evento VIP</h4>
+          <input id="vipEventId" type="hidden">
+          <label>
+            Nombre
+            <input id="vipEventName" type="text" placeholder="Doble XP VIP" autocomplete="off">
+          </label>
+          <label>
+            Descripcion
+            <textarea id="vipEventDescription" rows="3" placeholder="Describe el evento para la Zona VIP"></textarea>
+          </label>
+          <label>
+            Tipo
+            <select id="vipEventType">
+              <option value="general">General</option>
+              <option value="double_xp">Doble XP</option>
+              <option value="bingo_special">Bingo especial</option>
+              <option value="roulette_boost">Ruleta mejorada</option>
+              <option value="flash_event">Evento relampago</option>
+              <option value="ranking_temporal">Ranking temporal VIP</option>
+            </select>
+          </label>
+          <label>
+            Juego relacionado
+            <select id="vipEventGame">
+              <option value="">Ninguno</option>
+              <option value="reflejos-vip">Reflejos VIP</option>
+              <option value="bingo-vip">Bingo VIP</option>
+              <option value="ruleta-vip">Ruleta VIP</option>
+              <option value="social-vip">Sala Social VIP</option>
+            </select>
+          </label>
+          <label>
+            Inicio
+            <input id="vipEventStart" type="datetime-local">
+          </label>
+          <label>
+            Fin
+            <input id="vipEventEnd" type="datetime-local">
+          </label>
+          <label>
+            Recompensas
+            <textarea id="vipEventRewards" rows="3" placeholder='{"vipCoins":100,"vipXp":250}'></textarea>
+          </label>
+          <label>
+            Configuracion
+            <textarea id="vipEventConfig" rows="3" placeholder='{"multiplier":2}'></textarea>
+          </label>
+          <label class="toggle-row">
+            <input id="vipEventActive" type="checkbox" checked>
+            Evento activo
+          </label>
+          <div class="reward-admin-actions">
+            <button class="success" onclick="guardarEventoVipAdmin()">Guardar evento</button>
+            <button type="button" onclick="limpiarEventoVipAdmin()">Limpiar</button>
+          </div>
+        </div>
+
+        <div class="reward-admin-block">
+          <h4>Eventos registrados</h4>
+          <div class="reward-summary-box" id="vipEventsAdminStatus">Inicia sesion para administrar eventos VIP.</div>
+          <div class="reward-history-list" id="vipEventsList">
+            <div class="export-note">Los eventos apareceran despues de iniciar sesion.</div>
+          </div>
+        </div>
+      </div>
+      <p class="export-note">Los eventos VIP se muestran solo a usuarios VIP activos y no afectan el torneo principal.</p>
     </div>
 
     <div class="section reward-admin-panel" id="adminRewardsPanel">

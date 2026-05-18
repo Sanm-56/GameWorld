@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruleta de Premios VIP - GameWorld</title>
+<style>
+:root{
+  color-scheme:dark;
+  --gold:#f8d774;
+  --gold-strong:#f59e0b;
+  --text:#f8fafc;
+  --muted:#cbd5e1;
+  --ok:#bbf7d0;
+  --bad:#fecdd3;
+}
+
+*{box-sizing:border-box}
+
+body{
+  min-height:100vh;
+  margin:0;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 18% 12%,rgba(250,204,21,.13),transparent 32%),
+    radial-gradient(circle at 84% 18%,rgba(14,165,233,.1),transparent 30%),
+    linear-gradient(145deg,#020617,#111827 58%,#0f172a);
+}
+
+.roulette-shell{
+  width:min(1080px,100%);
+  min-height:min(720px,calc(100vh - 36px));
+  display:grid;
+  grid-template-rows:auto 1fr;
+  overflow:hidden;
+  border:1px solid rgba(250,204,21,.24);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(15,23,42,.93),rgba(2,6,23,.86));
+  box-shadow:0 28px 88px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.roulette-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:18px 20px;
+  border-bottom:1px solid rgba(250,204,21,.14);
+}
+
+.roulette-title span{
+  display:block;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+h1{
+  margin:4px 0 0;
+  font-size:clamp(28px,5vw,52px);
+  line-height:1;
+  letter-spacing:0;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+button{
+  min-height:42px;
+  border:1px solid rgba(250,204,21,.28);
+  border-radius:10px;
+  padding:10px 13px;
+  color:#fff7ed;
+  background:rgba(15,23,42,.72);
+  cursor:pointer;
+  font:inherit;
+  font-weight:900;
+}
+
+button.primary{
+  color:#111827;
+  background:linear-gradient(135deg,#fde68a,#f59e0b);
+}
+
+button:disabled{cursor:not-allowed;opacity:.58}
+
+.roulette-main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:18px;
+  padding:22px;
+}
+
+.wheel-panel,
+.side-panel{
+  min-width:0;
+  border:1px solid rgba(250,204,21,.16);
+  border-radius:8px;
+  padding:16px;
+  background:rgba(2,6,23,.38);
+}
+
+.wheel-wrap{
+  min-height:460px;
+  display:grid;
+  place-items:center;
+  position:relative;
+}
+
+.pointer{
+  position:absolute;
+  top:22px;
+  z-index:3;
+  width:0;
+  height:0;
+  border-left:18px solid transparent;
+  border-right:18px solid transparent;
+  border-top:34px solid #fef3c7;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.35));
+}
+
+.wheel{
+  width:min(430px,78vw);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  border:8px solid rgba(254,243,199,.88);
+  border-radius:50%;
+  background:
+    conic-gradient(from -90deg,#f8d774 0 14.285%,#38bdf8 14.285% 28.57%,#f59e0b 28.57% 42.855%,#34d399 42.855% 57.14%,#fde68a 57.14% 71.425%,#fb7185 71.425% 85.71%,#a78bfa 85.71% 100%);
+  box-shadow:0 22px 60px rgba(0,0,0,.42), inset 0 0 0 12px rgba(15,23,42,.18);
+  transition:transform 3.6s cubic-bezier(.12,.72,.12,1);
+}
+
+.wheel-center{
+  width:36%;
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(250,204,21,.38);
+  border-radius:50%;
+  color:#111827;
+  background:linear-gradient(135deg,#fff7ed,#f59e0b);
+  box-shadow:0 12px 32px rgba(0,0,0,.34);
+  font-weight:950;
+  text-align:center;
+}
+
+.side-panel{
+  display:grid;
+  align-content:start;
+  gap:12px;
+}
+
+.status,
+.reward-card,
+.reward-list{
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:13px;
+  background:rgba(15,23,42,.66);
+}
+
+.status{
+  min-height:48px;
+  color:#fde68a;
+  line-height:1.35;
+}
+
+.status.ok{color:var(--ok);border-color:rgba(52,211,153,.28)}
+.status.bad{color:var(--bad);border-color:rgba(251,113,133,.3)}
+
+.reward-card span,
+.reward-list span{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.reward-card strong,
+.reward-list strong{
+  display:block;
+  margin-bottom:6px;
+  color:#fef3c7;
+}
+
+.reward-items{
+  display:grid;
+  gap:7px;
+  margin-top:10px;
+}
+
+.reward-pill{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  border:1px solid rgba(250,204,21,.14);
+  border-radius:999px;
+  padding:7px 10px;
+  color:#e2e8f0;
+  background:rgba(2,6,23,.46);
+  font-size:12px;
+  font-weight:800;
+}
+
+[hidden]{display:none!important}
+
+@media (max-width:840px){
+  body{align-items:start;padding:10px}
+  .roulette-shell{min-height:calc(100vh - 20px);border-radius:16px}
+  .roulette-head{align-items:flex-start;flex-direction:column}
+  .actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .roulette-main{grid-template-columns:1fr;padding:14px}
+  .wheel-wrap{min-height:360px}
+  .actions button{width:100%}
+}
+
+@media (max-width:480px){
+  .actions{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="roulette-shell">
+  <header class="roulette-head">
+    <div class="roulette-title">
+      <span>Premio diario VIP</span>
+      <h1>Ruleta VIP</h1>
+    </div>
+    <div class="actions">
+      <button type="button" onclick="window.location.href='../../../vip.html'">Zona VIP</button>
+      <button class="primary" type="button" id="refreshBtn">Actualizar</button>
+    </div>
+  </header>
+
+  <section class="roulette-main" id="content" hidden>
+    <div class="wheel-panel">
+      <div class="wheel-wrap">
+        <div class="pointer" aria-hidden="true"></div>
+        <div class="wheel" id="wheel">
+          <div class="wheel-center">VIP</div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <button class="primary" type="button" id="spinBtn">Girar ruleta</button>
+      <div class="status" id="statusEl">Validando acceso VIP...</div>
+      <div class="reward-card" id="lastReward">
+        <strong>Ultimo premio</strong>
+        <span>Todavia no hay tirada registrada.</span>
+      </div>
+      <div class="reward-list">
+        <strong>Premios activos</strong>
+        <span>Sin dinero real ni apuestas. Solo recompensas internas.</span>
+        <div class="reward-items" id="rewardItems"></div>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script type="module">
+import { supabase } from "../../js/supabase.js"
+import { getVipIdentity, validateVipSession } from "../../js/vip.js"
+import { escapeHtml } from "../../js/mensajes.js"
+
+const content = document.getElementById("content")
+const statusEl = document.getElementById("statusEl")
+const spinBtn = document.getElementById("spinBtn")
+const refreshBtn = document.getElementById("refreshBtn")
+const wheel = document.getElementById("wheel")
+const rewardItems = document.getElementById("rewardItems")
+const lastReward = document.getElementById("lastReward")
+
+let rotation = 0
+let spinning = false
+
+function identityParams(extra = {}) {
+  const identity = getVipIdentity()
+  return {
+    p_usuario: identity.usuario,
+    p_codigo: identity.codigo || null,
+    ...extra,
+  }
+}
+
+function setStatus(text, tone = "") {
+  if (!statusEl) return
+  statusEl.className = `status${tone ? ` ${tone}` : ""}`
+  statusEl.textContent = text
+}
+
+function formatDate(value) {
+  if (!value) return ""
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("es-CO")
+}
+
+function formatCooldown(value) {
+  const date = value ? new Date(value) : null
+  if (!date || Number.isNaN(date.getTime())) return ""
+  const ms = date.getTime() - Date.now()
+  if (ms <= 0) return ""
+  const hours = Math.floor(ms / 3600000)
+  const minutes = Math.ceil((ms % 3600000) / 60000)
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
+}
+
+async function callRpc(name, params) {
+  const { data, error } = await supabase.rpc(name, params)
+  if (error || data?.ok === false) {
+    throw new Error(data?.mensaje || error?.message || "No se pudo completar la accion VIP.")
+  }
+  return data
+}
+
+async function loadState({ quiet = false } = {}) {
+  try {
+    const data = await callRpc("vip_roulette_obtener_estado", identityParams())
+    renderState(data)
+    if (!quiet) setStatus(data.canSpin ? "Tirada diaria disponible." : `Vuelve en ${formatCooldown(data.cooldownUntil)}.`, data.canSpin ? "ok" : "")
+  } catch (error) {
+    setStatus(error.message, "bad")
+    spinBtn.disabled = true
+  }
+}
+
+function renderState(data = {}) {
+  spinBtn.disabled = spinning || data.canSpin !== true
+  const rewards = Array.isArray(data.rewards) ? data.rewards : []
+  rewardItems.innerHTML = rewards.length
+    ? rewards.map((item) => `
+      <div class="reward-pill">
+        <span>${escapeHtml(item.label)}</span>
+        <span>${Number(item.weight || 0)}</span>
+      </div>
+    `).join("")
+    : '<div class="reward-pill"><span>Sin premios activos</span><span>-</span></div>'
+
+  const reward = data.lastSpin?.reward
+  if (reward) {
+    lastReward.innerHTML = `
+      <strong>Ultimo premio</strong>
+      <span>${escapeHtml(reward.label || "Premio VIP")} | ${escapeHtml(formatDate(data.lastSpin.created_at))}</span>
+    `
+  }
+}
+
+async function spin() {
+  if (spinning) return
+  spinning = true
+  spinBtn.disabled = true
+  setStatus("Girando ruleta VIP...")
+  rotation += 1440 + Math.floor(Math.random() * 720)
+  wheel.style.transform = `rotate(${rotation}deg)`
+
+  try {
+    const data = await callRpc("vip_roulette_girar", identityParams())
+    setTimeout(() => {
+      setStatus(`Ganaste ${data.reward?.label || "un premio VIP"}.`, "ok")
+      renderState({ ...data, canSpin: false, lastSpin: { reward: data.reward, created_at: new Date().toISOString() }, rewards: [] })
+      loadState({ quiet: true })
+      spinning = false
+    }, 3700)
+  } catch (error) {
+    setTimeout(() => {
+      setStatus(error.message, "bad")
+      spinning = false
+      loadState({ quiet: true })
+    }, 500)
+  }
+}
+
+const ok = await validateVipSession({ statusElement: statusEl, contentElement: content })
+if (ok) {
+  await loadState()
+} else {
+  spinBtn.disabled = true
+  refreshBtn.disabled = true
+}
+
+spinBtn.addEventListener("click", spin)
+refreshBtn.addEventListener("click", () => loadState())
+</script>
+</body>
+</html>

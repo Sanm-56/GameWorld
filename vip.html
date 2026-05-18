@@ -234,6 +234,31 @@ h1{
   line-height:1.4;
 }
 
+.vip-social-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  margin-top:16px;
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  padding:14px;
+  background:linear-gradient(145deg,rgba(120,53,15,.18),rgba(15,23,42,.74));
+}
+
+.vip-social-card strong{
+  display:block;
+  color:#fef3c7;
+}
+
+.vip-social-card span{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
 .vip-summary{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -256,6 +281,12 @@ h1{
   margin-top:14px;
 }
 
+.vip-events{
+  display:grid;
+  gap:8px;
+  margin-top:14px;
+}
+
 .vip-history-row{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
@@ -272,6 +303,25 @@ h1{
 .vip-history-row strong{
   display:block;
   color:#fef3c7;
+}
+
+.vip-event-row{
+  display:grid;
+  gap:6px;
+  border:1px solid rgba(250,204,21,.16);
+  border-radius:8px;
+  padding:12px;
+  background:rgba(15,23,42,.58);
+}
+
+.vip-event-row strong{
+  color:#fef3c7;
+}
+
+.vip-event-row span{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
 }
 
 .vip-converter{
@@ -349,6 +399,7 @@ h1{
   .vip-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
   .vip-main{grid-template-columns:1fr;padding:18px}
   .vip-game-card{grid-template-columns:1fr}
+  .vip-social-card{grid-template-columns:1fr}
   .vip-summary{grid-template-columns:1fr}
   .vip-history-row{grid-template-columns:1fr}
   .vip-converter-head{display:grid}
@@ -400,6 +451,13 @@ h1{
           <div class="vip-card"><span>XP VIP</span><strong>0</strong></div>
           <div class="vip-card"><span>Tickets</span><strong>0</strong></div>
         </div>
+        <div class="vip-social-card">
+          <div>
+            <strong>Sala Social VIP</strong>
+            <span>Lobby premium con presencia activa, insignia VIP y accesos rapidos.</span>
+          </div>
+          <button class="vip-button primary" type="button" onclick="window.location.href='juegos/vip/social/index.html'">Entrar</button>
+        </div>
         <div class="vip-converter" id="vipConverter">
           <div class="vip-converter-head">
             <div>
@@ -415,6 +473,7 @@ h1{
           <div class="vip-converter-status" id="vipConvertStatus">Convierte solo cuando quieras llevar monedas VIP al torneo principal.</div>
         </div>
         <div class="vip-game-list" id="vipGameList"></div>
+        <div class="vip-events" id="vipEvents"></div>
         <div class="vip-history" id="vipHistory"></div>
       </div>
     </aside>
@@ -422,7 +481,8 @@ h1{
 </main>
 
 <script type="module">
-import { validateVipSession, clearVipStatusCache } from "./juegos/js/vip.js"
+import { supabase } from "./juegos/js/supabase.js"
+import { validateVipSession, clearVipStatusCache, getVipIdentity } from "./juegos/js/vip.js"
 import { renderVipGames } from "./juegos/js/vip-games.js"
 import { convertVipCoinsToNormal, getVipGameHistory, getVipWallet } from "./juegos/js/vip-results.js"
 import { escapeHtml } from "./juegos/js/mensajes.js"
@@ -439,6 +499,7 @@ async function verifyVip() {
   if (ok) {
     renderVipGames(document.getElementById("vipGameList"))
     await renderVipActivity()
+    await renderVipEvents()
   }
 }
 
@@ -485,6 +546,47 @@ function renderVipConversion(conversion, wallet) {
     convertAmount.value = String(Math.min(Number(convertAmount.value || 1), Number(convertAmount.max)))
   }
   if (convertButton) convertButton.disabled = !left || !wallet?.vipCoins
+}
+
+async function renderVipEvents() {
+  const eventsEl = document.getElementById("vipEvents")
+  if (!eventsEl) return
+  const identity = getVipIdentity()
+  try {
+    const { data, error } = await supabase.rpc("obtener_eventos_vip_activos", {
+      p_usuario: identity.usuario,
+      p_codigo: identity.codigo || null,
+    })
+    if (error || data?.ok === false) {
+      eventsEl.innerHTML = '<div class="vip-card"><strong>Eventos VIP activos</strong><span>No se pudieron cargar los eventos VIP por ahora.</span></div>'
+      return
+    }
+    const items = Array.isArray(data?.items) ? data.items : []
+    if (!items.length) {
+      eventsEl.innerHTML = '<div class="vip-card"><strong>Eventos VIP activos</strong><span>No hay eventos VIP activos por ahora.</span></div>'
+      return
+    }
+    eventsEl.innerHTML = `
+      <div class="vip-card"><strong>Eventos VIP activos</strong><span>Eventos especiales controlados desde Admin.</span></div>
+      ${items.map((item) => `
+        <div class="vip-event-row">
+          <strong>${escapeHtml(item.name || "Evento VIP")}</strong>
+          <span>${escapeHtml(item.description || "Evento exclusivo para miembros VIP.")}</span>
+          <span>${escapeHtml(formatEventRange(item.starts_at, item.ends_at))}${item.related_game ? ` | ${escapeHtml(item.related_game)}` : ""}</span>
+        </div>
+      `).join("")}
+    `
+  } catch {
+    eventsEl.innerHTML = '<div class="vip-card"><strong>Eventos VIP activos</strong><span>No se pudieron cargar los eventos VIP por ahora.</span></div>'
+  }
+}
+
+function formatEventRange(start, end) {
+  const startDate = start ? new Date(start) : null
+  const endDate = end ? new Date(end) : null
+  const startText = startDate && !Number.isNaN(startDate.getTime()) ? startDate.toLocaleString("es-CO") : "Inicio pendiente"
+  const endText = endDate && !Number.isNaN(endDate.getTime()) ? endDate.toLocaleString("es-CO") : "Fin pendiente"
+  return `${startText} - ${endText}`
 }
 
 document.querySelector("[data-refresh-vip]")?.addEventListener("click", async () => {

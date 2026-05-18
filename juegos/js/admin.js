@@ -48,6 +48,8 @@ let canalBonusMonedas = null
 let miniTorneosAdminRequestId = 0
 const miniTorneosAdminAccionesPendientes = new Set()
 let vipMembershipsRequestId = 0
+let vipEventsRequestId = 0
+let vipEventsCache = []
 let rewardUserSeleccionado = null
 let rewardAmountSeleccionado = 100
 let rewardHistoryChannel = null
@@ -185,6 +187,7 @@ cargarBonusTemporadaAdmin()
 cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
 cargarMembresiasVipAdmin()
+cargarEventosVipAdmin()
 cargarHistorialRegalosAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
@@ -214,6 +217,7 @@ cargarBonusTemporadaAdmin()
 cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
 cargarMembresiasVipAdmin()
+cargarEventosVipAdmin()
 cargarHistorialRegalosAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
@@ -877,6 +881,228 @@ await cargarMembresiasVipAdmin()
 // =============================
 // 🏆 PODIO + RANKING
 // =============================
+function formatoDatetimeLocal(fecha = new Date()){
+const date = fecha instanceof Date ? fecha : new Date(fecha)
+if(Number.isNaN(date.getTime())) return ""
+const offset = date.getTimezoneOffset()
+const local = new Date(date.getTime() - offset * 60000)
+return local.toISOString().slice(0, 16)
+}
+
+function leerJsonAdmin(id, fallback = {}){
+const raw = document.getElementById(id)?.value?.trim() || ""
+if(!raw) return fallback
+try{
+const parsed = JSON.parse(raw)
+return parsed && typeof parsed === "object" ? parsed : fallback
+}catch{
+throw new Error(`JSON invalido en ${id}.`)
+}
+}
+
+function obtenerPayloadEventoVipAdmin(){
+const idRaw = document.getElementById("vipEventId")?.value || ""
+const name = cleanText(document.getElementById("vipEventName")?.value || "", "").trim()
+const description = cleanText(document.getElementById("vipEventDescription")?.value || "", "").trim()
+const type = cleanText(document.getElementById("vipEventType")?.value || "general", "general")
+const relatedGame = cleanText(document.getElementById("vipEventGame")?.value || "", "").trim()
+const startRaw = document.getElementById("vipEventStart")?.value || ""
+const endRaw = document.getElementById("vipEventEnd")?.value || ""
+const startsAt = startRaw ? new Date(startRaw) : null
+const endsAt = endRaw ? new Date(endRaw) : null
+return {
+id: idRaw ? Math.trunc(Number(idRaw)) : null,
+name,
+description,
+type,
+relatedGame,
+startsAt,
+endsAt,
+isActive: document.getElementById("vipEventActive")?.checked !== false,
+rewards: leerJsonAdmin("vipEventRewards", {}),
+config: leerJsonAdmin("vipEventConfig", {}),
+}
+}
+
+function validarEventoVipAdmin(payload){
+if(!payload.name) return "El evento VIP necesita nombre."
+if(!payload.startsAt || Number.isNaN(payload.startsAt.getTime())) return "Selecciona fecha de inicio valida."
+if(!payload.endsAt || Number.isNaN(payload.endsAt.getTime())) return "Selecciona fecha de fin valida."
+if(payload.endsAt <= payload.startsAt) return "La fecha de fin debe ser posterior al inicio."
+return ""
+}
+
+function resumenEventoVipAdmin(evento){
+const activo = evento.is_active ? "Activo" : "Inactivo"
+const actual = evento.is_current ? " | En curso" : ""
+const inicio = evento.starts_at ? new Date(evento.starts_at).toLocaleString("es-CO") : "-"
+const fin = evento.ends_at ? new Date(evento.ends_at).toLocaleString("es-CO") : "-"
+return `${activo}${actual} | ${inicio} - ${fin}`
+}
+
+async function cargarEventosVipAdmin(){
+const list = document.getElementById("vipEventsList")
+const status = document.getElementById("vipEventsAdminStatus")
+if(!list) return
+
+const requestId = ++vipEventsRequestId
+list.innerHTML = '<div class="export-note">Cargando eventos VIP...</div>'
+
+const rpc = await ejecutarRpcAdminObjeto("admin_listar_eventos_vip")
+if(requestId !== vipEventsRequestId) return
+
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudieron cargar eventos VIP. Reaplica supabase-vip.sql actualizado.")
+if(status) setCleanText(status, mensaje)
+list.innerHTML = `<div class="export-note">${escapeHtml(mensaje)}</div>`
+return
+}
+
+vipEventsCache = Array.isArray(rpc.data?.items) ? rpc.data.items : []
+if(status) setCleanText(status, `${vipEventsCache.length} evento${vipEventsCache.length === 1 ? "" : "s"} VIP registrado${vipEventsCache.length === 1 ? "" : "s"}.`)
+
+if(!vipEventsCache.length){
+list.innerHTML = '<div class="export-note">Todavia no hay eventos VIP.</div>'
+return
+}
+
+list.innerHTML = vipEventsCache.map((item) => `
+  <div class="reward-history-row">
+    <strong>${escapeHtml(item.name)} - ${escapeHtml(item.event_type || "general")}</strong>
+    <span>${escapeHtml(resumenEventoVipAdmin(item))}</span>
+    <span>${escapeHtml(item.description || "Sin descripcion")}</span>
+    <div class="reward-admin-actions">
+      <button type="button" onclick="editarEventoVipAdmin(${Number(item.id)})">Editar</button>
+      <button type="button" onclick="cambiarEstadoEventoVipAdmin(${Number(item.id)}, ${item.is_active ? "false" : "true"})">${item.is_active ? "Desactivar" : "Activar"}</button>
+    </div>
+    <button class="danger" type="button" onclick="eliminarEventoVipAdmin(${Number(item.id)})">Eliminar</button>
+  </div>
+`).join("")
+}
+
+function limpiarEventoVipAdmin(){
+const now = new Date()
+const end = new Date(now.getTime() + 7 * 86400000)
+const fields = {
+vipEventId: "",
+vipEventName: "",
+vipEventDescription: "",
+vipEventType: "general",
+vipEventGame: "",
+vipEventStart: formatoDatetimeLocal(now),
+vipEventEnd: formatoDatetimeLocal(end),
+vipEventRewards: "",
+vipEventConfig: "",
+}
+Object.entries(fields).forEach(([id, value]) => {
+const el = document.getElementById(id)
+if(el) el.value = value
+})
+const active = document.getElementById("vipEventActive")
+if(active) active.checked = true
+const title = document.getElementById("vipEventFormTitle")
+if(title) setCleanText(title, "Crear evento VIP")
+}
+
+function editarEventoVipAdmin(id){
+const item = vipEventsCache.find((evento) => Number(evento.id) === Number(id))
+if(!item){
+safeAlert("Evento VIP no encontrado en la lista actual.")
+return
+}
+const values = {
+vipEventId: item.id || "",
+vipEventName: item.name || "",
+vipEventDescription: item.description || "",
+vipEventType: item.event_type || "general",
+vipEventGame: item.related_game || "",
+vipEventStart: formatoDatetimeLocal(item.starts_at),
+vipEventEnd: formatoDatetimeLocal(item.ends_at),
+vipEventRewards: item.rewards && Object.keys(item.rewards).length ? JSON.stringify(item.rewards, null, 2) : "",
+vipEventConfig: item.config && Object.keys(item.config).length ? JSON.stringify(item.config, null, 2) : "",
+}
+Object.entries(values).forEach(([fieldId, value]) => {
+const el = document.getElementById(fieldId)
+if(el) el.value = value
+})
+const active = document.getElementById("vipEventActive")
+if(active) active.checked = item.is_active === true
+const title = document.getElementById("vipEventFormTitle")
+if(title) setCleanText(title, "Editar evento VIP")
+document.getElementById("vipEventName")?.focus()
+}
+
+async function guardarEventoVipAdmin(){
+let payload
+try{
+payload = obtenerPayloadEventoVipAdmin()
+}catch(error){
+safeAlert(error.message)
+return
+}
+const error = validarEventoVipAdmin(payload)
+if(error){
+safeAlert(error)
+return
+}
+
+const ok = await confirmAction(payload.id ? "Guardar cambios del evento VIP?" : "Crear evento VIP?", { title: "Evento VIP", acceptText: "Guardar", cancelText: "Cancelar", danger: false })
+if(!ok) return
+
+const status = document.getElementById("vipEventsAdminStatus")
+if(status) setCleanText(status, "Guardando evento VIP...")
+const rpc = await ejecutarRpcAdminObjeto("admin_guardar_evento_vip", {
+p_event_id: payload.id,
+p_name: payload.name,
+p_description: payload.description,
+p_event_type: payload.type,
+p_starts_at: payload.startsAt.toISOString(),
+p_ends_at: payload.endsAt.toISOString(),
+p_is_active: payload.isActive,
+p_related_game: payload.relatedGame || null,
+p_rewards: payload.rewards,
+p_config: payload.config,
+})
+
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo guardar el evento VIP.")
+if(status) setCleanText(status, mensaje)
+safeAlert(mensaje)
+return
+}
+
+safeAlert("Evento VIP guardado correctamente.")
+limpiarEventoVipAdmin()
+await cargarEventosVipAdmin()
+}
+
+async function cambiarEstadoEventoVipAdmin(id, activo){
+const ok = await confirmAction(`${activo ? "Activar" : "Desactivar"} evento VIP?`, { title: "Estado evento VIP", acceptText: activo ? "Activar" : "Desactivar", danger: !activo })
+if(!ok) return
+const rpc = await ejecutarRpcAdminObjeto("admin_cambiar_estado_evento_vip", {
+p_event_id: Number(id),
+p_is_active: Boolean(activo),
+})
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo cambiar el estado del evento VIP."))
+return
+}
+await cargarEventosVipAdmin()
+}
+
+async function eliminarEventoVipAdmin(id){
+const ok = await confirmAction("Eliminar este evento VIP definitivamente?", { title: "Eliminar evento VIP", acceptText: "Eliminar", danger: true })
+if(!ok) return
+const rpc = await ejecutarRpcAdminObjeto("admin_eliminar_evento_vip", { p_event_id: Number(id) })
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo eliminar el evento VIP."))
+return
+}
+safeAlert("Evento VIP eliminado.")
+limpiarEventoVipAdmin()
+await cargarEventosVipAdmin()
+}
+
 async function cargarVistaAdmin(){
 
 let juego = document.getElementById("juegoSelect")?.value
@@ -2005,6 +2231,12 @@ window.finalizarMiniTorneoAdmin = finalizarMiniTorneoAdmin
 window.borrarMiniTorneoAdmin = borrarMiniTorneoAdmin
 window.cargarMembresiasVipAdmin = cargarMembresiasVipAdmin
 window.guardarVipAdmin = guardarVipAdmin
+window.cargarEventosVipAdmin = cargarEventosVipAdmin
+window.guardarEventoVipAdmin = guardarEventoVipAdmin
+window.limpiarEventoVipAdmin = limpiarEventoVipAdmin
+window.editarEventoVipAdmin = editarEventoVipAdmin
+window.cambiarEstadoEventoVipAdmin = cambiarEstadoEventoVipAdmin
+window.eliminarEventoVipAdmin = eliminarEventoVipAdmin
 window.confirmarRegaloAdmin = confirmarRegaloAdmin
 window.limpiarRegaloAdmin = limpiarRegaloAdmin
 window.cargarHistorialRegalosAdmin = cargarHistorialRegalosAdmin
@@ -2021,6 +2253,8 @@ document.getElementById('juegoSelect')?.addEventListener('change', () => {
   cargarRanking()
   cargarVistaAdmin()
 })
+
+limpiarEventoVipAdmin()
 
 document.getElementById('bonusJuegoSelect')?.addEventListener('change', () => {
   actualizarVistaBonusAdmin()

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sala Social VIP - GameWorld</title>
+<style>
+:root{
+  color-scheme:dark;
+  --gold:#f8d774;
+  --gold-strong:#f59e0b;
+  --text:#f8fafc;
+  --muted:#cbd5e1;
+  --ok:#bbf7d0;
+  --bad:#fecdd3;
+}
+
+*{box-sizing:border-box}
+
+body{
+  min-height:100vh;
+  margin:0;
+  padding:18px;
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 16% 10%,rgba(250,204,21,.12),transparent 32%),
+    radial-gradient(circle at 84% 14%,rgba(14,165,233,.1),transparent 30%),
+    linear-gradient(145deg,#020617,#111827 58%,#0f172a);
+}
+
+.social-shell{
+  width:min(1160px,100%);
+  min-height:calc(100vh - 36px);
+  margin:0 auto;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  overflow:hidden;
+  border:1px solid rgba(250,204,21,.24);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(15,23,42,.93),rgba(2,6,23,.86));
+  box-shadow:0 28px 88px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.social-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:18px 20px;
+  border-bottom:1px solid rgba(250,204,21,.14);
+}
+
+.social-title span{
+  display:block;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+h1{
+  margin:4px 0 0;
+  font-size:clamp(28px,5vw,52px);
+  line-height:1;
+  letter-spacing:0;
+}
+
+.actions,
+.quick-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+button{
+  min-height:42px;
+  border:1px solid rgba(250,204,21,.28);
+  border-radius:10px;
+  padding:10px 13px;
+  color:#fff7ed;
+  background:rgba(15,23,42,.72);
+  cursor:pointer;
+  font:inherit;
+  font-weight:900;
+}
+
+button.primary{
+  color:#111827;
+  background:linear-gradient(135deg,#fde68a,#f59e0b);
+}
+
+button:disabled{cursor:not-allowed;opacity:.58}
+
+.social-main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:18px;
+  padding:22px;
+}
+
+.lounge-panel,
+.side-panel{
+  min-width:0;
+  border:1px solid rgba(250,204,21,.16);
+  border-radius:8px;
+  padding:16px;
+  background:rgba(2,6,23,.38);
+}
+
+.lounge-panel{
+  display:grid;
+  align-content:start;
+  gap:14px;
+}
+
+.welcome{
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  padding:16px;
+  background:linear-gradient(145deg,rgba(120,53,15,.2),rgba(15,23,42,.66));
+}
+
+.welcome strong{
+  display:block;
+  color:#fef3c7;
+  font-size:22px;
+}
+
+.welcome span{
+  display:block;
+  margin-top:6px;
+  color:var(--muted);
+  line-height:1.45;
+}
+
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.quick-card{
+  min-height:132px;
+  display:grid;
+  align-content:space-between;
+  gap:10px;
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:14px;
+  background:linear-gradient(145deg,rgba(15,23,42,.9),rgba(30,41,59,.56));
+}
+
+.quick-card strong{
+  color:#fef3c7;
+}
+
+.quick-card span{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.status{
+  min-height:48px;
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  padding:13px;
+  color:#fde68a;
+  background:rgba(15,23,42,.66);
+  line-height:1.35;
+}
+
+.status.ok{color:var(--ok);border-color:rgba(52,211,153,.28)}
+.status.bad{color:var(--bad);border-color:rgba(251,113,133,.3)}
+
+.side-panel{
+  display:grid;
+  align-content:start;
+  gap:12px;
+}
+
+.profile-card,
+.presence-card{
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:14px;
+  background:rgba(15,23,42,.66);
+}
+
+.avatar{
+  width:62px;
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(250,204,21,.34);
+  border-radius:50%;
+  color:#111827;
+  background:linear-gradient(135deg,#fff7ed,#f59e0b);
+  font-size:24px;
+  font-weight:950;
+}
+
+.profile-card strong,
+.presence-card strong{
+  display:block;
+  margin-top:10px;
+  color:#fef3c7;
+}
+
+.profile-card span,
+.presence-card span{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.user-list{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+
+.user-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:1px solid rgba(250,204,21,.12);
+  border-radius:999px;
+  padding:8px 10px;
+  background:rgba(2,6,23,.46);
+}
+
+.user-row b{
+  color:#f8fafc;
+  font-size:13px;
+}
+
+.badge{
+  border:1px solid rgba(250,204,21,.24);
+  border-radius:999px;
+  padding:4px 7px;
+  color:#fef3c7;
+  background:rgba(120,53,15,.22);
+  font-size:11px;
+  font-weight:900;
+}
+
+[hidden]{display:none!important}
+
+@media (max-width:900px){
+  body{padding:10px}
+  .social-shell{min-height:calc(100vh - 20px);border-radius:16px}
+  .social-head{align-items:flex-start;flex-direction:column}
+  .actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .actions button{width:100%}
+  .social-main{grid-template-columns:1fr;padding:14px}
+  .quick-grid{grid-template-columns:1fr}
+}
+
+@media (max-width:480px){
+  .actions{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="social-shell">
+  <header class="social-head">
+    <div class="social-title">
+      <span>Comunidad exclusiva</span>
+      <h1>Sala Social VIP</h1>
+    </div>
+    <div class="actions">
+      <button type="button" onclick="window.location.href='../../../vip.html'">Zona VIP</button>
+      <button class="primary" type="button" id="refreshBtn">Actualizar</button>
+    </div>
+  </header>
+
+  <section class="social-main" id="content" hidden>
+    <div class="lounge-panel">
+      <div class="welcome">
+        <strong>Lobby premium</strong>
+        <span>Accesos rapidos, presencia VIP y actividad social preparada sin afectar el lobby normal.</span>
+      </div>
+
+      <div class="quick-grid">
+        <article class="quick-card">
+          <div>
+            <strong>Bingo VIP</strong>
+            <span>Sala con cartones automaticos y reclamo validado.</span>
+          </div>
+          <button class="primary" type="button" onclick="window.location.href='../bingo/index.html'">Entrar</button>
+        </article>
+        <article class="quick-card">
+          <div>
+            <strong>Ruleta VIP</strong>
+            <span>Tirada diaria con premios internos.</span>
+          </div>
+          <button class="primary" type="button" onclick="window.location.href='../ruleta/index.html'">Girar</button>
+        </article>
+        <article class="quick-card">
+          <div>
+            <strong>Eventos VIP</strong>
+            <span>Preparado para eventos administrados en la siguiente fase.</span>
+          </div>
+          <button type="button" disabled>Proximamente</button>
+        </article>
+      </div>
+
+      <div class="status" id="statusEl">Validando acceso VIP...</div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="profile-card">
+        <div class="avatar" id="avatarEl">V</div>
+        <strong id="profileName">Miembro VIP</strong>
+        <span>Insignia VIP activa. Tu presencia se actualiza mientras tengas esta sala abierta.</span>
+      </div>
+      <div class="presence-card">
+        <strong id="presenceTitle">Usuarios conectados</strong>
+        <span>Activos en los ultimos minutos.</span>
+        <div class="user-list" id="userList"></div>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script type="module">
+import { supabase } from "../../js/supabase.js"
+import { getVipIdentity, validateVipSession } from "../../js/vip.js"
+import { escapeHtml } from "../../js/mensajes.js"
+
+const content = document.getElementById("content")
+const statusEl = document.getElementById("statusEl")
+const refreshBtn = document.getElementById("refreshBtn")
+const profileName = document.getElementById("profileName")
+const avatarEl = document.getElementById("avatarEl")
+const userList = document.getElementById("userList")
+const presenceTitle = document.getElementById("presenceTitle")
+
+let pingTimer = null
+
+function identityParams(extra = {}) {
+  const identity = getVipIdentity()
+  return {
+    p_usuario: identity.usuario,
+    p_codigo: identity.codigo || null,
+    ...extra,
+  }
+}
+
+function setStatus(text, tone = "") {
+  if (!statusEl) return
+  statusEl.className = `status${tone ? ` ${tone}` : ""}`
+  statusEl.textContent = text
+}
+
+function renderProfile() {
+  const identity = getVipIdentity()
+  const name = identity.usuario || "Miembro VIP"
+  profileName.textContent = name
+  avatarEl.textContent = name.trim().charAt(0).toUpperCase() || "V"
+}
+
+async function ping({ quiet = false } = {}) {
+  try {
+    const { data, error } = await supabase.rpc("vip_social_ping", identityParams({ p_room: "vip-lounge" }))
+    if (error || data?.ok === false) {
+      throw new Error(data?.mensaje || error?.message || "No se pudo actualizar la sala social VIP.")
+    }
+    renderUsers(data.users, data.activeCount)
+    if (!quiet) setStatus("Sala Social VIP activa.", "ok")
+  } catch (error) {
+    setStatus(error.message, "bad")
+  }
+}
+
+function renderUsers(users = [], count = 0) {
+  const items = Array.isArray(users) ? users : []
+  presenceTitle.textContent = `${Number(count || items.length)} usuario${Number(count || items.length) === 1 ? "" : "s"} conectado${Number(count || items.length) === 1 ? "" : "s"}`
+  userList.innerHTML = items.length
+    ? items.map((user) => `
+      <div class="user-row">
+        <b>${escapeHtml(user.display_name || user.usuario_id || "VIP")}</b>
+        <span class="badge">VIP</span>
+      </div>
+    `).join("")
+    : '<div class="user-row"><b>Sin usuarios activos</b><span class="badge">VIP</span></div>'
+}
+
+const ok = await validateVipSession({ statusElement: statusEl, contentElement: content })
+if (ok) {
+  renderProfile()
+  await ping()
+  pingTimer = setInterval(() => ping({ quiet: true }), 30000)
+} else {
+  refreshBtn.disabled = true
+}
+
+refreshBtn.addEventListener("click", () => ping())
+window.addEventListener("beforeunload", () => clearInterval(pingTimer))
+</script>
+</body>
+</html>
