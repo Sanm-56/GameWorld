@@ -1,16 +1,20 @@
 import { canAccessVipGame } from "./vip.js"
 import { escapeHtml, safeAlert } from "./mensajes.js"
+import { VIP_GAME_TYPES } from "./vip-results.js"
 
 export const VIP_GAMES = [
   {
     key: "reflejos-vip",
     title: "Reflejos VIP",
-    detail: "Reto rapido exclusivo para probar la categoria VIP.",
+    detail: "Reto premium de precision, combo y velocidad exclusivo para miembros VIP.",
     url: "juegos/vip/reflejos/index.html",
     badge: "Juego",
     status: "available",
+    type: VIP_GAME_TYPES.EXCLUSIVE,
     isVipOnly: true,
     category: "vip",
+    origin: "vip",
+    writesNormalRanking: false,
   },
   {
     key: "bingo-vip",
@@ -19,8 +23,11 @@ export const VIP_GAMES = [
     url: "",
     badge: "Fase 3",
     status: "coming-soon",
+    type: VIP_GAME_TYPES.COMING_SOON,
     isVipOnly: true,
     category: "vip",
+    origin: "vip",
+    writesNormalRanking: false,
   },
   {
     key: "ruleta-vip",
@@ -29,10 +36,17 @@ export const VIP_GAMES = [
     url: "",
     badge: "Fase 4",
     status: "coming-soon",
+    type: VIP_GAME_TYPES.COMING_SOON,
     isVipOnly: true,
     category: "vip",
+    origin: "vip",
+    writesNormalRanking: false,
   },
 ]
+
+export function getVipGamesByType(type) {
+  return VIP_GAMES.filter((game) => game.isVipOnly && game.category === "vip" && game.type === type)
+}
 
 export function getVipGame(key) {
   return VIP_GAMES.find((game) => game.key === key && game.isVipOnly && game.category === "vip") || null

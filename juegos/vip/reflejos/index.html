@@ -73,6 +73,7 @@ h1{
   justify-content:flex-end;
 }
 
+select,
 button{
   min-height:42px;
   border:1px solid rgba(250,204,21,.28);
@@ -83,6 +84,12 @@ button{
   cursor:pointer;
   font:inherit;
   font-weight:900;
+}
+
+select{
+  min-width:146px;
+  color:#f8fafc;
+  background:rgba(15,23,42,.72);
 }
 
 button.primary{
@@ -117,8 +124,8 @@ button:disabled{
 
 .target{
   position:absolute;
-  width:62px;
-  height:62px;
+  width:var(--target-size,62px);
+  height:var(--target-size,62px);
   display:grid;
   place-items:center;
   border:2px solid rgba(255,255,255,.76);
@@ -127,6 +134,12 @@ button:disabled{
   background:radial-gradient(circle,#fef3c7,#f59e0b);
   box-shadow:0 0 26px rgba(250,204,21,.34);
   transform:translate(-50%,-50%);
+  transition:transform .12s ease, filter .12s ease;
+}
+
+.target:hover{
+  transform:translate(-50%,-50%) scale(1.06);
+  filter:brightness(1.08);
 }
 
 .panel{
@@ -156,6 +169,30 @@ button:disabled{
   font-size:24px;
 }
 
+.stat.compact strong{
+  font-size:20px;
+}
+
+.history{
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:13px;
+  background:rgba(15,23,42,.66);
+}
+
+.history strong{
+  display:block;
+  margin-bottom:8px;
+  color:#fef3c7;
+}
+
+.history-list{
+  display:grid;
+  gap:6px;
+  color:var(--muted);
+  font-size:13px;
+}
+
 .status{
   min-height:46px;
   margin:0 20px 20px;
@@ -175,9 +212,14 @@ button:disabled{
   .game-shell{min-height:calc(100vh - 20px);border-radius:16px}
   .game-head{align-items:flex-start;flex-direction:column}
   .actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .actions select{width:100%;min-width:0}
   .game-main{grid-template-columns:1fr;padding:14px}
   .arena{min-height:360px}
   .status{margin:0 14px 14px}
+}
+
+@media (max-width:460px){
+  .actions{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -189,8 +231,14 @@ button:disabled{
       <h1>Reflejos VIP</h1>
     </div>
     <div class="actions">
+      <select id="modeSelect" aria-label="Modo de juego">
+        <option value="classic">Clasico 30s</option>
+        <option value="rush">Rush 20s</option>
+        <option value="endurance">Resistencia 45s</option>
+      </select>
       <button type="button" onclick="window.location.href='../../../vip.html'">Zona VIP</button>
       <button class="primary" type="button" id="startBtn">Iniciar</button>
+      <button type="button" id="pauseBtn" disabled>Pausar</button>
     </div>
   </header>
 
@@ -209,6 +257,18 @@ button:disabled{
         <span>Mejor local</span>
         <strong id="bestEl">0</strong>
       </div>
+      <div class="stat compact">
+        <span>Combo</span>
+        <strong id="comboEl">x0</strong>
+      </div>
+      <div class="stat compact">
+        <span>Precision</span>
+        <strong id="accuracyEl">100%</strong>
+      </div>
+      <div class="history">
+        <strong>Ultimas partidas</strong>
+        <div class="history-list" id="historyEl">Sin partidas todavia.</div>
+      </div>
     </aside>
   </section>
 
@@ -217,22 +277,44 @@ button:disabled{
 
 <script type="module">
 import { validateVipSession } from "../../js/vip.js"
+import { calculateVipRewards, getVipGameHistory, registerVipGameResult } from "../../js/vip-results.js"
 
 const content = document.getElementById("gameContent")
 const statusEl = document.getElementById("statusEl")
 const arena = document.getElementById("arena")
 const startBtn = document.getElementById("startBtn")
+const pauseBtn = document.getElementById("pauseBtn")
+const modeSelect = document.getElementById("modeSelect")
 const scoreEl = document.getElementById("scoreEl")
 const timeEl = document.getElementById("timeEl")
 const bestEl = document.getElementById("bestEl")
+const comboEl = document.getElementById("comboEl")
+const accuracyEl = document.getElementById("accuracyEl")
+const historyEl = document.getElementById("historyEl")
+
+const MODES = {
+  classic: { label: "Clasico", seconds: 30, targetMs: 1250, size: 62, points: 10 },
+  rush: { label: "Rush", seconds: 20, targetMs: 880, size: 54, points: 14 },
+  endurance: { label: "Resistencia", seconds: 45, targetMs: 1400, size: 66, points: 8 },
+}
 
 let score = 0
 let timeLeft = 30
 let timer = null
+let targetTimer = null
 let running = false
+let paused = false
+let hits = 0
+let misses = 0
+let combo = 0
+let bestCombo = 0
+
+function currentMode() {
+  return MODES[modeSelect?.value] || MODES.classic
+}
 
 function bestScore() {
-  return Math.max(0, Number(localStorage.getItem("vip_reflejos_best") || 0))
+  return Math.max(0, Number(localStorage.getItem(`vip_reflejos_best_${modeSelect?.value || "classic"}`) || 0))
 }
 
 function setStatus(text) {
@@ -243,64 +325,162 @@ function updateHud() {
   scoreEl.textContent = String(score)
   timeEl.textContent = String(timeLeft)
   bestEl.textContent = String(bestScore())
+  comboEl.textContent = `x${combo}`
+  const total = hits + misses
+  const accuracy = total ? Math.round((hits / total) * 100) : 100
+  accuracyEl.textContent = `${accuracy}%`
+}
+
+async function renderHistory() {
+  if (!historyEl) return
+  const history = await getVipGameHistory({ gameKey: "reflejos-vip", limit: 5 })
+  if (!history.length) {
+    historyEl.textContent = "Sin partidas todavia."
+    return
+  }
+  historyEl.innerHTML = ""
+  history.forEach((item) => {
+    const metrics = item.metrics || {}
+    const total = Number(metrics.total ?? metrics.hits + metrics.misses) || 0
+    const precision = Number(metrics.accuracy) || (total ? Math.round((Number(metrics.hits || 0) / total) * 100) : 100)
+    const comboMax = Number(metrics.bestCombo ?? metrics.combo ?? 0)
+    const row = document.createElement("span")
+    row.textContent = `${item.mode || "VIP"}: ${item.score} pts | ${precision}% | combo x${comboMax}`
+    historyEl.appendChild(row)
+  })
 }
 
 function placeTarget() {
   if (!arena || !running) return
+  clearTimeout(targetTimer)
   arena.innerHTML = ""
   const rect = arena.getBoundingClientRect()
+  const mode = currentMode()
   const target = document.createElement("button")
   target.type = "button"
   target.className = "target"
   target.setAttribute("aria-label", "Objetivo")
   target.textContent = "+"
-  target.style.left = `${32 + Math.random() * Math.max(1, rect.width - 64)}px`
-  target.style.top = `${32 + Math.random() * Math.max(1, rect.height - 64)}px`
-  target.addEventListener("click", () => {
-    score += 1
+  target.style.setProperty("--target-size", `${mode.size}px`)
+  target.style.left = `${mode.size / 2 + Math.random() * Math.max(1, rect.width - mode.size)}px`
+  target.style.top = `${mode.size / 2 + Math.random() * Math.max(1, rect.height - mode.size)}px`
+  target.addEventListener("click", (event) => {
+    event.stopPropagation()
+    hits += 1
+    combo += 1
+    bestCombo = Math.max(bestCombo, combo)
+    score += mode.points + Math.min(30, combo * 2)
     updateHud()
     placeTarget()
   })
   arena.appendChild(target)
+  targetTimer = setTimeout(() => {
+    if (!running || paused) return
+    misses += 1
+    combo = 0
+    updateHud()
+    placeTarget()
+  }, mode.targetMs)
 }
 
-function finishGame() {
+async function finishGame() {
   running = false
+  paused = false
   clearInterval(timer)
+  clearTimeout(targetTimer)
   timer = null
+  targetTimer = null
   arena.innerHTML = ""
   startBtn.disabled = false
+  pauseBtn.disabled = true
+  pauseBtn.textContent = "Pausar"
+  modeSelect.disabled = false
+  const modeKey = modeSelect?.value || "classic"
   const best = bestScore()
-  if (score > best) localStorage.setItem("vip_reflejos_best", String(score))
+  if (score > best) localStorage.setItem(`vip_reflejos_best_${modeKey}`, String(score))
+  const total = hits + misses
+  const accuracy = total ? Math.round((hits / total) * 100) : 100
+  const rewards = calculateVipRewards({ score, hits, accuracy, bestCombo })
+  const saved = await registerVipGameResult({
+    gameKey: "reflejos-vip",
+    gameTitle: "Reflejos VIP",
+    mode: currentMode().label,
+    score,
+    metrics: {
+      hits,
+      misses,
+      total,
+      accuracy,
+      bestCombo,
+      modeKey,
+    },
+    rewards,
+  })
   updateHud()
-  setStatus(`Partida terminada. Puntaje: ${score}. Este resultado no entra a rankings normales.`)
+  await renderHistory()
+  const remoteText = saved.remote ? "Resultado VIP guardado." : "Resultado guardado localmente."
+  setStatus(`${remoteText} +${rewards.vipCoins} monedas VIP, +${rewards.vipXp} XP VIP, +${rewards.vipTickets} tickets. No entra a rankings normales.`)
 }
 
 function startGame() {
   if (running) return
+  const mode = currentMode()
   score = 0
-  timeLeft = 30
+  hits = 0
+  misses = 0
+  combo = 0
+  bestCombo = 0
+  timeLeft = mode.seconds
   running = true
+  paused = false
   startBtn.disabled = true
+  pauseBtn.disabled = false
+  pauseBtn.textContent = "Pausar"
+  modeSelect.disabled = true
   updateHud()
-  setStatus("Toca los objetivos dorados antes de que termine el tiempo.")
+  setStatus(`Modo ${mode.label}. Toca los objetivos dorados y conserva el combo.`)
   placeTarget()
   timer = setInterval(() => {
+    if (paused) return
     timeLeft -= 1
     updateHud()
     if (timeLeft <= 0) finishGame()
   }, 1000)
 }
 
+function togglePause() {
+  if (!running) return
+  paused = !paused
+  pauseBtn.textContent = paused ? "Continuar" : "Pausar"
+  if (paused) {
+    clearTimeout(targetTimer)
+    arena.innerHTML = ""
+    setStatus("Partida pausada.")
+  } else {
+    setStatus("Partida reanudada.")
+    placeTarget()
+  }
+}
+
 const ok = await validateVipSession({ statusElement: statusEl, contentElement: content })
 if (ok) {
   setStatus("Acceso VIP activo. Listo para jugar.")
   updateHud()
+  await renderHistory()
 } else {
   startBtn.disabled = true
+  pauseBtn.disabled = true
 }
 
 startBtn.addEventListener("click", startGame)
+pauseBtn.addEventListener("click", togglePause)
+modeSelect.addEventListener("change", updateHud)
+arena.addEventListener("click", () => {
+  if (!running || paused) return
+  misses += 1
+  combo = 0
+  updateHud()
+})
 </script>
 </body>
 </html>

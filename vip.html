@@ -234,6 +234,46 @@ h1{
   line-height:1.4;
 }
 
+.vip-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:16px;
+}
+
+.vip-summary .vip-card{
+  padding:12px;
+}
+
+.vip-summary strong{
+  color:#fff;
+  font-size:20px;
+}
+
+.vip-history{
+  display:grid;
+  gap:8px;
+  margin-top:14px;
+}
+
+.vip-history-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  align-items:center;
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:10px 12px;
+  color:var(--muted);
+  background:rgba(15,23,42,.52);
+  font-size:13px;
+}
+
+.vip-history-row strong{
+  display:block;
+  color:#fef3c7;
+}
+
 .vip-locked{
   display:grid;
   gap:14px;
@@ -263,6 +303,8 @@ h1{
   .vip-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
   .vip-main{grid-template-columns:1fr;padding:18px}
   .vip-game-card{grid-template-columns:1fr}
+  .vip-summary{grid-template-columns:1fr}
+  .vip-history-row{grid-template-columns:1fr}
   .vip-copy{font-size:15px}
 }
 
@@ -305,7 +347,13 @@ h1{
       <div class="vip-content" id="vipContent" hidden>
         <h2>Bienvenido VIP</h2>
         <p>Tu acceso esta activo. Estos juegos no aparecen en el torneo principal, minitorneos, niveles ni rankings normales.</p>
+        <div class="vip-summary" id="vipSummary">
+          <div class="vip-card"><span>Monedas VIP</span><strong>0</strong></div>
+          <div class="vip-card"><span>XP VIP</span><strong>0</strong></div>
+          <div class="vip-card"><span>Tickets</span><strong>0</strong></div>
+        </div>
         <div class="vip-game-list" id="vipGameList"></div>
+        <div class="vip-history" id="vipHistory"></div>
       </div>
     </aside>
   </section>
@@ -314,6 +362,8 @@ h1{
 <script type="module">
 import { validateVipSession, clearVipStatusCache } from "./juegos/js/vip.js"
 import { renderVipGames } from "./juegos/js/vip-games.js"
+import { getLocalVipRewards, getVipGameHistory } from "./juegos/js/vip-results.js"
+import { escapeHtml } from "./juegos/js/mensajes.js"
 
 const statusElement = document.getElementById("vipStatus")
 const lockedElement = document.getElementById("vipLocked")
@@ -321,7 +371,48 @@ const contentElement = document.getElementById("vipContent")
 
 async function verifyVip() {
   const ok = await validateVipSession({ statusElement, lockedElement, contentElement })
-  if (ok) renderVipGames(document.getElementById("vipGameList"))
+  if (ok) {
+    renderVipGames(document.getElementById("vipGameList"))
+    await renderVipActivity()
+  }
+}
+
+async function renderVipActivity() {
+  const summary = document.getElementById("vipSummary")
+  const historyEl = document.getElementById("vipHistory")
+  const history = await getVipGameHistory({ limit: 5 })
+  const localRewards = getLocalVipRewards()
+  const remoteRewards = history.reduce((total, item) => {
+    const rewards = item.rewards || {}
+    total.vipCoins += Number(rewards.vipCoins ?? rewards.vip_coins) || 0
+    total.vipXp += Number(rewards.vipXp ?? rewards.vip_xp) || 0
+    total.vipTickets += Number(rewards.vipTickets ?? rewards.vip_tickets) || 0
+    return total
+  }, { vipCoins: 0, vipXp: 0, vipTickets: 0 })
+  const rewards = {
+    vipCoins: Math.max(localRewards.vipCoins, remoteRewards.vipCoins),
+    vipXp: Math.max(localRewards.vipXp, remoteRewards.vipXp),
+    vipTickets: Math.max(localRewards.vipTickets, remoteRewards.vipTickets),
+  }
+  const summaryValues = summary?.querySelectorAll("strong") || []
+  if (summaryValues[0]) summaryValues[0].textContent = String(rewards.vipCoins)
+  if (summaryValues[1]) summaryValues[1].textContent = String(rewards.vipXp)
+  if (summaryValues[2]) summaryValues[2].textContent = String(rewards.vipTickets)
+
+  if (!historyEl) return
+  if (!history.length) {
+    historyEl.innerHTML = '<div class="vip-card"><strong>Actividad VIP</strong><span>Todavia no hay resultados VIP guardados.</span></div>'
+    return
+  }
+  historyEl.innerHTML = history.map((item) => `
+    <div class="vip-history-row">
+      <div>
+        <strong>${escapeHtml(item.game_title || item.game_key || "Juego VIP")}</strong>
+        <span>${escapeHtml(item.mode || "VIP")} | ${escapeHtml(new Date(item.created_at).toLocaleString("es-CO"))}</span>
+      </div>
+      <strong>${Number(item.score || 0)} pts</strong>
+    </div>
+  `).join("")
 }
 
 document.querySelector("[data-refresh-vip]")?.addEventListener("click", async () => {

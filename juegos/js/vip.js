@@ -6,7 +6,7 @@ const VIP_STATUS_CACHE_MS = 60 * 1000
 
 let vipStatusCache = null
 
-function currentVipIdentity() {
+export function getVipIdentity() {
   return {
     usuario: (localStorage.getItem("usuario") || "").trim(),
     codigo: (localStorage.getItem(SAVED_UNIQUE_CODE_KEY) || "").trim(),
@@ -45,7 +45,7 @@ export function clearVipStatusCache() {
 }
 
 export async function getVipStatus({ force = false } = {}) {
-  const identity = currentVipIdentity()
+  const identity = getVipIdentity()
 
   if (!identity.usuario) {
     return denyStatus("Inicia sesion para entrar a la Zona VIP.")
