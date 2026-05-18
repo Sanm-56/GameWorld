@@ -263,11 +263,18 @@ declare
   usuario_limpio text := btrim(coalesce(p_usuario, ''));
   game_key_limpio text := lower(btrim(coalesce(p_game_key, '')));
   game_title_limpio text := btrim(coalesce(p_game_title, p_game_key, 'Juego VIP'));
+  clean_score integer := greatest(0, coalesce(p_score, 0));
+  clean_metrics jsonb := coalesce(p_metrics, '{}'::jsonb);
   resultado public.vip_game_results%rowtype;
   reward_coins bigint;
   reward_xp bigint;
   reward_tickets bigint;
+  reward_payload jsonb;
   wallet public.vip_wallets%rowtype;
+  metric_hits bigint := 0;
+  metric_accuracy numeric := 0;
+  metric_combo bigint := 0;
+  bingo_room_id text;
 begin
   estado := public.obtener_estado_vip(usuario_limpio, p_codigo);
 
@@ -281,6 +288,88 @@ begin
   if game_key_limpio = '' then
     return jsonb_build_object('ok', false, 'mensaje', 'Juego VIP invalido.');
   end if;
+
+  if game_key_limpio = 'reflejos-vip' then
+    metric_hits := case
+      when coalesce(clean_metrics->>'hits', '') ~ '^[0-9]+$' then (clean_metrics->>'hits')::bigint
+      else 0
+    end;
+    metric_accuracy := case
+      when coalesce(clean_metrics->>'accuracy', '') ~ '^[0-9]+(\.[0-9]+)?$' then least(100, greatest(0, (clean_metrics->>'accuracy')::numeric))
+      else 0
+    end;
+    metric_combo := case
+      when coalesce(clean_metrics->>'bestCombo', clean_metrics->>'combo', '') ~ '^[0-9]+$' then coalesce(clean_metrics->>'bestCombo', clean_metrics->>'combo')::bigint
+      else 0
+    end;
+    reward_coins := least(180, floor(clean_score / 18.0)::bigint + floor(metric_hits / 4.0)::bigint);
+    reward_xp := least(320, floor(clean_score / 10.0)::bigint + round(metric_accuracy / 4.0)::bigint);
+    reward_tickets := case when clean_score >= 500 or metric_combo >= 20 then 1 else 0 end;
+  elsif game_key_limpio = 'bingo-vip' and lower(coalesce(clean_metrics->>'bingo', 'false')) = 'true' then
+    bingo_room_id := nullif(btrim(coalesce(clean_metrics->>'roomId', '')), '');
+
+    if bingo_room_id is not null then
+      select *
+      into resultado
+      from public.vip_game_results
+      where usuario_id = usuario_limpio
+        and game_key = 'bingo-vip'
+        and metrics->>'roomId' = bingo_room_id
+        and lower(coalesce(metrics->>'bingo', 'false')) = 'true'
+      order by created_at asc
+      limit 1;
+
+      if found then
+        insert into public.vip_wallets (usuario_id)
+        values (usuario_limpio)
+        on conflict (usuario_id) do nothing;
+
+        select *
+        into wallet
+        from public.vip_wallets
+        where usuario_id = usuario_limpio;
+
+        return jsonb_build_object(
+          'ok', true,
+          'duplicate', true,
+          'mensaje', 'Este Bingo VIP ya tenia recompensa registrada.',
+          'wallet', jsonb_build_object(
+            'usuario_id', wallet.usuario_id,
+            'vipCoins', wallet.vip_coins,
+            'vipXp', wallet.vip_xp,
+            'vipTickets', wallet.vip_tickets,
+            'updated_at', wallet.updated_at
+          ),
+          'result', jsonb_build_object(
+            'id', resultado.id,
+            'usuario_id', resultado.usuario_id,
+            'game_key', resultado.game_key,
+            'game_title', resultado.game_title,
+            'mode', resultado.mode,
+            'score', resultado.score,
+            'metrics', resultado.metrics,
+            'rewards', resultado.rewards,
+            'origin', resultado.origin,
+            'created_at', resultado.created_at
+          )
+        );
+      end if;
+    end if;
+
+    reward_coins := 35;
+    reward_xp := 80;
+    reward_tickets := 1;
+  else
+    reward_coins := 0;
+    reward_xp := 0;
+    reward_tickets := 0;
+  end if;
+
+  reward_payload := jsonb_build_object(
+    'vipCoins', reward_coins,
+    'vipXp', reward_xp,
+    'vipTickets', reward_tickets
+  );
 
   insert into public.vip_game_results (
     usuario_id,
@@ -297,17 +386,13 @@ begin
     game_key_limpio,
     game_title_limpio,
     nullif(btrim(coalesce(p_mode, '')), ''),
-    greatest(0, coalesce(p_score, 0)),
-    coalesce(p_metrics, '{}'::jsonb),
-    coalesce(p_rewards, '{}'::jsonb),
+    clean_score,
+    clean_metrics,
+    reward_payload,
     'vip'
   )
   returning *
   into resultado;
-
-  reward_coins := greatest(0, coalesce((p_rewards->>'vipCoins')::bigint, (p_rewards->>'vip_coins')::bigint, 0));
-  reward_xp := greatest(0, coalesce((p_rewards->>'vipXp')::bigint, (p_rewards->>'vip_xp')::bigint, 0));
-  reward_tickets := greatest(0, coalesce((p_rewards->>'vipTickets')::bigint, (p_rewards->>'vip_tickets')::bigint, 0));
 
   insert into public.vip_wallets (usuario_id, vip_coins, vip_xp, vip_tickets)
   values (usuario_limpio, reward_coins, reward_xp, reward_tickets)

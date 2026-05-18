@@ -448,10 +448,18 @@ async function claimBingo() {
   await withBusy(claimBtn, async () => {
     const data = await callRpc("vip_bingo_reclamar", identityParams({ p_room_id: currentRoomId }))
     await applyRoom(data)
-    setStatus(data.winner ? "Bingo confirmado. Recompensa VIP guardada." : "Todavia no tienes linea de Bingo.", data.winner ? "ok" : "bad")
-    if (data.winner && !resultRegistered) {
+    const alreadyFinished = data.alreadyFinished === true
+    setStatus(
+      data.winner
+        ? alreadyFinished
+          ? "Bingo ya confirmado en esta sala. La recompensa no se duplica."
+          : "Bingo confirmado. Guardando recompensa VIP..."
+        : "Todavia no tienes linea de Bingo.",
+      data.winner ? "ok" : "bad"
+    )
+    if (data.winner && !alreadyFinished && !resultRegistered) {
       resultRegistered = true
-      await registerVipGameResult({
+      const saved = await registerVipGameResult({
         gameKey: "bingo-vip",
         gameTitle: "Bingo Online VIP",
         mode: "Sala VIP",
@@ -464,6 +472,12 @@ async function claimBingo() {
         },
         rewards: { vipCoins: 35, vipXp: 80, vipTickets: 1 },
       })
+      setStatus(
+        saved.duplicate
+          ? "Bingo ya tenia recompensa registrada. No se duplico."
+          : "Bingo confirmado. Recompensa VIP guardada.",
+        "ok"
+      )
     }
   })
 }

@@ -61,7 +61,13 @@ export async function registerVipGameResult({
     const result = normalizeRemoteResult(data?.result || data)
     saveLocalWallet(data?.wallet)
     mergeLocalResult(result, { updateWallet: false })
-    return { ok: true, remote: true, result }
+    return {
+      ok: true,
+      remote: true,
+      duplicate: data?.duplicate === true,
+      message: data?.mensaje || "",
+      result,
+    }
   } catch (error) {
     console.warn("[VIP] Error guardando resultado VIP.", error)
     return saveVipResultLocal({ gameKey, gameTitle, mode, score, metrics, rewards: cleanRewards, remoteError: true })
