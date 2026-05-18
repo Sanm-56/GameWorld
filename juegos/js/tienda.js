@@ -3,29 +3,29 @@ import { aplicarBonusMonedas, obtenerBonusRangoActivo } from "./rango-bonus.js"
 import { obtenerBonusMonedasEvento } from "./bonus-monedas-evento.js"
 
 export const BOOSTERS_XP = [
-  { id: "xp15_6h", nombre: "Booster XP x1.5", multiplicador: 1.5, duracionMs: 6 * 60 * 60 * 1000, precio: 400, precioReal: "$0.49", rareza: "Inicial", etiqueta: "Oferta" },
-  { id: "xp2_24h", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 24 * 60 * 60 * 1000, precio: 1200, precioReal: "$1.99", rareza: "Competitivo", etiqueta: "Popular" },
-  { id: "xp2_3d", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 3 * 24 * 60 * 60 * 1000, precio: 2800, precioReal: "$3.99", rareza: "Competitivo", etiqueta: "Recomendado" },
-  { id: "xp25_7d", nombre: "Booster XP x2.5", multiplicador: 2.5, duracionMs: 7 * 24 * 60 * 60 * 1000, precio: 5500, precioReal: "$6.99", rareza: "Elite", etiqueta: "Mejor valor" },
-  { id: "xp3_7d", nombre: "Booster XP x3", multiplicador: 3, duracionMs: 7 * 24 * 60 * 60 * 1000, precio: 8000, precioReal: "$9.99", rareza: "Elite", etiqueta: "Popular" },
-  { id: "xp3_15d", nombre: "Booster XP x3", multiplicador: 3, duracionMs: 15 * 24 * 60 * 60 * 1000, precio: 14000, precioReal: "$14.99", rareza: "Epico", etiqueta: "Recomendado" },
-  { id: "xp4_30d", nombre: "Booster XP x4", multiplicador: 4, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 22000, precioReal: "$19.99", rareza: "Legendario", etiqueta: "Mejor valor" },
-  { id: "xp5_30d", nombre: "Booster XP x5", multiplicador: 5, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 35000, precioReal: "$29.99", rareza: "Mitico", etiqueta: "Oferta" },
-  { id: "xp6_45d", nombre: "Booster Legendario x6", multiplicador: 6, duracionMs: 45 * 24 * 60 * 60 * 1000, precio: 55000, precioReal: "$39.99", rareza: "Legendario", etiqueta: "Premium" },
-  { id: "xp8_60d", nombre: "Booster Supremo x8", multiplicador: 8, duracionMs: 60 * 24 * 60 * 60 * 1000, precio: 95000, precioReal: "$59.99", rareza: "Supremo", etiqueta: "Maximo poder" },
+  { id: "xp15_6h", nombre: "Booster XP x1.5", multiplicador: 1.5, duracionMs: 6 * 60 * 60 * 1000, precio: 2000, precioReal: "$0.49", rareza: "Inicial", etiqueta: "Oferta" },
+  { id: "xp2_24h", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 24 * 60 * 60 * 1000, precio: 6000, precioReal: "$1.99", rareza: "Competitivo", etiqueta: "Popular" },
+  { id: "xp2_3d", nombre: "Booster XP x2", multiplicador: 2, duracionMs: 3 * 24 * 60 * 60 * 1000, precio: 14000, precioReal: "$3.99", rareza: "Competitivo", etiqueta: "Recomendado" },
+  { id: "xp25_7d", nombre: "Booster XP x2.5", multiplicador: 2.5, duracionMs: 7 * 24 * 60 * 60 * 1000, precio: 27500, precioReal: "$6.99", rareza: "Elite", etiqueta: "Mejor valor" },
+  { id: "xp3_7d", nombre: "Booster XP x3", multiplicador: 3, duracionMs: 7 * 24 * 60 * 60 * 1000, precio: 40000, precioReal: "$9.99", rareza: "Elite", etiqueta: "Popular" },
+  { id: "xp3_15d", nombre: "Booster XP x3", multiplicador: 3, duracionMs: 15 * 24 * 60 * 60 * 1000, precio: 70000, precioReal: "$14.99", rareza: "Epico", etiqueta: "Recomendado" },
+  { id: "xp4_30d", nombre: "Booster XP x4", multiplicador: 4, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 110000, precioReal: "$19.99", rareza: "Legendario", etiqueta: "Mejor valor" },
+  { id: "xp5_30d", nombre: "Booster XP x5", multiplicador: 5, duracionMs: 30 * 24 * 60 * 60 * 1000, precio: 175000, precioReal: "$29.99", rareza: "Mitico", etiqueta: "Oferta" },
+  { id: "xp6_45d", nombre: "Booster Legendario x6", multiplicador: 6, duracionMs: 45 * 24 * 60 * 60 * 1000, precio: 275000, precioReal: "$39.99", rareza: "Legendario", etiqueta: "Premium" },
+  { id: "xp8_60d", nombre: "Booster Supremo x8", multiplicador: 8, duracionMs: 60 * 24 * 60 * 60 * 1000, precio: 475000, precioReal: "$59.99", rareza: "Supremo", etiqueta: "Maximo poder" },
 ]
 
 export const BOOSTERS_MONEDAS = [
-  { id: "coins_boost12_24d", nombre: "Impulso Monedas x1.2", multiplicador: 1.2, duracionMs: 24 * 24 * 60 * 60 * 1000, precio: 5200, precioReal: "$4.99", rareza: "Inicial", etiqueta: "Recomendado", descripcion: "Ideal para jugadores casuales" },
-  { id: "coins_boost13_18d", nombre: "Impulso Monedas x1.3", multiplicador: 1.3, duracionMs: 18 * 24 * 60 * 60 * 1000, precio: 4800, precioReal: "$4.49", rareza: "Competitivo", etiqueta: "Popular", descripcion: "Bonus estable y economico" },
-  { id: "coins_boost15_12d", nombre: "Impulso Monedas x1.5", multiplicador: 1.5, duracionMs: 12 * 24 * 60 * 60 * 1000, precio: 6200, precioReal: "$5.99", rareza: "Elite", etiqueta: "Mejor Oferta", descripcion: "Balanceado entre duracion y ganancia" },
-  { id: "coins_boost14_3d", nombre: "Impulso Monedas x1.4", multiplicador: 1.4, duracionMs: 3 * 24 * 60 * 60 * 1000, precio: 2600, precioReal: "$2.49", rareza: "Evento", etiqueta: "Evento", descripcion: "Larga duracion sin romper economia" },
-  { id: "coins_boost18_2d", nombre: "Impulso Monedas x1.8", multiplicador: 1.8, duracionMs: 2 * 24 * 60 * 60 * 1000, precio: 3400, precioReal: "$3.49", rareza: "Premium", etiqueta: "Premium", descripcion: "Ideal para sesiones competitivas" },
-  { id: "coins_boost27_8h", nombre: "Impulso Monedas x2.7", multiplicador: 2.7, duracionMs: 8 * 60 * 60 * 1000, precio: 4200, precioReal: "$4.49", rareza: "Legendario", etiqueta: "Destacado", descripcion: "Balanceado para jugadores activos" },
-  { id: "coins_boost2_3h", nombre: "Impulso Monedas x2", multiplicador: 2, duracionMs: 3 * 60 * 60 * 1000, precio: 1800, precioReal: "$1.99", rareza: "Epico", etiqueta: "Epico", descripcion: "Boost intenso pero corto" },
-  { id: "coins_boost22_2h", nombre: "Impulso Monedas x2.2", multiplicador: 2.2, duracionMs: 2 * 60 * 60 * 1000, precio: 2100, precioReal: "$2.49", rareza: "Limitado", etiqueta: "Limitado", descripcion: "Orientado a torneos rapidos" },
-  { id: "coins_boost25_1h", nombre: "Impulso Monedas x2.5", multiplicador: 2.5, duracionMs: 60 * 60 * 1000, precio: 2400, precioReal: "$2.79", rareza: "Ultra", etiqueta: "Ultra", descripcion: "Muy fuerte pero controlado" },
-  { id: "coins_boost3_1h", nombre: "Impulso Monedas x3", multiplicador: 3, duracionMs: 60 * 60 * 1000, precio: 3200, precioReal: "$3.49", rareza: "Extremo", etiqueta: "Extremo", descripcion: "Riesgo/recompensa alto" },
+  { id: "coins_boost12_24d", nombre: "Impulso Monedas x1.2", multiplicador: 1.2, duracionMs: 24 * 24 * 60 * 60 * 1000, precio: 26000, precioReal: "$4.99", rareza: "Inicial", etiqueta: "Recomendado", descripcion: "Ideal para jugadores casuales" },
+  { id: "coins_boost13_18d", nombre: "Impulso Monedas x1.3", multiplicador: 1.3, duracionMs: 18 * 24 * 60 * 60 * 1000, precio: 24000, precioReal: "$4.49", rareza: "Competitivo", etiqueta: "Popular", descripcion: "Bonus estable y economico" },
+  { id: "coins_boost15_12d", nombre: "Impulso Monedas x1.5", multiplicador: 1.5, duracionMs: 12 * 24 * 60 * 60 * 1000, precio: 31000, precioReal: "$5.99", rareza: "Elite", etiqueta: "Mejor Oferta", descripcion: "Balanceado entre duracion y ganancia" },
+  { id: "coins_boost14_3d", nombre: "Impulso Monedas x1.4", multiplicador: 1.4, duracionMs: 3 * 24 * 60 * 60 * 1000, precio: 13000, precioReal: "$2.49", rareza: "Evento", etiqueta: "Evento", descripcion: "Larga duracion sin romper economia" },
+  { id: "coins_boost18_2d", nombre: "Impulso Monedas x1.8", multiplicador: 1.8, duracionMs: 2 * 24 * 60 * 60 * 1000, precio: 17000, precioReal: "$3.49", rareza: "Premium", etiqueta: "Premium", descripcion: "Ideal para sesiones competitivas" },
+  { id: "coins_boost27_8h", nombre: "Impulso Monedas x2.7", multiplicador: 2.7, duracionMs: 8 * 60 * 60 * 1000, precio: 21000, precioReal: "$4.49", rareza: "Legendario", etiqueta: "Destacado", descripcion: "Balanceado para jugadores activos" },
+  { id: "coins_boost2_3h", nombre: "Impulso Monedas x2", multiplicador: 2, duracionMs: 3 * 60 * 60 * 1000, precio: 9000, precioReal: "$1.99", rareza: "Epico", etiqueta: "Epico", descripcion: "Boost intenso pero corto" },
+  { id: "coins_boost22_2h", nombre: "Impulso Monedas x2.2", multiplicador: 2.2, duracionMs: 2 * 60 * 60 * 1000, precio: 10500, precioReal: "$2.49", rareza: "Limitado", etiqueta: "Limitado", descripcion: "Orientado a torneos rapidos" },
+  { id: "coins_boost25_1h", nombre: "Impulso Monedas x2.5", multiplicador: 2.5, duracionMs: 60 * 60 * 1000, precio: 12000, precioReal: "$2.79", rareza: "Ultra", etiqueta: "Ultra", descripcion: "Muy fuerte pero controlado" },
+  { id: "coins_boost3_1h", nombre: "Impulso Monedas x3", multiplicador: 3, duracionMs: 60 * 60 * 1000, precio: 16000, precioReal: "$3.49", rareza: "Extremo", etiqueta: "Extremo", descripcion: "Riesgo/recompensa alto" },
 ]
 
 export const PAQUETES_MONEDAS = [
