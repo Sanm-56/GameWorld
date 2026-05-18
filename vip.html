@@ -274,6 +274,52 @@ h1{
   color:#fef3c7;
 }
 
+.vip-converter{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  padding:14px;
+  background:rgba(2,6,23,.34);
+}
+
+.vip-converter-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.vip-converter-head strong{
+  display:block;
+  color:#fef3c7;
+}
+
+.vip-converter-head span,
+.vip-converter-status{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.vip-converter-form{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+}
+
+.vip-input{
+  width:100%;
+  min-height:42px;
+  border:1px solid rgba(250,204,21,.24);
+  border-radius:8px;
+  padding:10px 12px;
+  color:var(--text);
+  background:rgba(15,23,42,.74);
+  font:inherit;
+}
+
 .vip-locked{
   display:grid;
   gap:14px;
@@ -305,6 +351,8 @@ h1{
   .vip-game-card{grid-template-columns:1fr}
   .vip-summary{grid-template-columns:1fr}
   .vip-history-row{grid-template-columns:1fr}
+  .vip-converter-head{display:grid}
+  .vip-converter-form{grid-template-columns:1fr}
   .vip-copy{font-size:15px}
 }
 
@@ -352,6 +400,20 @@ h1{
           <div class="vip-card"><span>XP VIP</span><strong>0</strong></div>
           <div class="vip-card"><span>Tickets</span><strong>0</strong></div>
         </div>
+        <div class="vip-converter" id="vipConverter">
+          <div class="vip-converter-head">
+            <div>
+              <strong>Convertir monedas VIP</strong>
+              <span id="vipConversionInfo">1 moneda VIP = 100 monedas normales. Limite diario: 50 VIP.</span>
+            </div>
+            <span id="vipConversionRemaining">Disponible hoy: 50 VIP</span>
+          </div>
+          <div class="vip-converter-form">
+            <input class="vip-input" id="vipConvertAmount" type="number" min="1" max="50" step="1" value="1" aria-label="Monedas VIP a convertir">
+            <button class="vip-button primary" type="button" id="vipConvertBtn">Convertir</button>
+          </div>
+          <div class="vip-converter-status" id="vipConvertStatus">Convierte solo cuando quieras llevar monedas VIP al torneo principal.</div>
+        </div>
         <div class="vip-game-list" id="vipGameList"></div>
         <div class="vip-history" id="vipHistory"></div>
       </div>
@@ -362,12 +424,15 @@ h1{
 <script type="module">
 import { validateVipSession, clearVipStatusCache } from "./juegos/js/vip.js"
 import { renderVipGames } from "./juegos/js/vip-games.js"
-import { getLocalVipRewards, getVipGameHistory } from "./juegos/js/vip-results.js"
+import { convertVipCoinsToNormal, getVipGameHistory, getVipWallet } from "./juegos/js/vip-results.js"
 import { escapeHtml } from "./juegos/js/mensajes.js"
 
 const statusElement = document.getElementById("vipStatus")
 const lockedElement = document.getElementById("vipLocked")
 const contentElement = document.getElementById("vipContent")
+const convertButton = document.getElementById("vipConvertBtn")
+const convertAmount = document.getElementById("vipConvertAmount")
+const convertStatus = document.getElementById("vipConvertStatus")
 
 async function verifyVip() {
   const ok = await validateVipSession({ statusElement, lockedElement, contentElement })
@@ -380,24 +445,16 @@ async function verifyVip() {
 async function renderVipActivity() {
   const summary = document.getElementById("vipSummary")
   const historyEl = document.getElementById("vipHistory")
-  const history = await getVipGameHistory({ limit: 5 })
-  const localRewards = getLocalVipRewards()
-  const remoteRewards = history.reduce((total, item) => {
-    const rewards = item.rewards || {}
-    total.vipCoins += Number(rewards.vipCoins ?? rewards.vip_coins) || 0
-    total.vipXp += Number(rewards.vipXp ?? rewards.vip_xp) || 0
-    total.vipTickets += Number(rewards.vipTickets ?? rewards.vip_tickets) || 0
-    return total
-  }, { vipCoins: 0, vipXp: 0, vipTickets: 0 })
-  const rewards = {
-    vipCoins: Math.max(localRewards.vipCoins, remoteRewards.vipCoins),
-    vipXp: Math.max(localRewards.vipXp, remoteRewards.vipXp),
-    vipTickets: Math.max(localRewards.vipTickets, remoteRewards.vipTickets),
-  }
+  const [history, walletState] = await Promise.all([
+    getVipGameHistory({ limit: 5 }),
+    getVipWallet(),
+  ])
+  const rewards = walletState.wallet
   const summaryValues = summary?.querySelectorAll("strong") || []
   if (summaryValues[0]) summaryValues[0].textContent = String(rewards.vipCoins)
   if (summaryValues[1]) summaryValues[1].textContent = String(rewards.vipXp)
   if (summaryValues[2]) summaryValues[2].textContent = String(rewards.vipTickets)
+  renderVipConversion(walletState.conversion, rewards)
 
   if (!historyEl) return
   if (!history.length) {
@@ -415,10 +472,38 @@ async function renderVipActivity() {
   `).join("")
 }
 
+function renderVipConversion(conversion, wallet) {
+  const info = document.getElementById("vipConversionInfo")
+  const remaining = document.getElementById("vipConversionRemaining")
+  const rate = Number(conversion?.rate || 100)
+  const limit = Number(conversion?.dailyLimitVipCoins || 50)
+  const left = Number(conversion?.remainingTodayVipCoins || 0)
+  if (info) info.textContent = `1 moneda VIP = ${rate} monedas normales. Limite diario: ${limit} VIP.`
+  if (remaining) remaining.textContent = `Disponible hoy: ${left} VIP`
+  if (convertAmount) {
+    convertAmount.max = String(Math.max(1, Math.min(left || 1, wallet?.vipCoins || 1)))
+    convertAmount.value = String(Math.min(Number(convertAmount.value || 1), Number(convertAmount.max)))
+  }
+  if (convertButton) convertButton.disabled = !left || !wallet?.vipCoins
+}
+
 document.querySelector("[data-refresh-vip]")?.addEventListener("click", async () => {
   clearVipStatusCache()
   if (statusElement) statusElement.textContent = "Verificando acceso VIP..."
   await verifyVip()
+})
+
+convertButton?.addEventListener("click", async () => {
+  const amount = Math.max(0, Math.trunc(Number(convertAmount?.value) || 0))
+  if (convertStatus) convertStatus.textContent = "Convirtiendo monedas VIP..."
+  convertButton.disabled = true
+  const result = await convertVipCoinsToNormal(amount)
+  if (convertStatus) {
+    convertStatus.textContent = result.ok
+      ? `${result.message} Recibiste ${result.conversion.normalCoinsReceived || amount * result.conversion.rate} monedas normales.`
+      : result.message || "No se pudo convertir monedas VIP."
+  }
+  await renderVipActivity()
 })
 
 verifyVip()

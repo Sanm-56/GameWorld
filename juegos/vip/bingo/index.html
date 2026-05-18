@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bingo Online VIP - GameWorld</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#070b14;
+  --panel:rgba(15,23,42,.78);
+  --line:rgba(250,204,21,.22);
+  --gold:#f8d774;
+  --gold-strong:#f59e0b;
+  --text:#f8fafc;
+  --muted:#cbd5e1;
+  --ok:#34d399;
+  --bad:#fb7185;
+}
+
+*{box-sizing:border-box}
+
+body{
+  min-height:100vh;
+  margin:0;
+  padding:18px;
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(250,204,21,.12),transparent 30%),
+    radial-gradient(circle at 86% 14%,rgba(14,165,233,.1),transparent 28%),
+    linear-gradient(145deg,#020617,#111827 58%,#0f172a);
+}
+
+.bingo-shell{
+  width:min(1180px,100%);
+  min-height:calc(100vh - 36px);
+  margin:0 auto;
+  display:grid;
+  grid-template-rows:auto auto 1fr;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(15,23,42,.94),rgba(2,6,23,.86));
+  box-shadow:0 28px 88px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.bingo-head,
+.bingo-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:18px 20px;
+  border-bottom:1px solid rgba(250,204,21,.14);
+}
+
+.bingo-title span{
+  display:block;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+h1{
+  margin:4px 0 0;
+  font-size:clamp(28px,5vw,52px);
+  line-height:1;
+  letter-spacing:0;
+}
+
+.actions,
+.room-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+button,
+input{
+  min-height:42px;
+  border:1px solid rgba(250,204,21,.28);
+  border-radius:10px;
+  padding:10px 13px;
+  color:#fff7ed;
+  background:rgba(15,23,42,.72);
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+  font-weight:900;
+}
+
+button.primary{
+  color:#111827;
+  background:linear-gradient(135deg,#fde68a,#f59e0b);
+}
+
+button.success{
+  color:#052e16;
+  border-color:rgba(52,211,153,.34);
+  background:linear-gradient(135deg,#bbf7d0,#34d399);
+}
+
+button:disabled{
+  cursor:not-allowed;
+  opacity:.55;
+}
+
+input{
+  min-width:210px;
+  color:var(--text);
+}
+
+.bingo-toolbar{
+  align-items:flex-start;
+  background:rgba(2,6,23,.22);
+}
+
+.room-meta{
+  min-width:0;
+}
+
+.room-meta strong{
+  display:block;
+  color:#fef3c7;
+}
+
+.room-meta span{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.bingo-main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:18px;
+  padding:20px;
+}
+
+.card-panel,
+.side-panel{
+  min-width:0;
+  border:1px solid rgba(250,204,21,.16);
+  border-radius:8px;
+  padding:16px;
+  background:rgba(2,6,23,.38);
+}
+
+.bingo-card{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+  width:min(640px,100%);
+  margin:0 auto;
+}
+
+.bingo-letter,
+.bingo-cell{
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  font-weight:950;
+}
+
+.bingo-letter{
+  min-height:44px;
+  aspect-ratio:auto;
+  color:#111827;
+  background:linear-gradient(135deg,#fde68a,#f59e0b);
+}
+
+.bingo-cell{
+  border:1px solid rgba(250,204,21,.2);
+  color:#fef3c7;
+  background:linear-gradient(145deg,rgba(15,23,42,.92),rgba(30,41,59,.62));
+  font-size:clamp(18px,5vw,34px);
+}
+
+.bingo-cell.called{
+  border-color:rgba(56,189,248,.46);
+  box-shadow:0 0 0 1px rgba(56,189,248,.22);
+}
+
+.bingo-cell.marked{
+  color:#052e16;
+  background:linear-gradient(135deg,#fde68a,#34d399);
+  box-shadow:0 0 22px rgba(250,204,21,.18);
+}
+
+.side-panel{
+  display:grid;
+  align-content:start;
+  gap:12px;
+}
+
+.draw-box{
+  display:grid;
+  place-items:center;
+  min-height:124px;
+  border:1px solid rgba(250,204,21,.2);
+  border-radius:8px;
+  background:radial-gradient(circle,rgba(250,204,21,.13),rgba(15,23,42,.76));
+}
+
+.draw-box span{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.draw-box strong{
+  display:block;
+  margin-top:6px;
+  color:#fef3c7;
+  font-size:52px;
+  line-height:1;
+}
+
+.called-list,
+.player-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.called-pill,
+.player-pill{
+  border:1px solid rgba(148,163,184,.16);
+  border-radius:999px;
+  padding:6px 9px;
+  color:#e2e8f0;
+  background:rgba(15,23,42,.66);
+  font-size:12px;
+  font-weight:800;
+}
+
+.panel-title{
+  margin:4px 0 0;
+  color:#fef3c7;
+  font-size:14px;
+}
+
+.status{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  padding:11px 13px;
+  color:#fde68a;
+  background:rgba(15,23,42,.7);
+  line-height:1.35;
+}
+
+.status.ok{color:#bbf7d0;border-color:rgba(52,211,153,.28)}
+.status.bad{color:#fecdd3;border-color:rgba(251,113,133,.3)}
+
+[hidden]{display:none!important}
+
+@media (max-width:880px){
+  body{padding:10px}
+  .bingo-shell{min-height:calc(100vh - 20px);border-radius:16px}
+  .bingo-head,
+  .bingo-toolbar{align-items:flex-start;flex-direction:column}
+  .actions,
+  .room-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .actions button,
+  .room-actions button,
+  .room-actions input{width:100%;min-width:0}
+  .bingo-main{grid-template-columns:1fr;padding:14px}
+}
+
+@media (max-width:520px){
+  .actions,
+  .room-actions{grid-template-columns:1fr}
+  .bingo-card{gap:5px}
+  .card-panel,.side-panel{padding:10px}
+}
+</style>
+</head>
+<body>
+<main class="bingo-shell">
+  <header class="bingo-head">
+    <div class="bingo-title">
+      <span>Juego exclusivo VIP</span>
+      <h1>Bingo Online VIP</h1>
+    </div>
+    <div class="actions">
+      <button type="button" onclick="window.location.href='../../../vip.html'">Zona VIP</button>
+      <button class="primary" type="button" id="refreshBtn">Actualizar</button>
+    </div>
+  </header>
+
+  <section class="bingo-toolbar">
+    <div class="room-meta">
+      <strong id="roomTitle">Sala VIP</strong>
+      <span id="roomDetail">Validando acceso y preparando lobby...</span>
+    </div>
+    <div class="room-actions">
+      <input id="roomInput" type="text" value="vip-main" aria-label="Codigo de sala VIP">
+      <button type="button" id="joinBtn">Entrar</button>
+      <button class="primary" type="button" id="createBtn">Crear sala</button>
+    </div>
+  </section>
+
+  <section class="bingo-main" id="gameContent" hidden>
+    <div class="card-panel">
+      <div class="bingo-card" id="bingoCard" aria-label="Carton de Bingo VIP"></div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="draw-box">
+        <div>
+          <span>Ultimo numero</span>
+          <strong id="lastNumber">--</strong>
+        </div>
+      </div>
+      <button class="primary" type="button" id="drawBtn">Cantar numero</button>
+      <button class="success" type="button" id="claimBtn">Reclamar Bingo</button>
+      <div class="status" id="statusEl">Validando acceso VIP...</div>
+      <strong class="panel-title">Numeros cantados</strong>
+      <div class="called-list" id="calledList"></div>
+      <strong class="panel-title">Jugadores en sala</strong>
+      <div class="player-list" id="playerList"></div>
+    </aside>
+  </section>
+</main>
+
+<script type="module">
+import { supabase } from "../../js/supabase.js"
+import { getVipIdentity, validateVipSession } from "../../js/vip.js"
+import { registerVipGameResult } from "../../js/vip-results.js"
+import { escapeHtml } from "../../js/mensajes.js"
+
+const content = document.getElementById("gameContent")
+const roomTitle = document.getElementById("roomTitle")
+const roomDetail = document.getElementById("roomDetail")
+const roomInput = document.getElementById("roomInput")
+const createBtn = document.getElementById("createBtn")
+const joinBtn = document.getElementById("joinBtn")
+const refreshBtn = document.getElementById("refreshBtn")
+const drawBtn = document.getElementById("drawBtn")
+const claimBtn = document.getElementById("claimBtn")
+const statusEl = document.getElementById("statusEl")
+const cardEl = document.getElementById("bingoCard")
+const lastNumberEl = document.getElementById("lastNumber")
+const calledList = document.getElementById("calledList")
+const playerList = document.getElementById("playerList")
+
+const LETTERS = ["B", "I", "N", "G", "O"]
+let currentRoomId = localStorage.getItem("vip_bingo_room") || "vip-main"
+let roomState = null
+let pollTimer = null
+let resultRegistered = false
+
+function identityParams(extra = {}) {
+  const identity = getVipIdentity()
+  return {
+    p_usuario: identity.usuario,
+    p_codigo: identity.codigo || null,
+    ...extra,
+  }
+}
+
+function setStatus(text, tone = "") {
+  if (!statusEl) return
+  statusEl.className = `status${tone ? ` ${tone}` : ""}`
+  statusEl.textContent = text
+}
+
+function cleanRoomId(value) {
+  return String(value || "vip-main").trim().toLowerCase().replace(/[^a-z0-9-_]/g, "").slice(0, 32) || "vip-main"
+}
+
+async function callRpc(name, params) {
+  const { data, error } = await supabase.rpc(name, params)
+  if (error || data?.ok === false) {
+    throw new Error(data?.mensaje || error?.message || "No se pudo completar la accion VIP.")
+  }
+  return data
+}
+
+async function createRoom() {
+  await withBusy(createBtn, async () => {
+    const roomId = cleanRoomId(roomInput.value)
+    const data = await callRpc("vip_bingo_crear_sala", identityParams({ p_room_id: roomId }))
+    await applyRoom(data)
+    setStatus("Sala VIP creada. Ya tienes tu carton listo.", "ok")
+  })
+}
+
+async function joinRoom() {
+  await withBusy(joinBtn, async () => {
+    const roomId = cleanRoomId(roomInput.value)
+    const data = await callRpc("vip_bingo_unirse_sala", identityParams({ p_room_id: roomId }))
+    await applyRoom(data)
+    setStatus("Entraste a la sala VIP. Marca solo numeros cantados.", "ok")
+  })
+}
+
+async function refreshRoom({ quiet = false } = {}) {
+  if (!currentRoomId) return
+  try {
+    const data = await callRpc("vip_bingo_obtener_sala", identityParams({ p_room_id: currentRoomId }))
+    await applyRoom(data)
+    if (!quiet) setStatus("Sala actualizada.", "ok")
+  } catch (error) {
+    if (!quiet) setStatus(error.message, "bad")
+  }
+}
+
+async function drawNumber() {
+  await withBusy(drawBtn, async () => {
+    const data = await callRpc("vip_bingo_cantar_numero", identityParams({ p_room_id: currentRoomId }))
+    await applyRoom(data)
+    setStatus(`Numero cantado: ${data.number}.`, "ok")
+  })
+}
+
+async function markNumber(number) {
+  if (!roomState || !Number.isFinite(number)) return
+  if (number !== 0 && !roomState.calledNumbers.includes(number)) {
+    setStatus("Ese numero todavia no ha sido cantado.", "bad")
+    return
+  }
+  try {
+    const data = await callRpc("vip_bingo_marcar_numero", identityParams({
+      p_room_id: currentRoomId,
+      p_number: number,
+    }))
+    await applyRoom(data)
+    setStatus(number === 0 ? "Centro libre marcado." : `Marcaste el ${number}.`, "ok")
+  } catch (error) {
+    setStatus(error.message, "bad")
+  }
+}
+
+async function claimBingo() {
+  await withBusy(claimBtn, async () => {
+    const data = await callRpc("vip_bingo_reclamar", identityParams({ p_room_id: currentRoomId }))
+    await applyRoom(data)
+    setStatus(data.winner ? "Bingo confirmado. Recompensa VIP guardada." : "Todavia no tienes linea de Bingo.", data.winner ? "ok" : "bad")
+    if (data.winner && !resultRegistered) {
+      resultRegistered = true
+      await registerVipGameResult({
+        gameKey: "bingo-vip",
+        gameTitle: "Bingo Online VIP",
+        mode: "Sala VIP",
+        score: Math.max(100, roomState.calledNumbers.length * 10),
+        metrics: {
+          roomId: currentRoomId,
+          calledNumbers: roomState.calledNumbers.length,
+          markedNumbers: roomState.markedNumbers.length,
+          bingo: true,
+        },
+        rewards: { vipCoins: 35, vipXp: 80, vipTickets: 1 },
+      })
+    }
+  })
+}
+
+async function applyRoom(data) {
+  roomState = normalizeRoom(data)
+  currentRoomId = roomState.roomId
+  localStorage.setItem("vip_bingo_room", currentRoomId)
+  roomInput.value = currentRoomId
+  roomTitle.textContent = `Sala ${currentRoomId}`
+  roomDetail.textContent = `${roomState.statusText} | ${roomState.players.length} jugador${roomState.players.length === 1 ? "" : "es"} | ${roomState.calledNumbers.length} numeros cantados`
+  content.hidden = false
+  renderCard()
+  renderSide()
+  startPolling()
+}
+
+function normalizeRoom(data = {}) {
+  const room = data.room || {}
+  const player = data.player || {}
+  const card = Array.isArray(player.card) ? player.card : []
+  const calledNumbers = Array.isArray(room.called_numbers) ? room.called_numbers.map(Number) : []
+  const markedNumbers = Array.isArray(player.marked_numbers) ? player.marked_numbers.map(Number) : []
+  const players = Array.isArray(data.players) ? data.players : []
+  const winner = room.winner_usuario_id || null
+  return {
+    roomId: room.id || currentRoomId,
+    status: room.status || "waiting",
+    statusText: winner ? `Ganador: ${winner}` : room.status === "finished" ? "Finalizada" : "Activa",
+    calledNumbers,
+    markedNumbers,
+    card,
+    players,
+    winner,
+  }
+}
+
+function renderCard() {
+  if (!cardEl) return
+  const card = roomState?.card || []
+  cardEl.innerHTML = LETTERS.map((letter) => `<div class="bingo-letter">${letter}</div>`).join("")
+  card.forEach((number) => {
+    const clean = Number(number)
+    const marked = clean === 0 || roomState.markedNumbers.includes(clean)
+    const called = clean !== 0 && roomState.calledNumbers.includes(clean)
+    const button = document.createElement("button")
+    button.type = "button"
+    button.className = `bingo-cell${called ? " called" : ""}${marked ? " marked" : ""}`
+    button.textContent = clean === 0 ? "VIP" : String(clean)
+    button.disabled = marked || (clean !== 0 && !called) || roomState.status === "finished"
+    button.addEventListener("click", () => markNumber(clean))
+    cardEl.appendChild(button)
+  })
+}
+
+function renderSide() {
+  const numbers = roomState?.calledNumbers || []
+  const latest = numbers[numbers.length - 1]
+  lastNumberEl.textContent = latest ? String(latest) : "--"
+  calledList.innerHTML = numbers.length
+    ? numbers.slice().reverse().map((number) => `<span class="called-pill">${number}</span>`).join("")
+    : '<span class="called-pill">Sin numeros</span>'
+  const players = roomState?.players || []
+  playerList.innerHTML = players.length
+    ? players.map((player) => `<span class="player-pill">${escapeHtml(player.usuario_id || "VIP")}</span>`).join("")
+    : '<span class="player-pill">Sin jugadores</span>'
+  const finished = !roomState || roomState.status === "finished"
+  drawBtn.disabled = finished || numbers.length >= 75
+  claimBtn.disabled = finished
+}
+
+function startPolling() {
+  clearInterval(pollTimer)
+  pollTimer = setInterval(() => refreshRoom({ quiet: true }), 5000)
+}
+
+async function withBusy(button, action) {
+  const disabled = button?.disabled
+  if (button) button.disabled = true
+  try {
+    await action()
+  } catch (error) {
+    setStatus(error.message, "bad")
+  } finally {
+    if (button) button.disabled = Boolean(disabled)
+    renderSide()
+  }
+}
+
+const ok = await validateVipSession({ statusElement: statusEl, contentElement: content })
+if (ok) {
+  roomInput.value = currentRoomId
+  setStatus("Acceso VIP activo. Entra o crea una sala para jugar.", "ok")
+  try {
+    await joinRoom()
+  } catch {
+    content.hidden = true
+  }
+} else {
+  createBtn.disabled = true
+  joinBtn.disabled = true
+  refreshBtn.disabled = true
+  drawBtn.disabled = true
+  claimBtn.disabled = true
+}
+
+createBtn.addEventListener("click", createRoom)
+joinBtn.addEventListener("click", joinRoom)
+refreshBtn.addEventListener("click", () => refreshRoom())
+drawBtn.addEventListener("click", drawNumber)
+claimBtn.addEventListener("click", claimBingo)
+window.addEventListener("beforeunload", () => clearInterval(pollTimer))
+</script>
+</body>
+</html>

@@ -3,6 +3,7 @@ import { canAccessVipGame, getVipIdentity } from "./vip.js"
 
 const LOCAL_HISTORY_KEY = "vip_game_results_local"
 const LOCAL_REWARDS_KEY = "vip_rewards_local"
+const LOCAL_WALLET_KEY = "vip_wallet_local"
 
 export const VIP_RESULT_ORIGIN = "vip"
 
@@ -58,7 +59,8 @@ export async function registerVipGameResult({
     }
 
     const result = normalizeRemoteResult(data?.result || data)
-    mergeLocalResult(result)
+    saveLocalWallet(data?.wallet)
+    mergeLocalResult(result, { updateWallet: false })
     return { ok: true, remote: true, result }
   } catch (error) {
     console.warn("[VIP] Error guardando resultado VIP.", error)
@@ -90,11 +92,100 @@ export async function getVipGameHistory({ gameKey = null, limit = 8 } = {}) {
   }
 }
 
+export async function getVipWallet() {
+  const identity = getVipIdentity()
+  if (!identity.usuario || !identity.codigo) {
+    return {
+      ok: false,
+      wallet: getLocalVipRewards(),
+      conversion: defaultConversionStatus(),
+      message: "Inicia sesion para consultar tu billetera VIP.",
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("obtener_billetera_vip", {
+      p_usuario: identity.usuario,
+      p_codigo: identity.codigo,
+    })
+
+    if (error || data?.ok === false) {
+      console.warn("[VIP] No se pudo cargar billetera VIP.", error || data)
+      return {
+        ok: false,
+        wallet: getLocalVipRewards(),
+        conversion: defaultConversionStatus(),
+        message: data?.mensaje || "No se pudo cargar la billetera VIP.",
+      }
+    }
+
+    const wallet = normalizeWallet(data.wallet)
+    saveLocalWallet(wallet)
+    return {
+      ok: true,
+      wallet,
+      conversion: normalizeConversionStatus(data.conversion),
+    }
+  } catch (error) {
+    console.warn("[VIP] Error cargando billetera VIP.", error)
+    return {
+      ok: false,
+      wallet: getLocalVipRewards(),
+      conversion: defaultConversionStatus(),
+      message: "No se pudo cargar la billetera VIP.",
+    }
+  }
+}
+
+export async function convertVipCoinsToNormal(vipCoins) {
+  const amount = Math.max(0, Math.trunc(Number(vipCoins) || 0))
+  if (!amount) return { ok: false, message: "Ingresa una cantidad valida de monedas VIP." }
+
+  const identity = getVipIdentity()
+  if (!identity.usuario || !identity.codigo) {
+    return { ok: false, message: "Inicia sesion para convertir monedas VIP." }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("convertir_monedas_vip", {
+      p_usuario: identity.usuario,
+      p_codigo: identity.codigo,
+      p_vip_coins: amount,
+    })
+
+    if (error || data?.ok === false) {
+      console.warn("[VIP] No se pudo convertir monedas VIP.", error || data)
+      return {
+        ok: false,
+        message: data?.mensaje || "No se pudo convertir monedas VIP.",
+        conversion: normalizeConversionStatus(data),
+      }
+    }
+
+    const wallet = normalizeWallet(data.wallet)
+    saveLocalWallet(wallet)
+    notifyNormalCoinsUpdated(identity.usuario, data.normalCoinsBalance)
+    return {
+      ok: true,
+      message: data.mensaje || "Conversion VIP completada.",
+      wallet,
+      conversion: normalizeConversionStatus(data.conversion),
+      normalCoinsBalance: Math.max(0, Math.trunc(Number(data.normalCoinsBalance) || 0)),
+    }
+  } catch (error) {
+    console.warn("[VIP] Error convirtiendo monedas VIP.", error)
+    return { ok: false, message: "No se pudo convertir monedas VIP." }
+  }
+}
+
 export function getLocalVipRewards() {
   try {
-    return normalizeRewards(JSON.parse(localStorage.getItem(LOCAL_REWARDS_KEY) || "null"))
+    return normalizeWallet(
+      JSON.parse(localStorage.getItem(LOCAL_WALLET_KEY) || "null")
+      || JSON.parse(localStorage.getItem(LOCAL_REWARDS_KEY) || "null")
+    )
   } catch {
-    return normalizeRewards()
+    return normalizeWallet()
   }
 }
 
@@ -115,9 +206,11 @@ function saveVipResultLocal({ gameKey, gameTitle, mode, score, metrics, rewards,
   return { ok: true, remote: false, result, message: "Resultado guardado localmente. Reaplica supabase-vip.sql para historial remoto." }
 }
 
-function mergeLocalResult(result) {
+function mergeLocalResult(result, { updateWallet = true } = {}) {
   const history = [result, ...getLocalHistory(null, 50).filter((item) => item.id !== result.id)].slice(0, 50)
   localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(history))
+
+  if (!updateWallet) return
 
   const current = getLocalVipRewards()
   const rewards = normalizeRewards(result.rewards)
@@ -126,6 +219,11 @@ function mergeLocalResult(result) {
     vipXp: current.vipXp + rewards.vipXp,
     vipTickets: current.vipTickets + rewards.vipTickets,
   }))
+  saveLocalWallet({
+    vipCoins: current.vipCoins + rewards.vipCoins,
+    vipXp: current.vipXp + rewards.vipXp,
+    vipTickets: current.vipTickets + rewards.vipTickets,
+  })
 }
 
 function getLocalHistory(gameKey = null, limit = 8) {
@@ -140,11 +238,43 @@ function getLocalHistory(gameKey = null, limit = 8) {
 }
 
 function normalizeRewards(rewards = {}) {
+  return normalizeWallet(rewards)
+}
+
+function normalizeWallet(wallet = {}) {
   return {
-    vipCoins: Math.max(0, Math.trunc(Number(rewards?.vipCoins ?? rewards?.vip_coins) || 0)),
-    vipXp: Math.max(0, Math.trunc(Number(rewards?.vipXp ?? rewards?.vip_xp) || 0)),
-    vipTickets: Math.max(0, Math.trunc(Number(rewards?.vipTickets ?? rewards?.vip_tickets) || 0)),
+    vipCoins: Math.max(0, Math.trunc(Number(wallet?.vipCoins ?? wallet?.vip_coins) || 0)),
+    vipXp: Math.max(0, Math.trunc(Number(wallet?.vipXp ?? wallet?.vip_xp) || 0)),
+    vipTickets: Math.max(0, Math.trunc(Number(wallet?.vipTickets ?? wallet?.vip_tickets) || 0)),
+    updatedAt: wallet?.updated_at || wallet?.updatedAt || new Date().toISOString(),
   }
+}
+
+function saveLocalWallet(wallet = {}) {
+  localStorage.setItem(LOCAL_WALLET_KEY, JSON.stringify(normalizeWallet(wallet)))
+}
+
+function normalizeConversionStatus(status = {}) {
+  return {
+    rate: Math.max(1, Math.trunc(Number(status?.rate) || 100)),
+    dailyLimitVipCoins: Math.max(0, Math.trunc(Number(status?.dailyLimitVipCoins) || 50)),
+    convertedTodayVipCoins: Math.max(0, Math.trunc(Number(status?.convertedTodayVipCoins) || 0)),
+    remainingTodayVipCoins: Math.max(0, Math.trunc(Number(status?.remainingTodayVipCoins) || 0)),
+    vipCoinsSpent: Math.max(0, Math.trunc(Number(status?.vipCoinsSpent) || 0)),
+    normalCoinsReceived: Math.max(0, Math.trunc(Number(status?.normalCoinsReceived) || 0)),
+  }
+}
+
+function defaultConversionStatus() {
+  return normalizeConversionStatus()
+}
+
+function notifyNormalCoinsUpdated(usuario, saldo) {
+  if (typeof window === "undefined") return
+  const cleanSaldo = Math.max(0, Math.trunc(Number(saldo) || 0))
+  window.dispatchEvent(new CustomEvent("monedas:actualizadas", {
+    detail: { usuario, saldo: cleanSaldo },
+  }))
 }
 
 function normalizeRemoteResult(row = {}) {
