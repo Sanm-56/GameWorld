@@ -53,8 +53,17 @@ export async function registerVipGameResult({
 
   try {
     const { data, error } = await supabase.rpc("registrar_resultado_juego_vip", payload)
-    if (error || data?.ok === false) {
-      console.warn("[VIP] No se pudo guardar resultado remoto.", error || data)
+    if (data?.ok === false) {
+      console.warn("[VIP] Resultado VIP rechazado por servidor.", data)
+      return {
+        ok: false,
+        remote: false,
+        message: data?.mensaje || "No se pudo validar la recompensa VIP.",
+      }
+    }
+
+    if (error) {
+      console.warn("[VIP] No se pudo guardar resultado remoto.", error)
       return saveVipResultLocal({ gameKey, gameTitle, mode, score, metrics, rewards: cleanRewards, remoteError: true })
     }
 

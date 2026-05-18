@@ -472,6 +472,10 @@ async function claimBingo() {
         },
         rewards: { vipCoins: 35, vipXp: 80, vipTickets: 1 },
       })
+      if (saved.ok === false) {
+        setStatus(saved.message || "Bingo confirmado, pero Supabase no valido la recompensa.", "bad")
+        return
+      }
       setStatus(
         saved.duplicate
           ? "Bingo ya tenia recompensa registrada. No se duplico."

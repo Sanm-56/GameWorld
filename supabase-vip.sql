@@ -37,6 +37,12 @@ on public.vip_game_results (usuario_id, created_at desc);
 create index if not exists vip_game_results_game_idx
 on public.vip_game_results (game_key, score desc, created_at desc);
 
+create index if not exists vip_game_results_bingo_reward_once_idx
+on public.vip_game_results (usuario_id, (metrics->>'roomId'))
+where game_key = 'bingo-vip'
+  and lower(coalesce(metrics->>'bingo', 'false')) = 'true'
+  and nullif(btrim(coalesce(metrics->>'roomId', '')), '') is not null;
+
 create table if not exists public.vip_wallets (
   usuario_id text primary key,
   vip_coins bigint not null default 0 check (vip_coins >= 0),
@@ -394,6 +400,7 @@ declare
   metric_accuracy numeric := 0;
   metric_combo bigint := 0;
   bingo_room_id text;
+  bingo_room record;
 begin
   estado := public.obtener_estado_vip(usuario_limpio, p_codigo);
 
@@ -426,6 +433,22 @@ begin
     reward_tickets := case when clean_score >= 500 or metric_combo >= 20 then 1 else 0 end;
   elsif game_key_limpio = 'bingo-vip' and lower(coalesce(clean_metrics->>'bingo', 'false')) = 'true' then
     bingo_room_id := nullif(btrim(coalesce(clean_metrics->>'roomId', '')), '');
+
+    if bingo_room_id is null then
+      return jsonb_build_object('ok', false, 'mensaje', 'Sala de Bingo VIP invalida.');
+    end if;
+
+    select *
+    into bingo_room
+    from public.vip_bingo_rooms
+    where id = bingo_room_id
+    limit 1;
+
+    if not found or bingo_room.status <> 'finished' or bingo_room.winner_usuario_id <> usuario_limpio then
+      return jsonb_build_object('ok', false, 'mensaje', 'Solo el ganador confirmado de la sala puede recibir recompensa de Bingo VIP.');
+    end if;
+
+    perform pg_advisory_xact_lock(hashtextextended('vip_bingo_reward:' || usuario_limpio || ':' || bingo_room_id, 0));
 
     if bingo_room_id is not null then
       select *
@@ -1360,6 +1383,8 @@ begin
       'mensaje', coalesce(estado->>'mensaje', 'No se pudo validar tu acceso VIP.')
     );
   end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('vip_roulette:' || usuario_limpio, 0));
 
   select *
   into ultimo
