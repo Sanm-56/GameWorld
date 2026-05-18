@@ -987,6 +987,49 @@ th:last-child{
       </div>
     </div>
 
+    <div class="section reward-admin-panel" id="adminVipPanel">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Acceso premium</span>
+          <h3>Membresias VIP</h3>
+        </div>
+        <button class="ghost" onclick="cargarMembresiasVipAdmin()">Actualizar VIP</button>
+      </div>
+
+      <div class="reward-admin-grid">
+        <div class="reward-admin-block">
+          <h4>Asignar VIP</h4>
+          <label>
+            Usuario exacto
+            <input id="vipUserInput" type="text" placeholder="Apodo registrado" autocomplete="off">
+          </label>
+          <label>
+            Duracion
+            <select id="vipDurationSelect">
+              <option value="permanente">Permanente</option>
+              <option value="7">7 dias</option>
+              <option value="30">30 dias</option>
+              <option value="90">90 dias</option>
+              <option value="365">365 dias</option>
+            </select>
+          </label>
+          <div class="reward-admin-actions">
+            <button class="success" onclick="guardarVipAdmin(true)">Activar VIP</button>
+            <button class="danger" onclick="guardarVipAdmin(false)">Quitar VIP</button>
+          </div>
+        </div>
+
+        <div class="reward-admin-block">
+          <h4>Estado</h4>
+          <div class="reward-summary-box" id="vipAdminStatus">Inicia sesion para administrar VIP.</div>
+          <div class="reward-history-list" id="vipMembershipList">
+            <div class="export-note">Las membresias apareceran despues de iniciar sesion.</div>
+          </div>
+        </div>
+      </div>
+      <p class="export-note">El acceso VIP se guarda por RPC con clave admin y se valida en la Zona VIP con usuario y codigo del login actual.</p>
+    </div>
+
     <div class="section reward-admin-panel" id="adminRewardsPanel">
       <div class="section-heading">
         <div>

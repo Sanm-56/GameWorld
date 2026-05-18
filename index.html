@@ -348,6 +348,7 @@ h1{
 .rankings-btn,
 .rules-btn,
 .store-btn,
+.vip-btn,
 .admin-btn{
   min-height:auto;
   padding:14px 16px;
@@ -365,6 +366,7 @@ h1{
 .rankings-btn:hover,
 .rules-btn:hover,
 .store-btn:hover,
+.vip-btn:hover,
 .admin-btn:hover{
   background:rgba(30,41,59,0.86);
   transform:translateY(-2px);
@@ -388,6 +390,17 @@ h1{
 
 .store-btn{
   border-color:rgba(251,146,60,0.38);
+}
+
+.vip-btn{
+  border-color:rgba(250,204,21,0.42);
+  color:#fef3c7;
+  background:linear-gradient(135deg,rgba(120,53,15,0.42),rgba(15,23,42,0.78));
+  box-shadow:0 12px 30px rgba(120,53,15,0.16), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.vip-btn::before{
+  display:none;
 }
 
 .admin-btn{
@@ -637,6 +650,17 @@ h1{
 
 .rules-launch .whatsapp-link{
   border-color:rgba(34,197,94,0.38);
+}
+
+.rules-launch .vip-link{
+  border-color:rgba(250,204,21,0.46);
+  color:#fef3c7;
+  background:linear-gradient(135deg,rgba(120,53,15,0.46),rgba(15,23,42,0.78));
+  box-shadow:0 14px 32px rgba(120,53,15,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.rules-launch .vip-link::before{
+  display:none;
 }
 
 .season-event{
@@ -2908,6 +2932,7 @@ h1{
   .rankings-btn,
   .rules-btn,
   .store-btn,
+  .vip-btn,
   .mobile-admin-btn{
     width:100%;
     min-height:46px;
@@ -2941,6 +2966,10 @@ h1{
     display:block;
     opacity:0.72;
     border-color:rgba(248,113,113,0.34);
+  }
+
+  .acciones .vip-btn{
+    display:none;
   }
 }
 
@@ -3002,6 +3031,7 @@ h1{
   .rankings-btn,
   .rules-btn,
   .store-btn,
+  .vip-btn,
   .mobile-admin-btn{
     min-height:46px;
     padding:10px 8px;
@@ -3323,6 +3353,7 @@ h1{
   .rankings-btn,
   .rules-btn,
   .store-btn,
+  .vip-btn,
   .mobile-admin-btn{
     min-height:44px;
     padding:9px 6px;
@@ -3383,6 +3414,7 @@ h1{
       <button class="boton profile-btn" onclick="irPerfil()">Perfil</button>
       <button class="boton rankings-btn" data-open-rankings>Rankings</button>
       <button class="boton store-btn" data-open-store>Tienda</button>
+      <button class="boton vip-btn" type="button" onclick="irVip()">★ VIP</button>
       <button class="boton rules-btn" data-open-rules>Reglas</button>
       <button class="boton music-btn" onclick="manejarClickMusica(event)" ondblclick="abrirMenuMusica(event)">Música</button>
       <button class="boton mobile-admin-btn" onclick="irAdmin()">Admin</button>
@@ -3398,6 +3430,7 @@ h1{
       <div class="rules-launch">
         <button class="boton" type="button" data-open-rules>Reglas del torneo</button>
         <button class="boton whatsapp-link" type="button" onclick="abrirWhatsapp()">WhatsApp</button>
+        <button class="boton vip-link" type="button" onclick="irVip()">★ Zona VIP</button>
       </div>
       <div class="season-event" id="seasonEvent" aria-live="polite"></div>
       <div class="season-event coin-season-event" id="coinSeasonEvent" aria-live="polite"></div>
@@ -3687,6 +3720,10 @@ function irPerfil(){
 
 function irAdmin(){
   window.location.href = 'admin.html'
+}
+
+function irVip(){
+  window.location.href = 'vip.html'
 }
 
 const WHATSAPP_URL = 'https://chat.whatsapp.com/FcDz95lx5al9xH6lRSZ8Y0'

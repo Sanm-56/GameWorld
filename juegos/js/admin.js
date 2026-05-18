@@ -47,6 +47,7 @@ let formularioMonedasInicializado = false
 let canalBonusMonedas = null
 let miniTorneosAdminRequestId = 0
 const miniTorneosAdminAccionesPendientes = new Set()
+let vipMembershipsRequestId = 0
 let rewardUserSeleccionado = null
 let rewardAmountSeleccionado = 100
 let rewardHistoryChannel = null
@@ -183,6 +184,7 @@ cargarVistaAdmin()
 cargarBonusTemporadaAdmin()
 cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
+cargarMembresiasVipAdmin()
 cargarHistorialRegalosAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
@@ -211,6 +213,7 @@ cargarVistaAdmin()
 cargarBonusTemporadaAdmin()
 cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
+cargarMembresiasVipAdmin()
 cargarHistorialRegalosAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
@@ -788,6 +791,87 @@ tabla.appendChild(fila)
 
 })
 
+}
+
+async function cargarMembresiasVipAdmin(){
+const list = document.getElementById("vipMembershipList")
+const status = document.getElementById("vipAdminStatus")
+if(!list) return
+
+const requestId = ++vipMembershipsRequestId
+list.innerHTML = '<div class="export-note">Cargando membresias VIP...</div>'
+
+const rpc = await ejecutarRpcAdminObjeto("admin_listar_membresias_vip")
+if(requestId !== vipMembershipsRequestId) return
+
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudieron cargar las membresias VIP. Reaplica supabase-vip.sql actualizado.")
+if(status) setCleanText(status, mensaje)
+list.innerHTML = `<div class="export-note">${escapeHtml(mensaje)}</div>`
+return
+}
+
+const items = Array.isArray(rpc.data?.items) ? rpc.data.items : []
+if(status) setCleanText(status, `${items.length} membresia${items.length === 1 ? "" : "s"} VIP registradas.`)
+
+if(!items.length){
+list.innerHTML = '<div class="export-note">Todavia no hay usuarios VIP.</div>'
+return
+}
+
+list.innerHTML = items.map((item) => {
+const activa = item.is_valid === true
+const expira = item.expires_at ? new Date(item.expires_at).toLocaleString("es-CO") : "Sin expiracion"
+const actualizado = item.updated_at ? new Date(item.updated_at).toLocaleString("es-CO") : "-"
+return `
+  <div class="reward-history-row">
+    <strong>${escapeHtml(item.usuario_id)} - ${activa ? "VIP activo" : "VIP inactivo"}</strong>
+    <span>Expira: ${escapeHtml(expira)} | Actualizado: ${escapeHtml(actualizado)}</span>
+  </div>
+`
+}).join("")
+}
+
+function obtenerVipExpiresAtAdmin(activo){
+if(!activo) return null
+const value = document.getElementById("vipDurationSelect")?.value || "permanente"
+if(value === "permanente") return null
+const dias = Math.trunc(Number(value || 0))
+if(!Number.isFinite(dias) || dias <= 0) return null
+return new Date(Date.now() + dias * 86400000).toISOString()
+}
+
+async function guardarVipAdmin(activo){
+const input = document.getElementById("vipUserInput")
+const status = document.getElementById("vipAdminStatus")
+const usuario = cleanText(input?.value || "", "").trim()
+if(!usuario){
+safeAlert("Escribe el apodo exacto del usuario.")
+return
+}
+
+const accion = activo ? "activar VIP para " : "quitar VIP a "
+const ok = await confirmAction(accion + usuario + "?", { title: activo ? "Activar VIP" : "Quitar VIP", acceptText: activo ? "Activar" : "Quitar", danger: !activo })
+if(!ok) return
+
+if(status) setCleanText(status, "Guardando membresia VIP...")
+const rpc = await ejecutarRpcAdminObjeto("admin_guardar_membresia_vip", {
+p_usuario: usuario,
+p_activo: activo,
+p_expires_at: obtenerVipExpiresAtAdmin(activo),
+})
+
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo guardar la membresia VIP. Reaplica supabase-vip.sql actualizado.")
+if(status) setCleanText(status, mensaje)
+safeAlert(mensaje)
+return
+}
+
+if(input) input.value = ""
+if(status) setCleanText(status, activo ? "VIP activado correctamente." : "VIP desactivado correctamente.")
+safeAlert(activo ? "VIP activado correctamente." : "VIP desactivado correctamente.")
+await cargarMembresiasVipAdmin()
 }
 
 // =============================
@@ -1919,6 +2003,8 @@ window.exportarHistorialPartidas = exportarHistorialPartidas
 window.cargarMiniTorneosAdmin = cargarMiniTorneosAdmin
 window.finalizarMiniTorneoAdmin = finalizarMiniTorneoAdmin
 window.borrarMiniTorneoAdmin = borrarMiniTorneoAdmin
+window.cargarMembresiasVipAdmin = cargarMembresiasVipAdmin
+window.guardarVipAdmin = guardarVipAdmin
 window.confirmarRegaloAdmin = confirmarRegaloAdmin
 window.limpiarRegaloAdmin = limpiarRegaloAdmin
 window.cargarHistorialRegalosAdmin = cargarHistorialRegalosAdmin
