@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflejos VIP - GameWorld</title>
+<style>
+:root{
+  color-scheme:dark;
+  --gold:#f8d774;
+  --gold-strong:#f59e0b;
+  --text:#f8fafc;
+  --muted:#cbd5e1;
+}
+
+*{box-sizing:border-box}
+
+body{
+  min-height:100vh;
+  margin:0;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 18% 10%,rgba(250,204,21,.12),transparent 32%),
+    radial-gradient(circle at 84% 20%,rgba(56,189,248,.1),transparent 30%),
+    linear-gradient(145deg,#020617,#111827 58%,#0f172a);
+}
+
+.game-shell{
+  width:min(980px,100%);
+  min-height:min(680px,calc(100vh - 36px));
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  overflow:hidden;
+  border:1px solid rgba(250,204,21,.24);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(15,23,42,.92),rgba(2,6,23,.86));
+  box-shadow:0 28px 88px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.game-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:18px 20px;
+  border-bottom:1px solid rgba(250,204,21,.14);
+}
+
+.game-title span{
+  display:block;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+h1{
+  margin:4px 0 0;
+  font-size:clamp(26px,5vw,46px);
+  line-height:1;
+  letter-spacing:0;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+button{
+  min-height:42px;
+  border:1px solid rgba(250,204,21,.28);
+  border-radius:12px;
+  padding:10px 14px;
+  color:#fff7ed;
+  background:rgba(15,23,42,.72);
+  cursor:pointer;
+  font:inherit;
+  font-weight:900;
+}
+
+button.primary{
+  color:#111827;
+  background:linear-gradient(135deg,#fde68a,#f59e0b);
+}
+
+button:disabled{
+  cursor:not-allowed;
+  opacity:.58;
+}
+
+.game-main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 270px;
+  gap:18px;
+  padding:20px;
+}
+
+.arena{
+  position:relative;
+  min-height:420px;
+  overflow:hidden;
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px),
+    linear-gradient(0deg,rgba(255,255,255,.04) 1px,transparent 1px),
+    rgba(2,6,23,.5);
+  background-size:34px 34px;
+}
+
+.target{
+  position:absolute;
+  width:62px;
+  height:62px;
+  display:grid;
+  place-items:center;
+  border:2px solid rgba(255,255,255,.76);
+  border-radius:50%;
+  color:#111827;
+  background:radial-gradient(circle,#fef3c7,#f59e0b);
+  box-shadow:0 0 26px rgba(250,204,21,.34);
+  transform:translate(-50%,-50%);
+}
+
+.panel{
+  display:grid;
+  align-content:start;
+  gap:12px;
+  min-width:0;
+}
+
+.stat{
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:13px;
+  background:rgba(15,23,42,.66);
+}
+
+.stat span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.stat strong{
+  display:block;
+  margin-top:5px;
+  color:#fef3c7;
+  font-size:24px;
+}
+
+.status{
+  min-height:46px;
+  margin:0 20px 20px;
+  display:flex;
+  align-items:center;
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  padding:12px 14px;
+  color:#fde68a;
+  background:rgba(15,23,42,.7);
+}
+
+[hidden]{display:none!important}
+
+@media (max-width:760px){
+  body{align-items:start;padding:10px}
+  .game-shell{min-height:calc(100vh - 20px);border-radius:16px}
+  .game-head{align-items:flex-start;flex-direction:column}
+  .actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .game-main{grid-template-columns:1fr;padding:14px}
+  .arena{min-height:360px}
+  .status{margin:0 14px 14px}
+}
+</style>
+</head>
+<body>
+<main class="game-shell">
+  <header class="game-head">
+    <div class="game-title">
+      <span>Juego exclusivo VIP</span>
+      <h1>Reflejos VIP</h1>
+    </div>
+    <div class="actions">
+      <button type="button" onclick="window.location.href='../../../vip.html'">Zona VIP</button>
+      <button class="primary" type="button" id="startBtn">Iniciar</button>
+    </div>
+  </header>
+
+  <section class="game-main" id="gameContent" hidden>
+    <div class="arena" id="arena" aria-label="Arena de reflejos"></div>
+    <aside class="panel">
+      <div class="stat">
+        <span>Puntos</span>
+        <strong id="scoreEl">0</strong>
+      </div>
+      <div class="stat">
+        <span>Tiempo</span>
+        <strong id="timeEl">30</strong>
+      </div>
+      <div class="stat">
+        <span>Mejor local</span>
+        <strong id="bestEl">0</strong>
+      </div>
+    </aside>
+  </section>
+
+  <div class="status" id="statusEl">Validando acceso VIP...</div>
+</main>
+
+<script type="module">
+import { validateVipSession } from "../../js/vip.js"
+
+const content = document.getElementById("gameContent")
+const statusEl = document.getElementById("statusEl")
+const arena = document.getElementById("arena")
+const startBtn = document.getElementById("startBtn")
+const scoreEl = document.getElementById("scoreEl")
+const timeEl = document.getElementById("timeEl")
+const bestEl = document.getElementById("bestEl")
+
+let score = 0
+let timeLeft = 30
+let timer = null
+let running = false
+
+function bestScore() {
+  return Math.max(0, Number(localStorage.getItem("vip_reflejos_best") || 0))
+}
+
+function setStatus(text) {
+  if (statusEl) statusEl.textContent = text
+}
+
+function updateHud() {
+  scoreEl.textContent = String(score)
+  timeEl.textContent = String(timeLeft)
+  bestEl.textContent = String(bestScore())
+}
+
+function placeTarget() {
+  if (!arena || !running) return
+  arena.innerHTML = ""
+  const rect = arena.getBoundingClientRect()
+  const target = document.createElement("button")
+  target.type = "button"
+  target.className = "target"
+  target.setAttribute("aria-label", "Objetivo")
+  target.textContent = "+"
+  target.style.left = `${32 + Math.random() * Math.max(1, rect.width - 64)}px`
+  target.style.top = `${32 + Math.random() * Math.max(1, rect.height - 64)}px`
+  target.addEventListener("click", () => {
+    score += 1
+    updateHud()
+    placeTarget()
+  })
+  arena.appendChild(target)
+}
+
+function finishGame() {
+  running = false
+  clearInterval(timer)
+  timer = null
+  arena.innerHTML = ""
+  startBtn.disabled = false
+  const best = bestScore()
+  if (score > best) localStorage.setItem("vip_reflejos_best", String(score))
+  updateHud()
+  setStatus(`Partida terminada. Puntaje: ${score}. Este resultado no entra a rankings normales.`)
+}
+
+function startGame() {
+  if (running) return
+  score = 0
+  timeLeft = 30
+  running = true
+  startBtn.disabled = true
+  updateHud()
+  setStatus("Toca los objetivos dorados antes de que termine el tiempo.")
+  placeTarget()
+  timer = setInterval(() => {
+    timeLeft -= 1
+    updateHud()
+    if (timeLeft <= 0) finishGame()
+  }, 1000)
+}
+
+const ok = await validateVipSession({ statusElement: statusEl, contentElement: content })
+if (ok) {
+  setStatus("Acceso VIP activo. Listo para jugar.")
+  updateHud()
+} else {
+  startBtn.disabled = true
+}
+
+startBtn.addEventListener("click", startGame)
+</script>
+</body>
+</html>

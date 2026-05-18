@@ -165,6 +165,54 @@ h1{
   gap:12px;
 }
 
+.vip-game-list{
+  display:grid;
+  gap:12px;
+  margin-top:16px;
+}
+
+.vip-game-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:14px;
+  background:linear-gradient(145deg,rgba(15,23,42,.9),rgba(30,41,59,.56));
+}
+
+.vip-game-card.locked{
+  opacity:.72;
+}
+
+.vip-game-badge{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  margin-bottom:8px;
+  border:1px solid rgba(250,204,21,.26);
+  border-radius:999px;
+  padding:4px 8px;
+  color:#fef3c7;
+  background:rgba(120,53,15,.22);
+  font-size:11px;
+  font-weight:900;
+}
+
+.vip-game-card strong{
+  display:block;
+  color:#fef3c7;
+  font-size:16px;
+}
+
+.vip-game-card p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
 .vip-card{
   border:1px solid rgba(148,163,184,.14);
   border-radius:8px;
@@ -214,6 +262,7 @@ h1{
   .vip-header{align-items:flex-start;flex-direction:column}
   .vip-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
   .vip-main{grid-template-columns:1fr;padding:18px}
+  .vip-game-card{grid-template-columns:1fr}
   .vip-copy{font-size:15px}
 }
 
@@ -242,7 +291,7 @@ h1{
     <div class="vip-hero">
       <span class="vip-kicker">Zona premium</span>
       <h1>Zona VIP</h1>
-      <p class="vip-copy">Un espacio separado del torneo principal para juegos exclusivos, eventos especiales y recompensas internas. Esta primera fase deja la entrada protegida y lista para crecer.</p>
+      <p class="vip-copy">Un espacio separado del torneo principal para juegos exclusivos, eventos especiales y recompensas internas. Los juegos VIP viven en su propia categoria y validan acceso antes de abrir.</p>
       <div class="vip-status" id="vipStatus">Verificando acceso VIP...</div>
     </div>
 
@@ -255,25 +304,8 @@ h1{
 
       <div class="vip-content" id="vipContent" hidden>
         <h2>Bienvenido VIP</h2>
-        <p>Tu acceso esta activo. Las siguientes funciones se conectaran aqui en las proximas fases.</p>
-        <div class="vip-grid" style="margin-top:16px">
-          <article class="vip-card">
-            <strong>Juegos VIP</strong>
-            <span>Catalogo exclusivo separado del torneo normal.</span>
-          </article>
-          <article class="vip-card">
-            <strong>Bingo Online VIP</strong>
-            <span>Lobby y cartones premium sin apuestas reales.</span>
-          </article>
-          <article class="vip-card">
-            <strong>Ruleta VIP</strong>
-            <span>Recompensas internas con control de cooldown.</span>
-          </article>
-          <article class="vip-card">
-            <strong>Sala Social VIP</strong>
-            <span>Comunidad, insignias y accesos rapidos.</span>
-          </article>
-        </div>
+        <p>Tu acceso esta activo. Estos juegos no aparecen en el torneo principal, minitorneos, niveles ni rankings normales.</p>
+        <div class="vip-game-list" id="vipGameList"></div>
       </div>
     </aside>
   </section>
@@ -281,13 +313,15 @@ h1{
 
 <script type="module">
 import { validateVipSession, clearVipStatusCache } from "./juegos/js/vip.js"
+import { renderVipGames } from "./juegos/js/vip-games.js"
 
 const statusElement = document.getElementById("vipStatus")
 const lockedElement = document.getElementById("vipLocked")
 const contentElement = document.getElementById("vipContent")
 
 async function verifyVip() {
-  await validateVipSession({ statusElement, lockedElement, contentElement })
+  const ok = await validateVipSession({ statusElement, lockedElement, contentElement })
+  if (ok) renderVipGames(document.getElementById("vipGameList"))
 }
 
 document.querySelector("[data-refresh-vip]")?.addEventListener("click", async () => {
