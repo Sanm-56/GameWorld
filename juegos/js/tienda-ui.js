@@ -3,9 +3,11 @@ import {
   BOOSTERS_XP,
   COSMETICOS,
   PAQUETES_MONEDAS,
+  PLANES_VIP,
   comprarBooster,
   comprarBoosterMonedas,
   comprarCosmetico,
+  comprarMembresiaVip,
   descontarMonedas,
   iniciarSincronizacionRecompensasUsuario,
   obtenerBoosterActivo,
@@ -15,12 +17,14 @@ import {
   rarezaEtiqueta,
   tiempoRestante,
 } from "./tienda.js"
-import { escapeHtml, safeAlert } from "./mensajes.js"
+import { clearVipStatusCache, getVipStatus } from "./vip.js"
+import { confirmAction, escapeHtml, safeAlert } from "./mensajes.js"
 
 const modal = document.getElementById("storeModal")
 const boosterList = document.getElementById("storeBoosters")
 const coinBoosterList = document.getElementById("storeCoinBoosters")
 const coinList = document.getElementById("storeCoinsPackages")
+const vipList = document.getElementById("storeVipMemberships")
 const cosmeticsList = document.getElementById("storeCosmetics")
 const storeTabs = [...document.querySelectorAll("[data-store-tab]")]
 const storePanels = [...document.querySelectorAll("[data-store-panel]")]
@@ -42,7 +46,7 @@ function usuarioActual() {
 }
 
 function initStore() {
-  if (!modal || !boosterList || !coinBoosterList || !coinList || !cosmeticsList) return
+  if (!modal || !boosterList || !coinBoosterList || !coinList || !vipList || !cosmeticsList) return
   const usuario = usuarioActual()
   if (usuario) {
     iniciarSincronizacionRecompensasUsuario(usuario, async () => {
@@ -139,6 +143,7 @@ async function renderTienda() {
     </article>
   `).join("")
 
+  await renderVipMemberships(usuario)
   renderCosmeticos()
 
   boosterList.querySelectorAll("[data-buy-booster]").forEach((button) => {
@@ -150,6 +155,49 @@ async function renderTienda() {
   modal.querySelectorAll("[data-real-buy]").forEach((button) => {
     button.addEventListener("click", compraRealPendiente)
   })
+  vipList.querySelectorAll("[data-buy-vip]").forEach((button) => {
+    button.addEventListener("click", () => comprarVipConMonedas(button.dataset.buyVip))
+  })
+}
+
+async function renderVipMemberships(usuario) {
+  const vipStatus = usuario ? await getVipStatus({ force: true }) : null
+  const statusText = vipStatus?.isVip
+    ? vipStatus.expiresAt
+      ? `Activo hasta ${new Date(vipStatus.expiresAt).toLocaleString("es-CO")}`
+      : "VIP permanente activo"
+    : "Sin VIP activo"
+
+  vipList.innerHTML = `
+    <article class="store-item vip-store-status">
+      <span class="store-badge badge-premium">VIP</span>
+      <div class="store-copy">
+        <span class="store-kicker">Estado actual</span>
+        <strong>${escapeHtml(statusText)}</strong>
+        <p>La compra activa tu acceso en Supabase y se valida al entrar a la Zona VIP.</p>
+      </div>
+      <button class="store-main-btn" type="button" onclick="window.location.href='vip.html'">Zona VIP</button>
+    </article>
+    ${PLANES_VIP.map((plan) => `
+      <article class="store-item booster-card ${plan.id === "30d" ? "featured" : ""}">
+        ${plan.etiqueta ? `<span class="store-badge badge-${claseEtiqueta(plan.etiqueta)}">${escapeHtml(plan.etiqueta)}</span>` : ""}
+        <div class="booster-sigil coin-booster-card">
+          <span>${plan.dias ? plan.dias : "MAX"}</span>
+          <small>${plan.dias ? "dias" : "VIP"}</small>
+        </div>
+        <div class="store-copy">
+          <span class="store-kicker">Membresia VIP</span>
+          <strong>${escapeHtml(plan.nombre)}</strong>
+          <p>${escapeHtml(plan.descripcion)}</p>
+          <span class="store-price">${plan.precio.toLocaleString("es-CO")} monedas</span>
+        </div>
+        <div class="store-actions-inline">
+          <button class="store-soft-btn" type="button" data-buy-vip="${escapeHtml(plan.id)}">Monedas</button>
+          <button class="store-main-btn" type="button" data-real-buy="vip:${escapeHtml(plan.id)}">${escapeHtml(plan.precioReal)}</button>
+        </div>
+      </article>
+    `).join("")}
+  `
 }
 
 function renderBoosterCard(booster, config) {
@@ -396,6 +444,45 @@ async function comprarConMonedas(tipo, id) {
     statusEl.textContent = "Compra activada."
   }
 
+  await renderTienda()
+}
+
+async function comprarVipConMonedas(planId) {
+  const usuario = usuarioActual()
+  const plan = PLANES_VIP.find((item) => item.id === planId)
+
+  if (!usuario) {
+    safeAlert("Primero entra a un juego con tu apodo.")
+    return
+  }
+
+  if (!plan) {
+    safeAlert("Plan VIP invalido.")
+    return
+  }
+
+  const ok = await confirmAction(`Comprar ${plan.nombre} por ${plan.precio.toLocaleString("es-CO")} monedas?`, {
+    title: "Comprar VIP",
+    acceptText: "Comprar",
+    cancelText: "Cancelar",
+    danger: false,
+  })
+  if (!ok) return
+
+  statusEl.textContent = "Activando membresia VIP..."
+  const resultado = await comprarMembresiaVip(usuario, plan.id)
+
+  if (!resultado.ok) {
+    statusEl.textContent = resultado.message || "No se pudo activar VIP."
+    safeAlert(statusEl.textContent)
+    if (Number.isFinite(Number(resultado.saldoNuevo))) coinsEl.textContent = `${resultado.saldoNuevo} monedas`
+    return
+  }
+
+  clearVipStatusCache()
+  statusEl.textContent = resultado.alreadyPermanent
+    ? "Ya tienes VIP permanente activo."
+    : "Membresia VIP activada."
   await renderTienda()
 }
 

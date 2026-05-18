@@ -41,6 +41,13 @@ export const PAQUETES_MONEDAS = [
   { id: "coins_100000", cantidad: 100000, bonus: 20000, regalo: "Booster XP x2 gratis", precioReal: "$59.99", etiqueta: "Premium" },
 ]
 
+export const PLANES_VIP = [
+  { id: "7d", nombre: "VIP 7 dias", dias: 7, precio: 12000, precioReal: "$2.99", etiqueta: "Prueba", descripcion: "Acceso corto a Zona VIP, Bingo, Ruleta, Sala Social y eventos activos." },
+  { id: "30d", nombre: "VIP 30 dias", dias: 30, precio: 40000, precioReal: "$8.99", etiqueta: "Popular", descripcion: "Un mes completo de juegos VIP, recompensas internas y eventos premium." },
+  { id: "90d", nombre: "VIP 90 dias", dias: 90, precio: 95000, precioReal: "$19.99", etiqueta: "Mejor valor", descripcion: "Temporada extendida VIP con mejor precio por dia." },
+  { id: "permanent", nombre: "VIP permanente", dias: null, precio: 250000, precioReal: "$49.99", etiqueta: "Maximo", descripcion: "Acceso VIP sin fecha de vencimiento para este usuario." },
+]
+
 const RAREZAS = [
   { nombre: "Normal", precio: 500, clase: "normal" },
   { nombre: "Poco comun", etiqueta: "Poco común", precio: 950, clase: "poco-comun" },
@@ -492,6 +499,7 @@ const COIN_BOOSTER_LOCAL_KEY = "tienda_coin_boosters_usuario"
 const COSMETICOS_LOCAL_KEY = "tienda_cosmeticos_usuario"
 const MONEDAS_LOCAL_KEY = "monedas_usuario_saldos"
 const MONEDAS_HISTORIAL_KEY = "monedas_usuario_historial"
+const SAVED_UNIQUE_CODE_KEY = "savedUniqueCode"
 const canalesRecompensasUsuario = new Map()
 export const RECOMPENSAS_MONEDAS = {
   torneo: 300,
@@ -748,6 +756,58 @@ export function descontarMonedas(usuario, costo, detalle = {}) {
   guardarMovimientoMonedas(usuario, "compra", -Math.max(0, Number(costo) || 0), detalle)
   guardarMonedasRemotas(usuario, nuevoSaldo)
   return true
+}
+
+export async function comprarMembresiaVip(usuario, planId) {
+  const plan = PLANES_VIP.find((item) => item.id === planId)
+  const codigo = (localStorage.getItem(SAVED_UNIQUE_CODE_KEY) || "").trim()
+
+  if (!usuario || !codigo) {
+    return { ok: false, message: "Vuelve a iniciar sesion para comprar VIP." }
+  }
+
+  if (!plan) {
+    return { ok: false, message: "Plan VIP invalido." }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("comprar_membresia_vip", {
+      p_usuario: usuario,
+      p_codigo: codigo,
+      p_plan: plan.id,
+    })
+
+    if (error || data?.ok === false) {
+      console.warn("No se pudo comprar membresia VIP", error || data)
+      return {
+        ok: false,
+        message: data?.mensaje || error?.message || "No se pudo activar VIP.",
+        saldoNuevo: data?.saldoNuevo,
+      }
+    }
+
+    if (Number.isFinite(Number(data?.saldoNuevo))) {
+      guardarMonedas(usuario, data.saldoNuevo)
+      guardarMovimientoMonedas(usuario, data.alreadyPermanent ? "vip" : "compra", data.alreadyPermanent ? 0 : -plan.precio, {
+        tipo: "vip",
+        id: plan.id,
+        key: `vip:${plan.id}:${data?.membership?.updated_at || Date.now()}`,
+      })
+      emitirCambioMonedas(usuario)
+    }
+
+    return {
+      ok: true,
+      plan,
+      message: data?.mensaje || "Membresia VIP activada.",
+      membership: data?.membership || null,
+      saldoNuevo: data?.saldoNuevo,
+      alreadyPermanent: data?.alreadyPermanent === true,
+    }
+  } catch (error) {
+    console.warn("Error comprando membresia VIP", error)
+    return { ok: false, message: "No se pudo activar VIP." }
+  }
 }
 
 export async function sincronizarMonedasUsuario(usuario) {

@@ -1922,6 +1922,155 @@ begin
 end;
 $$;
 
+create or replace function public.comprar_membresia_vip(
+  p_usuario text,
+  p_codigo text default null,
+  p_plan text default '30d'
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  usuario_limpio text := btrim(coalesce(p_usuario, ''));
+  codigo_limpio text := btrim(coalesce(p_codigo, ''));
+  plan_limpio text := lower(btrim(coalesce(p_plan, '30d')));
+  codigo_usuario text;
+  precio bigint;
+  duracion_dias integer;
+  es_permanente boolean := false;
+  saldo_actual bigint;
+  saldo_nuevo bigint;
+  membresia record;
+  membresia_encontrada boolean := false;
+  base_expiracion timestamptz;
+  nueva_expiracion timestamptz;
+begin
+  if usuario_limpio = '' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Inicia sesion para comprar VIP.');
+  end if;
+
+  if to_regclass('public.usuarios') is null or to_regclass('public.usuario_monedas') is null then
+    return jsonb_build_object('ok', false, 'mensaje', 'La tienda VIP no esta lista en Supabase.');
+  end if;
+
+  select codigo::text
+  into codigo_usuario
+  from public.usuarios
+  where usuario = usuario_limpio
+  limit 1;
+
+  if codigo_usuario is null or codigo_limpio = '' or codigo_usuario <> codigo_limpio then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo validar tu sesion para comprar VIP.');
+  end if;
+
+  precio := case plan_limpio
+    when '7d' then 12000
+    when '30d' then 40000
+    when '90d' then 95000
+    when 'permanent' then 250000
+    else null
+  end;
+
+  duracion_dias := case plan_limpio
+    when '7d' then 7
+    when '30d' then 30
+    when '90d' then 90
+    else null
+  end;
+
+  es_permanente := plan_limpio = 'permanent';
+
+  if precio is null then
+    return jsonb_build_object('ok', false, 'mensaje', 'Plan VIP invalido.');
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('vip_store:' || usuario_limpio, 0));
+
+  select *
+  into membresia
+  from public.vip_memberships
+  where usuario_id = usuario_limpio
+  for update;
+  membresia_encontrada := found;
+
+  if membresia_encontrada and membresia.is_active and membresia.expires_at is null then
+    return jsonb_build_object(
+      'ok', true,
+      'alreadyPermanent', true,
+      'mensaje', 'Ya tienes VIP permanente.',
+      'saldoNuevo', coalesce((select saldo from public.usuario_monedas where usuario_id = usuario_limpio), 0),
+      'membership', jsonb_build_object(
+        'usuario_id', membresia.usuario_id,
+        'is_active', membresia.is_active,
+        'expires_at', membresia.expires_at
+      )
+    );
+  end if;
+
+  insert into public.usuario_monedas (usuario_id, saldo)
+  values (usuario_limpio, 0)
+  on conflict (usuario_id) do nothing;
+
+  select saldo
+  into saldo_actual
+  from public.usuario_monedas
+  where usuario_id = usuario_limpio
+  for update;
+
+  if coalesce(saldo_actual, 0) < precio then
+    return jsonb_build_object(
+      'ok', false,
+      'mensaje', 'No tienes monedas suficientes para este plan VIP.',
+      'saldoNuevo', coalesce(saldo_actual, 0),
+      'precio', precio
+    );
+  end if;
+
+  saldo_nuevo := saldo_actual - precio;
+
+  update public.usuario_monedas
+  set saldo = saldo_nuevo,
+      updated_at = now()
+  where usuario_id = usuario_limpio;
+
+  if es_permanente then
+    nueva_expiracion := null;
+  else
+    base_expiracion := case
+      when membresia_encontrada and membresia.is_active and membresia.expires_at is not null and membresia.expires_at > now()
+        then membresia.expires_at
+      else now()
+    end;
+    nueva_expiracion := base_expiracion + (duracion_dias * interval '1 day');
+  end if;
+
+  insert into public.vip_memberships (usuario_id, is_active, expires_at)
+  values (usuario_limpio, true, nueva_expiracion)
+  on conflict (usuario_id) do update
+    set is_active = true,
+        expires_at = excluded.expires_at,
+        updated_at = now()
+  returning *
+  into membresia;
+
+  return jsonb_build_object(
+    'ok', true,
+    'mensaje', 'Membresia VIP activada.',
+    'plan', plan_limpio,
+    'precio', precio,
+    'saldoNuevo', saldo_nuevo,
+    'membership', jsonb_build_object(
+      'usuario_id', membresia.usuario_id,
+      'is_active', membresia.is_active,
+      'expires_at', membresia.expires_at,
+      'updated_at', membresia.updated_at
+    )
+  );
+end;
+$$;
+
 create or replace function public.admin_listar_membresias_vip(p_clave text)
 returns jsonb
 language plpgsql
@@ -2047,5 +2196,6 @@ grant execute on function public.admin_guardar_evento_vip(text, bigint, text, te
 grant execute on function public.admin_listar_eventos_vip(text) to anon, authenticated;
 grant execute on function public.admin_cambiar_estado_evento_vip(text, bigint, boolean) to anon, authenticated;
 grant execute on function public.admin_eliminar_evento_vip(text, bigint) to anon, authenticated;
+grant execute on function public.comprar_membresia_vip(text, text, text) to anon, authenticated;
 grant execute on function public.admin_guardar_membresia_vip(text, text, boolean, timestamptz) to anon, authenticated;
 grant execute on function public.admin_listar_membresias_vip(text) to anon, authenticated;
