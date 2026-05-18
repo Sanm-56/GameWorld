@@ -50,6 +50,8 @@ const miniTorneosAdminAccionesPendientes = new Set()
 let vipMembershipsRequestId = 0
 let vipEventsRequestId = 0
 let vipEventsCache = []
+let vipBingoRoomsRequestId = 0
+const vipBingoRoomTimers = new Map()
 let rewardUserSeleccionado = null
 let rewardAmountSeleccionado = 100
 let rewardHistoryChannel = null
@@ -188,6 +190,7 @@ cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
 cargarMembresiasVipAdmin()
 cargarEventosVipAdmin()
+cargarSalasBingoVipAdmin()
 cargarHistorialRegalosAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
@@ -218,6 +221,7 @@ cargarEventoMonedasAdmin()
 cargarMiniTorneosAdmin()
 cargarMembresiasVipAdmin()
 cargarEventosVipAdmin()
+cargarSalasBingoVipAdmin()
 cargarHistorialRegalosAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
@@ -1103,6 +1107,150 @@ limpiarEventoVipAdmin()
 await cargarEventosVipAdmin()
 }
 
+// =============================
+// SALAS BINGO VIP
+// =============================
+function limpiarCodigoSalaVip(valor){
+return cleanText(valor || "", "").trim().toLowerCase().replace(/[^a-z0-9-_]/g, "").slice(0, 32)
+}
+
+async function cargarSalasBingoVipAdmin(){
+const list = document.getElementById("vipBingoRoomsList")
+const status = document.getElementById("vipBingoRoomsStatus")
+if(!list) return
+
+const requestId = ++vipBingoRoomsRequestId
+list.innerHTML = '<div class="export-note">Cargando salas Bingo VIP...</div>'
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_bingo_listar_salas")
+if(requestId !== vipBingoRoomsRequestId) return
+
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudieron cargar salas Bingo VIP. Reaplica supabase-vip.sql actualizado.")
+if(status) setCleanText(status, mensaje)
+list.innerHTML = `<div class="export-note">${escapeHtml(mensaje)}</div>`
+return
+}
+
+const items = Array.isArray(rpc.data?.items) ? rpc.data.items : []
+if(status) setCleanText(status, `${items.length} sala${items.length === 1 ? "" : "s"} Bingo VIP registrada${items.length === 1 ? "" : "s"}.`)
+if(!items.length){
+list.innerHTML = '<div class="export-note">No hay salas Bingo VIP activas.</div>'
+return
+}
+
+list.innerHTML = items.map((room) => {
+const id = cleanText(room.id || "", "")
+const creada = room.created_at ? new Date(room.created_at).toLocaleString("es-CO") : "-"
+const ultimo = room.updated_at ? new Date(room.updated_at).toLocaleString("es-CO") : "-"
+const finished = room.status === "finished"
+const autoRunning = vipBingoRoomTimers.has(id)
+return `
+  <div class="reward-history-row">
+    <strong>${escapeHtml(id)} - ${escapeHtml(room.status || "active")}</strong>
+    <span>${Number(room.players || 0)} jugador${Number(room.players || 0) === 1 ? "" : "es"} | ${Number(room.called_count || 0)} numeros | Ganador: ${escapeHtml(room.winner_usuario_id || "-")}</span>
+    <span>Creada: ${escapeHtml(creada)} | Actualizada: ${escapeHtml(ultimo)}</span>
+    <div class="reward-admin-actions">
+      <button type="button" onclick="cantarNumeroBingoVipAdmin('${escapeJsString(id)}')" ${finished ? "disabled" : ""}>Cantar ahora</button>
+      <button type="button" onclick="alternarAutoBingoVipAdmin('${escapeJsString(id)}')" ${finished ? "disabled" : ""}>${autoRunning ? "Pausar auto" : "Iniciar auto"}</button>
+      <button type="button" onclick="finalizarSalaBingoVipAdmin('${escapeJsString(id)}')" ${finished ? "disabled" : ""}>Finalizar</button>
+    </div>
+    <button class="danger" type="button" onclick="borrarSalaBingoVipAdmin('${escapeJsString(id)}')">Borrar</button>
+  </div>
+`
+}).join("")
+}
+
+async function crearSalaBingoVipAdmin(){
+const codeInput = document.getElementById("vipBingoRoomCode")
+const adminInput = document.getElementById("vipBingoRoomAdmin")
+const status = document.getElementById("vipBingoRoomsStatus")
+const roomId = limpiarCodigoSalaVip(codeInput?.value || "")
+const createdBy = cleanText(adminInput?.value || "admin", "admin").trim() || "admin"
+if(!roomId){
+safeAlert("Escribe un codigo de sala VIP.")
+return
+}
+const ok = await confirmAction(`Crear o reiniciar sala Bingo VIP ${roomId}?`, { title: "Sala Bingo VIP", acceptText: "Crear", cancelText: "Cancelar" })
+if(!ok) return
+if(status) setCleanText(status, "Creando sala Bingo VIP...")
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_bingo_crear_sala", {
+p_room_id: roomId,
+p_created_by: createdBy,
+})
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo crear la sala Bingo VIP."))
+return
+}
+if(codeInput) codeInput.value = roomId
+safeAlert(`Sala Bingo VIP creada. Codigo: ${roomId}`)
+await cargarSalasBingoVipAdmin()
+}
+
+async function cantarNumeroBingoVipAdmin(roomId, { quiet = false } = {}){
+const cleanRoom = limpiarCodigoSalaVip(roomId)
+if(!cleanRoom) return
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_bingo_cantar_numero", { p_room_id: cleanRoom })
+if(!rpc.ok || rpc.data?.ok === false){
+if(!quiet) safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo cantar numero VIP."))
+detenerAutoBingoVipAdmin(cleanRoom)
+return
+}
+const number = rpc.data?.number
+if(!quiet) safeAlert(number ? `Numero cantado: ${number}` : "La sala ya no tiene numeros disponibles.")
+if(rpc.data?.room?.status === "finished" || number === null) detenerAutoBingoVipAdmin(cleanRoom)
+await cargarSalasBingoVipAdmin()
+}
+
+function alternarAutoBingoVipAdmin(roomId){
+const cleanRoom = limpiarCodigoSalaVip(roomId)
+if(!cleanRoom) return
+if(vipBingoRoomTimers.has(cleanRoom)){
+detenerAutoBingoVipAdmin(cleanRoom)
+cargarSalasBingoVipAdmin()
+return
+}
+const timer = setInterval(() => {
+cantarNumeroBingoVipAdmin(cleanRoom, { quiet: true })
+}, 4500)
+vipBingoRoomTimers.set(cleanRoom, timer)
+cantarNumeroBingoVipAdmin(cleanRoom, { quiet: true })
+cargarSalasBingoVipAdmin()
+}
+
+function detenerAutoBingoVipAdmin(roomId){
+const timer = vipBingoRoomTimers.get(roomId)
+if(timer) clearInterval(timer)
+vipBingoRoomTimers.delete(roomId)
+}
+
+async function finalizarSalaBingoVipAdmin(roomId){
+const cleanRoom = limpiarCodigoSalaVip(roomId)
+if(!cleanRoom) return
+const ok = await confirmAction(`Finalizar sala Bingo VIP ${cleanRoom}?`, { title: "Finalizar sala VIP", danger: true })
+if(!ok) return
+detenerAutoBingoVipAdmin(cleanRoom)
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_bingo_finalizar_sala", { p_room_id: cleanRoom })
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo finalizar la sala Bingo VIP."))
+return
+}
+await cargarSalasBingoVipAdmin()
+}
+
+async function borrarSalaBingoVipAdmin(roomId){
+const cleanRoom = limpiarCodigoSalaVip(roomId)
+if(!cleanRoom) return
+const confirmacion = await promptAction(`Borrar sala Bingo VIP ${cleanRoom}. Escribe BORRAR para confirmar.`, { title: "Borrar sala VIP", danger: true })
+if(confirmacion !== "BORRAR") return
+detenerAutoBingoVipAdmin(cleanRoom)
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_bingo_borrar_sala", { p_room_id: cleanRoom })
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo borrar la sala Bingo VIP."))
+return
+}
+await cargarSalasBingoVipAdmin()
+}
+
 async function cargarVistaAdmin(){
 
 let juego = document.getElementById("juegoSelect")?.value
@@ -1245,6 +1393,20 @@ supabase
 "postgres_changes",
 { event: "*", schema: "public", table: "salas" },
 () => cargarMiniTorneosAdmin()
+)
+.subscribe()
+
+supabase
+.channel("admin-vip-bingo-cambios")
+.on(
+"postgres_changes",
+{ event: "*", schema: "public", table: "vip_bingo_rooms" },
+() => cargarSalasBingoVipAdmin()
+)
+.on(
+"postgres_changes",
+{ event: "*", schema: "public", table: "vip_bingo_players" },
+() => cargarSalasBingoVipAdmin()
 )
 .subscribe()
 
@@ -2237,6 +2399,12 @@ window.limpiarEventoVipAdmin = limpiarEventoVipAdmin
 window.editarEventoVipAdmin = editarEventoVipAdmin
 window.cambiarEstadoEventoVipAdmin = cambiarEstadoEventoVipAdmin
 window.eliminarEventoVipAdmin = eliminarEventoVipAdmin
+window.cargarSalasBingoVipAdmin = cargarSalasBingoVipAdmin
+window.crearSalaBingoVipAdmin = crearSalaBingoVipAdmin
+window.cantarNumeroBingoVipAdmin = cantarNumeroBingoVipAdmin
+window.alternarAutoBingoVipAdmin = alternarAutoBingoVipAdmin
+window.finalizarSalaBingoVipAdmin = finalizarSalaBingoVipAdmin
+window.borrarSalaBingoVipAdmin = borrarSalaBingoVipAdmin
 window.confirmarRegaloAdmin = confirmarRegaloAdmin
 window.limpiarRegaloAdmin = limpiarRegaloAdmin
 window.cargarHistorialRegalosAdmin = cargarHistorialRegalosAdmin

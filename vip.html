@@ -287,6 +287,78 @@ h1{
   margin-top:14px;
 }
 
+.vip-ranking{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  padding:14px;
+  background:rgba(2,6,23,.34);
+}
+
+.vip-ranking-head,
+.vip-ranking-controls,
+.vip-ranking-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.vip-ranking-head strong{
+  color:#fef3c7;
+}
+
+.vip-ranking-controls{
+  align-items:stretch;
+}
+
+.vip-select{
+  min-width:0;
+  flex:1;
+  border:1px solid rgba(250,204,21,.24);
+  border-radius:8px;
+  padding:10px 12px;
+  color:var(--text);
+  background:rgba(15,23,42,.74);
+  font:inherit;
+}
+
+.vip-ranking-tabs{
+  display:flex;
+  gap:6px;
+}
+
+.vip-ranking-tab{
+  min-height:40px;
+  border-radius:8px;
+  padding:8px 10px;
+}
+
+.vip-ranking-tab.active{
+  color:#111827;
+  background:linear-gradient(135deg,#fde68a,#f59e0b);
+}
+
+.vip-ranking-list{
+  display:grid;
+  gap:7px;
+}
+
+.vip-ranking-row{
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:9px 10px;
+  background:rgba(15,23,42,.52);
+  color:var(--muted);
+  font-size:13px;
+}
+
+.vip-ranking-row strong{
+  color:#fef3c7;
+}
+
 .vip-history-row{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
@@ -404,6 +476,10 @@ h1{
   .vip-history-row{grid-template-columns:1fr}
   .vip-converter-head{display:grid}
   .vip-converter-form{grid-template-columns:1fr}
+  .vip-ranking-head,
+  .vip-ranking-controls,
+  .vip-ranking-row{display:grid}
+  .vip-ranking-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
   .vip-copy{font-size:15px}
 }
 
@@ -473,6 +549,21 @@ h1{
           <div class="vip-converter-status" id="vipConvertStatus">Convierte solo cuando quieras llevar monedas VIP al torneo principal.</div>
         </div>
         <div class="vip-game-list" id="vipGameList"></div>
+        <div class="vip-ranking" id="vipRanking">
+          <div class="vip-ranking-head">
+            <strong>Ranking VIP</strong>
+            <span class="vip-converter-status" id="vipRankingStatus">Cargando ranking VIP...</span>
+          </div>
+          <div class="vip-ranking-controls">
+            <select class="vip-select" id="vipRankingGame" aria-label="Juego ranking VIP"></select>
+            <div class="vip-ranking-tabs" role="tablist" aria-label="Tipos ranking VIP">
+              <button class="vip-ranking-tab active" type="button" data-vip-ranking-type="semanal">Semanal</button>
+              <button class="vip-ranking-tab" type="button" data-vip-ranking-type="victorias">Victorias</button>
+              <button class="vip-ranking-tab" type="button" data-vip-ranking-type="global">General</button>
+            </div>
+          </div>
+          <div class="vip-ranking-list" id="vipRankingList"></div>
+        </div>
         <div class="vip-events" id="vipEvents"></div>
         <div class="vip-history" id="vipHistory"></div>
       </div>
@@ -483,8 +574,8 @@ h1{
 <script type="module">
 import { supabase } from "./juegos/js/supabase.js"
 import { validateVipSession, clearVipStatusCache, getVipIdentity } from "./juegos/js/vip.js"
-import { renderVipGames } from "./juegos/js/vip-games.js"
-import { convertVipCoinsToNormal, getVipGameHistory, getVipWallet } from "./juegos/js/vip-results.js"
+import { renderVipGames, VIP_GAMES } from "./juegos/js/vip-games.js"
+import { convertVipCoinsToNormal, getVipGameHistory, getVipRanking, getVipWallet } from "./juegos/js/vip-results.js"
 import { escapeHtml } from "./juegos/js/mensajes.js"
 
 const statusElement = document.getElementById("vipStatus")
@@ -493,11 +584,18 @@ const contentElement = document.getElementById("vipContent")
 const convertButton = document.getElementById("vipConvertBtn")
 const convertAmount = document.getElementById("vipConvertAmount")
 const convertStatus = document.getElementById("vipConvertStatus")
+const rankingGame = document.getElementById("vipRankingGame")
+const rankingStatus = document.getElementById("vipRankingStatus")
+const rankingList = document.getElementById("vipRankingList")
+const rankingTabs = [...document.querySelectorAll("[data-vip-ranking-type]")]
+let activeRankingType = "semanal"
 
 async function verifyVip() {
   const ok = await validateVipSession({ statusElement, lockedElement, contentElement })
   if (ok) {
     renderVipGames(document.getElementById("vipGameList"))
+    initVipRanking()
+    await renderVipRanking()
     await renderVipActivity()
     await renderVipEvents()
   }
@@ -531,6 +629,41 @@ async function renderVipActivity() {
       <strong>${Number(item.score || 0)} pts</strong>
     </div>
   `).join("")
+}
+
+function initVipRanking() {
+  if (!rankingGame || rankingGame.options.length) return
+  rankingGame.innerHTML = VIP_GAMES
+    .map((game) => `<option value="${escapeHtml(game.key)}">${escapeHtml(game.title)}</option>`)
+    .join("")
+}
+
+async function renderVipRanking() {
+  if (!rankingGame || !rankingStatus || !rankingList) return
+  rankingStatus.textContent = "Cargando..."
+  rankingList.innerHTML = ""
+  const rows = await getVipRanking({
+    gameKey: rankingGame.value || VIP_GAMES[0]?.key || null,
+    type: activeRankingType,
+    limit: 20,
+  })
+  if (!rows.length) {
+    rankingStatus.textContent = "Sin resultados VIP."
+    rankingList.innerHTML = '<div class="vip-ranking-row"><span>Todavia no hay ranking para este juego.</span></div>'
+    return
+  }
+  rankingStatus.textContent = `${rows.length} resultado${rows.length === 1 ? "" : "s"}.`
+  rankingList.innerHTML = rows.map((row, index) => `
+    <div class="vip-ranking-row">
+      <span>#${index + 1} <strong>${escapeHtml(row.usuario)}</strong></span>
+      <strong>${formatVipRankingValue(row)}</strong>
+    </div>
+  `).join("")
+}
+
+function formatVipRankingValue(row) {
+  if (activeRankingType === "victorias") return `${row.victories} victoria${row.victories === 1 ? "" : "s"}`
+  return `${row.score} pts`
 }
 
 function renderVipConversion(conversion, wallet) {
@@ -606,6 +739,15 @@ convertButton?.addEventListener("click", async () => {
       : result.message || "No se pudo convertir monedas VIP."
   }
   await renderVipActivity()
+})
+
+rankingGame?.addEventListener("change", renderVipRanking)
+rankingTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    activeRankingType = tab.dataset.vipRankingType || "semanal"
+    rankingTabs.forEach((item) => item.classList.toggle("active", item === tab))
+    renderVipRanking()
+  })
 })
 
 verifyVip()

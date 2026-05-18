@@ -79,6 +79,20 @@ h1{
   justify-content:flex-end;
 }
 
+.auto-badge{
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  max-width:100%;
+  border:1px solid rgba(52,211,153,.28);
+  border-radius:999px;
+  padding:6px 9px;
+  color:#bbf7d0;
+  background:rgba(6,78,59,.22);
+  font-size:12px;
+  font-weight:900;
+}
+
 button,
 input{
   min-height:42px;
@@ -306,9 +320,8 @@ input{
       <span id="roomDetail">Validando acceso y preparando lobby...</span>
     </div>
     <div class="room-actions">
-      <input id="roomInput" type="text" value="vip-main" aria-label="Codigo de sala VIP">
+      <input id="roomInput" type="text" placeholder="Codigo de sala VIP" aria-label="Codigo de sala VIP">
       <button type="button" id="joinBtn">Entrar</button>
-      <button class="primary" type="button" id="createBtn">Crear sala</button>
     </div>
   </section>
 
@@ -324,7 +337,7 @@ input{
           <strong id="lastNumber">--</strong>
         </div>
       </div>
-      <button class="primary" type="button" id="drawBtn">Cantar numero</button>
+      <span class="auto-badge">Numeros automaticos por sala admin</span>
       <button class="success" type="button" id="claimBtn">Reclamar Bingo</button>
       <div class="status" id="statusEl">Validando acceso VIP...</div>
       <strong class="panel-title">Numeros cantados</strong>
@@ -345,10 +358,8 @@ const content = document.getElementById("gameContent")
 const roomTitle = document.getElementById("roomTitle")
 const roomDetail = document.getElementById("roomDetail")
 const roomInput = document.getElementById("roomInput")
-const createBtn = document.getElementById("createBtn")
 const joinBtn = document.getElementById("joinBtn")
 const refreshBtn = document.getElementById("refreshBtn")
-const drawBtn = document.getElementById("drawBtn")
 const claimBtn = document.getElementById("claimBtn")
 const statusEl = document.getElementById("statusEl")
 const cardEl = document.getElementById("bingoCard")
@@ -357,10 +368,11 @@ const calledList = document.getElementById("calledList")
 const playerList = document.getElementById("playerList")
 
 const LETTERS = ["B", "I", "N", "G", "O"]
-let currentRoomId = localStorage.getItem("vip_bingo_room") || "vip-main"
+let currentRoomId = localStorage.getItem("vip_bingo_room") || ""
 let roomState = null
 let pollTimer = null
 let resultRegistered = false
+let autoSyncing = false
 
 function identityParams(extra = {}) {
   const identity = getVipIdentity()
@@ -378,7 +390,7 @@ function setStatus(text, tone = "") {
 }
 
 function cleanRoomId(value) {
-  return String(value || "vip-main").trim().toLowerCase().replace(/[^a-z0-9-_]/g, "").slice(0, 32) || "vip-main"
+  return String(value || "").trim().toLowerCase().replace(/[^a-z0-9-_]/g, "").slice(0, 32)
 }
 
 async function callRpc(name, params) {
@@ -389,18 +401,10 @@ async function callRpc(name, params) {
   return data
 }
 
-async function createRoom() {
-  await withBusy(createBtn, async () => {
-    const roomId = cleanRoomId(roomInput.value)
-    const data = await callRpc("vip_bingo_crear_sala", identityParams({ p_room_id: roomId }))
-    await applyRoom(data)
-    setStatus("Sala VIP creada. Ya tienes tu carton listo.", "ok")
-  })
-}
-
 async function joinRoom() {
   await withBusy(joinBtn, async () => {
     const roomId = cleanRoomId(roomInput.value)
+    if (!roomId) throw new Error("Ingresa el codigo de sala VIP creado por Admin.")
     const data = await callRpc("vip_bingo_unirse_sala", identityParams({ p_room_id: roomId }))
     await applyRoom(data)
     setStatus("Entraste a la sala VIP. Marca solo numeros cantados.", "ok")
@@ -416,14 +420,6 @@ async function refreshRoom({ quiet = false } = {}) {
   } catch (error) {
     if (!quiet) setStatus(error.message, "bad")
   }
-}
-
-async function drawNumber() {
-  await withBusy(drawBtn, async () => {
-    const data = await callRpc("vip_bingo_cantar_numero", identityParams({ p_room_id: currentRoomId }))
-    await applyRoom(data)
-    setStatus(`Numero cantado: ${data.number}.`, "ok")
-  })
 }
 
 async function markNumber(number) {
@@ -497,6 +493,7 @@ async function applyRoom(data) {
   renderCard()
   renderSide()
   startPolling()
+  queueAutoSync()
 }
 
 function normalizeRoom(data = {}) {
@@ -549,13 +546,67 @@ function renderSide() {
     ? players.map((player) => `<span class="player-pill">${escapeHtml(player.usuario_id || "VIP")}</span>`).join("")
     : '<span class="player-pill">Sin jugadores</span>'
   const finished = !roomState || roomState.status === "finished"
-  drawBtn.disabled = finished || numbers.length >= 75
   claimBtn.disabled = finished
 }
 
 function startPolling() {
   clearInterval(pollTimer)
-  pollTimer = setInterval(() => refreshRoom({ quiet: true }), 5000)
+  pollTimer = setInterval(() => refreshRoom({ quiet: true }), 2500)
+}
+
+function queueAutoSync() {
+  if (autoSyncing || !roomState || roomState.status === "finished") return
+  const missing = getAutoMarkNumbers()
+  if (!missing.length && !hasBingoLine(roomState.card, roomState.markedNumbers)) return
+  autoSyncing = true
+  setTimeout(async () => {
+    try {
+      await autoMarkAndClaim()
+    } finally {
+      autoSyncing = false
+    }
+  }, 250)
+}
+
+function getAutoMarkNumbers() {
+  if (!roomState) return []
+  const cardNumbers = new Set((roomState.card || []).map(Number))
+  const marked = new Set((roomState.markedNumbers || []).map(Number))
+  return (roomState.calledNumbers || [])
+    .map(Number)
+    .filter((number) => cardNumbers.has(number) && !marked.has(number))
+}
+
+async function autoMarkAndClaim() {
+  if (!roomState || roomState.status === "finished") return
+  const missing = getAutoMarkNumbers()
+  for (const number of missing) {
+    const data = await callRpc("vip_bingo_marcar_numero", identityParams({
+      p_room_id: currentRoomId,
+      p_number: number,
+    }))
+    roomState = normalizeRoom(data)
+  }
+  renderCard()
+  renderSide()
+  if (hasBingoLine(roomState.card, roomState.markedNumbers)) {
+    await claimBingo()
+  }
+}
+
+function hasBingoLine(card = [], markedNumbers = []) {
+  const marked = new Set((markedNumbers || []).map(Number))
+  const isMarked = (index) => {
+    const value = Number(card[index])
+    return value === 0 || marked.has(value)
+  }
+  for (let row = 0; row < 5; row += 1) {
+    if ([0, 1, 2, 3, 4].every((offset) => isMarked(row * 5 + offset))) return true
+  }
+  for (let col = 0; col < 5; col += 1) {
+    if ([0, 5, 10, 15, 20].every((offset) => isMarked(col + offset))) return true
+  }
+  return [0, 6, 12, 18, 24].every(isMarked) || [4, 8, 12, 16, 20].every(isMarked)
 }
 
 async function withBusy(button, action) {
@@ -573,25 +624,21 @@ async function withBusy(button, action) {
 
 const ok = await validateVipSession({ statusElement: statusEl, contentElement: content })
 if (ok) {
-  roomInput.value = currentRoomId
-  setStatus("Acceso VIP activo. Entra o crea una sala para jugar.", "ok")
-  try {
+  roomInput.value = currentRoomId || ""
+  setStatus("Acceso VIP activo. Ingresa el codigo de sala entregado por Admin.", "ok")
+  if (currentRoomId) try {
     await joinRoom()
   } catch {
     content.hidden = true
   }
 } else {
-  createBtn.disabled = true
   joinBtn.disabled = true
   refreshBtn.disabled = true
-  drawBtn.disabled = true
   claimBtn.disabled = true
 }
 
-createBtn.addEventListener("click", createRoom)
 joinBtn.addEventListener("click", joinRoom)
 refreshBtn.addEventListener("click", () => refreshRoom())
-drawBtn.addEventListener("click", drawNumber)
 claimBtn.addEventListener("click", claimBingo)
 window.addEventListener("beforeunload", () => clearInterval(pollTimer))
 </script>

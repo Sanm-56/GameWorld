@@ -107,6 +107,31 @@ export async function getVipGameHistory({ gameKey = null, limit = 8 } = {}) {
   }
 }
 
+export async function getVipRanking({ gameKey = null, type = "semanal", limit = 20 } = {}) {
+  const identity = getVipIdentity()
+  if (!identity.usuario || !identity.codigo) return []
+
+  try {
+    const { data, error } = await supabase.rpc("obtener_ranking_vip", {
+      p_usuario: identity.usuario,
+      p_codigo: identity.codigo,
+      p_game_key: gameKey,
+      p_type: type,
+      p_limit: Math.max(1, Math.min(50, Math.trunc(Number(limit) || 20))),
+    })
+
+    if (error || data?.ok === false) {
+      console.warn("[VIP] No se pudo cargar ranking VIP.", error || data)
+      return []
+    }
+
+    return Array.isArray(data?.items) ? data.items.map(normalizeRankingRow) : []
+  } catch (error) {
+    console.warn("[VIP] Error cargando ranking VIP.", error)
+    return []
+  }
+}
+
 export async function getVipWallet() {
   const identity = getVipIdentity()
   if (!identity.usuario || !identity.codigo) {
@@ -303,5 +328,15 @@ function normalizeRemoteResult(row = {}) {
     rewards: normalizeRewards(row.rewards || row),
     origin: row.origin || VIP_RESULT_ORIGIN,
     created_at: row.created_at || row.createdAt || new Date().toISOString(),
+  }
+}
+
+function normalizeRankingRow(row = {}) {
+  return {
+    usuario: row.usuario || row.usuario_id || "VIP",
+    score: Math.max(0, Math.trunc(Number(row.score) || 0)),
+    victories: Math.max(0, Math.trunc(Number(row.victories) || 0)),
+    games: Math.max(0, Math.trunc(Number(row.games) || 0)),
+    lastPlayedAt: row.last_played_at || row.lastPlayedAt || null,
   }
 }

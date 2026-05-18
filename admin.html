@@ -1131,6 +1131,43 @@ th:last-child{
       <p class="export-note">Los eventos VIP se muestran solo a usuarios VIP activos y no afectan el torneo principal.</p>
     </div>
 
+    <div class="section reward-admin-panel" id="adminVipRoomsPanel">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Mini torneo VIP</span>
+          <h3>Salas Bingo VIP</h3>
+        </div>
+        <button class="ghost" onclick="cargarSalasBingoVipAdmin()">Actualizar salas</button>
+      </div>
+
+      <div class="reward-admin-grid">
+        <div class="reward-admin-block">
+          <h4>Crear sala controlada</h4>
+          <label>
+            Codigo de sala
+            <input id="vipBingoRoomCode" type="text" placeholder="bingo-vip-01" autocomplete="off">
+          </label>
+          <label>
+            Creada por
+            <input id="vipBingoRoomAdmin" type="text" placeholder="admin" autocomplete="off">
+          </label>
+          <div class="reward-admin-actions">
+            <button class="success" onclick="crearSalaBingoVipAdmin()">Crear / reiniciar</button>
+          </div>
+          <p class="export-note">Comparte el codigo solo con jugadores VIP. El jugador no puede crear salas desde Bingo.</p>
+        </div>
+
+        <div class="reward-admin-block">
+          <h4>Salas activas</h4>
+          <div class="reward-summary-box" id="vipBingoRoomsStatus">Inicia sesion para administrar salas VIP.</div>
+          <div class="reward-history-list" id="vipBingoRoomsList">
+            <div class="export-note">Las salas apareceran despues de iniciar sesion.</div>
+          </div>
+        </div>
+      </div>
+      <p class="export-note">El admin crea la sala y el sistema canta numeros automaticamente desde este panel hasta encontrar ganador o terminar los 75 numeros.</p>
+    </div>
+
     <div class="section reward-admin-panel" id="adminRewardsPanel">
       <div class="section-heading">
         <div>

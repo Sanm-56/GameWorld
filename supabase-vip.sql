@@ -977,40 +977,7 @@ declare
   sala_limpia text := lower(regexp_replace(btrim(coalesce(p_room_id, 'vip-main')), '[^a-zA-Z0-9_-]', '', 'g'));
   sala_estaba_finalizada boolean := false;
 begin
-  estado := public.obtener_estado_vip(usuario_limpio, p_codigo);
-
-  if coalesce((estado->>'is_vip')::boolean, false) is not true then
-    return jsonb_build_object('ok', false, 'mensaje', coalesce(estado->>'mensaje', 'No se pudo validar tu acceso VIP.'));
-  end if;
-
-  sala_limpia := coalesce(nullif(left(sala_limpia, 32), ''), 'vip-main');
-
-  select exists (
-    select 1
-    from public.vip_bingo_rooms
-    where id = sala_limpia
-      and status = 'finished'
-  )
-  into sala_estaba_finalizada;
-
-  insert into public.vip_bingo_rooms (id, created_by, status)
-  values (sala_limpia, usuario_limpio, 'active')
-  on conflict (id) do update
-    set status = 'active',
-        called_numbers = case when public.vip_bingo_rooms.status = 'finished' then '[]'::jsonb else public.vip_bingo_rooms.called_numbers end,
-        winner_usuario_id = case when public.vip_bingo_rooms.status = 'finished' then null else public.vip_bingo_rooms.winner_usuario_id end,
-        updated_at = now();
-
-  if sala_estaba_finalizada then
-    delete from public.vip_bingo_players
-    where room_id = sala_limpia;
-  end if;
-
-  insert into public.vip_bingo_players (room_id, usuario_id, card, marked_numbers)
-  values (sala_limpia, usuario_limpio, public.vip_bingo_generar_carton(), '[0]'::jsonb)
-  on conflict (room_id, usuario_id) do nothing;
-
-  return public.vip_bingo_payload(sala_limpia, usuario_limpio);
+  return jsonb_build_object('ok', false, 'mensaje', 'Solo Admin puede crear salas de Bingo VIP.');
 end;
 $$;
 
@@ -1037,9 +1004,14 @@ begin
 
   sala_limpia := coalesce(nullif(left(sala_limpia, 32), ''), 'vip-main');
 
-  insert into public.vip_bingo_rooms (id, created_by, status)
-  values (sala_limpia, usuario_limpio, 'active')
-  on conflict (id) do nothing;
+  if not exists (
+    select 1
+    from public.vip_bingo_rooms
+    where id = sala_limpia
+      and status <> 'finished'
+  ) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Sala VIP no encontrada o finalizada. Pide un codigo activo al admin.');
+  end if;
 
   insert into public.vip_bingo_players (room_id, usuario_id, card, marked_numbers)
   values (sala_limpia, usuario_limpio, public.vip_bingo_generar_carton(), '[0]'::jsonb)
@@ -1072,8 +1044,12 @@ begin
 
   sala_limpia := coalesce(nullif(left(sala_limpia, 32), ''), 'vip-main');
 
+  if not exists (select 1 from public.vip_bingo_rooms where id = sala_limpia) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Sala VIP no encontrada.');
+  end if;
+
   if not exists (select 1 from public.vip_bingo_players where room_id = sala_limpia and usuario_id = usuario_limpio) then
-    return public.vip_bingo_unirse_sala(usuario_limpio, p_codigo, sala_limpia);
+    return jsonb_build_object('ok', false, 'mensaje', 'Primero entra a la sala VIP con tu codigo.');
   end if;
 
   return public.vip_bingo_payload(sala_limpia, usuario_limpio);
@@ -1099,17 +1075,122 @@ declare
   intentos integer := 0;
   payload jsonb;
 begin
-  estado := public.obtener_estado_vip(usuario_limpio, p_codigo);
+  return jsonb_build_object('ok', false, 'mensaje', 'Solo Admin puede cantar numeros en Bingo VIP.');
+end;
+$$;
 
-  if coalesce((estado->>'is_vip')::boolean, false) is not true then
-    return jsonb_build_object('ok', false, 'mensaje', coalesce(estado->>'mensaje', 'No se pudo validar tu acceso VIP.'));
+create or replace function public.admin_vip_bingo_crear_sala(
+  p_clave text,
+  p_room_id text,
+  p_created_by text default 'admin'
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  sala_limpia text := lower(regexp_replace(btrim(coalesce(p_room_id, '')), '[^a-zA-Z0-9_-]', '', 'g'));
+  creador_limpio text := coalesce(nullif(btrim(coalesce(p_created_by, 'admin')), ''), 'admin');
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida');
+  end if;
+
+  sala_limpia := nullif(left(sala_limpia, 32), '');
+  if sala_limpia is null then
+    return jsonb_build_object('ok', false, 'mensaje', 'Codigo de sala VIP invalido.');
+  end if;
+
+  insert into public.vip_bingo_rooms (id, created_by, status, called_numbers, winner_usuario_id)
+  values (sala_limpia, creador_limpio, 'active', '[]'::jsonb, null)
+  on conflict (id) do update
+    set created_by = excluded.created_by,
+        status = 'active',
+        called_numbers = '[]'::jsonb,
+        winner_usuario_id = null,
+        updated_at = now();
+
+  delete from public.vip_bingo_players
+  where room_id = sala_limpia;
+
+  return jsonb_build_object('ok', true, 'mensaje', 'Sala Bingo VIP creada.', 'room', jsonb_build_object('id', sala_limpia));
+end;
+$$;
+
+create or replace function public.admin_vip_bingo_listar_salas(p_clave text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida', 'items', '[]'::jsonb);
+  end if;
+
+  return jsonb_build_object(
+    'ok', true,
+    'items',
+    coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'id', r.id,
+          'created_by', r.created_by,
+          'status', r.status,
+          'called_count', jsonb_array_length(coalesce(r.called_numbers, '[]'::jsonb)),
+          'winner_usuario_id', r.winner_usuario_id,
+          'players', coalesce(p.players, 0),
+          'created_at', r.created_at,
+          'updated_at', r.updated_at
+        )
+        order by r.updated_at desc
+      )
+      from public.vip_bingo_rooms r
+      left join (
+        select room_id, count(*)::integer as players
+        from public.vip_bingo_players
+        group by room_id
+      ) p on p.room_id = r.id
+    ), '[]'::jsonb)
+  );
+end;
+$$;
+
+create or replace function public.admin_vip_bingo_cantar_numero(
+  p_clave text,
+  p_room_id text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  sala_limpia text := lower(regexp_replace(btrim(coalesce(p_room_id, '')), '[^a-zA-Z0-9_-]', '', 'g'));
+  llamados jsonb;
+  numero integer;
+  intentos integer := 0;
+  sala record;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida');
   end if;
 
   sala_limpia := coalesce(nullif(left(sala_limpia, 32), ''), 'vip-main');
 
-  perform 1 from public.vip_bingo_rooms where id = sala_limpia for update;
+  select *
+  into sala
+  from public.vip_bingo_rooms
+  where id = sala_limpia
+  for update;
+
   if not found then
-    return public.vip_bingo_unirse_sala(usuario_limpio, p_codigo, sala_limpia);
+    return jsonb_build_object('ok', false, 'mensaje', 'Sala VIP no encontrada.');
+  end if;
+
+  if sala.status = 'finished' then
+    return jsonb_build_object('ok', true, 'number', null, 'room', jsonb_build_object('id', sala.id, 'status', sala.status));
   end if;
 
   select called_numbers
@@ -1121,7 +1202,7 @@ begin
     update public.vip_bingo_rooms
     set status = 'finished'
     where id = sala_limpia;
-    return public.vip_bingo_payload(sala_limpia, usuario_limpio) || jsonb_build_object('number', null);
+    return jsonb_build_object('ok', true, 'number', null, 'room', jsonb_build_object('id', sala_limpia, 'status', 'finished'));
   end if;
 
   loop
@@ -1151,8 +1232,74 @@ begin
       updated_at = now()
   where id = sala_limpia;
 
-  payload := public.vip_bingo_payload(sala_limpia, usuario_limpio);
-  return payload || jsonb_build_object('number', numero);
+  return jsonb_build_object(
+    'ok', true,
+    'number', numero,
+    'room', jsonb_build_object(
+      'id', sala_limpia,
+      'status', 'active'
+    )
+  );
+end;
+$$;
+
+create or replace function public.admin_vip_bingo_finalizar_sala(
+  p_clave text,
+  p_room_id text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  sala_limpia text := lower(regexp_replace(btrim(coalesce(p_room_id, '')), '[^a-zA-Z0-9_-]', '', 'g'));
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida');
+  end if;
+
+  sala_limpia := coalesce(nullif(left(sala_limpia, 32), ''), 'vip-main');
+
+  update public.vip_bingo_rooms
+  set status = 'finished',
+      updated_at = now()
+  where id = sala_limpia;
+
+  if not found then
+    return jsonb_build_object('ok', false, 'mensaje', 'Sala VIP no encontrada.');
+  end if;
+
+  return jsonb_build_object('ok', true, 'mensaje', 'Sala Bingo VIP finalizada.');
+end;
+$$;
+
+create or replace function public.admin_vip_bingo_borrar_sala(
+  p_clave text,
+  p_room_id text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  sala_limpia text := lower(regexp_replace(btrim(coalesce(p_room_id, '')), '[^a-zA-Z0-9_-]', '', 'g'));
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida');
+  end if;
+
+  sala_limpia := coalesce(nullif(left(sala_limpia, 32), ''), 'vip-main');
+
+  delete from public.vip_bingo_rooms
+  where id = sala_limpia;
+
+  if not found then
+    return jsonb_build_object('ok', false, 'mensaje', 'Sala VIP no encontrada.');
+  end if;
+
+  return jsonb_build_object('ok', true, 'mensaje', 'Sala Bingo VIP borrada.');
 end;
 $$;
 
@@ -1352,6 +1499,106 @@ begin
         order by created_at desc
         limit limite
       ) recientes
+    ), '[]'::jsonb)
+  );
+end;
+$$;
+
+create or replace function public.obtener_ranking_vip(
+  p_usuario text,
+  p_codigo text default null,
+  p_game_key text default null,
+  p_type text default 'semanal',
+  p_limit integer default 20
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  estado jsonb;
+  usuario_limpio text := btrim(coalesce(p_usuario, ''));
+  juego_limpio text := nullif(lower(regexp_replace(btrim(coalesce(p_game_key, '')), '[^a-zA-Z0-9_-]', '', 'g')), '');
+  tipo_limpio text := lower(regexp_replace(btrim(coalesce(p_type, 'semanal')), '[^a-zA-Z0-9_-]', '', 'g'));
+  limite integer := greatest(1, least(50, coalesce(p_limit, 20)));
+  desde timestamptz := null;
+begin
+  estado := public.obtener_estado_vip(usuario_limpio, p_codigo);
+
+  if coalesce((estado->>'is_vip')::boolean, false) is not true then
+    return jsonb_build_object('ok', false, 'mensaje', coalesce(estado->>'mensaje', 'No se pudo validar tu acceso VIP.'), 'items', '[]'::jsonb);
+  end if;
+
+  if tipo_limpio not in ('semanal', 'victorias', 'global') then
+    tipo_limpio := 'semanal';
+  end if;
+
+  if tipo_limpio = 'semanal' then
+    desde := date_trunc('week', now());
+  end if;
+
+  return jsonb_build_object(
+    'ok', true,
+    'items',
+    coalesce((
+      with base as (
+        select usuario_id, game_key, score, created_at
+        from public.vip_game_results
+        where (juego_limpio is null or game_key = juego_limpio)
+          and (desde is null or created_at >= desde)
+      ),
+      daily_winners as (
+        select usuario_id, game_key, created_at::date as result_day
+        from (
+          select
+            usuario_id,
+            game_key,
+            created_at,
+            rank() over (partition by game_key, created_at::date order by score desc, created_at asc) as daily_rank
+          from base
+          where score > 0
+        ) ranked_days
+        where daily_rank = 1
+      ),
+      wins as (
+        select usuario_id, count(*)::integer as victories
+        from daily_winners
+        group by usuario_id
+      ),
+      agg as (
+        select
+          b.usuario_id,
+          sum(b.score)::bigint as score,
+          count(*)::integer as games,
+          coalesce(w.victories, 0)::integer as victories,
+          max(b.created_at) as last_played_at
+        from base b
+        left join wins w on w.usuario_id = b.usuario_id
+        group by b.usuario_id, w.victories
+      )
+      select jsonb_agg(
+        jsonb_build_object(
+          'usuario', usuario_id,
+          'score', score,
+          'games', games,
+          'victories', victories,
+          'last_played_at', last_played_at
+        )
+        order by
+          case when tipo_limpio = 'victorias' then victories else score end desc,
+          last_played_at asc,
+          usuario_id asc
+      )
+      from (
+        select *
+        from agg
+        order by
+          case when tipo_limpio = 'victorias' then victories else score end desc,
+          last_played_at asc,
+          usuario_id asc
+        limit limite
+      ) ranked
     ), '[]'::jsonb)
   );
 end;
@@ -2182,12 +2429,18 @@ grant execute on function public.registrar_resultado_juego_vip(text, text, text,
 grant execute on function public.obtener_billetera_vip(text, text) to anon, authenticated;
 grant execute on function public.convertir_monedas_vip(text, text, bigint) to anon, authenticated;
 grant execute on function public.obtener_historial_juegos_vip(text, text, text, integer) to anon, authenticated;
+grant execute on function public.obtener_ranking_vip(text, text, text, text, integer) to anon, authenticated;
 grant execute on function public.vip_bingo_crear_sala(text, text, text) to anon, authenticated;
 grant execute on function public.vip_bingo_unirse_sala(text, text, text) to anon, authenticated;
 grant execute on function public.vip_bingo_obtener_sala(text, text, text) to anon, authenticated;
 grant execute on function public.vip_bingo_cantar_numero(text, text, text) to anon, authenticated;
 grant execute on function public.vip_bingo_marcar_numero(text, text, text, integer) to anon, authenticated;
 grant execute on function public.vip_bingo_reclamar(text, text, text) to anon, authenticated;
+grant execute on function public.admin_vip_bingo_crear_sala(text, text, text) to anon, authenticated;
+grant execute on function public.admin_vip_bingo_listar_salas(text) to anon, authenticated;
+grant execute on function public.admin_vip_bingo_cantar_numero(text, text) to anon, authenticated;
+grant execute on function public.admin_vip_bingo_finalizar_sala(text, text) to anon, authenticated;
+grant execute on function public.admin_vip_bingo_borrar_sala(text, text) to anon, authenticated;
 grant execute on function public.vip_roulette_obtener_estado(text, text) to anon, authenticated;
 grant execute on function public.vip_roulette_girar(text, text) to anon, authenticated;
 grant execute on function public.vip_social_ping(text, text, text) to anon, authenticated;
