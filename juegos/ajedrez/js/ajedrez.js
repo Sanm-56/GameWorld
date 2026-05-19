@@ -227,7 +227,7 @@ function initializeChess() {
     return
   }
 
-  if (typeof Chessboard === 'undefined') {
+  if (typeof ChessBoard === 'undefined') {
     console.error('Chessboard library not loaded.')
     return
   }
@@ -235,7 +235,7 @@ function initializeChess() {
   game = new Chess()
   reiniciarMetricasAjedrez()
   iniciarStockfish()
-  board = Chessboard('board', {
+  board = ChessBoard('board', {
     draggable: true,
     position: 'start',
     pieceTheme: 'vendor/img/chesspieces/wikipedia/{piece}.png',

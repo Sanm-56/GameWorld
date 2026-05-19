@@ -85,15 +85,15 @@ const usuario = localStorage.getItem('usuario') || 'anonimo'
 const JUEGO_ACTUAL = 'domino'
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 iniciarFinalProtegido(JUEGO_ACTUAL)
-const statusEl = document.getElementById('status')
-const resultEl = document.getElementById('result')
-const handEl = document.getElementById('hand')
-const tableEl = document.getElementById('table')
-const myPiecesEl = document.getElementById('myPieces')
-const botPiecesEl = document.getElementById('botPieces')
-const myScoreEl = document.getElementById('myScore')
-const botScoreEl = document.getElementById('botScore')
-const passBtn = document.getElementById('passBtn')
+let statusEl = null
+let resultEl = null
+let handEl = null
+let tableEl = null
+let myPiecesEl = null
+let botPiecesEl = null
+let myScoreEl = null
+let botScoreEl = null
+let passBtn = null
 
 let resultadoEnviado = false
 let descalificado = false
@@ -612,7 +612,22 @@ if (window.reproducirMusicaDomino) {
   window.reproducirMusica = window.reproducirMusicaDomino
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+function initDominoGame() {
+  statusEl = document.getElementById('status')
+  resultEl = document.getElementById('result')
+  handEl = document.getElementById('hand')
+  tableEl = document.getElementById('table')
+  myPiecesEl = document.getElementById('myPieces')
+  botPiecesEl = document.getElementById('botPieces')
+  myScoreEl = document.getElementById('myScore')
+  botScoreEl = document.getElementById('botScore')
+  passBtn = document.getElementById('passBtn')
+
+  if (!statusEl || !resultEl || !handEl || !tableEl || !myPiecesEl || !botPiecesEl || !myScoreEl || !botScoreEl || !passBtn) {
+    console.error('[Domino] No se encontraron elementos del DOM necesarios para iniciar el juego.')
+    return
+  }
+
   if (!iniciarBloqueoPestana()) {
     return
   }
@@ -621,4 +636,10 @@ window.addEventListener('DOMContentLoaded', () => {
   crearDominos()
   iniciarCronometro()
   setInterval(revisarEstadoTorneo, 3000)
-})
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initDominoGame)
+} else {
+  initDominoGame()
+}

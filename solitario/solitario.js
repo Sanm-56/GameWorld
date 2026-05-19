@@ -939,7 +939,32 @@ async function startRoom() {
   setText(els.roomStatus, "Iniciando mini torneo...")
   try {
   const updated = await updateRoomState("en_juego")
-  if (!updated) return
+  if (!updated) {
+    // Si la actualización no devolvió fila (condición de carrera o actualización previa),
+    // consultamos la sala directamente en la BD. Si ya fue marcada como `en_juego`
+    // por otro proceso, actualizamos estado local y redirigimos al juego.
+    try {
+      const { data: refreshed, error: refresError } = await supabase
+        .from("salas")
+        .select("*")
+        .eq("id", state.activeRoom?.id)
+        .maybeSingle()
+
+      if (refresError) {
+        console.warn("No se pudo refrescar sala tras fallo de updateRoomState:", refresError)
+        return
+      }
+
+      if (refreshed && refreshed.estado === "en_juego") {
+        state.activeRoom = refreshed
+        redirectToActiveGame()
+        return
+      }
+    } catch (err) {
+      console.warn("Excepcion al refrescar sala:", err)
+    }
+    return
+  }
   redirectToActiveGame()
   } finally {
     state.startingRoom = false

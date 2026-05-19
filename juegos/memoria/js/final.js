@@ -10,8 +10,8 @@ if (!validarFinalReciente("memoria")) await new Promise(() => {})
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
 const usuario = localStorage.getItem("usuario")
-const juegoActual = localStorage.getItem("juego_actual") || "memoria"
-const posicionDiv = document.createElement("h2")
+  const juegoActual = localStorage.getItem("juego_actual") || "memoria"
+  const posicionDiv = document.createElement("h2")
 instalarEstilosPersonalizacion()
 posicionDiv.className = "posicion-final"
 
@@ -24,14 +24,21 @@ function formatearTiempo(segundos) {
 }
 
 async function cargarResultados() {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("ranking")
     .select("*")
-    .eq("invalido", false)
     .eq("juego", juegoActual)
     .order("tiempo", { ascending: true })
 
-  if (!data || data.length === 0) {
+  if (error) {
+    console.error("Error cargando ranking memoria:", error)
+    podioDiv.innerHTML = "Sin resultados"
+    return
+  }
+
+  const filas = (data || []).filter(r => !r.invalido)
+
+  if (filas.length === 0) {
     podioDiv.innerHTML = "Sin resultados"
     return
   }

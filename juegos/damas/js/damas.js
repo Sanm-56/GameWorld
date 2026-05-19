@@ -85,10 +85,10 @@ const usuario = localStorage.getItem('usuario') || 'anonimo'
 const JUEGO_ACTUAL = 'damas'
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 iniciarFinalProtegido(JUEGO_ACTUAL)
-const boardEl = document.getElementById('board')
-const statusEl = document.getElementById('status')
-const historyEl = document.getElementById('history')
-const resultEl = document.getElementById('result')
+let boardEl = null
+let statusEl = null
+let historyEl = null
+let resultEl = null
 
 let resultadoEnviado = false
 let descalificado = false
@@ -656,6 +656,11 @@ if (window.reproducirMusicaDamas) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  boardEl = document.getElementById('board')
+  statusEl = document.getElementById('status')
+  historyEl = document.getElementById('history')
+  resultEl = document.getElementById('result')
+
   if (!iniciarBloqueoPestana()) {
     return
   }
