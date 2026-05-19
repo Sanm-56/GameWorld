@@ -1,5 +1,5 @@
 import { supabase } from "../js/supabase.js"
-import { marcarLanzamientoJuego } from "../js/mini-torneo.js"
+import { marcarLanzamientoJuego, torneoBloqueadoLocalmente } from "../js/mini-torneo.js"
 
 const container = document.querySelector(".container")
 const juegoLobby = window.location.pathname.split("/").filter(Boolean).slice(-2, -1)[0]
@@ -79,6 +79,11 @@ document.getElementById("mensaje").innerText =
 if(estado === "iniciado"){
 
 if(juego === juegoLobby && rutasJuego[juego]){
+if(torneoBloqueadoLocalmente(juego, data.inicio_torneo)){
+document.getElementById("mensaje").innerText =
+"Estado: " + estado + " | Ya finalizaste o saliste de este torneo de " + juegoLobby
+return
+}
 localStorage.setItem("juego_actual", juego)
 marcarLanzamientoJuego(juego, "torneo")
 window.location.href = rutasJuego[juego]

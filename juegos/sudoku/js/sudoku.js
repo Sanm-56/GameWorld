@@ -91,7 +91,8 @@ tiempo: tiempo,
 sospechoso: sospechoso,
 invalido: invalido,
 motivo: motivo,
-juego: "sudoku"
+juego: "sudoku",
+fecha: new Date().toISOString()
 }, { onConflict: "usuario,juego" })
 
 if(error){

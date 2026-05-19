@@ -290,6 +290,7 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
     invalido,
     motivo,
     juego: "flashmind",
+    fecha: new Date().toISOString(),
   }
 
   let result = await supabase
@@ -311,6 +312,7 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
       sospechoso,
       invalido,
       motivo,
+      fecha: payload.fecha,
     })
     .select("usuario")
     .eq("usuario", usuario)

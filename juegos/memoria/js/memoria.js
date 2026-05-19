@@ -371,7 +371,8 @@ tiempo: tiempo,
 sospechoso: sospechoso,
 invalido: invalido,
 motivo: motivo,
-juego: "memoria"
+juego: "memoria",
+fecha: new Date().toISOString()
 }, { onConflict: "usuario,juego" })
 
 if(error){

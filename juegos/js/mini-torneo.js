@@ -12,6 +12,7 @@ export function esMiniTorneo(juego) {
 const DURACION_JUEGO_MS = 10 * 60 * 1000
 const LANZAMIENTO_JUEGO_KEY = "solitario_game_launch"
 const ORIGENES_LANZAMIENTO_VALIDOS = ["torneo", "sala", "nivel"]
+const ESTADOS_TERMINALES_TORNEO = ["finalizado", "eliminado", "descalificado", "perdido", "abandonado"]
 
 export function esNivelSolitario(juego) {
   const context = leerContextoNivel()
@@ -78,6 +79,7 @@ export async function obtenerInicioTorneo(supabase, juego) {
 
 export function marcarLanzamientoJuego(juego, origin = "torneo") {
   const origenSeguro = ORIGENES_LANZAMIENTO_VALIDOS.includes(origin) ? origin : "torneo"
+  if (origenSeguro === "torneo") limpiarContextoSolitario()
   localStorage.setItem(LANZAMIENTO_JUEGO_KEY, JSON.stringify({
     game: juego,
     origin: origenSeguro,
@@ -105,7 +107,17 @@ export async function validarAccesoJuego(supabase, juego) {
     return false
   }
 
-  const origin = esNivelSolitario(juego) ? "nivel" : esMiniTorneo(juego) ? "sala" : "torneo"
+  const lanzamiento = leerContextoLanzamiento()
+  const origin = lanzamiento?.origin === "torneo"
+    ? "torneo"
+    : esNivelSolitario(juego)
+      ? "nivel"
+      : esMiniTorneo(juego)
+        ? "sala"
+        : "torneo"
+
+  if (origin === "torneo") limpiarContextoSolitario()
+
   if (!lanzamientoJuegoValido(juego, origin)) {
     window.location.replace(salidaTorneoUrl())
     return false
@@ -117,7 +129,39 @@ export async function validarAccesoJuego(supabase, juego) {
     return false
   }
 
+  if (origin === "torneo" && await jugadorTieneCierreTorneo(supabase, juego, inicio)) {
+    marcarBloqueoLanzamientoTorneo(juego, inicio)
+    window.location.replace("lobby.html")
+    return false
+  }
+
+  if (origin === "torneo") {
+    marcarSesionTorneoActiva(juego, inicio)
+    instalarMarcadoAbandonoTorneo(juego, inicio)
+  }
+
   return true
+}
+
+export function marcarCierreTorneoLocal(juego, estado = "finalizado", motivo = "") {
+  const lanzamiento = leerContextoLanzamiento()
+  if (lanzamiento?.origin !== "torneo") return
+
+  const inicio = localStorage.getItem(`torneo_inicio_actual_${juego}`) || lanzamiento.launchedAt
+  const key = obtenerClaveEstadoTorneo(juego, inicio)
+  localStorage.setItem(key, JSON.stringify({
+    juego,
+    estado,
+    motivo,
+    inicio,
+    fecha: new Date().toISOString(),
+  }))
+}
+
+export function torneoBloqueadoLocalmente(juego, inicio) {
+  const bloqueo = localStorage.getItem(`torneo_bloqueado_${juego}`)
+  const inicioMs = Date.parse(inicio)
+  return Number.isFinite(inicioMs) && bloqueo === String(inicioMs)
 }
 
 export async function obtenerTiempoRestanteTorneo(supabase, juego, duracionSegundos) {
@@ -217,6 +261,9 @@ export function bloquearFinalizacionInicialSolitario(juego, motivo = "finalizaci
 }
 
 export function salidaTorneoUrl() {
+  const lanzamiento = leerContextoLanzamiento()
+  if (lanzamiento?.origin === "torneo") return "lobby.html"
+
   if (esNivelSolitario(localStorage.getItem("solitario_juego"))) {
     return "../../solitario/solitario.html"
   }
@@ -374,4 +421,97 @@ function limpiarContextoMiniTorneo() {
   localStorage.removeItem("solitario_juego")
   localStorage.removeItem("solitario_origen")
   localStorage.removeItem("solitario_game_launch")
+}
+
+function limpiarContextoSolitario() {
+  localStorage.removeItem("solitario_sala_id")
+  localStorage.removeItem("solitario_sala_codigo")
+  localStorage.removeItem("solitario_juego")
+  localStorage.removeItem("solitario_origen")
+  localStorage.removeItem("solitario_nivel_context")
+}
+
+function obtenerClaveEstadoTorneo(juego, inicio) {
+  const inicioMs = Date.parse(inicio)
+  const sufijo = Number.isFinite(inicioMs) ? String(inicioMs) : "actual"
+  return `torneo_estado_${juego}_${sufijo}`
+}
+
+function leerEstadoTorneoLocal(juego, inicio) {
+  try {
+    return JSON.parse(localStorage.getItem(obtenerClaveEstadoTorneo(juego, inicio)) || "null")
+  } catch {
+    return null
+  }
+}
+
+function marcarSesionTorneoActiva(juego, inicio) {
+  const key = obtenerClaveEstadoTorneo(juego, inicio)
+  const actual = leerEstadoTorneoLocal(juego, inicio)
+  if (ESTADOS_TERMINALES_TORNEO.includes(actual?.estado)) return
+
+  localStorage.setItem(`torneo_inicio_actual_${juego}`, inicio)
+  localStorage.removeItem(`torneo_bloqueado_${juego}`)
+  localStorage.setItem(key, JSON.stringify({
+    juego,
+    estado: "activo",
+    inicio,
+    fecha: new Date().toISOString(),
+  }))
+}
+
+function marcarBloqueoLanzamientoTorneo(juego, inicio) {
+  const inicioMs = Date.parse(inicio)
+  if (Number.isFinite(inicioMs)) {
+    localStorage.setItem(`torneo_bloqueado_${juego}`, String(inicioMs))
+  }
+}
+
+function instalarMarcadoAbandonoTorneo(juego, inicio) {
+  const flag = `torneo_abandono_listener_${juego}`
+  if (window[flag]) return
+  window[flag] = true
+
+  window.addEventListener("pagehide", () => {
+    const actual = leerEstadoTorneoLocal(juego, inicio)
+    if (ESTADOS_TERMINALES_TORNEO.includes(actual?.estado)) return
+
+    localStorage.setItem(obtenerClaveEstadoTorneo(juego, inicio), JSON.stringify({
+      juego,
+      estado: "abandonado",
+      motivo: "Salida antes de finalizar",
+      inicio,
+      fecha: new Date().toISOString(),
+    }))
+  })
+}
+
+async function jugadorTieneCierreTorneo(supabase, juego, inicio) {
+  const estadoLocal = leerEstadoTorneoLocal(juego, inicio)
+  if (ESTADOS_TERMINALES_TORNEO.includes(estadoLocal?.estado)) return true
+
+  const usuario = localStorage.getItem("usuario")
+  if (!usuario) return false
+
+  const { data, error } = await supabase
+    .from("ranking")
+    .select("usuario,fecha,invalido,motivo")
+    .eq("usuario", usuario)
+    .eq("juego", juego)
+    .maybeSingle()
+
+  if (error) {
+    console.warn(`[Torneo] No se pudo validar reingreso para ${juego}.`, error)
+    return false
+  }
+
+  if (!data) return false
+
+  const fechaResultado = Date.parse(data.fecha)
+  const inicioMs = Date.parse(inicio)
+  if (Number.isFinite(fechaResultado) && Number.isFinite(inicioMs)) {
+    return fechaResultado >= inicioMs
+  }
+
+  return true
 }

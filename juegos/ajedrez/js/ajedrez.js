@@ -1086,6 +1086,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     invalido: invalido_final,
     motivo: motivo_final,
     juego: 'ajedrez',
+    fecha: new Date().toISOString(),
   }
 
   let { data, error } = await supabase

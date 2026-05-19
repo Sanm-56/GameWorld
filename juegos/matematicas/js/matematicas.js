@@ -40,7 +40,7 @@ let advertencias = 0
 const MAX_ADVERTENCIAS = 3
 let ultimoCambio = 0
 
-document.addEventListener("visibilitychange", function(){
+document.addEventListener("visibilitychange", async function(){
 if(juegoTerminado) return
 if(document.hidden){
 let ahora = Date.now()
@@ -62,6 +62,36 @@ else{
 descalificado = true
 juegoTerminado = true
 localStorage.setItem("fin_juego","descalificado")
+if(!resultadoEnviado){
+resultadoEnviado = true
+const { error } = await supabase
+.from("ranking")
+.upsert({
+usuario,
+tiempo: 0,
+juego: "matematicas",
+sospechoso: true,
+invalido: true,
+motivo: "Demasiados cambios de pestana",
+fecha: new Date().toISOString()
+}, { onConflict: "usuario,juego" })
+
+if(error){
+console.error("Error guardando descalificacion de matematicas", error)
+resultadoEnviado = false
+return
+}
+
+await registrarPartidaDesdeRanking({
+usuario,
+juego: "matematicas",
+valor: 0,
+modo: "points",
+invalido: true
+})
+
+await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, 0)
+}
 alert("❌ Descalificado por cambiar de pestaña")
 marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
@@ -432,7 +462,8 @@ const { error } = await supabase
 .upsert({
 usuario,
 tiempo: correctas * 10,
-juego: "matematicas"
+juego: "matematicas",
+fecha: new Date().toISOString()
 }, { onConflict: "usuario,juego" })
 
 if(error){

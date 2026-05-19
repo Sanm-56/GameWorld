@@ -542,6 +542,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     invalido: invalidoFinal,
     motivo: motivoFinal,
     juego: 'damas',
+    fecha: new Date().toISOString(),
   }
 
   let { error } = await supabase

@@ -312,6 +312,7 @@ async function guardarResultadoNumcatch(puntosFinal, sospechoso, invalido, motiv
     invalido,
     motivo,
     juego: "numcatch",
+    fecha: new Date().toISOString(),
   }
 
   let result = await supabase
@@ -331,6 +332,7 @@ async function guardarResultadoNumcatch(puntosFinal, sospechoso, invalido, motiv
       sospechoso,
       invalido,
       motivo,
+      fecha: payload.fecha,
     })
     .select("usuario")
     .eq("usuario", usuario)

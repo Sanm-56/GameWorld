@@ -1453,11 +1453,36 @@ async function saveResult(reason) {
           sospechoso: advertencias > 0,
           invalido: false,
           motivo: advertencias > 0 ? "Cambio de pestana" : "",
+          fecha: new Date().toISOString(),
         }, { onConflict: "usuario,juego" })
-      : { error: null }
+      : await supabase
+        .from("ranking")
+        .update({
+          sospechoso: advertencias > 0,
+          motivo: advertencias > 0 ? "Cambio de pestana" : "",
+          fecha: new Date().toISOString(),
+        })
+        .eq("usuario", usuario)
+        .eq("juego", gameKey)
 
     if (error) {
       console.error(`No se pudo guardar ranking de ${gameKey}`, error)
+    }
+  } else if (invalid) {
+    const { error } = await supabase
+      .from("ranking")
+      .upsert({
+        usuario,
+        tiempo: 0,
+        juego: gameKey,
+        sospechoso: true,
+        invalido: true,
+        motivo: "Descalificado por actividad sospechosa",
+        fecha: new Date().toISOString(),
+      }, { onConflict: "usuario,juego" })
+
+    if (error) {
+      console.error(`No se pudo guardar descalificacion de ${gameKey}`, error)
     }
   }
 
