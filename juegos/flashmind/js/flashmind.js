@@ -16,11 +16,6 @@ const PENALIZACION_ERROR_BASE_MS = 900
 
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 
-if (localStorage.getItem(pestana)) {
-  alert("Ya tienes FlashMind abierto en otra pestana")
-  window.location.href = salidaTorneoUrl()
-}
-
 localStorage.setItem(pestana, "abierto")
 window.addEventListener("beforeunload", () => localStorage.removeItem(pestana))
 

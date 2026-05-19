@@ -23,12 +23,7 @@ function leerBloqueoPestana() {
 }
 
 function bloqueoEstaVigente(bloqueo) {
-  return Boolean(
-    bloqueo &&
-    bloqueo.tabId &&
-    bloqueo.tabId !== TAB_ID &&
-    Date.now() - bloqueo.timestamp < BLOQUEO_TTL_MS
-  )
+  return false
 }
 
 function guardarBloqueoPestana() {

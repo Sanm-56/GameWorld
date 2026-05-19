@@ -8,11 +8,6 @@ const JUEGO_ACTUAL = "memoria"
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 
-if(localStorage.getItem(pestana)){
-alert("Ya tienes el juego abierto en otra pestana")
-window.location.href = salidaTorneoUrl()
-}
-
 localStorage.setItem(pestana, "abierto")
 
 window.addEventListener("beforeunload", function(){

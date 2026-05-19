@@ -65,10 +65,6 @@ if (gameKey === "esquivaobstaculos") {
 }
 
 const lockKey = `${gameKey}_activo`
-if (localStorage.getItem(lockKey)) {
-  alert("Ya tienes el juego abierto en otra pestana")
-  window.location.href = salidaTorneoUrl()
-}
 localStorage.setItem(lockKey, "abierto")
 window.addEventListener("beforeunload", () => localStorage.removeItem(lockKey))
 

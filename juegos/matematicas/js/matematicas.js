@@ -9,6 +9,7 @@ const pestaña = "mate_activo"
 const JUEGO_ACTUAL = "matematicas"
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
+localStorage.removeItem("mate_activo")
 
 if(localStorage.getItem(pestaña)){
 alert("Ya tienes el juego abierto en otra pestaña")

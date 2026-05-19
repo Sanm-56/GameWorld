@@ -8,11 +8,6 @@ const JUEGO_ACTUAL = "sudoku"
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 
-if(localStorage.getItem(pestana)){
-alert("Ya tienes el sudoku abierto en otra pestana")
-window.location.href = salidaTorneoUrl()
-}
-
 localStorage.setItem(pestana, "abierto")
 
 window.addEventListener("beforeunload", function(){

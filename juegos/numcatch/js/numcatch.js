@@ -17,11 +17,6 @@ const MAX_VELOCIDAD = 245
 
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 
-if (localStorage.getItem(pestana)) {
-  alert("Ya tienes NumCatch abierto en otra pestana")
-  window.location.href = salidaTorneoUrl()
-}
-
 localStorage.setItem(pestana, "abierto")
 window.addEventListener("beforeunload", () => localStorage.removeItem(pestana))
 
