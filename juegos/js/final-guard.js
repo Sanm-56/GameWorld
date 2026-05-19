@@ -1,5 +1,3 @@
-import { marcarCierreTorneoLocal } from "./mini-torneo.js"
-
 const FINAL_TTL_MS = 30 * 60 * 1000
 
 function crearRunId(juego) {
@@ -24,7 +22,6 @@ export function marcarFinalValido(juego) {
 
   localStorage.setItem(`${juego}_finished_run_id`, runId)
   localStorage.setItem(`${juego}_finished_at`, new Date().toISOString())
-  marcarCierreTorneoLocal(juego, "finalizado")
 }
 
 export function validarFinalReciente(juego, salida = "lobby.html") {
