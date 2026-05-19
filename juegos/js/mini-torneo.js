@@ -12,7 +12,7 @@ export function esMiniTorneo(juego) {
 const DURACION_JUEGO_MS = 10 * 60 * 1000
 const LANZAMIENTO_JUEGO_KEY = "solitario_game_launch"
 const ORIGENES_LANZAMIENTO_VALIDOS = ["torneo", "sala", "nivel"]
-const ESTADOS_TERMINALES_TORNEO = ["finalizado", "eliminado", "descalificado", "perdido", "abandonado"]
+const ESTADOS_TERMINALES_TORNEO = ["finalizado", "eliminado", "descalificado", "perdido"]
 
 export function esNivelSolitario(juego) {
   const context = leerContextoNivel()
@@ -159,9 +159,17 @@ export function marcarCierreTorneoLocal(juego, estado = "finalizado", motivo = "
 }
 
 export function torneoBloqueadoLocalmente(juego, inicio) {
-  const bloqueo = localStorage.getItem(`torneo_bloqueado_${juego}`)
+  const key = `torneo_bloqueado_${juego}`
+  const bloqueo = leerJsonLocalStorage(key)
   const inicioMs = Date.parse(inicio)
-  return Number.isFinite(inicioMs) && bloqueo === String(inicioMs)
+  if (!Number.isFinite(inicioMs)) return false
+
+  if (!bloqueo || typeof bloqueo !== "object") {
+    localStorage.removeItem(key)
+    return false
+  }
+
+  return bloqueo.inicio === String(inicioMs) && bloqueo.version === 2
 }
 
 export async function obtenerTiempoRestanteTorneo(supabase, juego, duracionSegundos) {
@@ -463,7 +471,11 @@ function marcarSesionTorneoActiva(juego, inicio) {
 function marcarBloqueoLanzamientoTorneo(juego, inicio) {
   const inicioMs = Date.parse(inicio)
   if (Number.isFinite(inicioMs)) {
-    localStorage.setItem(`torneo_bloqueado_${juego}`, String(inicioMs))
+    localStorage.setItem(`torneo_bloqueado_${juego}`, JSON.stringify({
+      inicio: String(inicioMs),
+      version: 2,
+      fecha: new Date().toISOString(),
+    }))
   }
 }
 
@@ -478,12 +490,20 @@ function instalarMarcadoAbandonoTorneo(juego, inicio) {
 
     localStorage.setItem(obtenerClaveEstadoTorneo(juego, inicio), JSON.stringify({
       juego,
-      estado: "abandonado",
+      estado: "salida_detectada",
       motivo: "Salida antes de finalizar",
       inicio,
       fecha: new Date().toISOString(),
     }))
   })
+}
+
+function leerJsonLocalStorage(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || "null")
+  } catch {
+    return null
+  }
 }
 
 async function jugadorTieneCierreTorneo(supabase, juego, inicio) {
