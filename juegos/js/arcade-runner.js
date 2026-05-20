@@ -24,10 +24,12 @@ const STACK_START_X = 4
 const STACK_VISIBLE_BLOCKS = 7
 const CLIMB_X_RANGE = [6, 88]
 const CLIMB_PLAYER_WIDTH = 6.2
+const CLIMB_PLAYER_COLLISION_HALF = CLIMB_PLAYER_WIDTH * 0.42
+const CLIMB_PLATFORM_COLLISION_SCALE = 0.43
 const CLIMB_PLAYER_FEET = 3.4
 const CLIMB_GRAVITY = 74
 const CLIMB_JUMP_SPEED = 36
-const CLIMB_SPRING_SPEED = 54
+const CLIMB_SPRING_SPEED = 60
 const CLIMB_MOVE_SPEED = 42
 const CLIMB_CAMERA_TARGET = 42
 const CLIMB_VISIBLE_TOP = -14
@@ -144,8 +146,10 @@ let dodgeFeedback = ""
 let dodgeFeedbackUntil = 0
 let dodgeInputX = 0
 let dodgeInputY = 0
+let dodgePointerTarget = null
 let climbInputX = 0
 let climbJumpQueued = false
+let climbLastJumpInputAt = 0
 let climbLastScoredHeight = 0
 let dodgeLastTrackedX = 42
 let dodgeLastTrackedY = 78
@@ -692,12 +696,10 @@ function moveDodgeToPointer(clientX, clientY) {
   const rect = els.stage.getBoundingClientRect()
   const ratioX = rect.width ? clamp((clientX - rect.left) / rect.width, 0, 1) : 0.5
   const ratioY = rect.height ? clamp((clientY - rect.top) / rect.height, 0, 1) : 0.78
-  setDodgeTarget(
-    DODGE_X_RANGE[0] + ratioX * (DODGE_X_RANGE[1] - DODGE_X_RANGE[0]),
-    DODGE_Y_RANGE[0] + ratioY * (DODGE_Y_RANGE[1] - DODGE_Y_RANGE[0]),
-    "Mover",
-    16
-  )
+  dodgePointerTarget = {
+    x: DODGE_X_RANGE[0] + ratioX * (DODGE_X_RANGE[1] - DODGE_X_RANGE[0]),
+    y: DODGE_Y_RANGE[0] + ratioY * (DODGE_Y_RANGE[1] - DODGE_Y_RANGE[0]),
+  }
 }
 
 function setDodgeLane(index, feedback, cooldownMs) {
@@ -732,6 +734,7 @@ function showDodgeFeedback(text) {
 }
 
 function updateDodge(dt) {
+  applyDodgePointerTarget()
   updateDodgeDirectionalInput(dt)
   updateDodgeSafeZoneTracking(dt)
   const previousX = dodgeVisualX
@@ -798,6 +801,14 @@ function updateDodge(dt) {
     }
     return true
   })
+}
+
+function applyDodgePointerTarget() {
+  if (!dodgePointerTarget) return
+
+  const target = dodgePointerTarget
+  dodgePointerTarget = null
+  setDodgeTarget(target.x, target.y, "Mover", 0)
 }
 
 function updateDodgeSafeZoneTracking(dt) {
@@ -947,6 +958,13 @@ function updateClimbDirectionalInput(dt) {
   climbInputX += (rawX - climbInputX) * Math.min(1, dt * 13)
 }
 
+function queueClimbJump() {
+  const now = performance.now()
+  if (now - climbLastJumpInputAt < 120) return
+  climbLastJumpInputAt = now
+  climbJumpQueued = true
+}
+
 function ensureClimbPlatforms() {
   const climb = state.climb
   const maxY = climb.cameraY + 112
@@ -1000,7 +1018,12 @@ function resolveClimbPlatformCollisions(prevY) {
   const prevFeetY = prevY - CLIMB_PLAYER_FEET
   const platform = state.platforms
     .filter((item) => item.type !== "spike")
-    .find((item) => prevFeetY >= item.y && feetY <= item.y && Math.abs(state.x - item.x) <= item.w * 0.5 + CLIMB_PLAYER_WIDTH)
+    .find((item) => {
+      const horizontalReach = (item.w * CLIMB_PLATFORM_COLLISION_SCALE) + CLIMB_PLAYER_COLLISION_HALF
+      return prevFeetY >= item.y
+        && feetY <= item.y
+        && Math.abs(state.x - item.x) <= horizontalReach
+    })
 
   if (!platform) return
 
@@ -1148,7 +1171,7 @@ function action() {
   }
 
   if (config.type === "climb") {
-    climbJumpQueued = true
+    queueClimbJump()
     return
   }
 }
@@ -1159,6 +1182,13 @@ if (config.type === "timing") {
     if (event.pointerType === "mouse" && event.button !== 0) return
     event.preventDefault()
     action()
+  }, { signal: inputController.signal })
+}
+if (config.type === "climb") {
+  els.action.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return
+    event.preventDefault()
+    queueClimbJump()
   }, { signal: inputController.signal })
 }
 document.addEventListener("keydown", (event) => {
@@ -1196,20 +1226,31 @@ document.addEventListener("keyup", (event) => {
 window.addEventListener("blur", () => {
   dodgePressedKeys.clear()
   dodgeButtonInputs.clear()
+  dodgePointerTarget = null
   climbPressedKeys.clear()
   climbButtonInputs.clear()
+  climbJumpQueued = false
 }, { signal: inputController.signal })
 
 if (config.type === "dodge") {
   els.stage.addEventListener("pointerdown", (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return
     event.preventDefault()
+    els.stage.setPointerCapture?.(event.pointerId)
     moveDodgeToPointer(event.clientX, event.clientY)
   }, { signal: inputController.signal })
   els.stage.addEventListener("pointermove", (event) => {
     if (event.pointerType === "mouse" && event.buttons !== 1) return
     event.preventDefault()
     moveDodgeToPointer(event.clientX, event.clientY)
+  }, { signal: inputController.signal })
+  els.stage.addEventListener("pointerup", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return
+    event.preventDefault()
+    dodgePointerTarget = null
+  }, { signal: inputController.signal })
+  els.stage.addEventListener("pointercancel", () => {
+    dodgePointerTarget = null
   }, { signal: inputController.signal })
   document.querySelectorAll("[data-dodge-dir]").forEach((button) => {
     const dir = button.dataset.dodgeDir

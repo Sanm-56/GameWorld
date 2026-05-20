@@ -56,7 +56,7 @@ const els = {
   back: document.getElementById("backBtn"),
 }
 
-const restartBtn = usaFallbackLocal && ![
+const restartBtn = usaFallbackLocal && isMini && ![
   "esquivaobstaculos",
   "torreinfinita",
   "subelamontana",

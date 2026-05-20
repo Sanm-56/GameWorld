@@ -36,12 +36,14 @@ let { data, error } = await supabase
 .from("ranking")
 .select("*")
 .eq("juego","matematicas")
+.eq("invalido", false)
+.order("tiempo", { ascending: false })
 
 podioDiv.innerHTML = ""
 
 if(error || !data) return
 
-let miPos = data.findIndex(j => j.usuario === usuario)
+let miPos = fin === "descalificado" ? -1 : data.findIndex(j => j.usuario === usuario)
 
 if(miPos >= 0){
 posicionDiv.innerHTML = `Puesto #${miPos+1}`
@@ -102,7 +104,7 @@ supabase
 .on("postgres_changes",
 { event:"*", schema:"public", table:"ranking" },
 payload=>{
-if(payload.new.juego === "matematicas"){
+if(payload.new?.juego === "matematicas"){
 cargar()
 }
 })

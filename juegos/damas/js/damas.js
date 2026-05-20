@@ -44,6 +44,7 @@ let resultadoEnviado = false
 let descalificado = false
 let juegoTerminado = false
 let intervalo = null
+let torneoEstadoIntervalo = null
 let botTimeout = null
 let advertencias = 0
 let ultimoCambio = Date.now()
@@ -578,8 +579,11 @@ async function finishGame(message, shouldSaveResult = true) {
 
 async function revisarEstadoTorneo() {
   if (await debeSalirDelTorneo(supabase, JUEGO_ACTUAL) && !juegoTerminado) {
+    juegoTerminado = true
     liberarBloqueoPestana()
     limpiarTurnoBot()
+    if (intervalo) clearInterval(intervalo)
+    if (torneoEstadoIntervalo) clearInterval(torneoEstadoIntervalo)
     await guardarResultado(9999, true, true, 'Torneo detenido por admin')
     alert('Torneo detenido por el admin')
     window.location.href = salidaTorneoUrl()
@@ -596,11 +600,25 @@ if (window.reproducirMusicaDamas) {
   window.reproducirMusica = window.reproducirMusicaDamas
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+function ejecutarCuandoDomListo(callback) {
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', callback, { once: true })
+    return
+  }
+
+  callback()
+}
+
+function inicializarDamas() {
   boardEl = document.getElementById('board')
   statusEl = document.getElementById('status')
   historyEl = document.getElementById('history')
   resultEl = document.getElementById('result')
+
+  if (!boardEl || !statusEl || !historyEl || !resultEl) {
+    console.error('No se pudieron encontrar los elementos base de damas.')
+    return
+  }
 
   if (!iniciarBloqueoPestana()) {
     return
@@ -608,5 +626,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   inicializarTablero()
   iniciarCronometro()
-  setInterval(revisarEstadoTorneo, 3000)
-})
+  torneoEstadoIntervalo = setInterval(revisarEstadoTorneo, 3000)
+}
+
+ejecutarCuandoDomListo(inicializarDamas)

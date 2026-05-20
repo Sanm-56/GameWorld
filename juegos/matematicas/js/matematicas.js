@@ -456,6 +456,9 @@ const { error } = await supabase
 usuario,
 tiempo: correctas * 10,
 juego: "matematicas",
+sospechoso: false,
+invalido: false,
+motivo: "",
 fecha: new Date().toISOString()
 }, { onConflict: "usuario,juego" })
 

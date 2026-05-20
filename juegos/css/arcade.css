@@ -1290,6 +1290,24 @@ body[data-game="subelamontana"] .stage::after{
   body[data-game="cricketarcade"] .action,
   body[data-game="cricketarcade"] .status{grid-column:1/-1}
   body[data-game="cricketarcade"] .status{min-height:54px}
+  body[data-game="cricketarcade"] .stage{
+    min-height:clamp(340px,58dvh,430px);
+  }
+  body[data-game="cricketarcade"] .top{
+    padding:14px;
+  }
+  body[data-game="cricketarcade"] .side{
+    gap:8px;
+    padding:12px;
+  }
+  body[data-game="cricketarcade"] .stat{
+    min-height:52px;
+    padding:8px 10px;
+  }
+  body[data-game="cricketarcade"] .action{
+    min-height:56px;
+    font-size:18px;
+  }
   body[data-game="esquivaobstaculos"] .side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
   body[data-game="esquivaobstaculos"] .action,
   body[data-game="esquivaobstaculos"] .dodge-controls,
@@ -1322,6 +1340,32 @@ body[data-game="subelamontana"] .stage::after{
 }
 @media (max-width:520px){
   .stage{min-height:360px}
+  body[data-game="torreinfinita"] .stage{
+    min-height:clamp(300px,54dvh,360px);
+  }
+  body[data-game="torreinfinita"] .side{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    padding:12px;
+  }
+  body[data-game="torreinfinita"] .action,
+  body[data-game="torreinfinita"] .status,
+  body[data-game="torreinfinita"] .tower-music-btn{
+    grid-column:1/-1;
+  }
+  body[data-game="torreinfinita"] .stat{
+    min-height:48px;
+    font-size:13px;
+  }
+  body[data-game="torreinfinita"] .stat strong{
+    font-size:20px;
+  }
+  body[data-game="torreinfinita"] .action{
+    min-height:52px;
+    border-radius:14px;
+    font-size:17px;
+  }
   .login-hero{
     min-height:240px;
   }
@@ -1359,10 +1403,51 @@ body[data-game="subelamontana"] .stage::after{
   .score-flash{font-size:36px;right:20%}
   .podium-card,.ranking-row{grid-template-columns:36px minmax(0,1fr)}
   .podium-card em,.ranking-row span:last-child{grid-column:2}
-  body[data-game="cricketarcade"] .side{grid-template-columns:1fr}
-  .cricket-wicket{height:70px}
-  .cricket-bat{left:7%;bottom:17%}
-  .cricket-zone{height:14px !important}
+  body[data-game="cricketarcade"] .stage{
+    min-height:clamp(300px,54dvh,360px);
+  }
+  body[data-game="cricketarcade"] .side{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  body[data-game="cricketarcade"] .stat{
+    min-height:48px;
+    font-size:13px;
+  }
+  body[data-game="cricketarcade"] .stat strong{
+    font-size:20px;
+  }
+  body[data-game="cricketarcade"] .action{
+    min-height:52px;
+    border-radius:14px;
+    font-size:17px;
+  }
+  .cricket-pitch{
+    left:7%;
+    right:7%;
+    bottom:25%;
+    height:16%;
+  }
+  .cricket-crease{
+    left:13%;
+    right:10%;
+    bottom:35%;
+  }
+  .cricket-wicket{
+    left:8.5%;
+    bottom:20%;
+    width:15px;
+    height:clamp(58px,18vw,70px);
+  }
+  .cricket-bat{
+    left:6%;
+    bottom:16%;
+    width:64px;
+    height:20px;
+  }
+  .cricket-zone{
+    height:12px !important;
+    bottom:34% !important;
+  }
   body[data-game="esquivaobstaculos"] .side{grid-template-columns:1fr}
   body[data-game="subelamontana"] .side{grid-template-columns:1fr}
   .dodge-controls{

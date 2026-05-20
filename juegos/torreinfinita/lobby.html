@@ -165,6 +165,7 @@
     .active-block{
       top:48px;
       width:174px;
+      z-index:3;
       background:linear-gradient(135deg,#f8fafc,#a78bfa);
       animation:blockSlide 2.8s ease-in-out infinite;
     }
@@ -225,17 +226,27 @@
       .tower-lobby-layout{grid-template-columns:1fr;}
       .tower-copy{align-items:center;text-align:center;padding:28px 18px 18px;}
       .subtitle{max-width:440px;}
-      .tower-scene{min-height:350px;border-left:0;border-top:1px solid rgba(196,181,253,.16);padding:32px 18px 38px;}
+      .tower-scene{min-height:350px;border-left:0;border-top:1px solid rgba(196,181,253,.16);padding:28px 18px 34px;}
       .tower-stack{width:min(292px, 92vw);height:292px;transform:rotate(0);}
-      .base{width:214px;}
-      .mid-a{width:178px;}
-      .mid-b{width:148px;}
-      .mid-c{width:120px;}
-      .active-block{width:148px;}
+      .base{bottom:22px;width:214px;}
+      .mid-a{bottom:70px;width:178px;}
+      .mid-b{bottom:118px;width:148px;}
+      .mid-c{bottom:166px;width:120px;}
+      .active-block{top:34px;width:148px;}
       .tower-chip{min-width:54px;height:36px;font-size:14px;}
       .chip-a{top:18px;right:16px;}
       .chip-b{bottom:18px;left:16px;}
       .chip-c{display:none;}
+    }
+    @media (max-width:420px){
+      .tower-scene{min-height:320px;padding:24px 12px 28px;}
+      .tower-stack{width:min(260px, 92vw);height:260px;}
+      .tower-block{height:38px;}
+      .base{bottom:18px;width:196px;}
+      .mid-a{bottom:61px;width:164px;}
+      .mid-b{bottom:104px;width:136px;}
+      .mid-c{bottom:147px;width:110px;}
+      .active-block{top:28px;width:134px;}
     }
   </style>
 </head>

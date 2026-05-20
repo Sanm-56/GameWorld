@@ -325,11 +325,11 @@ function evaluarCierrePorBloqueo() {
   const puntosBot = contarPuntos(botHand)
 
   if (misPuntos < puntosBot) {
-    finishGame(`Ganaste por bloqueo. Te quedaron ${misPuntos} puntos frente a ${puntosBot} del bot.`)
+    finishGame(`Ganaste por menor puntaje en bloqueo. Tus fichas suman ${misPuntos} puntos y las del bot suman ${puntosBot}.`)
   } else if (misPuntos > puntosBot) {
-    finishGame(`Perdiste por bloqueo. Te quedaron ${misPuntos} puntos y el bot cerró con ${puntosBot}.`)
+    finishGame(`Perdiste por mayor puntaje en bloqueo. Tus fichas suman ${misPuntos} puntos y las del bot suman ${puntosBot}.`)
   } else {
-    finishGame(`Empate por bloqueo. Ambos terminaron con ${misPuntos} puntos.`)
+    finishGame(`Empate por bloqueo. Ambos quedaron con ${misPuntos} puntos en fichas.`)
   }
 
   return true

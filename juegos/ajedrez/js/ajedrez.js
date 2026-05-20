@@ -46,6 +46,7 @@ let juegoTerminado = false
 let game
 let board
 let intervalo = null
+let torneoEstadoIntervalo = null
 const PIECE_VALUES = {
   p: 100,
   n: 320,
@@ -156,18 +157,13 @@ window.location.href = "final.html"
 }
 })
 
-function initializeChess() {
+async function initializeChess() {
+  const dependenciasListas = await esperarDependenciasAjedrez()
+  if (!dependenciasListas || juegoTerminado) {
+    return
+  }
+
   if (!iniciarBloqueoPestana()) {
-    return
-  }
-
-  if (typeof Chess === 'undefined') {
-    console.error('Chess library not loaded.')
-    return
-  }
-
-  if (typeof ChessBoard === 'undefined') {
-    console.error('Chessboard library not loaded.')
     return
   }
 
@@ -183,12 +179,58 @@ function initializeChess() {
     onSnapEnd: onSnapEnd,
   })
 
+  if (!board) {
+    liberarBloqueoPestana()
+    statusEl.innerText = 'No se pudo inicializar el tablero de ajedrez.'
+    resultEl.innerText = 'No se pudo inicializar el tablero de ajedrez. Vuelve al lobby e intenta de nuevo.'
+    resultEl.style.display = 'block'
+    return
+  }
+
   updateBoard()
   iniciarCronometro()
-  setInterval(revisarEstadoTorneo, 3000)
+  torneoEstadoIntervalo = setInterval(revisarEstadoTorneo, 3000)
 }
 
-window.addEventListener('DOMContentLoaded', initializeChess)
+function ejecutarCuandoDomListo(callback) {
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', callback, { once: true })
+    return
+  }
+
+  callback()
+}
+
+async function esperarDependenciasAjedrez() {
+  const limite = Date.now() + 5000
+
+  while (Date.now() < limite) {
+    const boardEl = document.getElementById('board')
+    if (boardEl && typeof window.$ !== 'undefined' && typeof Chess !== 'undefined' && typeof ChessBoard !== 'undefined') {
+      return true
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
+
+  const mensaje = 'No se pudo cargar el tablero de ajedrez. Verifica la conexion y vuelve al lobby.'
+  console.error(mensaje, {
+    board: Boolean(document.getElementById('board')),
+    jquery: typeof window.$ !== 'undefined',
+    chess: typeof Chess !== 'undefined',
+    chessboard: typeof ChessBoard !== 'undefined',
+  })
+
+  if (statusEl) statusEl.innerText = mensaje
+  if (resultEl) {
+    resultEl.innerText = mensaje
+    resultEl.style.display = 'block'
+  }
+
+  return false
+}
+
+ejecutarCuandoDomListo(initializeChess)
 
 // =============================
 // ⏱️ CRONÓMETRO (SERVER TIME)
@@ -1169,7 +1211,10 @@ async function resetGame() {
 
 async function revisarEstadoTorneo() {
   if (await debeSalirDelTorneo(supabase, JUEGO_ACTUAL) && !juegoTerminado) {
+    juegoTerminado = true
     liberarBloqueoPestana()
+    if (intervalo) clearInterval(intervalo)
+    if (torneoEstadoIntervalo) clearInterval(torneoEstadoIntervalo)
     await guardarResultado(9999, true, true, 'Torneo detenido por admin')
     alert('⛔ Torneo detenido por el admin')
     window.location.href = salidaTorneoUrl()
