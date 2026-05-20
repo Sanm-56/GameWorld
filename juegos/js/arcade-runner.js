@@ -5,6 +5,7 @@ import {
   bloquearFinalizacionInicialSolitario,
   debeSalirDelTorneo,
   esMiniTorneo,
+  esNivelSolitario,
   obtenerTiempoRestanteTorneo,
   registrarPuntosMiniTorneo,
   salidaTorneoUrl,
@@ -171,6 +172,7 @@ localStorage.setItem("juego_actual", gameKey)
 
 async function validarAccesoEsquiva() {
   if (!usuario) return false
+  if (esNivelSolitario(gameKey)) return true
 
   if (esMiniTorneo(gameKey)) {
     const salaId = localStorage.getItem("solitario_sala_id")

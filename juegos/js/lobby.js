@@ -1,9 +1,10 @@
 import { supabase } from "../js/supabase.js"
-import { marcarLanzamientoJuego } from "../js/mini-torneo.js"
+import { esMiniTorneo, esNivelSolitario, marcarLanzamientoJuego } from "../js/mini-torneo.js"
 
 const container = document.querySelector(".container")
 const juegoLobby = window.location.pathname.split("/").filter(Boolean).slice(-2, -1)[0]
 const esLobbyEsquiva = juegoLobby === "esquivaobstaculos"
+const contextoSolitarioActivo = esNivelSolitario(juegoLobby) || esMiniTorneo(juegoLobby)
 const rutasJuego = {
   sudoku: "sudoku.html",
   memoria: "memoria.html",
@@ -40,7 +41,7 @@ if (esLobbyEsquiva) {
 if (container && !document.getElementById("volverMenuBtn")) {
 const volverBtn = document.createElement("button")
 volverBtn.id = "volverMenuBtn"
-volverBtn.textContent = "Volver al menu de opciones"
+volverBtn.textContent = contextoSolitarioActivo ? "Volver a solitario" : "Volver al menu de opciones"
 volverBtn.style.marginTop = "14px"
 volverBtn.style.padding = "12px 20px"
 volverBtn.style.border = "none"
@@ -51,12 +52,21 @@ volverBtn.style.cursor = "pointer"
 volverBtn.style.background = "linear-gradient(135deg, #38bdf8, #2563eb)"
 volverBtn.style.color = "white"
 volverBtn.onclick = () => {
-window.location.href = "../../index.html"
+window.location.href = contextoSolitarioActivo ? "../../solitario/solitario.html" : "../../index.html"
 }
 container.appendChild(volverBtn)
 }
 
+if (contextoSolitarioActivo) {
+const mensaje = document.getElementById("mensaje")
+if (mensaje) {
+mensaje.innerText = "Este juego esta abierto desde solitario o mini torneo. Vuelve al menu de solitario para continuar."
+}
+}
+
 async function revisarEstado(){
+
+if (contextoSolitarioActivo) return
 
 let { data, error } = await supabase
 .from("estado_torneo")
@@ -92,10 +102,12 @@ document.getElementById("mensaje").innerText =
 
 }
 
+if (!contextoSolitarioActivo) {
 setInterval(revisarEstado,3000)
 revisarEstado()
+}
 
-if (esLobbyEsquiva) {
+if (esLobbyEsquiva && !contextoSolitarioActivo) {
 const canalEsquiva = supabase
 .channel("lobby-esquivaobstaculos")
 .on("postgres_changes", { event: "*", schema: "public", table: "estado_torneo", filter: "id=eq.1" }, revisarEstado)
