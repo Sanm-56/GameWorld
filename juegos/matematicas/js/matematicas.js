@@ -3,25 +3,17 @@ import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
+import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
-// 🔒 BLOQUEO MULTI-PESTAÑA
-const pestaña = "mate_activo"
 const JUEGO_ACTUAL = "matematicas"
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
-localStorage.removeItem("mate_activo")
-
-if(localStorage.getItem(pestaña)){
-alert("Ya tienes el juego abierto en otra pestaña")
+const candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
+if(!candadoJuego.ok){
+alert(candadoJuego.message)
 window.location.href=salidaTorneoUrl()
+await new Promise(() => {})
 }
-
-localStorage.setItem(pestaña,"abierto")
-
-window.addEventListener("beforeunload",function(){
-localStorage.removeItem(pestaña)
-})
-
 // 👤 USUARIO
 let usuario = localStorage.getItem("usuario")
 

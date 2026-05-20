@@ -11,6 +11,7 @@ import {
   validarAccesoJuego,
 } from "./mini-torneo.js"
 import { getArcadeGame } from "./arcade-games.js"
+import { adquirirCandadoJuego } from "./game-lock.js"
 
 const MAX_ADVERTENCIAS = 3
 const CRICKET_HIT_ZONE = 21
@@ -64,9 +65,12 @@ if (gameKey === "esquivaobstaculos") {
   if (!accesoPermitido) await new Promise(() => {})
 }
 
-const lockKey = `${gameKey}_activo`
-localStorage.setItem(lockKey, "abierto")
-window.addEventListener("beforeunload", () => localStorage.removeItem(lockKey))
+const candadoJuego = adquirirCandadoJuego(gameKey)
+if (!candadoJuego.ok) {
+  alert(candadoJuego.message)
+  window.location.href = salidaTorneoUrl()
+  await new Promise(() => {})
+}
 
 const els = {
   title: document.getElementById("gameTitle"),

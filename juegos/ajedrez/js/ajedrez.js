@@ -3,87 +3,31 @@ import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { confirmAction } from '../../js/mensajes.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
+import { adquirirCandadoJuego } from '../../js/game-lock.js'
 
 // =============================
 // 🔒 BLOQUEO MULTI-PESTAÑA
 // =============================
-const BLOQUEO_PESTANA_KEY = 'ajedrez_activo'
-const BLOQUEO_TTL_MS = 5000
-const TAB_ID = `ajedrez_${Date.now()}_${Math.random().toString(36).slice(2)}`
-let intervaloBloqueo = null
-
-function leerBloqueoPestana() {
-  try {
-    const valor = localStorage.getItem(BLOQUEO_PESTANA_KEY)
-    return valor ? JSON.parse(valor) : null
-  } catch (error) {
-    console.warn('No se pudo leer bloqueo multi-pestaña', error)
-    localStorage.removeItem(BLOQUEO_PESTANA_KEY)
-    return null
-  }
-}
-
-function bloqueoEstaVigente(bloqueo) {
-  return false
-}
-
-function guardarBloqueoPestana() {
-  localStorage.setItem(BLOQUEO_PESTANA_KEY, JSON.stringify({
-    tabId: TAB_ID,
-    timestamp: Date.now(),
-  }))
-}
-
-function reclamarBloqueoPestana() {
-  const bloqueoActual = leerBloqueoPestana()
-  if (bloqueoEstaVigente(bloqueoActual)) {
-    return false
-  }
-
-  guardarBloqueoPestana()
-
-  const bloqueoConfirmado = leerBloqueoPestana()
-  return bloqueoConfirmado?.tabId === TAB_ID
-}
+let candadoJuego = null
 
 function liberarBloqueoPestana() {
-  const bloqueoActual = leerBloqueoPestana()
-  if (bloqueoActual?.tabId === TAB_ID) {
-    localStorage.removeItem(BLOQUEO_PESTANA_KEY)
-  }
-
-  if (intervaloBloqueo) {
-    clearInterval(intervaloBloqueo)
-    intervaloBloqueo = null
-  }
+  candadoJuego?.release?.()
+  candadoJuego = null
 }
 
 function iniciarBloqueoPestana() {
-  if (!reclamarBloqueoPestana()) {
-    alert('Ya tienes el ajedrez abierto en otra pestaña')
+  candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
+  if (!candadoJuego.ok) {
+    alert(candadoJuego.message)
     window.location.href = salidaTorneoUrl()
     return false
   }
-
-  intervaloBloqueo = setInterval(() => {
-    guardarBloqueoPestana()
-  }, 2000)
 
   return true
 }
 
 window.addEventListener('beforeunload', liberarBloqueoPestana)
 window.addEventListener('pagehide', liberarBloqueoPestana)
-
-window.addEventListener('storage', (event) => {
-  if (event.key !== BLOQUEO_PESTANA_KEY || juegoTerminado) return
-
-  const bloqueoActual = leerBloqueoPestana()
-  if (bloqueoEstaVigente(bloqueoActual)) {
-    alert('Ya tienes el ajedrez abierto en otra pestaña')
-    window.location.href = salidaTorneoUrl()
-  }
-})
 
 // =============================
 // 👤 USUARIO

@@ -2,17 +2,18 @@ import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
+import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
-const pestana = "sudoku_activo"
 const JUEGO_ACTUAL = "sudoku"
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 
-localStorage.setItem(pestana, "abierto")
-
-window.addEventListener("beforeunload", function(){
-localStorage.removeItem(pestana)
-})
+const candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
+if(!candadoJuego.ok){
+alert(candadoJuego.message)
+window.location.href = salidaTorneoUrl()
+await new Promise(() => {})
+}
 
 let usuario = localStorage.getItem("usuario")
 

@@ -3,10 +3,10 @@ import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
 import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
+import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
 const DURACION = 600
 const JUEGO_ACTUAL = "numcatch"
-const pestana = "numcatch_activo"
 const MAX_ADVERTENCIAS = 3
 const ACIERTOS_POR_NIVEL = 20
 const MAX_LEVEL = 11
@@ -17,8 +17,12 @@ const MAX_VELOCIDAD = 245
 
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 
-localStorage.setItem(pestana, "abierto")
-window.addEventListener("beforeunload", () => localStorage.removeItem(pestana))
+const candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
+if (!candadoJuego.ok) {
+  alert(candadoJuego.message)
+  window.location.href = salidaTorneoUrl()
+  await new Promise(() => {})
+}
 
 const usuario = localStorage.getItem("usuario")
 iniciarFinalProtegido(JUEGO_ACTUAL)
