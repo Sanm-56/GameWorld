@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { confirmAction } from '../../js/mensajes.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 import { adquirirCandadoJuego } from '../../js/game-lock.js'
@@ -1070,6 +1070,25 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     fecha: new Date().toISOString(),
   }
 
+  if (esMiniTorneo(JUEGO_ACTUAL)) {
+    await registrarPartidaDesdeRanking({
+      usuario,
+      juego: 'ajedrez',
+      valor: payload.tiempo,
+      modo: 'time',
+      invalido: invalido_final,
+    })
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido_final ? 0 : Math.max(0, DURACION - payload.tiempo), {
+      invalido: invalido_final,
+      motivo: motivo || "",
+    })
+    if (!invalido_final) {
+      const posicion = await obtenerPosicionAjedrez()
+      await guardarEstadisticasAjedrez(tiempo, posicion)
+    }
+    return
+  }
+
   let { data, error } = await supabase
     .from('ranking')
     .upsert(payload, { onConflict: 'usuario' })
@@ -1092,7 +1111,10 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
         modo: 'time',
         invalido: invalido_final,
       })
-      await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido_final ? 0 : Math.max(0, DURACION - payload.tiempo))
+      await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido_final ? 0 : Math.max(0, DURACION - payload.tiempo), {
+        invalido: invalido_final,
+        motivo: motivo || "",
+      })
       if (!invalido_final) {
         const posicion = await obtenerPosicionAjedrez()
         await guardarEstadisticasAjedrez(tiempo, posicion)
@@ -1108,7 +1130,10 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     modo: 'time',
     invalido: invalido_final,
   })
-  await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido_final ? 0 : Math.max(0, DURACION - payload.tiempo))
+  await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido_final ? 0 : Math.max(0, DURACION - payload.tiempo), {
+    invalido: invalido_final,
+    motivo: motivo || "",
+  })
   if (!invalido_final) {
     const posicion = await obtenerPosicionAjedrez()
     await guardarEstadisticasAjedrez(tiempo, posicion)
@@ -1117,6 +1142,8 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
 }
 
 async function eliminarResultadoAjedrez() {
+  if (esMiniTorneo(JUEGO_ACTUAL)) return
+
   const ranking = await supabase
     .from('ranking')
     .delete()

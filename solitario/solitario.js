@@ -10,6 +10,7 @@ import {
   startLevel,
   syncLevelProgress,
 } from "../juegos/js/solitario-niveles.js"
+import { limpiarCandadosJuego } from "../juegos/js/game-lock.js"
 
 const MINI_TOURNAMENT_GAMES = [
   { key: "ajedrez", label: "Ajedrez" },
@@ -770,7 +771,8 @@ function renderRoom(room) {
   const isCreator = room.creador_id === state.user.id
   els.startRoomBtn.disabled = !isCreator || room.estado !== "esperando"
   els.finishRoomBtn.disabled = !isCreator || room.estado === "finalizado"
-  els.scoreRoomBtn.disabled = room.estado === "finalizado"
+  els.scoreRoomBtn.disabled = !isCreator || room.estado !== "esperando"
+  els.scoreRoomBtn.textContent = "Ajuste manual"
   if (els.openGameBtn) els.openGameBtn.disabled = room.estado !== "en_juego"
 }
 
@@ -811,11 +813,21 @@ async function refreshRoom() {
 
 async function loadPlayers() {
   if (!state.activeRoom) return
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("sala_jugadores")
-    .select("usuario_id,usuario,puntos")
+    .select("usuario_id,usuario,puntos,invalido,motivo")
     .eq("sala_id", state.activeRoom.id)
     .order("puntos", { ascending: false })
+
+  if (error && esErrorColumnaInvalido(error)) {
+    const fallback = await supabase
+      .from("sala_jugadores")
+      .select("usuario_id,usuario,puntos")
+      .eq("sala_id", state.activeRoom.id)
+      .order("puntos", { ascending: false })
+    data = fallback.data
+    error = fallback.error
+  }
 
   if (error) {
     els.playersList.innerHTML = '<div class="status">No se pudo cargar jugadores.</div>'
@@ -826,7 +838,7 @@ async function loadPlayers() {
     <div class="player-row ${player.usuario_id === state.user.id ? "current" : ""}">
       <span class="rank-pos">#${index + 1}</span>
       <strong>${escapeHtml(player.usuario || player.usuario_id || "Jugador")}</strong>
-      <span>${Number(player.puntos || 0)} pts</span>
+      <span>${player.invalido ? "Descalificado" : `${Number(player.puntos || 0)} pts`}</span>
     </div>
   `).join("")
 }
@@ -861,7 +873,13 @@ async function updateRoomState(estado) {
 
 async function addRoomPoints() {
   if (!state.activeRoom) return
-  const entered = await promptAction("Puntos obtenidos en el juego", { title: "Registrar puntos" })
+  const isCreator = state.activeRoom.creador_id === state.user.id
+  if (!isCreator || state.activeRoom.estado !== "esperando") {
+    setText(els.roomStatus, "El ajuste manual solo esta disponible para el creador antes de iniciar.")
+    return
+  }
+
+  const entered = await promptAction("Puntos de ajuste manual", { title: "Ajuste manual" })
   if (entered === null) return
 
   const gained = Number.parseInt(entered, 10)
@@ -898,26 +916,70 @@ async function addRoomPoints() {
 async function finishRoom() {
   if (!state.activeRoom) return
   const room = state.activeRoom
-  const { data } = await supabase
+  let { data, error } = await supabase
     .from("sala_jugadores")
-    .select("usuario_id,usuario,puntos")
+    .select("usuario_id,usuario,puntos,invalido,motivo")
     .eq("sala_id", room.id)
     .order("puntos", { ascending: false })
 
-  const winnerId = data?.[0]?.usuario_id
+  if (error && esErrorColumnaInvalido(error)) {
+    const fallback = await supabase
+      .from("sala_jugadores")
+      .select("usuario_id,usuario,puntos")
+      .eq("sala_id", room.id)
+      .order("puntos", { ascending: false })
+    data = fallback.data
+  }
+
+  const winnerId = data?.find((player) => !player.invalido)?.usuario_id
   const updated = await updateRoomState("finalizado")
   if (!updated) return
 
   if (data?.length) {
-    await supabase.from("solitario_resultados").insert(data.map((player) => ({
-      usuario_id: player.usuario_id,
-      usuario: player.usuario || player.usuario_id,
-      puntos: player.puntos,
-      victoria: player.usuario_id === winnerId,
-      sala_id: room.id,
-      origen: "sala",
-      juego: room.juego,
-    })))
+    const existentes = await cargarResultadosExistentesSala(room)
+    const faltantes = []
+
+    for (const player of data) {
+      const existente = existentes.get(player.usuario_id)
+      const payload = {
+        puntos: Number(player.puntos || 0),
+        victoria: !player.invalido && player.usuario_id === winnerId,
+        invalido: Boolean(player.invalido),
+        motivo: player.motivo || "",
+      }
+
+      if (existente?.id) {
+        await actualizarResultadoSala(existente.id, payload)
+      } else {
+        faltantes.push(player)
+      }
+    }
+
+    if (faltantes.length) {
+      let resultado = await supabase.from("solitario_resultados").insert(faltantes.map((player) => ({
+        usuario_id: player.usuario_id,
+        usuario: player.usuario || player.usuario_id,
+        puntos: player.puntos,
+        victoria: !player.invalido && player.usuario_id === winnerId,
+        sala_id: room.id,
+        origen: "sala",
+        juego: room.juego,
+        invalido: Boolean(player.invalido),
+        motivo: player.motivo || "",
+      })))
+
+      if (resultado.error && esErrorColumnaInvalido(resultado.error)) {
+        resultado = await supabase.from("solitario_resultados").insert(faltantes.map((player) => ({
+          usuario_id: player.usuario_id,
+          usuario: player.usuario || player.usuario_id,
+          puntos: player.puntos,
+          victoria: !player.invalido && player.usuario_id === winnerId,
+          sala_id: room.id,
+          origen: "sala",
+          juego: room.juego,
+        })))
+      }
+    }
   }
 
   loadRankings()
@@ -1132,6 +1194,8 @@ function markSolitarioGameLaunch(game, origin) {
 }
 
 function clearGameLaunchState(game) {
+  limpiarCandadosJuego(game)
+
   const lockKeys = {
     ajedrez: ["ajedrez_activo"],
     damas: ["damas_activo"],
@@ -1190,8 +1254,39 @@ function clearMiniTournamentContext() {
   localStorage.removeItem("solitario_game_launch")
 }
 
+async function cargarResultadosExistentesSala(room) {
+  const inicio = room.inicio_torneo || room.created_at
+  let query = supabase
+    .from("solitario_resultados")
+    .select("id,usuario_id")
+    .eq("sala_id", room.id)
+    .eq("juego", room.juego)
+    .eq("origen", "sala")
+
+  if (inicio) query = query.gte("created_at", inicio)
+
+  const { data, error } = await query
+  if (error) {
+    console.warn("No se pudieron leer resultados existentes de la sala.", error)
+    return new Map()
+  }
+
+  return new Map((data || []).map((row) => [row.usuario_id, row]))
+}
+
+async function actualizarResultadoSala(id, payload) {
+  const { error } = await supabase
+    .from("solitario_resultados")
+    .update(payload)
+    .eq("id", id)
+
+  if (error) {
+    console.warn("No se pudo actualizar resultado existente de mini torneo.", error)
+  }
+}
+
 async function registerResult({ points, victory, origin, roomId, game = "nivel" }) {
-  const { error } = await supabase.from("solitario_resultados").insert([{
+  let { error } = await supabase.from("solitario_resultados").insert([{
     usuario_id: state.user.id,
     usuario: state.user.usuario,
     puntos: points,
@@ -1199,7 +1294,22 @@ async function registerResult({ points, victory, origin, roomId, game = "nivel" 
     sala_id: roomId,
     origen: origin,
     juego: game,
+    invalido: false,
+    motivo: "",
   }])
+
+  if (error && esErrorColumnaInvalido(error)) {
+    const fallback = await supabase.from("solitario_resultados").insert([{
+      usuario_id: state.user.id,
+      usuario: state.user.usuario,
+      puntos: points,
+      victoria: victory,
+      sala_id: roomId,
+      origen: origin,
+      juego: game,
+    }])
+    error = fallback.error
+  }
 
   if (error) {
     console.error("Error registrando resultado de solitario", error)
@@ -1220,14 +1330,30 @@ async function loadRankings() {
   
   let query = supabase
     .from("solitario_resultados")
-    .select("usuario_id,usuario,puntos,victoria,created_at,juego,origen,sala_id")
+    .select("usuario_id,usuario,puntos,victoria,created_at,juego,origen,sala_id,invalido")
 
   if (state.rankingGame !== "todos") {
     query = query.eq("origen", "sala").eq("juego", state.rankingGame)
   } else {
     query = query.eq("origen", "sala")
   }
-  const { data, error } = await query
+  let { data, error } = await query
+
+  if (error && esErrorColumnaInvalido(error)) {
+    query = supabase
+      .from("solitario_resultados")
+      .select("usuario_id,usuario,puntos,victoria,created_at,juego,origen,sala_id")
+
+    if (state.rankingGame !== "todos") {
+      query = query.eq("origen", "sala").eq("juego", state.rankingGame)
+    } else {
+      query = query.eq("origen", "sala")
+    }
+
+    const fallback = await query
+    data = fallback.data
+    error = fallback.error
+  }
 
   if (error) {
     console.error("Error cargando rankings de solitario", error)
@@ -1308,6 +1434,7 @@ function normalizeRankingRows(rows) {
   const normalized = []
 
   rows.forEach((row) => {
+    if (row.invalido) return
     if (row.origen !== "sala" || !row.sala_id) {
       normalized.push(row)
       return
@@ -1410,6 +1537,14 @@ function gameLabel(game) {
 
 function normalizeCode(value) {
   return String(value || "").trim().toUpperCase().replace(/\s+/g, "")
+}
+
+function esErrorColumnaInvalido(error) {
+  const mensaje = String(error?.message || "")
+  return error?.code === "42703"
+    || mensaje.includes("invalido")
+    || mensaje.includes("motivo")
+    || mensaje.includes("Could not find")
 }
 
 function setText(element, value) {

@@ -556,11 +556,15 @@ function difficultyName(id) {
 function updateLocalProgress(usuario, level, result, completed) {
   const progress = getLevelProgress(usuario)
   const previousBest = progress.bestByLevel[String(level.id)] || 0
-  const metric = result.mode === "time" && result.time ? Math.max(0, 600 - result.time) : result.score
+  const metric = result.invalid
+    ? previousBest
+    : result.mode === "time" && result.time
+      ? Math.max(0, 600 - result.time)
+      : result.score
 
   progress.bestByLevel[String(level.id)] = Math.max(previousBest, metric)
   progress.lastByLevel[String(level.id)] = {
-    score: result.score,
+    score: result.invalid ? 0 : result.score,
     time: result.time,
     elapsed: result.elapsed,
     completed,
@@ -580,6 +584,23 @@ function updateLocalProgress(usuario, level, result, completed) {
 async function saveProgressToSupabase(supabase, usuario, level, result, completed) {
   if (!supabase) return
 
+  const { data: current, error: readError } = await supabase
+    .from("progreso_niveles")
+    .select("completado,puntaje,tiempo")
+    .eq("usuario_id", usuario)
+    .eq("nivel", level.id)
+    .maybeSingle()
+
+  if (readError) {
+    console.warn("No se pudo leer progreso de nivel existente", readError)
+  }
+
+  const previousScore = Number(current?.puntaje || 0)
+  const resultScore = result.invalid ? 0 : Number(result.score || 0)
+  const previousTime = Number(current?.tiempo || 0)
+  const resultTime = Number(result.time || 0)
+  const nextTime = chooseBestTime(previousTime, resultTime, result.invalid)
+
   const { error } = await supabase
     .from("progreso_niveles")
     .upsert({
@@ -587,9 +608,9 @@ async function saveProgressToSupabase(supabase, usuario, level, result, complete
       usuario,
       nivel: level.id,
       juego: level.game,
-      completado: completed,
-      puntaje: Number(result.score || 0),
-      tiempo: result.time,
+      completado: Boolean(current?.completado) || completed,
+      puntaje: Math.max(previousScore, resultScore),
+      tiempo: nextTime,
       resultado: result,
       updated_at: new Date().toISOString(),
     }, { onConflict: "usuario_id,nivel" })
@@ -600,17 +621,40 @@ async function saveProgressToSupabase(supabase, usuario, level, result, complete
 async function saveLevelResultToRanking(supabase, usuario, level, result, completed) {
   if (!supabase) return
 
-  const { error } = await supabase.from("solitario_resultados").insert([{
+  const payload = {
     usuario_id: usuario,
     usuario,
-    puntos: Number(result.score || 0),
+    puntos: result.invalid ? 0 : Number(result.score || 0),
     victoria: completed,
     sala_id: null,
     origen: "nivel",
     juego: level.game,
-  }])
+    invalido: Boolean(result.invalid),
+    motivo: result.reason || "",
+  }
+
+  const { error } = await supabase.from("solitario_resultados").insert([payload])
+
+  if (error && isMissingInvalidColumnError(error)) {
+    const { invalido, motivo, ...fallbackPayload } = payload
+    const { error: fallbackError } = await supabase.from("solitario_resultados").insert([fallbackPayload])
+    if (fallbackError) console.warn("No se pudo registrar resultado de nivel en ranking de solitario", fallbackError)
+    return
+  }
 
   if (error) console.warn("No se pudo registrar resultado de nivel en ranking de solitario", error)
+}
+
+function chooseBestTime(previousTime, resultTime, invalid) {
+  if (invalid) return previousTime || null
+  if (!resultTime) return previousTime || null
+  if (!previousTime) return resultTime
+  return Math.min(previousTime, resultTime)
+}
+
+function isMissingInvalidColumnError(error) {
+  const message = String(error?.message || error?.details || "")
+  return message.includes("invalido") || message.includes("motivo")
 }
 
 function normalizeProgress(progress) {

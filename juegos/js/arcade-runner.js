@@ -1473,7 +1473,7 @@ async function saveResult(reason) {
   const finalScore = invalid ? 0 : getCompetitiveValue()
   const elapsed = Math.max(1, Math.round((performance.now() - startMs) / 1000))
 
-  if ((finalScore > 0 || gameKey === "esquivaobstaculos") && !invalid) {
+  if (!esMiniTorneo(gameKey) && (finalScore > 0 || gameKey === "esquivaobstaculos") && !invalid) {
     const { data: recordActual, error: recordError } = await supabase
       .from("ranking")
       .select("tiempo,invalido")
@@ -1511,7 +1511,7 @@ async function saveResult(reason) {
     if (error) {
       console.error(`No se pudo guardar ranking de ${gameKey}`, error)
     }
-  } else if (invalid) {
+  } else if (!esMiniTorneo(gameKey) && invalid) {
     const { error } = await supabase
       .from("ranking")
       .upsert({
@@ -1530,7 +1530,10 @@ async function saveResult(reason) {
   }
 
   await registrarPartidaDesdeRanking({ usuario, juego: gameKey, valor: finalScore, modo: "points", invalido: invalid })
-  await registrarPuntosMiniTorneo(supabase, gameKey, finalScore)
+  await registrarPuntosMiniTorneo(supabase, gameKey, finalScore, {
+    invalido: invalid,
+    motivo: invalid ? "Descalificado por actividad sospechosa" : "",
+  })
   const position = await getPosition()
   if (!invalid) await saveStats(position, elapsed)
 

@@ -56,12 +56,6 @@ const els = {
   back: document.getElementById("backBtn"),
 }
 
-const restartBtn = usaFallbackLocal && isMini && ![
-  "esquivaobstaculos",
-  "torreinfinita",
-  "subelamontana",
-].includes(gameKey) ? crearBotonReinicioArcade() : null
-
 els.title.textContent = config.label
 els.subtitle.textContent = isMini ? "Resultado de mini torneo" : "Resultado del torneo"
 setScoreLabel(usaAltura ? "Altura alcanzada" : "Puntuacion final")
@@ -105,11 +99,21 @@ async function loadTournamentRanking() {
 
 async function loadMiniRanking() {
   const roomId = localStorage.getItem("solitario_sala_id")
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("sala_jugadores")
-    .select("usuario,puntos")
+    .select("usuario,puntos,invalido")
     .eq("sala_id", roomId)
     .order("puntos", { ascending: false })
+
+  if (error && esErrorColumnaInvalido(error)) {
+    const fallback = await supabase
+      .from("sala_jugadores")
+      .select("usuario,puntos")
+      .eq("sala_id", roomId)
+      .order("puntos", { ascending: false })
+    data = fallback.data
+    error = fallback.error
+  }
 
   if (error || !data) {
     if (usaFallbackLocal) {
@@ -120,7 +124,7 @@ async function loadMiniRanking() {
     return
   }
 
-  renderRanking(data.map((row) => ({ usuario: row.usuario, puntos: row.puntos })))
+  renderRanking(data.map((row) => ({ usuario: row.usuario, puntos: row.puntos, invalido: row.invalido })))
 }
 
 function renderRanking(rows, opciones = {}) {
@@ -128,12 +132,16 @@ function renderRanking(rows, opciones = {}) {
   const myIndex = filas.findIndex((row) => row.usuario === usuario)
   const filaUsuario = myIndex >= 0 ? filas[myIndex] : null
   const winner = filas[0]
+  const descalificado = fin === "descalificado"
 
   if (opciones.aviso) {
     els.delta.textContent = opciones.aviso
   }
 
-  if (myIndex === 0) {
+  if (descalificado) {
+    els.result.textContent = "Descalificado"
+    agregarDelta("Sin posicion competitiva")
+  } else if (myIndex === 0) {
     els.result.textContent = "Ganaste"
     if (filas.length > 1) burst()
   } else if (myIndex > 0 && winner) {
@@ -150,7 +158,7 @@ function renderRanking(rows, opciones = {}) {
     localStorage.setItem(bestStorageKey, String(mejorPersonal))
   }
 
-  if (myIndex >= 0) {
+  if (!descalificado && myIndex >= 0) {
     agregarDelta(`Posicion #${myIndex + 1} de ${filas.length}`)
   }
 
@@ -181,10 +189,11 @@ function normalizarFilasFinal(rows) {
   const limpias = Array.isArray(rows)
     ? rows
       .filter((row) => row && row.usuario)
+      .filter((row) => !(isMini && row.invalido))
       .map((row) => ({ usuario: row.usuario, puntos: Math.max(0, Number(row.puntos || 0)) }))
     : []
 
-  if (usaFallbackLocal && usuario && !limpias.some((row) => row.usuario === usuario)) {
+  if (usaFallbackLocal && fin !== "descalificado" && usuario && !limpias.some((row) => row.usuario === usuario)) {
     limpias.push({ usuario, puntos: Math.max(0, score) })
   }
 
@@ -233,27 +242,20 @@ function readJson(value) {
   }
 }
 
+function esErrorColumnaInvalido(error) {
+  const mensaje = String(error?.message || "")
+  return error?.code === "42703"
+    || mensaje.includes("invalido")
+    || mensaje.includes("Could not find")
+}
+
 els.back.addEventListener("click", async () => {
   await volverDesdeFinal(supabase, () => {
     limpiarResultadoLocal()
   })
 })
 
-restartBtn?.addEventListener("click", () => {
-  limpiarResultadoLocal()
-  window.location.href = `${gameKey}.html`
-})
-
 load()
-
-function crearBotonReinicioArcade() {
-  const button = document.createElement("button")
-  button.className = "back restart"
-  button.type = "button"
-  button.textContent = "Jugar otra vez"
-  els.back.insertAdjacentElement("beforebegin", button)
-  return button
-}
 
 function limpiarResultadoLocal() {
   localStorage.removeItem("fin_juego")

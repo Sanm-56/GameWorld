@@ -1,7 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
@@ -270,6 +270,8 @@ async function iniciarCronometro() {
 }
 
 async function eliminarResultadoFlashmind() {
+  if (esMiniTorneo(JUEGO_ACTUAL)) return
+
   const ranking = await supabase
     .from("ranking")
     .delete()
@@ -292,13 +294,25 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
     fecha: new Date().toISOString(),
   }
 
+  if (esMiniTorneo(JUEGO_ACTUAL)) {
+    await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos, {
+      invalido,
+      motivo,
+    })
+    return true
+  }
+
   let result = await supabase
     .from("ranking")
     .upsert(payload, { onConflict: "usuario,juego" })
 
   if (!result.error) {
     await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
-    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos)
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos, {
+      invalido,
+      motivo,
+    })
     return true
   }
 
@@ -319,7 +333,10 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
 
   if (!result.error && result.data && result.data.length > 0) {
     await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
-    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos)
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos, {
+      invalido,
+      motivo,
+    })
     return true
   }
 
@@ -335,7 +352,10 @@ async function guardarResultadoFlashmind(puntos, sospechoso, invalido, motivo) {
   }
 
   await registrarPartidaDesdeRanking({ usuario, juego: "flashmind", valor: puntos, modo: "points", invalido })
-  await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos)
+  await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : puntos, {
+    invalido,
+    motivo,
+  })
   return true
 }
 

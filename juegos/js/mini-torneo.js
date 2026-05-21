@@ -1,5 +1,6 @@
 import { installSafeAlert } from "./mensajes.js"
 import { obtenerSnapshotBonusXP } from "./experiencia-temporada.js"
+import { limpiarCandadosJuego } from "./game-lock.js"
 
 installSafeAlert()
 
@@ -79,6 +80,7 @@ export async function obtenerInicioTorneo(supabase, juego) {
 export function marcarLanzamientoJuego(juego, origin = "torneo") {
   const origenSeguro = ORIGENES_LANZAMIENTO_VALIDOS.includes(origin) ? origin : "torneo"
   if (origenSeguro === "torneo") limpiarContextoSolitario()
+  limpiarCandadosJuego(juego)
   localStorage.setItem(LANZAMIENTO_JUEGO_KEY, JSON.stringify({
     game: juego,
     origin: origenSeguro,
@@ -124,6 +126,11 @@ export async function validarAccesoJuego(supabase, juego) {
 
   const inicio = await obtenerInicioTorneo(supabase, juego)
   if (!inicio) {
+    window.location.replace(salidaTorneoUrl())
+    return false
+  }
+
+  if (origin === "sala" && await jugadorTieneResultadoMiniTorneo(supabase, juego, inicio)) {
     window.location.replace(salidaTorneoUrl())
     return false
   }
@@ -274,18 +281,20 @@ export async function volverDesdeFinal(supabase, limpiar = () => {}) {
   window.location.href = "lobby.html"
 }
 
-export async function registrarPuntosMiniTorneo(supabase, juego, puntos) {
+export async function registrarPuntosMiniTorneo(supabase, juego, puntos, opciones = {}) {
   if (!esMiniTorneo(juego)) return
 
   const salaId = localStorage.getItem("solitario_sala_id")
   const usuario = localStorage.getItem("usuario")
-  const puntosSeguros = Math.max(0, Number(puntos || 0))
+  const invalido = Boolean(opciones.invalido || localStorage.getItem("fin_juego") === "descalificado")
+  const motivo = opciones.motivo || (invalido ? "Descalificado por actividad sospechosa" : "")
+  const puntosSeguros = invalido ? 0 : Math.max(0, Number(puntos || 0))
 
   if (!salaId || !usuario) return
 
   const sala = await supabase
     .from("salas")
-    .select("id,estado,juego")
+    .select("id,estado,juego,inicio_torneo,created_at")
     .eq("id", salaId)
     .maybeSingle()
 
@@ -299,12 +308,21 @@ export async function registrarPuntosMiniTorneo(supabase, juego, puntos) {
     return
   }
 
-  const jugadores = await supabase
+  let jugadores = await supabase
     .from("sala_jugadores")
-    .update({ puntos: puntosSeguros, usuario })
+    .update({ puntos: puntosSeguros, usuario, invalido, motivo })
     .eq("sala_id", salaId)
     .eq("usuario_id", usuario)
     .select("id")
+
+  if (jugadores.error && esErrorColumnaInvalido(jugadores.error)) {
+    jugadores = await supabase
+      .from("sala_jugadores")
+      .update({ puntos: puntosSeguros, usuario })
+      .eq("sala_id", salaId)
+      .eq("usuario_id", usuario)
+      .select("id")
+  }
 
   if (jugadores.error) {
     console.warn(`[Solitario] No se pudieron registrar puntos del mini torneo para ${juego}.`, jugadores.error)
@@ -316,7 +334,25 @@ export async function registrarPuntosMiniTorneo(supabase, juego, puntos) {
     return
   }
 
-  const resultado = await supabase
+  const inicioSala = sala.data.inicio_torneo || sala.data.created_at
+  const resultadoExistente = await obtenerResultadoMiniTorneoExistente(supabase, {
+    salaId,
+    usuario,
+    juego,
+    inicioSala,
+  })
+
+  if (resultadoExistente?.id) {
+    await actualizarResultadoMiniTorneo(supabase, resultadoExistente.id, {
+      puntos: puntosSeguros,
+      invalido,
+      motivo,
+      victoria: false,
+    })
+    return
+  }
+
+  let resultado = await supabase
     .from("solitario_resultados")
     .insert([{
       usuario_id: usuario,
@@ -326,10 +362,75 @@ export async function registrarPuntosMiniTorneo(supabase, juego, puntos) {
       sala_id: salaId,
       origen: "sala",
       juego,
+      invalido,
+      motivo,
     }])
+
+  if (resultado.error && esErrorColumnaInvalido(resultado.error)) {
+    resultado = await supabase
+      .from("solitario_resultados")
+      .insert([{
+        usuario_id: usuario,
+        usuario,
+        puntos: puntosSeguros,
+        victoria: false,
+        sala_id: salaId,
+        origen: "sala",
+        juego,
+      }])
+  }
 
   if (resultado.error) {
     console.warn(`[Solitario] No se pudo guardar resultado de mini torneo para ${juego}.`, resultado.error)
+  }
+}
+
+async function jugadorTieneResultadoMiniTorneo(supabase, juego, inicioSala) {
+  if (!esMiniTorneo(juego)) return false
+  const salaId = localStorage.getItem("solitario_sala_id")
+  const usuario = localStorage.getItem("usuario")
+  if (!salaId || !usuario || !inicioSala) return false
+
+  const existente = await obtenerResultadoMiniTorneoExistente(supabase, {
+    salaId,
+    usuario,
+    juego,
+    inicioSala,
+  })
+
+  return Boolean(existente?.id)
+}
+
+async function obtenerResultadoMiniTorneoExistente(supabase, { salaId, usuario, juego, inicioSala }) {
+  let query = supabase
+    .from("solitario_resultados")
+    .select("id")
+    .eq("sala_id", salaId)
+    .eq("usuario_id", usuario)
+    .eq("juego", juego)
+    .eq("origen", "sala")
+    .order("created_at", { ascending: false })
+    .limit(1)
+
+  if (inicioSala) query = query.gte("created_at", inicioSala)
+
+  const { data, error } = await query
+  if (error) {
+    console.warn(`[Solitario] No se pudo verificar intento previo de mini torneo para ${juego}.`, error)
+    return null
+  }
+
+  return data?.[0] || null
+}
+
+async function actualizarResultadoMiniTorneo(supabase, id, payload) {
+  const { error } = await supabase
+    .from("solitario_resultados")
+    .update(payload)
+    .eq("id", id)
+
+  if (error) {
+    console.warn("[Solitario] No se pudo actualizar resultado existente de mini torneo.", error)
   }
 }
 
@@ -347,6 +448,14 @@ function leerContextoLanzamiento() {
   } catch {
     return null
   }
+}
+
+function esErrorColumnaInvalido(error) {
+  const mensaje = String(error?.message || "")
+  return error?.code === "42703"
+    || mensaje.includes("invalido")
+    || mensaje.includes("motivo")
+    || mensaje.includes("Could not find")
 }
 
 function inicioSeguroParaSolitario(juego, origen, inicioPreferido) {

@@ -36,6 +36,8 @@ create table if not exists public.sala_jugadores (
   usuario_id text not null,
   usuario text,
   puntos integer not null default 0,
+  invalido boolean not null default false,
+  motivo text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (sala_id, usuario_id)
@@ -47,6 +49,8 @@ create table if not exists public.solitario_resultados (
   usuario text not null,
   puntos integer not null default 0,
   victoria boolean not null default false,
+  invalido boolean not null default false,
+  motivo text,
   sala_id bigint references public.salas(id) on delete set null,
   origen text not null default 'nivel',
   juego text not null default 'nivel',
@@ -92,6 +96,12 @@ alter table public.solitario_resultados
 add column if not exists victoria boolean not null default false;
 
 alter table public.solitario_resultados
+add column if not exists invalido boolean not null default false;
+
+alter table public.solitario_resultados
+add column if not exists motivo text;
+
+alter table public.solitario_resultados
 add column if not exists sala_id bigint;
 
 alter table public.solitario_resultados
@@ -102,6 +112,12 @@ add column if not exists juego text not null default 'nivel';
 
 alter table public.solitario_resultados
 add column if not exists created_at timestamptz not null default now();
+
+alter table public.sala_jugadores
+add column if not exists invalido boolean not null default false;
+
+alter table public.sala_jugadores
+add column if not exists motivo text;
 
 alter table public.salas
 drop constraint if exists salas_juego_check;
@@ -170,12 +186,16 @@ for update to anon, authenticated using (true) with check (true);
 
 drop policy if exists solitario_resultados_select on public.solitario_resultados;
 drop policy if exists solitario_resultados_insert on public.solitario_resultados;
+drop policy if exists solitario_resultados_update on public.solitario_resultados;
 
 create policy solitario_resultados_select on public.solitario_resultados
 for select to anon, authenticated using (true);
 
 create policy solitario_resultados_insert on public.solitario_resultados
 for insert to anon, authenticated with check (true);
+
+create policy solitario_resultados_update on public.solitario_resultados
+for update to anon, authenticated using (true) with check (true);
 
 drop policy if exists progreso_niveles_select on public.progreso_niveles;
 drop policy if exists progreso_niveles_insert on public.progreso_niveles;
@@ -192,7 +212,7 @@ for update to anon, authenticated using (true) with check (true);
 
 grant select, insert, update on table public.salas to anon, authenticated;
 grant select, insert, update on table public.sala_jugadores to anon, authenticated;
-grant select, insert on table public.solitario_resultados to anon, authenticated;
+grant select, insert, update on table public.solitario_resultados to anon, authenticated;
 grant select, insert, update on table public.progreso_niveles to anon, authenticated;
 
 grant usage, select on sequence public.salas_id_seq to anon, authenticated;

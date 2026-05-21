@@ -1,6 +1,6 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
@@ -79,7 +79,9 @@ if(resultadoEnviado) return false
 
 resultadoEnviado = true
 
-const { error } = await supabase
+let error = null
+if(!esMiniTorneo(JUEGO_ACTUAL)){
+const resultadoRanking = await supabase
 .from("ranking")
 .upsert({
 usuario: usuario,
@@ -90,6 +92,8 @@ motivo: motivo,
 juego: "sudoku",
 fecha: new Date().toISOString()
 }, { onConflict: "usuario,juego" })
+error = resultadoRanking.error
+}
 
 if(error){
 console.error("Error guardando resultado de sudoku", error)
@@ -105,7 +109,10 @@ modo: "time",
 invalido
 })
 
-await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : Math.max(0, DURACION - tiempo))
+await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : Math.max(0, DURACION - tiempo), {
+invalido,
+motivo
+})
 
 return true
 }

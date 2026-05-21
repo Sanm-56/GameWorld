@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 import { adquirirCandadoJuego } from '../../js/game-lock.js'
 
@@ -486,6 +486,22 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     fecha: new Date().toISOString(),
   }
 
+  if (esMiniTorneo(JUEGO_ACTUAL)) {
+    await registrarPartidaDesdeRanking({
+      usuario,
+      juego: 'damas',
+      valor: payload.tiempo,
+      modo: 'time',
+      invalido: invalidoFinal,
+    })
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalidoFinal ? 0 : Math.max(0, DURACION - payload.tiempo), {
+      invalido: invalidoFinal,
+      motivo,
+    })
+    localStorage.setItem('damasEstadisticasPendientes', 'true')
+    return
+  }
+
   let { error } = await supabase
     .from('ranking')
     .upsert(payload, { onConflict: 'usuario,juego' })
@@ -498,7 +514,10 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
       modo: 'time',
       invalido: invalidoFinal,
     })
-    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalidoFinal ? 0 : Math.max(0, DURACION - payload.tiempo))
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalidoFinal ? 0 : Math.max(0, DURACION - payload.tiempo), {
+      invalido: invalidoFinal,
+      motivo,
+    })
     localStorage.setItem('damasEstadisticasPendientes', 'true')
     return
   }
@@ -517,12 +536,17 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
       modo: 'time',
       invalido: invalidoFinal,
     })
-    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalidoFinal ? 0 : Math.max(0, DURACION - payload.tiempo))
+    await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalidoFinal ? 0 : Math.max(0, DURACION - payload.tiempo), {
+      invalido: invalidoFinal,
+      motivo,
+    })
     localStorage.setItem('damasEstadisticasPendientes', 'true')
   }
 }
 
 async function eliminarResultadoDamas() {
+  if (esMiniTorneo(JUEGO_ACTUAL)) return
+
   const ranking = await supabase
     .from('ranking')
     .delete()

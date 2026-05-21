@@ -21,7 +21,9 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     return
   }
 
-  const posicion = await obtenerPosicion(usuario, juego, modo)
+  const origenActual = obtenerOrigenExperiencia(juego)
+  const esMinitorneo = origenActual === "minitorneo"
+  const posicion = esMinitorneo ? null : await obtenerPosicion(usuario, juego, modo)
   const usuarioId = await obtenerUsuarioId(usuario)
 
   const payload = {
@@ -33,8 +35,10 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     posicion,
   }
 
-  const resultadoNivel = await reportLevelResult(supabase, { usuario, juego, valor: numero, modo, posicion, invalido })
-  const origenExperiencia = resultadoNivel ? "solitario" : obtenerOrigenExperiencia(juego)
+  const resultadoNivel = esMinitorneo
+    ? null
+    : await reportLevelResult(supabase, { usuario, juego, valor: numero, modo, posicion, invalido })
+  const origenExperiencia = resultadoNivel ? "solitario" : origenActual
   const snapshotBonusXP = await obtenerSnapshotBonusXP(juego, origenExperiencia)
   const payloadConSnapshot = {
     ...payload,
@@ -71,14 +75,17 @@ export async function registrarPartidaDesdeRanking({ usuario, juego, valor, modo
     return
   }
 
-  const xpResultados = await registrarXpPorPartida({
-    usuario,
-    juego,
-    posicion,
-    partidaId: partidaGuardada?.id || null,
-    origen: origenExperiencia,
-    bonusXPAplicado: snapshotBonusXP?.bonusXPAplicado,
-  })
+  const debeDarXp = !resultadoNivel || resultadoNivel.newlyCompleted
+  const xpResultados = debeDarXp
+    ? await registrarXpPorPartida({
+      usuario,
+      juego,
+      posicion,
+      partidaId: partidaGuardada?.id || null,
+      origen: origenExperiencia,
+      bonusXPAplicado: snapshotBonusXP?.bonusXPAplicado,
+    })
+    : []
   const recompensasXp = xpResultados
     .filter(Boolean)
     .flatMap((item) => item.recompensas || [])

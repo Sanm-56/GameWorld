@@ -341,33 +341,6 @@ h1{
   Your browser does not support the audio element.
 </audio>
 
-<script>
-function volverLobby(){
-  if (
-    localStorage.getItem("solitario_origen") === "nivel" &&
-    localStorage.getItem("solitario_juego") === "matematicas"
-  ) {
-    localStorage.removeItem("solitario_nivel_context")
-    localStorage.removeItem("solitario_origen")
-    localStorage.removeItem("solitario_juego")
-    window.location.href = "../../solitario/solitario.html"
-    return
-  }
-
-  if (
-    localStorage.getItem("solitario_origen") === "sala" &&
-    localStorage.getItem("solitario_sala_id") &&
-    localStorage.getItem("solitario_juego") === "matematicas"
-  ) {
-    window.location.href = "../../solitario/solitario.html"
-    return
-  }
-
-  window.location.href = "lobby.html"
-}
-
-</script>
-
 <script src="./js/matematicas-music.js"></script>
 <script type="module" src="./js/final.js"></script>
 

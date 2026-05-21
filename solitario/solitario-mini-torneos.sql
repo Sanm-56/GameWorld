@@ -7,6 +7,18 @@ add column if not exists inicio_torneo timestamptz;
 alter table public.salas
 add column if not exists fecha_fin timestamptz;
 
+alter table public.sala_jugadores
+add column if not exists invalido boolean not null default false;
+
+alter table public.sala_jugadores
+add column if not exists motivo text;
+
+alter table public.solitario_resultados
+add column if not exists invalido boolean not null default false;
+
+alter table public.solitario_resultados
+add column if not exists motivo text;
+
 alter table public.salas
 drop constraint if exists salas_juego_check;
 
@@ -31,9 +43,14 @@ check (
 
 create index if not exists salas_estado_juego_idx on public.salas (estado, juego);
 
+drop policy if exists solitario_resultados_update on public.solitario_resultados;
+
+create policy solitario_resultados_update on public.solitario_resultados
+for update to anon, authenticated using (true) with check (true);
+
 grant select, insert, update on table public.salas to anon, authenticated;
 grant select, insert, update on table public.sala_jugadores to anon, authenticated;
-grant select, insert on table public.solitario_resultados to anon, authenticated;
+grant select, insert, update on table public.solitario_resultados to anon, authenticated;
 
 create or replace function public.admin_finalizar_mini_torneo(p_clave text, p_sala_id bigint)
 returns jsonb

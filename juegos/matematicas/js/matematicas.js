@@ -1,7 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
@@ -57,7 +57,9 @@ juegoTerminado = true
 localStorage.setItem("fin_juego","descalificado")
 if(!resultadoEnviado){
 resultadoEnviado = true
-const { error } = await supabase
+let error = null
+if(!esMiniTorneo(JUEGO_ACTUAL)){
+const resultadoRanking = await supabase
 .from("ranking")
 .upsert({
 usuario,
@@ -68,6 +70,8 @@ invalido: true,
 motivo: "Demasiados cambios de pestana",
 fecha: new Date().toISOString()
 }, { onConflict: "usuario,juego" })
+error = resultadoRanking.error
+}
 
 if(error){
 console.error("Error guardando descalificacion de matematicas", error)
@@ -83,7 +87,10 @@ modo: "points",
 invalido: true
 })
 
-await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, 0)
+await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, 0, {
+invalido: true,
+motivo: "Demasiados cambios de pestana"
+})
 }
 alert("❌ Descalificado por cambiar de pestaña")
 marcarFinalValido(JUEGO_ACTUAL)
@@ -450,7 +457,9 @@ if(!resultadoEnviado && !descalificado){
 
 resultadoEnviado = true
 
-const { error } = await supabase
+let error = null
+if(!esMiniTorneo(JUEGO_ACTUAL)){
+const resultadoRanking = await supabase
 .from("ranking")
 .upsert({
 usuario,
@@ -461,6 +470,8 @@ invalido: false,
 motivo: "",
 fecha: new Date().toISOString()
 }, { onConflict: "usuario,juego" })
+error = resultadoRanking.error
+}
 
 if(error){
 console.error("Error guardando resultado de matematicas", error)
@@ -475,7 +486,9 @@ valor: correctas * 10,
 modo: "points"
 })
 
-await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, correctas * 10)
+await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, correctas * 10, {
+invalido: false
+})
 
 await guardarEstadisticasMatematicas()
 
