@@ -139,43 +139,56 @@ export async function validarAccesoJuego(supabase, juego) {
 }
 
 export async function obtenerTiempoRestanteTorneo(supabase, juego, duracionSegundos) {
-  const inicioTorneo = await obtenerInicioTorneo(supabase, juego)
-  if (!inicioTorneo) return null
+  const reloj = await crearRelojTorneo(supabase, juego, duracionSegundos)
+  if (!reloj) return null
 
-  const { data: horaServer, error } = await supabase.rpc("ahora_servidor")
-  if (error) {
-    console.warn(`[Solitario] No se pudo leer hora del servidor para ${juego}; usando reloj local.`, error)
-  }
-
-  const inicio = Date.parse(inicioTorneo)
-  const ahoraServidor = Date.parse(horaServer)
-  const ahora = Number.isFinite(ahoraServidor) ? ahoraServidor : Date.now()
-  let restante = Math.floor((inicio + Number(duracionSegundos || 0) * 1000 - ahora) / 1000)
-
-  if (!Number.isFinite(restante) || restante > duracionSegundos) return duracionSegundos
-  if (restante < 0) return 0
-  return restante
+  return reloj.restante()
 }
 
 export async function obtenerTiempoTranscurridoTorneo(supabase, juego, duracionSegundos = null) {
+  const reloj = await crearRelojTorneo(supabase, juego, duracionSegundos)
+  if (!reloj) return null
+
+  return reloj.transcurrido()
+}
+
+export async function crearRelojTorneo(supabase, juego, duracionSegundos) {
   const inicioTorneo = await obtenerInicioTorneo(supabase, juego)
   if (!inicioTorneo) return null
 
-  const { data: horaServer, error } = await supabase.rpc("ahora_servidor")
+  const horaServer = await obtenerAhoraServidor(supabase, juego)
+  const inicio = Date.parse(inicioTorneo)
+  const ahoraMs = Date.now()
+  const ahoraServidor = Date.parse(horaServer)
+  const offsetServidor = Number.isFinite(ahoraServidor) ? ahoraServidor - ahoraMs : 0
+  const duracion = Number(duracionSegundos || 0)
+
+  if (!Number.isFinite(inicio)) return null
+
+  const ahora = () => Date.now() + offsetServidor
+  const transcurrido = () => {
+    const segundos = Math.floor((ahora() - inicio) / 1000)
+    if (!Number.isFinite(segundos)) return null
+    const seguro = Math.max(0, segundos)
+    return Number.isFinite(duracion) && duracion > 0 ? Math.min(duracion, seguro) : seguro
+  }
+  const restante = () => {
+    const fin = inicio + duracion * 1000
+    const segundos = Math.floor((fin - ahora()) / 1000)
+    if (!Number.isFinite(segundos) || segundos > duracion) return duracion
+    if (segundos < 0) return 0
+    return segundos
+  }
+
+  return { inicio, duracion, restante, transcurrido }
+}
+
+async function obtenerAhoraServidor(supabase, juego) {
+  const { data, error } = await supabase.rpc("ahora_servidor")
   if (error) {
     console.warn(`[Solitario] No se pudo leer hora del servidor para ${juego}; usando reloj local.`, error)
   }
-
-  const inicio = Date.parse(inicioTorneo)
-  const ahoraServidor = Date.parse(horaServer)
-  const ahora = Number.isFinite(ahoraServidor) ? ahoraServidor : Date.now()
-  const transcurrido = Math.floor((ahora - inicio) / 1000)
-
-  if (!Number.isFinite(transcurrido)) return null
-  const seguro = Math.max(0, transcurrido)
-  return Number.isFinite(Number(duracionSegundos))
-    ? Math.min(Number(duracionSegundos), seguro)
-    : seguro
+  return data
 }
 
 export async function debeSalirDelTorneo(supabase, juego) {

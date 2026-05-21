@@ -10,12 +10,29 @@ if (!validarFinalReciente("memoria")) await new Promise(() => {})
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
 const usuario = localStorage.getItem("usuario")
-  const juegoActual = localStorage.getItem("juego_actual") || "memoria"
-  const posicionDiv = document.createElement("h2")
+const juegoActual = localStorage.getItem("juego_actual") || "memoria"
+const posicionDiv = document.createElement("h2")
+const resultadoDiv = document.createElement("h2")
+const resumenDiv = document.createElement("p")
+const fin = localStorage.getItem("fin_juego")
+const resultadoMemoria = localStorage.getItem("memoriaResultado")
 instalarEstilosPersonalizacion()
+resultadoDiv.id = "resultadoFinal"
+resumenDiv.id = "resumenFinal"
 posicionDiv.className = "posicion-final"
 
-document.querySelector(".contenedor").insertBefore(posicionDiv, document.getElementById("panelResumen"))
+const contenedor = document.querySelector(".contenedor")
+contenedor.insertBefore(resultadoDiv, document.getElementById("panelResumen"))
+contenedor.insertBefore(resumenDiv, document.getElementById("panelResumen"))
+contenedor.insertBefore(posicionDiv, document.getElementById("panelResumen"))
+
+if (fin === "descalificado") {
+  resultadoDiv.innerText = "Descalificado por actividad sospechosa"
+  resumenDiv.innerText = resultadoMemoria || "Tu resultado fue retirado del ranking."
+} else {
+  resultadoDiv.innerText = "Resultado Memoria"
+  resumenDiv.innerText = "Ranking final del torneo."
+}
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -24,6 +41,10 @@ function formatearTiempo(segundos) {
 }
 
 async function cargarResultados() {
+  if (fin === "descalificado") {
+    posicionDiv.innerText = "Sin posicion competitiva"
+  }
+
   const { data, error } = await supabase
     .from("ranking")
     .select("*")
@@ -40,13 +61,16 @@ async function cargarResultados() {
 
   if (filas.length === 0) {
     podioDiv.innerHTML = "Sin resultados"
+    rankingDiv.innerHTML = "<p class='vacio'>No hay resultados de memoria todavia.</p>"
     return
   }
 
-  const posicion = data.findIndex((j) => j.usuario === usuario)
+  const posicion = filas.findIndex((j) => j.usuario === usuario)
 
-  if (posicion !== -1) {
-    let mensaje = `Quedaste #${posicion + 1} de ${data.length} jugadores`
+  if (fin === "descalificado") {
+    posicionDiv.innerText = "Sin posicion competitiva"
+  } else if (posicion !== -1) {
+    let mensaje = `Quedaste #${posicion + 1} de ${filas.length} jugadores`
 
     if (posicion === 0) mensaje += " - GANASTE"
     else if (posicion < 3) mensaje += " - Podio"
@@ -58,7 +82,7 @@ async function cargarResultados() {
   }
 
   podioDiv.innerHTML = ""
-  data.slice(0, 3).forEach((j, i) => {
+  filas.slice(0, 3).forEach((j, i) => {
     const etiqueta = ["#1", "#2", "#3"][i]
     const div = document.createElement("div")
     div.innerHTML = `
@@ -69,7 +93,7 @@ async function cargarResultados() {
   })
 
   rankingDiv.innerHTML = ""
-  data.forEach((j, i) => {
+  filas.forEach((j, i) => {
     const div = document.createElement("div")
     div.className = `ranking-row${j.usuario === usuario ? " actual" : ""}`
     div.innerHTML = `
@@ -91,5 +115,6 @@ cargarResultados()
 
 window.volverLobby = async function () {
   limpiarFinalProtegido("memoria")
+  localStorage.removeItem("memoriaResultado")
   await volverDesdeFinal(supabase)
 }

@@ -1,7 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
@@ -118,7 +118,7 @@ function spawnNumero() {
   el.innerText = String(valor)
 
   const ancho = gameEl.clientWidth
-  const x = randInt(10, Math.max(10, ancho - 64))
+  const x = randInt(8, Math.max(8, ancho - 76))
   const y = -70
 
   el.style.left = `${x}px`
@@ -131,7 +131,10 @@ function spawnNumero() {
   }
 
   const id = ++idSeq
-  el.onclick = () => clickNumero(id)
+  el.addEventListener("pointerdown", (event) => {
+    event.preventDefault()
+    clickNumero(id)
+  })
   gameEl.appendChild(el)
 
   numeros.set(id, {
@@ -252,43 +255,51 @@ document.addEventListener("visibilitychange", async () => {
 async function iniciarCronometro() {
   const reloj = document.getElementById("reloj")
 
-  let restante = await obtenerTiempoRestanteTorneo(supabase, JUEGO_ACTUAL, DURACION)
-  if (restante === null) {
+  const relojTorneo = await crearRelojTorneo(supabase, JUEGO_ACTUAL, DURACION)
+  if (!relojTorneo) {
     console.warn("No hay inicio valido para numcatch")
     return
   }
   let intervalo = null
 
-  function pintarReloj() {
+  function pintarReloj(restante) {
     const min = Math.floor(restante / 60)
     const seg = restante % 60
     reloj.innerText = min + ":" + (seg < 10 ? "0" : "") + seg
   }
 
   async function tick() {
-    restante--
+    const restante = relojTorneo.restante()
 
     if (restante <= 0) {
       if (bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, "cronometro numcatch")) {
-        restante = DURACION
-        pintarReloj()
+        pintarReloj(DURACION)
         return
       }
 
       clearInterval(intervalo)
       reloj.innerText = "0:00"
       juegoTerminado = true
-      if (!resultadoEnviado && !descalificado) await enviarResultado("tiempo")
+      if (!resultadoEnviado && !descalificado) {
+        const guardado = await enviarResultado("tiempo")
+        if (guardado === false) {
+          juegoTerminado = false
+          return
+        }
+      }
       marcarFinalValido(JUEGO_ACTUAL)
       window.location.href = "final.html"
       return
     }
 
-    pintarReloj()
+    pintarReloj(restante)
   }
 
-  pintarReloj()
+  pintarReloj(relojTorneo.restante())
   intervalo = setInterval(tick, 1000)
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && !juegoTerminado) tick()
+  })
 }
 
 async function eliminarResultadoNumcatch() {
@@ -483,7 +494,9 @@ async function enviarResultado(fin) {
 
   const sospechoso = advertencias > 0
   const invalido = advertencias >= MAX_ADVERTENCIAS
-  const puntosFinal = invalido ? 0 : puntaje
+  const puntosFinal = invalido ? 0 : Math.max(0, Number(puntaje) || 0)
+  localStorage.setItem("fin_juego", fin)
+  localStorage.setItem("numcatch_puntos", String(puntosFinal))
 
   if (puntosFinal <= 0 || invalido) {
     await eliminarResultadoNumcatch()
@@ -501,15 +514,14 @@ async function enviarResultado(fin) {
 
     if (!guardado) {
       resultadoEnviado = false
-      return
+      return false
     }
 
     const posicion = await obtenerPosicionNumcatch()
     await guardarEstadisticasNumcatch(posicion)
   }
 
-  localStorage.setItem("fin_juego", fin)
-  localStorage.setItem("numcatch_puntos", String(puntosFinal))
+  return true
 }
 
 async function revisarEstadoTorneo() {

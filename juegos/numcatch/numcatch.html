@@ -79,6 +79,7 @@
       min-height:420px;
       position:relative;
       overflow:hidden;
+      touch-action:manipulation;
     }
     .condicion{
       position:absolute;
@@ -104,8 +105,8 @@
     .numero{
       position:absolute;
       top:-60px;
-      width:54px;
-      height:54px;
+      width:64px;
+      height:64px;
       border-radius:18px;
       display:flex;
       justify-content:center;
@@ -117,6 +118,8 @@
       border:1px solid rgba(255,255,255,0.12);
       box-shadow:0 14px 26px rgba(0,0,0,0.28);
       z-index:1;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
     }
     .panel{
       border:1px solid rgba(148,163,184,0.16);
@@ -222,8 +225,8 @@ grid-template-columns:minmax(0, 1fr) minmax(0, 320px);
 }
 
 .numero{
-width:clamp(42px, 13vw, 54px);
-height:clamp(42px, 13vw, 54px);
+width:clamp(54px, 16vw, 68px);
+height:clamp(54px, 16vw, 68px);
 font-size:clamp(17px, 5vw, 22px);
 }
 

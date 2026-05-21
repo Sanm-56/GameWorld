@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 import { adquirirCandadoJuego } from '../../js/game-lock.js'
 
@@ -107,25 +107,24 @@ async function iniciarCronometro() {
 
   if (intervalo) clearInterval(intervalo)
 
-  let restante = await obtenerTiempoRestanteTorneo(supabase, JUEGO_ACTUAL, DURACION)
+  const relojTorneo = await crearRelojTorneo(supabase, JUEGO_ACTUAL, DURACION)
 
-  if (restante === null) {
+  if (!relojTorneo) {
     return
   }
 
-  function pintarReloj() {
+  function pintarReloj(restante) {
     const min = Math.floor(restante / 60)
     const seg = restante % 60
     reloj.innerText = `${min}:${seg < 10 ? '0' : ''}${seg}`
   }
 
   function actualizar() {
-    restante--
+    const restante = relojTorneo.restante()
 
     if (restante <= 0) {
       if (bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, 'cronometro domino')) {
-        restante = DURACION
-        pintarReloj()
+        pintarReloj(DURACION)
         return
       }
 
@@ -135,11 +134,14 @@ async function iniciarCronometro() {
       return
     }
 
-    pintarReloj()
+    pintarReloj(restante)
   }
 
-  pintarReloj()
+  pintarReloj(relojTorneo.restante())
   intervalo = setInterval(actualizar, 1000)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !juegoTerminado) actualizar()
+  })
 }
 
 async function finalizarPorTiempo() {
@@ -529,7 +531,8 @@ async function finishGame(message, shouldSaveResult = true) {
   juegoTerminado = true
   liberarBloqueoPestana()
 
-  if (message.startsWith('Perdiste') || message.startsWith('Empate')) {
+  const victoriaValida = message.startsWith('Ganaste')
+  if (!victoriaValida && (message.startsWith('Perdiste') || message.startsWith('Empate'))) {
     shouldSaveResult = false
   }
 

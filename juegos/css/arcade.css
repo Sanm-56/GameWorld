@@ -266,6 +266,7 @@ p{margin:0;color:var(--muted);line-height:1.45}
 }
 .summary-item span{display:block;color:var(--muted);font-size:13px}
 .summary-item strong{font-size:22px}
+.empty{text-align:center;color:var(--muted)}
 .podium,.ranking{display:grid;gap:8px;align-content:start}
 .podium-card,.ranking-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
 .ranking-row.current{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent)}

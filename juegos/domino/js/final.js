@@ -14,7 +14,10 @@ const usuario = localStorage.getItem('usuario')
 const resultado = localStorage.getItem('dominoResultado') || 'Partida finalizada.'
 const sinPosicion = localStorage.getItem('dominoSinPosicion') === 'true'
 const estadisticasPendientes = localStorage.getItem('dominoEstadisticasPendientes') === 'true'
+const posicionDiv = document.createElement('h2')
 instalarEstilosPersonalizacion()
+posicionDiv.className = 'posicion-final'
+document.querySelector('.contenedor').insertBefore(posicionDiv, podioDiv)
 
 setCleanText(resultadoFinal, resultado.toLowerCase().includes('descalificado')
   ? 'Descalificado por actividad sospechosa'
@@ -79,23 +82,7 @@ async function guardarEstadisticasDomino(posicion) {
 }
 
 async function cargarResultados() {
-  let result = await supabase
-    .from('ranking_domino')
-    .select('*')
-    .eq('invalido', false)
-    .order('tiempo', { ascending: true })
-
-  if (result.error) {
-    result = await supabase
-      .from('ranking')
-      .select('*')
-      .eq('invalido', false)
-      .eq('juego', 'domino')
-      .order('tiempo', { ascending: true })
-  }
-
-  const data = result.data || []
-  const posicionDiv = document.createElement('h2')
+  const data = await obtenerRankingDomino()
 
   if (sinPosicion) {
     posicionDiv.innerText = 'No clasificaste al ranking'
@@ -110,8 +97,6 @@ async function cargarResultados() {
       posicionDiv.innerText = 'No estas en el ranking'
     }
   }
-
-  document.querySelector('.contenedor').insertBefore(posicionDiv, podioDiv)
 
   podioDiv.innerHTML = ''
   data.slice(0, 3).forEach((jugador, index) => {
@@ -142,6 +127,43 @@ async function cargarResultados() {
     aplicarPersonalizacionUsuario(div, jugador.usuario)
   })
 }
+
+async function obtenerRankingDomino() {
+  const principal = await supabase
+    .from('ranking')
+    .select('*')
+    .eq('invalido', false)
+    .eq('juego', 'domino')
+    .order('tiempo', { ascending: true })
+
+  const fallback = await supabase
+    .from('ranking_domino')
+    .select('*')
+    .eq('invalido', false)
+    .order('tiempo', { ascending: true })
+
+  const filas = [
+    ...(principal.error ? [] : principal.data || []),
+    ...(fallback.error ? [] : fallback.data || []),
+  ]
+  const porUsuario = new Map()
+
+  filas.forEach((fila) => {
+    if (!fila?.usuario) return
+    const actual = porUsuario.get(fila.usuario)
+    if (!actual || Number(fila.tiempo || 9999) < Number(actual.tiempo || 9999)) {
+      porUsuario.set(fila.usuario, fila)
+    }
+  })
+
+  return [...porUsuario.values()].sort((a, b) => Number(a.tiempo || 9999) - Number(b.tiempo || 9999))
+}
+
+supabase
+  .channel('final-ranking-domino')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'ranking' }, cargarResultados)
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'ranking_domino' }, cargarResultados)
+  .subscribe()
 
 cargarResultados()
 

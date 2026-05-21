@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 import { adquirirCandadoJuego } from '../../js/game-lock.js'
 
@@ -52,12 +52,14 @@ let ultimoCambio = Date.now()
 const DURACION = 600
 const MAX_ADVERTENCIAS = 3
 const BOARD_SIZE = 8
+const BOT_DELAY_MS = 5000
 
 let board = []
 let selectedPiece = null
 let highlightedMoves = []
 let currentPlayer = 'red'
 let moveCount = 0
+let botForcedPiece = null
 
 // =============================
 // ANTI-TRAMPA
@@ -101,25 +103,24 @@ async function iniciarCronometro() {
 
   if (intervalo) clearInterval(intervalo)
 
-  let restante = await obtenerTiempoRestanteTorneo(supabase, JUEGO_ACTUAL, DURACION)
+  const relojTorneo = await crearRelojTorneo(supabase, JUEGO_ACTUAL, DURACION)
 
-  if (restante === null) {
+  if (!relojTorneo) {
     return
   }
 
-  function pintarReloj() {
+  function pintarReloj(restante) {
     const min = Math.floor(restante / 60)
     const seg = restante % 60
     reloj.innerText = `${min}:${seg < 10 ? '0' : ''}${seg}`
   }
 
   function actualizar() {
-    restante--
+    const restante = relojTorneo.restante()
 
     if (restante <= 0) {
       if (bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, 'cronometro damas')) {
-        restante = DURACION
-        pintarReloj()
+        pintarReloj(DURACION)
         return
       }
 
@@ -129,11 +130,14 @@ async function iniciarCronometro() {
       return
     }
 
-    pintarReloj()
+    pintarReloj(restante)
   }
 
-  pintarReloj()
+  pintarReloj(relojTorneo.restante())
   intervalo = setInterval(actualizar, 1000)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !juegoTerminado) actualizar()
+  })
 }
 
 async function finalizarPorTiempo() {
@@ -180,6 +184,7 @@ function inicializarTablero() {
   highlightedMoves = []
   currentPlayer = 'red'
   moveCount = 0
+  botForcedPiece = null
 
   renderBoard()
   updateInfo()
@@ -301,7 +306,7 @@ function obtenerMovimientosValidos(row, col) {
   const piece = board[row][col]
   if (!piece) return []
 
-  return obtenerMovimientosDePieza(row, col, false)
+  return obtenerMovimientosDePieza(row, col, obtenerTodosLosMovimientos(piece.color, true).length > 0)
 }
 
 function onSquareClick(row, col) {
@@ -310,9 +315,16 @@ function onSquareClick(row, col) {
   const clickedPiece = board[row][col]
 
   if (clickedPiece?.color === 'red') {
+    if (selectedPiece && highlightedMoves.some((item) => item.capture) && (selectedPiece.row !== row || selectedPiece.col !== col)) {
+      statusEl.innerText = 'Debes terminar la cadena de captura con la misma ficha.'
+      return
+    }
+
     const moves = obtenerMovimientosValidos(row, col)
     if (moves.length === 0) {
-      statusEl.innerText = 'Esa ficha no tiene movimientos disponibles.'
+      statusEl.innerText = obtenerTodosLosMovimientos('red', true).length > 0
+        ? 'Hay una captura obligatoria con otra ficha.'
+        : 'Esa ficha no tiene movimientos disponibles.'
       return
     }
 
@@ -333,6 +345,7 @@ function onSquareClick(row, col) {
 function aplicarMovimiento(fromRow, fromCol, move) {
   const piece = board[fromRow][fromCol]
   if (!piece) return
+  const colorTurno = currentPlayer
 
   board[move.row][move.col] = piece
   board[fromRow][fromCol] = null
@@ -349,13 +362,34 @@ function aplicarMovimiento(fromRow, fromCol, move) {
 
   if (revisarFinDePartida()) return
 
+  if (move.capture) {
+    const capturasExtra = obtenerMovimientosDePieza(move.row, move.col, true)
+    if (capturasExtra.length > 0) {
+      if (colorTurno === 'red') {
+        selectedPiece = { row: move.row, col: move.col }
+        highlightedMoves = capturasExtra
+        renderBoard()
+        updateInfo()
+        statusEl.innerText = 'Captura obligatoria: continua con la misma ficha.'
+      } else {
+        botForcedPiece = { row: move.row, col: move.col }
+        renderBoard()
+        updateInfo()
+        limpiarTurnoBot()
+        botTimeout = setTimeout(botTurn, BOT_DELAY_MS)
+      }
+      return
+    }
+  }
+
   currentPlayer = currentPlayer === 'red' ? 'blue' : 'red'
+  botForcedPiece = null
   renderBoard()
   updateInfo()
 
   if (currentPlayer === 'blue') {
     limpiarTurnoBot()
-    botTimeout = setTimeout(botTurn, 700)
+    botTimeout = setTimeout(botTurn, BOT_DELAY_MS)
   }
 }
 
@@ -369,7 +403,7 @@ function coronarSiAplica(row, piece) {
   }
 }
 
-function obtenerTodosLosMovimientos(color) {
+function obtenerTodosLosMovimientos(color, forceCaptureOnly = false) {
   const moves = []
 
   for (let row = 0; row < BOARD_SIZE; row++) {
@@ -377,7 +411,7 @@ function obtenerTodosLosMovimientos(color) {
       const piece = board[row][col]
       if (piece?.color !== color) continue
 
-      const pieceMoves = obtenerMovimientosDePieza(row, col, false)
+      const pieceMoves = obtenerMovimientosDePieza(row, col, forceCaptureOnly)
         .map((move) => ({
           fromRow: row,
           fromCol: col,
@@ -394,7 +428,13 @@ function obtenerTodosLosMovimientos(color) {
 function botTurn() {
   if (juegoTerminado || currentPlayer !== 'blue') return
 
-  const moves = obtenerTodosLosMovimientos('blue')
+  const moves = botForcedPiece
+    ? obtenerMovimientosDePieza(botForcedPiece.row, botForcedPiece.col, true).map((move) => ({
+      fromRow: botForcedPiece.row,
+      fromCol: botForcedPiece.col,
+      move,
+    }))
+    : obtenerTodosLosMovimientos('blue')
   if (moves.length === 0) {
     finishGame('Ganaste. El bot se quedó sin movimientos.')
     return
@@ -402,9 +442,45 @@ function botTurn() {
 
   const captureMoves = moves.filter((item) => item.move.capture)
   const source = captureMoves.length ? captureMoves : moves
-  const chosen = source[Math.floor(Math.random() * source.length)]
+  const chosen = elegirMejorMovimientoBot(source)
+  botForcedPiece = null
 
   aplicarMovimiento(chosen.fromRow, chosen.fromCol, chosen.move)
+}
+
+function elegirMejorMovimientoBot(moves) {
+  return moves
+    .map((item) => ({ item, score: evaluarMovimientoBot(item) }))
+    .sort((a, b) => b.score - a.score)[0].item
+}
+
+function evaluarMovimientoBot({ fromRow, fromCol, move }) {
+  const piece = board[fromRow][fromCol]
+  if (!piece) return -999
+
+  let score = Math.random() * 4
+  if (move.capture) score += 120
+  if (piece.king) score += 18
+  if (!piece.king && piece.color === 'blue') score += move.row * 4
+  if (!piece.king && move.row === BOARD_SIZE - 1) score += 45
+
+  const distanciaCentro = Math.abs(3.5 - move.row) + Math.abs(3.5 - move.col)
+  score += Math.max(0, 10 - distanciaCentro * 2)
+
+  if (move.capture) {
+    const originalFrom = board[fromRow][fromCol]
+    const originalTo = board[move.row][move.col]
+    const captured = board[move.capture.row][move.capture.col]
+    board[move.row][move.col] = originalFrom
+    board[fromRow][fromCol] = null
+    board[move.capture.row][move.capture.col] = null
+    score += obtenerMovimientosDePieza(move.row, move.col, true).length * 35
+    board[fromRow][fromCol] = originalFrom
+    board[move.row][move.col] = originalTo
+    board[move.capture.row][move.capture.col] = captured
+  }
+
+  return score
 }
 
 function revisarFinDePartida() {

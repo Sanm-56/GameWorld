@@ -1,6 +1,6 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoRestanteTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { confirmAction } from '../../js/mensajes.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 import { adquirirCandadoJuego } from '../../js/game-lock.js'
@@ -249,26 +249,25 @@ async function iniciarCronometro() {
 
   if (intervalo) clearInterval(intervalo)
 
-  let restante = await obtenerTiempoRestanteTorneo(supabase, JUEGO_ACTUAL, DURACION)
+  const relojTorneo = await crearRelojTorneo(supabase, JUEGO_ACTUAL, DURACION)
 
-  if (restante === null) {
+  if (!relojTorneo) {
     console.log('No hay torneo activo')
     return
   }
 
-  function pintarReloj() {
-    let min = Math.floor(restante / 60)
-    let seg = restante % 60
+  function pintarReloj(restante) {
+    const min = Math.floor(restante / 60)
+    const seg = restante % 60
     reloj.innerText = min + ':' + (seg < 10 ? '0' : '') + seg
   }
 
   async function actualizar() {
-    restante--
+    const restante = relojTorneo.restante()
 
     if (restante <= 0) {
       if (bloquearFinalizacionInicialSolitario(JUEGO_ACTUAL, 'cronometro ajedrez')) {
-        restante = DURACION
-        pintarReloj()
+        pintarReloj(DURACION)
         return
       }
 
@@ -287,11 +286,14 @@ async function iniciarCronometro() {
       return
     }
 
-    pintarReloj()
+    pintarReloj(restante)
   }
 
-  pintarReloj()
+  pintarReloj(relojTorneo.restante())
   intervalo = setInterval(actualizar, 1000)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !juegoTerminado) actualizar()
+  })
 }
 
 function onDragStart(source, piece) {
@@ -796,21 +798,35 @@ function updateStatus() {
 
 function updateHistory() {
   const moves = game.history({ verbose: true })
+  historyEl.innerHTML = ''
+
+  const title = document.createElement('span')
+  title.className = 'history-title'
+  title.textContent = 'Movimientos'
+  historyEl.appendChild(title)
+
+  const list = document.createElement('div')
+  list.className = 'history-list'
+  historyEl.appendChild(list)
+
   if (moves.length === 0) {
-    historyEl.innerText = 'Movimientos: -'
+    const empty = document.createElement('span')
+    empty.className = 'history-ply'
+    empty.textContent = '-'
+    list.appendChild(empty)
     return
   }
 
-  const formatted = moves
-    .map((move, index) => {
-      if (move.color === 'w') {
-        return `${Math.ceil((index + 1) / 2)}. ${move.san}`
-      }
-      return move.san
-    })
-    .join(' ')
+  for (let index = 0; index < moves.length; index += 2) {
+    const white = moves[index]
+    const black = moves[index + 1]
+    const item = document.createElement('span')
+    item.className = 'history-ply'
+    item.textContent = `${Math.floor(index / 2) + 1}. ${white?.san || '-'}${black ? ` ${black.san}` : ''}`
+    list.appendChild(item)
+  }
 
-  historyEl.innerText = `Movimientos: ${formatted}`
+  historyEl.scrollTop = historyEl.scrollHeight
 }
 
 async function obtenerTiempo() {

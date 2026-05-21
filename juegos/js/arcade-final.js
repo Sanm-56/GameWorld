@@ -34,6 +34,7 @@ const requiereFinalValido = [
   "torreinfinita",
   "subelamontana",
 ].includes(gameKey)
+let victoriaAnimada = false
 
 if (requiereFinalValido && (!resultadoLocalValido || !runId || runId !== finishedRunId || !resultadoReciente)) {
   window.location.replace("lobby.html")
@@ -128,27 +129,32 @@ async function loadMiniRanking() {
 }
 
 function renderRanking(rows, opciones = {}) {
+  els.delta.textContent = opciones.aviso || ""
+  els.result.textContent = resultadoBase()
   const filas = normalizarFilasFinal(rows)
   const myIndex = filas.findIndex((row) => row.usuario === usuario)
   const filaUsuario = myIndex >= 0 ? filas[myIndex] : null
   const winner = filas[0]
   const descalificado = fin === "descalificado"
 
-  if (opciones.aviso) {
-    els.delta.textContent = opciones.aviso
-  }
-
   if (descalificado) {
     els.result.textContent = "Descalificado"
     agregarDelta("Sin posicion competitiva")
   } else if (myIndex === 0) {
     els.result.textContent = "Ganaste"
-    if (filas.length > 1) burst()
+    if (filas.length > 1 && !victoriaAnimada) {
+      victoriaAnimada = true
+      burst()
+    }
   } else if (myIndex > 0 && winner) {
+    els.result.textContent = "Resultado guardado"
     const diff = Math.max(0, Number(winner.puntos || 0) - score)
     agregarDelta(`Perdiste por ${formatMetric(diff)}`)
   } else if (filaUsuario) {
     els.result.textContent = "Resultado guardado"
+  } else if (!descalificado && score > 0) {
+    els.result.textContent = "Resultado local"
+    agregarDelta("Sin posicion remota todavia")
   }
 
   const previousBest = Number(localStorage.getItem(bestStorageKey) || 0)
@@ -183,6 +189,11 @@ function renderRanking(rows, opciones = {}) {
       <span>${formatMetric(row.puntos)}</span>
     </div>
   `).join("") || '<div class="empty">Sin resultados disponibles.</div>'
+}
+
+function resultadoBase() {
+  if (fin === "descalificado") return "Descalificado"
+  return score > 0 ? "Partida guardada" : "Sin puntuacion"
 }
 
 function normalizarFilasFinal(rows) {
@@ -256,6 +267,7 @@ els.back.addEventListener("click", async () => {
 })
 
 load()
+activarActualizacionRanking()
 
 function limpiarResultadoLocal() {
   localStorage.removeItem("fin_juego")
@@ -265,4 +277,28 @@ function limpiarResultadoLocal() {
   localStorage.removeItem(`${gameKey}_run_id`)
   localStorage.removeItem(`${gameKey}_finished_run_id`)
   localStorage.removeItem(`${gameKey}_finished_at`)
+}
+
+function activarActualizacionRanking() {
+  const channel = supabase.channel(`final-ranking-${gameKey}-${Date.now()}`)
+
+  if (isMini) {
+    const roomId = localStorage.getItem("solitario_sala_id")
+    const filtroSala = roomId
+      ? { event: "*", schema: "public", table: "sala_jugadores", filter: `sala_id=eq.${roomId}` }
+      : { event: "*", schema: "public", table: "sala_jugadores" }
+    channel.on(
+      "postgres_changes",
+      filtroSala,
+      () => loadMiniRanking()
+    )
+  } else {
+    channel.on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "ranking", filter: `juego=eq.${gameKey}` },
+      () => loadTournamentRanking()
+    )
+  }
+
+  channel.subscribe()
 }

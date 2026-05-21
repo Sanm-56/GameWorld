@@ -3,10 +3,11 @@ import { registrarPartidaDesdeRanking } from "./partidas.js"
 import { registrarCheckpointNivel } from "./solitario-niveles.js"
 import {
   bloquearFinalizacionInicialSolitario,
+  crearRelojTorneo,
   debeSalirDelTorneo,
   esMiniTorneo,
   esNivelSolitario,
-  obtenerTiempoRestanteTorneo,
+  obtenerTiempoTranscurridoTorneo,
   registrarPuntosMiniTorneo,
   salidaTorneoUrl,
   validarAccesoJuego,
@@ -1311,8 +1312,8 @@ document.addEventListener("visibilitychange", async () => {
 }, { signal: inputController.signal })
 
 async function startTimer() {
-  let restante = await obtenerTiempoRestanteTorneo(supabase, gameKey, DURACION)
-  if (restante === null) {
+  const relojTorneo = await crearRelojTorneo(supabase, gameKey, DURACION)
+  if (!relojTorneo) {
     console.warn(`No hay inicio valido para ${gameKey}`)
     setStatus("El torneo aun no ha iniciado")
     if (gameKey === "esquivaobstaculos") {
@@ -1325,7 +1326,8 @@ async function startTimer() {
     }, 1200)
     return false
   }
-  if (restante <= 0) {
+  const restanteInicial = relojTorneo.restante()
+  if (restanteInicial <= 0) {
     if (gameKey === "esquivaobstaculos") {
       setStatus("El torneo ya finalizo")
       cleanupRuntime()
@@ -1337,23 +1339,25 @@ async function startTimer() {
   }
 
   const tick = async () => {
+    const restante = relojTorneo.restante()
     const min = Math.floor(restante / 60)
     const seg = restante % 60
     els.timer.textContent = `${min}:${seg < 10 ? "0" : ""}${seg}`
 
     if (restante <= 0) {
       if (bloquearFinalizacionInicialSolitario(gameKey, `cronometro ${gameKey}`)) {
-        restante = DURACION
         return
       }
       clearInterval(timerId)
       await endGame("tiempo")
       return
     }
-    restante -= 1
   }
 
   timerId = setInterval(tick, 1000)
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && !juegoTerminado) tick()
+  }, { signal: inputController.signal })
   await tick()
   if (juegoTerminado) return false
   return true
@@ -1471,7 +1475,8 @@ async function saveResult(reason) {
   resultadoEnviado = true
   const invalid = reason === "descalificado" || descalificado
   const finalScore = invalid ? 0 : getCompetitiveValue()
-  const elapsed = Math.max(1, Math.round((performance.now() - startMs) / 1000))
+  const elapsedServer = await obtenerTiempoTranscurridoTorneo(supabase, gameKey, DURACION)
+  const elapsed = Math.max(1, Number(elapsedServer ?? Math.round((performance.now() - startMs) / 1000)))
 
   if (!esMiniTorneo(gameKey) && (finalScore > 0 || gameKey === "esquivaobstaculos") && !invalid) {
     const { data: recordActual, error: recordError } = await supabase
