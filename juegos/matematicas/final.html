@@ -311,6 +311,35 @@ h1{
   background:linear-gradient(135deg, #facc15, #f97316) !important;
   color:#111827 !important;
 }
+.resumen-final-mate{
+  width:min(560px, 100%);
+  margin:14px auto 18px;
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:10px;
+}
+.resumen-final-mate div{
+  min-width:0;
+  padding:12px 8px;
+  border-radius:12px;
+  background:#020617;
+  border:1px solid rgba(250,204,21,0.22);
+}
+.resumen-final-mate span{
+  display:block;
+  font-size:12px;
+  color:#cbd5e1;
+}
+.resumen-final-mate strong{
+  display:block;
+  margin-top:4px;
+  color:#facc15;
+  font-size:20px;
+  overflow-wrap:anywhere;
+}
+@media (max-width:560px){
+  .resumen-final-mate{grid-template-columns:repeat(2, minmax(0, 1fr));}
+}
 </style>
 <link rel="stylesheet" href="../css/responsive-desktop.css">
 <link rel="stylesheet" href="../css/finales.css">
@@ -324,6 +353,8 @@ h1{
 
 <!-- 🧠 POSICIÓN -->
 <!-- se inserta desde final.js -->
+
+<div id="resumenFinal" class="resumen-final-mate"></div>
 
 <div id="podio"></div>
 

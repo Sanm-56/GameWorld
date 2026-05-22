@@ -9,9 +9,11 @@ if (!validarFinalReciente("matematicas")) await new Promise(() => {})
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
+const resumenDiv = document.getElementById("resumenFinal")
 
 const usuario = localStorage.getItem("usuario")
-const fin = localStorage.getItem("fin_juego")
+const resultadoLocal = leerResultadoFinalLocal()
+const fin = localStorage.getItem("fin_juego") || resultadoLocal?.estado || ""
 
 const mensajeDiv = document.createElement("h2")
 document.querySelector(".contenedor").insertBefore(mensajeDiv, podioDiv)
@@ -30,6 +32,8 @@ else{
 mensajeDiv.textContent = "Juego finalizado"
 }
 
+renderResumenFinal()
+
 async function cargar(){
 
 let { data, error } = await supabase
@@ -42,6 +46,8 @@ let { data, error } = await supabase
 podioDiv.innerHTML = ""
 
 if(error || !data) return
+
+data = data.sort(ordenarRankingMatematicas)
 
 let miPos = fin === "descalificado" ? -1 : data.findIndex(j => j.usuario === usuario)
 
@@ -58,15 +64,15 @@ posicionDiv.innerHTML = "Sin posicion"
 podioDiv.innerHTML = ""
 
 if(data[1]){
-podioDiv.innerHTML += `<div>2 ${escapeHtml(data[1].usuario)}<br>${data[1].tiempo}</div>`
+podioDiv.innerHTML += `<div>2 ${escapeHtml(data[1].usuario)}<br>${formatearResumenRanking(data[1])}</div>`
 }
 
 if(data[0]){
-podioDiv.innerHTML += `<div>1 ${escapeHtml(data[0].usuario)}<br>${data[0].tiempo}</div>`
+podioDiv.innerHTML += `<div>1 ${escapeHtml(data[0].usuario)}<br>${formatearResumenRanking(data[0])}</div>`
 }
 
 if(data[2]){
-podioDiv.innerHTML += `<div>3 ${escapeHtml(data[2].usuario)}<br>${data[2].tiempo}</div>`
+podioDiv.innerHTML += `<div>3 ${escapeHtml(data[2].usuario)}<br>${formatearResumenRanking(data[2])}</div>`
 }
 
 rankingDiv.innerHTML = ""
@@ -78,13 +84,90 @@ div.className = `ranking-row${j.usuario === usuario ? " actual" : ""}`
 div.innerHTML = `
 <span>#${i+1}</span>
 <strong>${escapeHtml(j.usuario)}</strong>
-<span>${j.tiempo} pts</span>
+<span>${formatearResumenRanking(j)}</span>
 `
 rankingDiv.appendChild(div)
 aplicarPersonalizacionUsuario(div, j.usuario)
 
 })
 
+}
+
+function normalizarNumero(valor){
+const numero = Number(valor)
+return Number.isFinite(numero) ? numero : 0
+}
+
+function ordenarRankingMatematicas(a, b){
+const puntosDiff = normalizarNumero(b.tiempo) - normalizarNumero(a.tiempo)
+if(puntosDiff !== 0) return puntosDiff
+
+const correctasDiff = normalizarNumero(b.correctas) - normalizarNumero(a.correctas)
+if(correctasDiff !== 0) return correctasDiff
+
+const erroresDiff = normalizarNumero(a.errores) - normalizarNumero(b.errores)
+if(erroresDiff !== 0) return erroresDiff
+
+return new Date(a.fecha || 0) - new Date(b.fecha || 0)
+}
+
+function formatearResumenRanking(j){
+const puntos = normalizarNumero(j.tiempo)
+const totalCorrectas = normalizarNumero(j.correctas)
+const totalErrores = normalizarNumero(j.errores)
+return `${puntos} pts | ${totalCorrectas} C | ${totalErrores} E`
+}
+
+function leerResultadoFinalLocal(){
+try{
+const data = JSON.parse(localStorage.getItem("matematicas_resultado_final") || "null")
+return data && data.usuario === usuario ? data : null
+}catch{
+return null
+}
+}
+
+function renderResumenFinal(){
+if(!resumenDiv) return
+
+if(fin === "descalificado"){
+resumenDiv.innerHTML = `
+<div>
+  <span>Resultado</span>
+  <strong>Descalificado</strong>
+</div>
+`
+return
+}
+
+if(!resultadoLocal){
+resumenDiv.innerHTML = `
+<div>
+  <span>Resultado</span>
+  <strong>Sin resumen local</strong>
+</div>
+`
+return
+}
+
+resumenDiv.innerHTML = `
+<div>
+  <span>Puntos</span>
+  <strong>${normalizarNumero(resultadoLocal.puntos)}</strong>
+</div>
+<div>
+  <span>Correctas</span>
+  <strong>${normalizarNumero(resultadoLocal.correctas)}</strong>
+</div>
+<div>
+  <span>Errores</span>
+  <strong>${normalizarNumero(resultadoLocal.errores)}</strong>
+</div>
+<div>
+  <span>Precision</span>
+  <strong>${normalizarNumero(resultadoLocal.precision)}%</strong>
+</div>
+`
 }
 
 function lanzarConfeti(){
@@ -116,5 +199,6 @@ localStorage.removeItem("fin_juego")
 
 window.volverLobby = async function(){
 limpiarFinalProtegido("matematicas")
+localStorage.removeItem("matematicas_resultado_final")
 await volverDesdeFinal(supabase)
 }

@@ -47,7 +47,7 @@ if(advertencias === 1){
 alert("⚠️ No cambies de pestaña")
 }
 
-else if(advertencias === 2){
+else if(advertencias < MAX_ADVERTENCIAS){
 alert("⚠️ Última advertencia")
 }
 
@@ -59,17 +59,18 @@ if(!resultadoEnviado){
 resultadoEnviado = true
 let error = null
 if(!esMiniTorneo(JUEGO_ACTUAL)){
-const resultadoRanking = await supabase
-.from("ranking")
-.upsert({
+const resultadoRanking = await guardarRankingMatematicas({
 usuario,
 tiempo: 0,
+correctas: 0,
+errores: 0,
+preguntas,
 juego: "matematicas",
 sospechoso: true,
 invalido: true,
 motivo: "Demasiados cambios de pestana",
 fecha: new Date().toISOString()
-}, { onConflict: "usuario,juego" })
+})
 error = resultadoRanking.error
 }
 
@@ -92,6 +93,7 @@ invalido: true,
 motivo: "Demasiados cambios de pestana"
 })
 }
+guardarResultadoFinalLocal("descalificado")
 alert("❌ Descalificado por cambiar de pestaña")
 marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
@@ -104,6 +106,7 @@ window.location.href = "final.html"
 let nivel = 1
 let preguntas = 0
 let correctas = 0
+let errores = 0
 let respuestaCorrecta
 let preguntaInicioMs = performance.now()
 const inicioSesionMs = performance.now()
@@ -142,8 +145,58 @@ const ejerciciosRapidos = Object.fromEntries(umbralesRapidez.map(([key]) => [key
 const DURACION = 600
 let intervalo = null
 
+function actualizarMarcador(){
+const correctasEl = document.getElementById("correctas")
+const erroresEl = document.getElementById("errores")
+if(correctasEl) correctasEl.textContent = String(correctas)
+if(erroresEl) erroresEl.textContent = String(errores)
+}
+
+async function guardarRankingMatematicas(payload){
+const resultado = await supabase
+.from("ranking")
+.upsert(payload, { onConflict: "usuario,juego" })
+
+if(!resultado.error) return resultado
+
+if(payload.correctas !== undefined || payload.errores !== undefined || payload.preguntas !== undefined){
+const { correctas: _correctas, errores: _errores, preguntas: _preguntas, ...payloadLegacy } = payload
+return await supabase
+.from("ranking")
+.upsert(payloadLegacy, { onConflict: "usuario,juego" })
+}
+
+return resultado
+}
+
+function guardarResultadoFinalLocal(estado = "tiempo"){
+const puntos = correctas * 10
+const precision = preguntas > 0 ? Math.round((correctas / preguntas) * 100) : 0
+localStorage.setItem("matematicas_resultado_final", JSON.stringify({
+usuario,
+estado,
+puntos,
+correctas,
+errores,
+preguntas,
+precision,
+fecha: new Date().toISOString()
+}))
+}
+
 function aleatorio(min, max){
 return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function aleatorioCifras(minCifras = 1, maxCifras = 3){
+const cifras = aleatorio(minCifras, maxCifras)
+const min = cifras === 1 ? 1 : Math.pow(10, cifras - 1)
+const max = Math.pow(10, cifras) - 1
+return aleatorio(min, max)
+}
+
+function esDecimalSimple(valor){
+return /^-?\d+(?:[.,]\d+)?$/.test(valor)
 }
 
 function redondear2(numero){
@@ -156,7 +209,7 @@ return Number.isInteger(redondeado) ? String(redondeado) : redondeado.toFixed(2)
 }
 
 function generarDivisionDecimal(){
-const divisor = aleatorio(2, 50)
+const divisor = aleatorioCifras(1, 2)
 const cociente = aleatorio(1000, 9999) / 100
 const dividendo = redondear2(divisor * cociente)
 
@@ -180,9 +233,9 @@ function generarCombinada(){
 const tipo = aleatorio(0, 4)
 
 if(tipo === 0){
-const n1 = aleatorio(2, 25)
-const n2 = aleatorio(2, 40)
-const n3 = aleatorio(2, 40)
+const n1 = aleatorioCifras(1, 2)
+const n2 = aleatorioCifras(1, 3)
+const n3 = aleatorioCifras(1, 3)
 return {
 preguntaTexto: `${n1} × (${n2} + ${n3})`,
 resp: n1 * (n2 + n3)
@@ -190,10 +243,10 @@ resp: n1 * (n2 + n3)
 }
 
 if(tipo === 1){
-const n1 = aleatorio(20, 120)
-const n2 = aleatorio(2, 15)
-const n3 = aleatorio(-20, 20)
-const n4 = aleatorio(-20, 20)
+const n1 = aleatorioCifras(1, 3)
+const n2 = aleatorioCifras(1, 2)
+const n3 = aleatorio(-99, 99)
+const n4 = aleatorio(-99, 99)
 return {
 preguntaTexto: `${n1} - ${n2} × (${n3} + ${n4})`,
 resp: n1 - (n2 * (n3 + n4))
@@ -201,10 +254,10 @@ resp: n1 - (n2 * (n3 + n4))
 }
 
 if(tipo === 2){
-const n1 = aleatorio(2, 20)
-const n2 = aleatorio(2, 30)
-const divisor = aleatorio(2, 12)
-const cociente = aleatorio(1, 20)
+const n1 = aleatorioCifras(1, 2)
+const n2 = aleatorioCifras(1, 3)
+const divisor = aleatorioCifras(1, 2)
+const cociente = aleatorioCifras(1, 2)
 const dividendo = divisor * cociente
 return {
 preguntaTexto: `${n1} × (${n2} + ${dividendo} ÷ ${divisor})`,
@@ -213,21 +266,21 @@ resp: n1 * (n2 + cociente)
 }
 
 if(tipo === 3){
-const n1 = aleatorio(2, 60)
-const n2 = aleatorio(2, 60)
-const n3 = aleatorio(20, 90)
-const n4 = aleatorio(1, 19)
+const n1 = aleatorioCifras(1, 3)
+const n2 = aleatorioCifras(1, 3)
+const n3 = aleatorioCifras(1, 3)
+const n4 = aleatorioCifras(1, 2)
 return {
 preguntaTexto: `(${n1} + ${n2}) × (${n3} - ${n4})`,
 resp: (n1 + n2) * (n3 - n4)
 }
 }
 
-const divisor = aleatorio(2, 20)
-const cociente = aleatorio(5, 60)
+const divisor = aleatorioCifras(1, 2)
+const cociente = aleatorioCifras(1, 2)
 const dividendo = divisor * cociente
-const n1 = aleatorio(2, 20)
-const n2 = aleatorio(2, 20)
+const n1 = aleatorioCifras(1, 2)
+const n2 = aleatorioCifras(1, 3)
 return {
 preguntaTexto: `${dividendo} ÷ ${divisor} + ${n1} × ${n2}`,
 resp: cociente + (n1 * n2)
@@ -240,8 +293,8 @@ let preguntaTexto = ""
 let resp = 0
 
 if(nivel <= 5){
-let n1 = aleatorio(100, 999)
-let n2 = aleatorio(100, 999)
+let n1 = aleatorioCifras()
+let n2 = aleatorioCifras()
 
 if(Math.random() < 0.5){
 preguntaTexto = `${n1} + ${n2}`
@@ -253,25 +306,25 @@ resp = n1 - n2
 }
 
 else if(nivel <= 10){
-let n1 = aleatorio(100, 999)
-let n2 = aleatorio(100, 999)
+let n1 = aleatorioCifras()
+let n2 = aleatorioCifras()
 
 preguntaTexto = `${n1} × ${n2}`
 resp = n1 * n2
 }
 
 else if(nivel <= 15){
-let n1 = aleatorio(100, 999)
-let n2 = aleatorio(100, 999)
-let n3 = aleatorio(100, 999)
+let n1 = aleatorioCifras()
+let n2 = aleatorioCifras()
+let n3 = aleatorioCifras()
 
 preguntaTexto = `${n1} + ${n2} × ${n3}`
 resp = n1 + (n2 * n3)
 }
 
 else if(nivel <= 20){
-let n2 = aleatorio(10, 99)
-let respBase = aleatorio(100, 999)
+let n2 = aleatorioCifras(1, 2)
+let respBase = aleatorioCifras()
 let n1 = n2 * respBase
 
 preguntaTexto = `${n1} ÷ ${n2}`
@@ -304,13 +357,16 @@ preguntaInicioMs = performance.now()
 }
 
 window.responder = function(){
+if(juegoTerminado) return
 
 let respuestaValor = document.getElementById("respuesta").value.trim()
-let r = respuestaValor === "" ? NaN : Number(respuestaValor.replace(",", "."))
+let r = esDecimalSimple(respuestaValor) ? Number(respuestaValor.replace(",", ".")) : NaN
 const segundosRespuesta = (performance.now() - preguntaInicioMs) / 1000
+const tolerancia = Number.isInteger(respuestaCorrecta) ? 0 : 0.01
 
-if(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= 0.01){
+if(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= tolerancia){
 correctas++
+actualizarMarcador()
 registrarCheckpointNivel(JUEGO_ACTUAL, correctas * 10, "points")
 rachaCorrectas++
 mejorRachaCorrectas = Math.max(mejorRachaCorrectas, rachaCorrectas)
@@ -341,10 +397,12 @@ mejorRachaRapida5s = Math.max(mejorRachaRapida5s, rachaRapida5s)
 correctasTiempos.push((performance.now() - inicioSesionMs) / 1000)
 document.getElementById("resultado").textContent = "✅ Bien"
 }else{
+errores++
+actualizarMarcador()
 document.getElementById("resultado").textContent = "❌ Mal. Era " + formatearNumero(respuestaCorrecta)
 }
 
-if(!(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= 0.01)){
+if(!(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= tolerancia)){
 rachaCorrectas = 0
 rachaRapida3s = 0
 rachaRapida5s = 0
@@ -429,6 +487,7 @@ const reloj = document.getElementById("reloj")
 const relojTorneo = await crearRelojTorneo(supabase, JUEGO_ACTUAL, DURACION)
 if(!relojTorneo){
 console.warn("No hay inicio valido para matematicas")
+window.location.href = salidaTorneoUrl()
 return
 }
 
@@ -451,6 +510,10 @@ return
 clearInterval(intervalo)
 
 juegoTerminado = true
+const respuestaInput = document.getElementById("respuesta")
+const botonResponder = document.querySelector(".btn.responder")
+if(respuestaInput) respuestaInput.disabled = true
+if(botonResponder) botonResponder.disabled = true
 
 if(!resultadoEnviado && !descalificado){
 
@@ -458,17 +521,18 @@ resultadoEnviado = true
 
 let error = null
 if(!esMiniTorneo(JUEGO_ACTUAL)){
-const resultadoRanking = await supabase
-.from("ranking")
-.upsert({
+const resultadoRanking = await guardarRankingMatematicas({
 usuario,
 tiempo: correctas * 10,
+correctas,
+errores,
+preguntas,
 juego: "matematicas",
 sospechoso: false,
 invalido: false,
 motivo: "",
 fecha: new Date().toISOString()
-}, { onConflict: "usuario,juego" })
+})
 error = resultadoRanking.error
 }
 
@@ -495,6 +559,7 @@ await guardarEstadisticasMatematicas()
 
 // ✅ marcar como terminado correctamente
 localStorage.setItem("fin_juego","tiempo")
+guardarResultadoFinalLocal()
 
 marcarFinalValido(JUEGO_ACTUAL)
 window.location.href="final.html"
@@ -524,4 +589,5 @@ setInterval(revisarEstado,3000)
 
 // 🚀 INICIO
 generarPregunta()
+actualizarMarcador()
 iniciarCronometro()

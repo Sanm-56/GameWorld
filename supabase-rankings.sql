@@ -4,6 +4,9 @@ create table if not exists public.ranking (
   usuario_id text,
   juego text not null,
   tiempo integer not null default 0,
+  correctas integer not null default 0,
+  errores integer not null default 0,
+  preguntas integer not null default 0,
   fecha timestamptz not null default now(),
   sospechoso boolean not null default false,
   invalido boolean not null default false,
@@ -28,6 +31,15 @@ add column if not exists juego text;
 
 alter table public.ranking
 add column if not exists tiempo integer not null default 0;
+
+alter table public.ranking
+add column if not exists correctas integer not null default 0;
+
+alter table public.ranking
+add column if not exists errores integer not null default 0;
+
+alter table public.ranking
+add column if not exists preguntas integer not null default 0;
 
 alter table public.ranking
 add column if not exists fecha timestamptz not null default now();
