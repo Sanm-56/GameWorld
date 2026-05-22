@@ -259,6 +259,110 @@ h1{
   line-height:1.4;
 }
 
+.vip-private{
+  display:grid;
+  gap:12px;
+  margin-top:14px;
+  border:1px solid rgba(250,204,21,.18);
+  border-radius:8px;
+  padding:14px;
+  background:rgba(2,6,23,.34);
+}
+
+.vip-private-head{
+  display:grid;
+  gap:5px;
+}
+
+.vip-private-head strong,
+.vip-private-room-head strong,
+.vip-private-rules strong,
+.vip-private-list strong{
+  color:#fef3c7;
+}
+
+.vip-private-head span,
+.vip-private-rules span,
+.vip-private-list span,
+.vip-private-room-head p,
+.vip-private-meta span{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.vip-private-form{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+}
+
+.vip-private-status{
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:9px 10px;
+  color:var(--muted);
+  background:rgba(15,23,42,.52);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.vip-private-status.ok{
+  border-color:rgba(34,197,94,.28);
+  color:#bbf7d0;
+}
+
+.vip-private-status.bad{
+  border-color:rgba(248,113,113,.32);
+  color:#fecaca;
+}
+
+.vip-private-room{
+  display:grid;
+  gap:10px;
+}
+
+.vip-private-room-card{
+  display:grid;
+  gap:12px;
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:8px;
+  padding:12px;
+  background:linear-gradient(145deg,rgba(15,23,42,.9),rgba(30,41,59,.56));
+}
+
+.vip-private-room-head,
+.vip-private-meta{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.vip-private-room-head p{
+  margin:5px 0 0;
+}
+
+.vip-private-pill{
+  flex:0 0 auto;
+  border:1px solid rgba(250,204,21,.22);
+  border-radius:999px;
+  padding:6px 9px;
+  color:#fef3c7;
+  background:rgba(120,53,15,.2);
+  font-size:12px;
+  font-weight:900;
+}
+
+.vip-private-rules,
+.vip-private-list{
+  display:grid;
+  gap:5px;
+}
+
 .vip-summary{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -472,6 +576,9 @@ h1{
   .vip-main{grid-template-columns:1fr;padding:18px}
   .vip-game-card{grid-template-columns:1fr}
   .vip-social-card{grid-template-columns:1fr}
+  .vip-private-form{grid-template-columns:1fr}
+  .vip-private-room-head,
+  .vip-private-meta{display:grid}
   .vip-summary{grid-template-columns:1fr}
   .vip-history-row{grid-template-columns:1fr}
   .vip-converter-head{display:grid}
@@ -534,6 +641,18 @@ h1{
           </div>
           <button class="vip-button primary" type="button" onclick="window.location.href='juegos/vip/social/index.html'">Entrar</button>
         </div>
+        <div class="vip-private" id="vipPrivateTournaments">
+          <div class="vip-private-head">
+            <strong>Minitorneos VIP privados</strong>
+            <span>Competencias por invitacion con inscripcion confirmada por sala.</span>
+          </div>
+          <div class="vip-private-form">
+            <input class="vip-input" type="text" maxlength="64" autocomplete="off" placeholder="Codigo privado de sala" aria-label="Codigo privado de sala" data-vip-private-code>
+            <button class="vip-button primary" type="button" data-vip-private-join>Entrar</button>
+          </div>
+          <div class="vip-private-status" data-vip-private-status>Ingresa un codigo privado para validar tu inscripcion.</div>
+          <div class="vip-private-room" data-vip-private-room></div>
+        </div>
         <div class="vip-converter" id="vipConverter">
           <div class="vip-converter-head">
             <div>
@@ -576,6 +695,7 @@ import { supabase } from "./juegos/js/supabase.js"
 import { validateVipSession, clearVipStatusCache, getVipIdentity } from "./juegos/js/vip.js"
 import { renderVipGames, VIP_GAMES } from "./juegos/js/vip-games.js"
 import { convertVipCoinsToNormal, getVipGameHistory, getVipRanking, getVipWallet } from "./juegos/js/vip-results.js"
+import { initVipPrivateTournaments } from "./juegos/js/vip-private-tournaments.js"
 import { escapeHtml } from "./juegos/js/mensajes.js"
 
 const statusElement = document.getElementById("vipStatus")
@@ -594,6 +714,7 @@ async function verifyVip() {
   const ok = await validateVipSession({ statusElement, lockedElement, contentElement })
   if (ok) {
     renderVipGames(document.getElementById("vipGameList"))
+    initVipPrivateTournaments(document.getElementById("vipPrivateTournaments"))
     initVipRanking()
     await renderVipRanking()
     await renderVipActivity()

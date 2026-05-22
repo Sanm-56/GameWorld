@@ -1168,6 +1168,109 @@ th:last-child{
       <p class="export-note">El admin crea la sala y el sistema canta numeros automaticamente desde este panel hasta encontrar ganador o terminar los 75 numeros.</p>
     </div>
 
+    <div class="section reward-admin-panel" id="adminVipPrivatePanel">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Competencia privada</span>
+          <h3>Minitorneos VIP privados</h3>
+        </div>
+        <button class="ghost" onclick="cargarMinitorneosVipPrivadosAdmin()">Actualizar privados</button>
+      </div>
+
+      <div class="reward-admin-grid">
+        <div class="reward-admin-block">
+          <h4 id="vipPrivateFormTitle">Crear minitorneo privado</h4>
+          <input id="vipPrivateTournamentId" type="hidden">
+          <label>
+            Nombre
+            <input id="vipPrivateTitle" type="text" placeholder="Reto privado viernes" autocomplete="off">
+          </label>
+          <label>
+            Codigo privado
+            <input id="vipPrivateCode" type="text" placeholder="vip-viernes-01" autocomplete="off">
+          </label>
+          <label>
+            Juego
+            <select id="vipPrivateGame">
+              <option value="reflejos-vip">Reflejos VIP</option>
+            </select>
+          </label>
+          <label>
+            Estado
+            <select id="vipPrivateStatusSelect">
+              <option value="borrador">Borrador</option>
+              <option value="inscripcion">Inscripcion</option>
+              <option value="lista">Lista</option>
+              <option value="en_juego">En juego</option>
+              <option value="finalizada">Finalizada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="archivada">Archivada</option>
+            </select>
+          </label>
+          <label>
+            Cupo maximo
+            <input id="vipPrivateMaxPlayers" type="number" min="1" max="100" step="1" value="8">
+          </label>
+          <label>
+            Inicio
+            <input id="vipPrivateStart" type="datetime-local">
+          </label>
+          <label>
+            Fin
+            <input id="vipPrivateEnd" type="datetime-local">
+          </label>
+          <label>
+            Reglas
+            <textarea id="vipPrivateRules" rows="3" placeholder="Reglas visibles para participantes autorizados"></textarea>
+          </label>
+          <label>
+            Reconocimiento
+            <textarea id="vipPrivateRecognition" rows="2" placeholder="Premio interno o reconocimiento sin apuestas"></textarea>
+          </label>
+          <div class="reward-admin-actions">
+            <button class="success" onclick="guardarMinitorneoVipPrivadoAdmin()">Guardar sala</button>
+            <button type="button" onclick="limpiarMinitorneoVipPrivadoAdmin()">Limpiar</button>
+          </div>
+          <p class="export-note">Usa solo juegos de habilidad. La inscripcion confirmada se controla por sala.</p>
+        </div>
+
+        <div class="reward-admin-block">
+          <h4>Confirmar participante</h4>
+          <label>
+            ID de sala
+            <input id="vipPrivatePlayerTournamentId" type="number" min="1" step="1" placeholder="ID">
+          </label>
+          <label>
+            Usuario exacto
+            <input id="vipPrivatePlayerUser" type="text" placeholder="Apodo registrado" autocomplete="off">
+          </label>
+          <label>
+            Estado de inscripcion
+            <select id="vipPrivatePlayerStatus">
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="cortesia">Cortesia</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="rechazada">Rechazada</option>
+            </select>
+          </label>
+          <label>
+            Nota interna
+            <textarea id="vipPrivatePlayerNotes" rows="2" placeholder="Referencia interna opcional"></textarea>
+          </label>
+          <div class="reward-admin-actions">
+            <button class="success" onclick="guardarParticipanteVipPrivadoAdmin()">Guardar participante</button>
+          </div>
+          <div class="reward-summary-box" id="vipPrivateAdminStatus">Inicia sesion para administrar minitorneos VIP privados.</div>
+        </div>
+      </div>
+
+      <div class="reward-history-list" id="vipPrivateTournamentList">
+        <div class="export-note">Las salas privadas apareceran despues de iniciar sesion.</div>
+      </div>
+      <p class="export-note">Estas salas no usan rankings normales, minitorneos normales ni niveles. El codigo privado solo se muestra aqui para el admin.</p>
+    </div>
+
     <div class="section reward-admin-panel" id="adminRewardsPanel">
       <div class="section-heading">
         <div>

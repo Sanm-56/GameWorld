@@ -52,6 +52,8 @@ let vipEventsRequestId = 0
 let vipEventsCache = []
 let vipBingoRoomsRequestId = 0
 const vipBingoRoomTimers = new Map()
+let vipPrivateTournamentsRequestId = 0
+let vipPrivateTournamentsCache = []
 let rewardUserSeleccionado = null
 let rewardAmountSeleccionado = 100
 let rewardHistoryChannel = null
@@ -191,6 +193,7 @@ cargarMiniTorneosAdmin()
 cargarMembresiasVipAdmin()
 cargarEventosVipAdmin()
 cargarSalasBingoVipAdmin()
+cargarMinitorneosVipPrivadosAdmin()
 cargarHistorialRegalosAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
@@ -222,6 +225,7 @@ cargarMiniTorneosAdmin()
 cargarMembresiasVipAdmin()
 cargarEventosVipAdmin()
 cargarSalasBingoVipAdmin()
+cargarMinitorneosVipPrivadosAdmin()
 cargarHistorialRegalosAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
@@ -1108,6 +1112,291 @@ await cargarEventosVipAdmin()
 }
 
 // =============================
+// MINITORNEOS VIP PRIVADOS
+// =============================
+function limpiarCodigoPrivadoVip(valor){
+return cleanText(valor || "", "").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 64)
+}
+
+function estadoMinitorneoVipPrivadoLabel(estado){
+const labels = {
+borrador: "Borrador",
+inscripcion: "Inscripcion",
+lista: "Lista",
+en_juego: "En juego",
+finalizada: "Finalizada",
+cancelada: "Cancelada",
+archivada: "Archivada",
+pendiente: "Pendiente",
+confirmada: "Confirmada",
+cortesia: "Cortesia",
+rechazada: "Rechazada",
+}
+return labels[estado] || estado || "-"
+}
+
+function limpiarMinitorneoVipPrivadoAdmin(){
+const now = new Date()
+const end = new Date(now.getTime() + 2 * 3600000)
+const fields = {
+vipPrivateTournamentId: "",
+vipPrivateTitle: "",
+vipPrivateCode: "",
+vipPrivateGame: "reflejos-vip",
+vipPrivateStatusSelect: "borrador",
+vipPrivateMaxPlayers: "8",
+vipPrivateStart: formatoDatetimeLocal(now),
+vipPrivateEnd: formatoDatetimeLocal(end),
+vipPrivateRules: "",
+vipPrivateRecognition: "",
+}
+Object.entries(fields).forEach(([id, value]) => {
+const el = document.getElementById(id)
+if(el) el.value = value
+})
+const title = document.getElementById("vipPrivateFormTitle")
+if(title) setCleanText(title, "Crear minitorneo privado")
+}
+
+function obtenerPayloadMinitorneoVipPrivadoAdmin(){
+const idRaw = document.getElementById("vipPrivateTournamentId")?.value || ""
+const title = cleanText(document.getElementById("vipPrivateTitle")?.value || "", "").trim()
+const privateCode = limpiarCodigoPrivadoVip(document.getElementById("vipPrivateCode")?.value || "")
+const gameKey = cleanText(document.getElementById("vipPrivateGame")?.value || "reflejos-vip", "reflejos-vip")
+const status = cleanText(document.getElementById("vipPrivateStatusSelect")?.value || "borrador", "borrador")
+const maxPlayers = Math.max(1, Math.min(100, Math.trunc(Number(document.getElementById("vipPrivateMaxPlayers")?.value || 8))))
+const startRaw = document.getElementById("vipPrivateStart")?.value || ""
+const endRaw = document.getElementById("vipPrivateEnd")?.value || ""
+const startsAt = startRaw ? new Date(startRaw) : null
+const endsAt = endRaw ? new Date(endRaw) : null
+return {
+id: idRaw ? Math.trunc(Number(idRaw)) : null,
+title,
+privateCode,
+gameKey,
+status,
+maxPlayers,
+startsAt,
+endsAt,
+rules: cleanText(document.getElementById("vipPrivateRules")?.value || "", "").trim(),
+recognition: cleanText(document.getElementById("vipPrivateRecognition")?.value || "", "").trim(),
+}
+}
+
+function validarMinitorneoVipPrivadoAdmin(payload){
+if(!payload.title) return "El minitorneo privado necesita nombre."
+if(!payload.privateCode) return "Escribe un codigo privado valido."
+if(!payload.gameKey) return "Selecciona un juego valido."
+if(payload.startsAt && Number.isNaN(payload.startsAt.getTime())) return "Selecciona un inicio valido."
+if(payload.endsAt && Number.isNaN(payload.endsAt.getTime())) return "Selecciona un fin valido."
+if(payload.startsAt && payload.endsAt && payload.endsAt < payload.startsAt) return "El fin no puede ser anterior al inicio."
+return ""
+}
+
+async function cargarMinitorneosVipPrivadosAdmin(){
+const list = document.getElementById("vipPrivateTournamentList")
+const status = document.getElementById("vipPrivateAdminStatus")
+if(!list) return
+
+const requestId = ++vipPrivateTournamentsRequestId
+list.innerHTML = '<div class="export-note">Cargando minitorneos VIP privados...</div>'
+
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_private_listar_torneos")
+if(requestId !== vipPrivateTournamentsRequestId) return
+
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudieron cargar minitorneos VIP privados. Reaplica supabase-vip.sql actualizado.")
+if(status) setCleanText(status, mensaje)
+list.innerHTML = `<div class="export-note">${escapeHtml(mensaje)}</div>`
+return
+}
+
+vipPrivateTournamentsCache = Array.isArray(rpc.data?.items) ? rpc.data.items : []
+if(status) setCleanText(status, `${vipPrivateTournamentsCache.length} sala${vipPrivateTournamentsCache.length === 1 ? "" : "s"} privada${vipPrivateTournamentsCache.length === 1 ? "" : "s"} registrada${vipPrivateTournamentsCache.length === 1 ? "" : "s"}.`)
+
+if(!vipPrivateTournamentsCache.length){
+list.innerHTML = '<div class="export-note">No hay minitorneos VIP privados registrados.</div>'
+return
+}
+
+list.innerHTML = vipPrivateTournamentsCache.map((item) => {
+const inicio = item.starts_at ? new Date(item.starts_at).toLocaleString("es-CO") : "-"
+const fin = item.ends_at ? new Date(item.ends_at).toLocaleString("es-CO") : "-"
+const players = Array.isArray(item.players) ? item.players : []
+const results = Array.isArray(item.results) ? item.results : []
+const playersText = players.length
+? players.map((player) => `${player.display_name || player.usuario_id} (${estadoMinitorneoVipPrivadoLabel(player.entry_status)})`).join(", ")
+: "Sin participantes registrados"
+const resultsText = results.length
+? results.slice(0, 5).map((result, index) => `#${index + 1} ${result.usuario_id}: ${Number(result.score || 0)} pts`).join(" | ")
+: "Sin resultados"
+return `
+  <div class="reward-history-row">
+    <strong>#${Number(item.id)} ${escapeHtml(item.title || "Minitorneo VIP privado")} - ${escapeHtml(estadoMinitorneoVipPrivadoLabel(item.status))}</strong>
+    <span>Codigo: ${escapeHtml(item.private_code || "-")} | Juego: ${escapeHtml(item.game_key || "-")} | Cupos: ${Number(item.players_confirmed || 0)}/${Number(item.max_players || 0)}</span>
+    <span>${escapeHtml(inicio)} - ${escapeHtml(fin)}</span>
+    <span>Participantes: ${escapeHtml(playersText)}</span>
+    <span>Resultados: ${escapeHtml(resultsText)}</span>
+    <div class="reward-admin-actions">
+      <button type="button" onclick="editarMinitorneoVipPrivadoAdmin(${Number(item.id)})">Editar</button>
+      <button type="button" onclick="prepararParticipanteVipPrivadoAdmin(${Number(item.id)})">Participante</button>
+      <button type="button" onclick="cambiarEstadoMinitorneoVipPrivadoAdmin(${Number(item.id)}, 'inscripcion')">Inscripcion</button>
+      <button type="button" onclick="cambiarEstadoMinitorneoVipPrivadoAdmin(${Number(item.id)}, 'en_juego')">Iniciar</button>
+      <button type="button" onclick="finalizarMinitorneoVipPrivadoAdmin(${Number(item.id)})">Finalizar</button>
+    </div>
+    <button class="danger" type="button" onclick="cambiarEstadoMinitorneoVipPrivadoAdmin(${Number(item.id)}, 'archivada')">Archivar</button>
+  </div>
+`
+}).join("")
+}
+
+function editarMinitorneoVipPrivadoAdmin(id){
+const item = vipPrivateTournamentsCache.find((torneo) => Number(torneo.id) === Number(id))
+if(!item){
+safeAlert("Minitorneo VIP privado no encontrado.")
+return
+}
+const fields = {
+vipPrivateTournamentId: item.id || "",
+vipPrivateTitle: item.title || "",
+vipPrivateCode: item.private_code || "",
+vipPrivateGame: item.game_key || "reflejos-vip",
+vipPrivateStatusSelect: item.status || "borrador",
+vipPrivateMaxPlayers: item.max_players || 8,
+vipPrivateStart: formatoDatetimeLocal(item.starts_at),
+vipPrivateEnd: formatoDatetimeLocal(item.ends_at),
+vipPrivateRules: item.rules || "",
+vipPrivateRecognition: item.recognition || "",
+}
+Object.entries(fields).forEach(([idCampo, value]) => {
+const el = document.getElementById(idCampo)
+if(el) el.value = value
+})
+const title = document.getElementById("vipPrivateFormTitle")
+if(title) setCleanText(title, "Editar minitorneo privado")
+prepararParticipanteVipPrivadoAdmin(item.id)
+document.getElementById("vipPrivateTitle")?.focus()
+}
+
+function prepararParticipanteVipPrivadoAdmin(id){
+const input = document.getElementById("vipPrivatePlayerTournamentId")
+if(input) input.value = String(id || "")
+document.getElementById("vipPrivatePlayerUser")?.focus()
+}
+
+async function guardarMinitorneoVipPrivadoAdmin(){
+let payload
+try{
+payload = obtenerPayloadMinitorneoVipPrivadoAdmin()
+}catch(error){
+safeAlert(error.message)
+return
+}
+const error = validarMinitorneoVipPrivadoAdmin(payload)
+if(error){
+safeAlert(error)
+return
+}
+
+const ok = await confirmAction(payload.id ? "Guardar cambios del minitorneo VIP privado?" : "Crear minitorneo VIP privado?", { title: "Minitorneo VIP privado", acceptText: "Guardar", danger: false })
+if(!ok) return
+
+const status = document.getElementById("vipPrivateAdminStatus")
+if(status) setCleanText(status, "Guardando minitorneo VIP privado...")
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_private_guardar_torneo", {
+p_tournament_id: payload.id,
+p_title: payload.title,
+p_private_code: payload.privateCode,
+p_game_key: payload.gameKey,
+p_max_players: payload.maxPlayers,
+p_rules: payload.rules,
+p_recognition: payload.recognition,
+p_starts_at: payload.startsAt ? payload.startsAt.toISOString() : null,
+p_ends_at: payload.endsAt ? payload.endsAt.toISOString() : null,
+p_status: payload.status,
+p_config: {},
+})
+
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo guardar el minitorneo VIP privado.")
+if(status) setCleanText(status, mensaje)
+safeAlert(mensaje)
+return
+}
+
+if(status) setCleanText(status, "Minitorneo VIP privado guardado.")
+safeAlert("Minitorneo VIP privado guardado.")
+limpiarMinitorneoVipPrivadoAdmin()
+await cargarMinitorneosVipPrivadosAdmin()
+}
+
+async function guardarParticipanteVipPrivadoAdmin(){
+const tournamentId = Math.trunc(Number(document.getElementById("vipPrivatePlayerTournamentId")?.value || 0))
+const usuario = cleanText(document.getElementById("vipPrivatePlayerUser")?.value || "", "").trim()
+const entryStatus = cleanText(document.getElementById("vipPrivatePlayerStatus")?.value || "pendiente", "pendiente")
+const notes = cleanText(document.getElementById("vipPrivatePlayerNotes")?.value || "", "").trim()
+if(!tournamentId){
+safeAlert("Indica el ID de la sala privada.")
+return
+}
+if(!usuario){
+safeAlert("Escribe el apodo exacto del usuario.")
+return
+}
+
+const ok = await confirmAction(`Guardar inscripcion ${entryStatus} para ${usuario}?`, { title: "Inscripcion privada VIP", acceptText: "Guardar", danger: entryStatus === "rechazada" || entryStatus === "cancelada" })
+if(!ok) return
+
+const status = document.getElementById("vipPrivateAdminStatus")
+if(status) setCleanText(status, "Guardando participante...")
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_private_guardar_participante", {
+p_tournament_id: tournamentId,
+p_usuario: usuario,
+p_entry_status: entryStatus,
+p_display_name: usuario,
+p_notes: notes,
+})
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo guardar el participante VIP privado.")
+if(status) setCleanText(status, mensaje)
+safeAlert(mensaje)
+return
+}
+if(status) setCleanText(status, "Participante actualizado.")
+document.getElementById("vipPrivatePlayerUser").value = ""
+document.getElementById("vipPrivatePlayerNotes").value = ""
+await cargarMinitorneosVipPrivadosAdmin()
+}
+
+async function cambiarEstadoMinitorneoVipPrivadoAdmin(id, estado){
+const ok = await confirmAction(`Cambiar sala #${id} a ${estadoMinitorneoVipPrivadoLabel(estado)}?`, { title: "Estado minitorneo VIP", acceptText: "Cambiar", danger: ["cancelada", "archivada"].includes(estado) })
+if(!ok) return
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_private_cambiar_estado", {
+p_tournament_id: Number(id),
+p_status: estado,
+})
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo cambiar el estado del minitorneo VIP privado."))
+return
+}
+await cargarMinitorneosVipPrivadosAdmin()
+}
+
+async function finalizarMinitorneoVipPrivadoAdmin(id){
+const ganador = await promptAction("Usuario ganador opcional. Deja vacio para finalizar sin marcar ganador.", { title: "Finalizar minitorneo VIP", acceptText: "Finalizar", cancelText: "Cancelar", danger: false })
+if(ganador === null) return
+const rpc = await ejecutarRpcAdminObjeto("admin_vip_private_finalizar_torneo", {
+p_tournament_id: Number(id),
+p_winner_usuario: cleanText(ganador || "", "").trim() || null,
+})
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo finalizar el minitorneo VIP privado."))
+return
+}
+await cargarMinitorneosVipPrivadosAdmin()
+}
+
+// =============================
 // SALAS BINGO VIP
 // =============================
 function limpiarCodigoSalaVip(valor){
@@ -1413,6 +1702,25 @@ supabase
 // =============================
 // 🚀 INICIAR TORNEO (MEJORADO)
 // =============================
+supabase
+.channel("admin-vip-private-cambios")
+.on(
+"postgres_changes",
+{ event: "*", schema: "public", table: "vip_private_tournaments" },
+() => cargarMinitorneosVipPrivadosAdmin()
+)
+.on(
+"postgres_changes",
+{ event: "*", schema: "public", table: "vip_private_tournament_players" },
+() => cargarMinitorneosVipPrivadosAdmin()
+)
+.on(
+"postgres_changes",
+{ event: "*", schema: "public", table: "vip_private_tournament_results" },
+() => cargarMinitorneosVipPrivadosAdmin()
+)
+.subscribe()
+
 async function iniciarTorneo(){
 
 const juegoAdmin = document.getElementById("juegoSelect").value
@@ -2405,6 +2713,14 @@ window.cantarNumeroBingoVipAdmin = cantarNumeroBingoVipAdmin
 window.alternarAutoBingoVipAdmin = alternarAutoBingoVipAdmin
 window.finalizarSalaBingoVipAdmin = finalizarSalaBingoVipAdmin
 window.borrarSalaBingoVipAdmin = borrarSalaBingoVipAdmin
+window.cargarMinitorneosVipPrivadosAdmin = cargarMinitorneosVipPrivadosAdmin
+window.guardarMinitorneoVipPrivadoAdmin = guardarMinitorneoVipPrivadoAdmin
+window.limpiarMinitorneoVipPrivadoAdmin = limpiarMinitorneoVipPrivadoAdmin
+window.editarMinitorneoVipPrivadoAdmin = editarMinitorneoVipPrivadoAdmin
+window.prepararParticipanteVipPrivadoAdmin = prepararParticipanteVipPrivadoAdmin
+window.guardarParticipanteVipPrivadoAdmin = guardarParticipanteVipPrivadoAdmin
+window.cambiarEstadoMinitorneoVipPrivadoAdmin = cambiarEstadoMinitorneoVipPrivadoAdmin
+window.finalizarMinitorneoVipPrivadoAdmin = finalizarMinitorneoVipPrivadoAdmin
 window.confirmarRegaloAdmin = confirmarRegaloAdmin
 window.limpiarRegaloAdmin = limpiarRegaloAdmin
 window.cargarHistorialRegalosAdmin = cargarHistorialRegalosAdmin

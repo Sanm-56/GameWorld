@@ -278,6 +278,7 @@ button:disabled{
 <script type="module">
 import { validateVipSession } from "../../js/vip.js"
 import { calculateVipRewards, getVipGameHistory, registerVipGameResult } from "../../js/vip-results.js"
+import { submitVipPrivateTournamentResult, validateVipPrivateTournamentLaunch } from "../../js/vip-private-tournaments.js"
 
 const content = document.getElementById("gameContent")
 const statusEl = document.getElementById("statusEl")
@@ -308,6 +309,7 @@ let hits = 0
 let misses = 0
 let combo = 0
 let bestCombo = 0
+let privateTournamentState = null
 
 function currentMode() {
   return MODES[modeSelect?.value] || MODES.classic
@@ -333,6 +335,10 @@ function updateHud() {
 
 async function renderHistory() {
   if (!historyEl) return
+  if (privateTournamentState) {
+    historyEl.textContent = "Resultado privado pendiente para esta sala."
+    return
+  }
   const history = await getVipGameHistory({ gameKey: "reflejos-vip", limit: 5 })
   if (!history.length) {
     historyEl.textContent = "Sin partidas todavia."
@@ -401,23 +407,37 @@ async function finishGame() {
   const total = hits + misses
   const accuracy = total ? Math.round((hits / total) * 100) : 100
   const rewards = calculateVipRewards({ score, hits, accuracy, bestCombo })
-  const saved = await registerVipGameResult({
-    gameKey: "reflejos-vip",
-    gameTitle: "Reflejos VIP",
+  const metrics = {
+    hits,
+    misses,
+    total,
+    accuracy,
+    bestCombo,
+    modeKey,
     mode: currentMode().label,
-    score,
-    metrics: {
-      hits,
-      misses,
-      total,
-      accuracy,
-      bestCombo,
-      modeKey,
-    },
-    rewards,
-  })
+  }
+  const saved = privateTournamentState
+    ? await submitVipPrivateTournamentResult({
+      gameKey: "reflejos-vip",
+      tournamentId: privateTournamentState.tournament?.id,
+      score,
+      timeSeconds: currentMode().seconds,
+      metrics,
+    })
+    : await registerVipGameResult({
+      gameKey: "reflejos-vip",
+      gameTitle: "Reflejos VIP",
+      mode: currentMode().label,
+      score,
+      metrics,
+      rewards,
+    })
   updateHud()
   await renderHistory()
+  if (privateTournamentState) {
+    setStatus(saved.ok ? "Resultado privado VIP guardado. No entra a ranking normal ni historial VIP general." : saved.message || "No se pudo guardar resultado privado VIP.")
+    return
+  }
   const remoteText = saved.remote ? "Resultado VIP guardado." : "Resultado guardado localmente."
   setStatus(`${remoteText} +${rewards.vipCoins} monedas VIP, +${rewards.vipXp} XP VIP, +${rewards.vipTickets} tickets. No entra a rankings normales.`)
 }
@@ -464,7 +484,15 @@ function togglePause() {
 
 const ok = await validateVipSession({ statusElement: statusEl, contentElement: content })
 if (ok) {
-  setStatus("Acceso VIP activo. Listo para jugar.")
+  const privateAccess = await validateVipPrivateTournamentLaunch("reflejos-vip")
+  if (privateAccess.privateTournament && !privateAccess.ok) {
+    setStatus(privateAccess.message || "No se pudo validar el minitorneo VIP privado.")
+    startBtn.disabled = true
+    pauseBtn.disabled = true
+  } else {
+    privateTournamentState = privateAccess.ok ? privateAccess.state : null
+    setStatus(privateTournamentState ? "Minitorneo VIP privado validado. Listo para jugar." : "Acceso VIP activo. Listo para jugar.")
+  }
   updateHud()
   await renderHistory()
 } else {
