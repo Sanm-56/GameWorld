@@ -19,6 +19,7 @@ import {
 } from "./tienda.js"
 import { clearVipStatusCache, getVipStatus } from "./vip.js"
 import { confirmAction, escapeHtml, safeAlert } from "./mensajes.js"
+import { abrirCheckoutWompi } from "./wompi-tienda.js"
 
 const modal = document.getElementById("storeModal")
 const boosterList = document.getElementById("storeBoosters")
@@ -153,7 +154,7 @@ async function renderTienda() {
     button.addEventListener("click", () => comprarConMonedas("coin-booster", button.dataset.buyCoinBooster))
   })
   modal.querySelectorAll("[data-real-buy]").forEach((button) => {
-    button.addEventListener("click", compraRealPendiente)
+    button.addEventListener("click", () => comprarConWompi(button.dataset.realBuy))
   })
   vipList.querySelectorAll("[data-buy-vip]").forEach((button) => {
     button.addEventListener("click", () => comprarVipConMonedas(button.dataset.buyVip))
@@ -486,8 +487,19 @@ async function comprarVipConMonedas(planId) {
   await renderTienda()
 }
 
-function compraRealPendiente() {
-  statusEl.textContent = "Compra con dinero real preparada visualmente. La pasarela de pago todavia no esta conectada."
+async function comprarConWompi(producto) {
+  const usuario = usuarioActual()
+  if (!usuario) {
+    safeAlert("Primero entra a un juego con tu apodo.")
+    return
+  }
+
+  statusEl.textContent = "Creando pago seguro con Wompi..."
+  const resultado = await abrirCheckoutWompi(producto)
+  if (!resultado.ok) {
+    statusEl.textContent = resultado.mensaje || "No se pudo iniciar el pago con Wompi."
+    safeAlert(statusEl.textContent)
+  }
 }
 
 async function actualizarBoosterActivo() {
