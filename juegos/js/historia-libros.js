@@ -308,6 +308,7 @@ export const LIBROS_HISTORIA = {
     title: 'Las Primeras Pruebas',
     subtitle: 'Kael entra a un entrenamiento digital de energia verde donde memoria, reaccion, precision y logica empiezan a convertirlo en un verdadero competidor.',
     phase: '9.3',
+    readerUrl: 'historia-libro.html?libro=amateur',
     visual: { emblem: 'AM', primary: '#22c55e', secondary: '#14b8a6', accent: '#bbf7d0', rgb: '34,197,94' },
     introPages: [
       {

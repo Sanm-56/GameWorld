@@ -139,12 +139,15 @@ function renderDetail(rank, status, visual, book = null) {
   const range = rank.desde === rank.hasta ? `Nivel ${rank.desde}` : `Niveles ${rank.desde}-${rank.hasta}`
   const registered = Boolean(book)
   const phaseText = status === 'locked'
-    ? 'Este tomo queda sellado hasta alcanzar su rango.'
+    ? registered
+      ? 'Este tomo aun esta sellado por rango, pero esta disponible para revisar su produccion.'
+      : 'Este tomo queda sellado hasta alcanzar su rango.'
     : registered
       ? 'Este tomo ya esta registrado en el motor de Modo Historia.'
       : 'Este tomo ya existe como libro visual, pero su historia aun no esta producida.'
-  const action = registered && status !== 'locked'
-    ? `<button class="detail-open" type="button" data-open-book="${escapeHtml(book.readerUrl)}">Abrir ${escapeHtml(book.rankTitle || rank.titulo)}</button>`
+  const bookUrl = book?.readerUrl || `historia-libro.html?libro=${encodeURIComponent(crearIdLibroDesdeTitulo(rank.titulo))}`
+  const action = registered
+    ? `<button class="detail-open" type="button" data-open-book="${escapeHtml(bookUrl)}">${status === 'locked' ? 'Revisar' : 'Abrir'} ${escapeHtml(book.rankTitle || rank.titulo)}</button>`
     : `<button type="button" disabled>${status === 'locked' ? 'Tomo sellado' : 'Libro pendiente'}</button>`
 
   detailEl.style.setProperty('--book-rgb', visual.rgb)
