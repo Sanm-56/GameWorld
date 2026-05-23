@@ -1,12 +1,17 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
 const JUEGO_ACTUAL = "memoria"
+const HISTORIA_PENDING_KEY = "historia_trial_pending"
+const HISTORIA_NOVATO_PROGRESS_KEY = "historia_novato_progress"
+const HISTORIA_OBJETIVO_PARES = 4
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
+const esHistoriaActual = esModoHistoria(JUEGO_ACTUAL)
+const FINAL_GUARD_KEY = esHistoriaActual ? "memoria_historia" : JUEGO_ACTUAL
 
 const candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
 if(!candadoJuego.ok){
@@ -21,7 +26,7 @@ if(!usuario){
 window.location.href = "index.html"
 }
 
-iniciarFinalProtegido(JUEGO_ACTUAL)
+iniciarFinalProtegido(FINAL_GUARD_KEY)
 
 let resultadoEnviado = false
 let descalificado = false
@@ -32,7 +37,7 @@ const MAX_ADVERTENCIAS = 3
 
 document.addEventListener("visibilitychange", async function(){
 
-if(juegoTerminado) return
+if(juegoTerminado || esHistoriaActual) return
 
 if(document.hidden){
 advertencias++
@@ -49,7 +54,7 @@ descalificado = true
 juegoTerminado = true
 
 const guardado = await guardarResultado(9999, true, true, "Cambio de pestana")
-if(guardado){
+if(guardado && !esHistoriaActual){
 await guardarEstadisticasMemoria({ tiempo: DURACION, completado: false })
 }
 
@@ -57,7 +62,7 @@ alert("Descalificado")
 localStorage.setItem("juego_actual", "memoria")
 localStorage.setItem("fin_juego", "descalificado")
 localStorage.setItem("memoriaResultado", "Descalificado por actividad sospechosa")
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href = "final.html"
 }
 
@@ -231,7 +236,10 @@ if(obtenerSegundosPartidaLocal() <= 60) paresAntes1Minuto++
 if(encontradas <= 4 && erroresPartida > 0) inicio4Pares = false
 seleccionadas = []
 
-if(encontradas === 18){
+if(esHistoriaActual && encontradas >= HISTORIA_OBJETIVO_PARES){
+finalizar()
+}
+else if(encontradas === 18){
 finalizar()
 }
 
@@ -301,6 +309,53 @@ return Math.floor((performance.now() - inicioLocalMs) / 1000)
 let intervalo = null
 const DURACION = 600
 
+function leerPruebaHistoriaPendiente(){
+try{
+return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
+}
+catch(error){
+return null
+}
+}
+
+function marcarCapituloHistoriaCompletado(){
+const pendiente = leerPruebaHistoriaPendiente()
+if(!pendiente || pendiente.bookId !== "novato" || pendiente.chapterId !== "memorias-fragmentadas" || pendiente.gameId !== JUEGO_ACTUAL){
+return
+}
+
+let progreso = {}
+try{
+progreso = JSON.parse(localStorage.getItem(HISTORIA_NOVATO_PROGRESS_KEY) || "{}")
+}
+catch(error){
+progreso = {}
+}
+
+const completados = Array.isArray(progreso.completedChapters) ? progreso.completedChapters : []
+if(!completados.includes(pendiente.chapterId)){
+completados.push(pendiente.chapterId)
+}
+
+localStorage.setItem(HISTORIA_NOVATO_PROGRESS_KEY, JSON.stringify({
+...progreso,
+completedChapters: completados,
+lastCompletedAt: new Date().toISOString(),
+}))
+
+localStorage.setItem(HISTORIA_PENDING_KEY, JSON.stringify({
+...pendiente,
+completed: true,
+completedAt: new Date().toISOString(),
+}))
+}
+
+function prepararFinalHistoria(){
+marcarCapituloHistoriaCompletado()
+localStorage.setItem("fin_juego", "historia")
+localStorage.setItem("memoriaResultado", "Los primeros recuerdos fueron recompuestos.")
+}
+
 async function iniciarCronometro(){
 
 const reloj = document.getElementById("reloj")
@@ -332,7 +387,7 @@ reloj.innerText = "0:00"
 
 if(!resultadoEnviado){
 const guardado = await guardarResultado(9999, false, false, "Tiempo agotado")
-if(guardado){
+if(guardado && !esHistoriaActual){
 await guardarEstadisticasMemoria({ tiempo: DURACION, completado: false })
 }
 }
@@ -341,7 +396,7 @@ juegoTerminado = true
 
 alert("Tiempo terminado")
 localStorage.setItem("juego_actual", "memoria")
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href = "final.html"
 return
 }
@@ -364,7 +419,7 @@ if(resultadoEnviado) return false
 resultadoEnviado = true
 
 let error = null
-if(!esMiniTorneo(JUEGO_ACTUAL)){
+if(!esMiniTorneo(JUEGO_ACTUAL) && !esHistoriaActual){
 const resultadoRanking = await supabase
 .from("ranking")
 .upsert({
@@ -385,6 +440,7 @@ resultadoEnviado = false
 return false
 }
 
+if(!esHistoriaActual){
 await registrarPartidaDesdeRanking({
 usuario,
 juego: "memoria",
@@ -397,6 +453,7 @@ await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : Math.max(
 invalido,
 motivo
 })
+}
 
 return true
 }
@@ -511,15 +568,18 @@ let tiempo = await obtenerTiempoTranscurridoTorneo(supabase, JUEGO_ACTUAL, DURAC
 if(tiempo === null) tiempo = obtenerTiempoLocalJugado()
 
 const guardado = await guardarResultado(tiempo)
-if(guardado){
+if(guardado && !esHistoriaActual){
 await guardarEstadisticasMemoria({ tiempo, completado: true })
+}
+if(guardado && esHistoriaActual){
+prepararFinalHistoria()
 }
 
 juegoTerminado = true
 
 alert("Juego completado")
 localStorage.setItem("juego_actual", "memoria")
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href = "final.html"
 }
 
@@ -531,7 +591,7 @@ if(await debeSalirDelTorneo(supabase, JUEGO_ACTUAL)){
 
 if(!juegoTerminado){
 const guardado = await guardarResultado(9999, true, true, "Torneo detenido")
-if(guardado){
+if(guardado && !esHistoriaActual){
 await guardarEstadisticasMemoria({ tiempo: DURACION, completado: false })
 }
 }

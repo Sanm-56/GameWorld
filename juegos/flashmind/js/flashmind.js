@@ -1,7 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
-import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
@@ -11,10 +11,15 @@ const MAX_ADVERTENCIAS = 3
 const BASE_VENTANA_MS = 1300
 const MAX_REACTION_CAP_MS = 550
 const ACIERTOS_POR_NIVEL = 20
+const HISTORIA_PENDING_KEY = "historia_trial_pending"
+const HISTORIA_NOVATO_PROGRESS_KEY = "historia_novato_progress"
+const HISTORIA_OBJETIVO_ACIERTOS = 10
 const PENALIZACION_TIMEOUT_MS = 2000
 const PENALIZACION_ERROR_BASE_MS = 900
 
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
+const esHistoriaActual = esModoHistoria(JUEGO_ACTUAL)
+const FINAL_GUARD_KEY = esHistoriaActual ? "flashmind_historia" : JUEGO_ACTUAL
 
 const candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
 if (!candadoJuego.ok) {
@@ -24,7 +29,7 @@ if (!candadoJuego.ok) {
 }
 
 const usuario = localStorage.getItem("usuario")
-iniciarFinalProtegido(JUEGO_ACTUAL)
+iniciarFinalProtegido(FINAL_GUARD_KEY)
 document.getElementById("usuarioLabel").innerText = usuario
 
 const pantalla = document.getElementById("pantalla")
@@ -62,6 +67,54 @@ const opciones = [
   { key: "K", label: "K", name: "VERDE", color: "#22c55e", symbol: "\u25b2" },
   { key: "L", label: "L", name: "AMARILLO", color: "#f59e0b", symbol: "\u25c6" },
 ]
+
+function leerPruebaHistoriaPendiente() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
+  } catch (error) {
+    return null
+  }
+}
+
+function marcarCapituloHistoriaCompletado() {
+  const pendiente = leerPruebaHistoriaPendiente()
+  if (!pendiente || pendiente.bookId !== "novato" || pendiente.chapterId !== "camara-inicial" || pendiente.gameId !== JUEGO_ACTUAL) return
+
+  let progreso = {}
+  try {
+    progreso = JSON.parse(localStorage.getItem(HISTORIA_NOVATO_PROGRESS_KEY) || "{}")
+  } catch (error) {
+    progreso = {}
+  }
+
+  const completados = Array.isArray(progreso.completedChapters) ? progreso.completedChapters : []
+  if (!completados.includes(pendiente.chapterId)) completados.push(pendiente.chapterId)
+
+  localStorage.setItem(HISTORIA_NOVATO_PROGRESS_KEY, JSON.stringify({
+    ...progreso,
+    completedChapters: completados,
+    lastCompletedAt: new Date().toISOString(),
+  }))
+
+  localStorage.setItem(HISTORIA_PENDING_KEY, JSON.stringify({
+    ...pendiente,
+    completed: true,
+    completedAt: new Date().toISOString(),
+  }))
+}
+
+function completarPruebaHistoria() {
+  if (!esHistoriaActual || juegoTerminado || resultadoEnviado) return
+  resultadoEnviado = true
+  juegoTerminado = true
+  if (timeoutId) clearTimeout(timeoutId)
+  marcarCapituloHistoriaCompletado()
+  localStorage.setItem("fin_juego", "historia")
+  localStorage.setItem("flashmind_puntos", String(aciertos))
+  localStorage.setItem("juego_actual", JUEGO_ACTUAL)
+  marcarFinalValido(FINAL_GUARD_KEY)
+  window.location.href = "final.html"
+}
 
 function setLog(text) {
   logEl.innerText = text
@@ -170,11 +223,17 @@ function elegir(key) {
 
   if (ok) {
     aciertos++
+    if(!esHistoriaActual){
     registrarCheckpointNivel(JUEGO_ACTUAL, aciertos, "points")
+    }
     rachaCorrectas++
     mejorRachaCorrectas = Math.max(mejorRachaCorrectas, rachaCorrectas)
     sumaMs += rt
     setLog(`Correcto: ${rt} ms`)
+    if(esHistoriaActual && aciertos >= HISTORIA_OBJETIVO_ACIERTOS){
+      completarPruebaHistoria()
+      return
+    }
   } else {
     rachaCorrectas = 0
     sumaMs += Math.max(1200, rt + PENALIZACION_ERROR_BASE_MS)
@@ -196,7 +255,7 @@ async function descalificarPorActividadSospechosa() {
   localStorage.setItem("fin_juego", "descalificado")
   alert("Descalificado por actividad sospechosa")
   await enviarResultado("descalificado")
-  marcarFinalValido(JUEGO_ACTUAL)
+  marcarFinalValido(FINAL_GUARD_KEY)
   window.location.href = "final.html"
 }
 
@@ -213,7 +272,7 @@ async function marcarAdvertencia() {
 }
 
 document.addEventListener("visibilitychange", async () => {
-  if (!document.hidden || juegoTerminado) return
+  if (!document.hidden || juegoTerminado || esHistoriaActual) return
 
   const ahora = Date.now()
   if (ahora - ultimoCambio < 3000) return
@@ -256,7 +315,7 @@ async function iniciarCronometro() {
       reloj.innerText = "0:00"
       juegoTerminado = true
       if (!resultadoEnviado && !descalificado) await enviarResultado("tiempo")
-      marcarFinalValido(JUEGO_ACTUAL)
+      marcarFinalValido(FINAL_GUARD_KEY)
       window.location.href = "final.html"
       return
     }
@@ -440,6 +499,11 @@ async function enviarResultado(fin) {
   const sospechoso = advertencias > 0
   const invalido = advertencias >= MAX_ADVERTENCIAS
   const puntos = invalido ? 0 : aciertos
+
+  if (esHistoriaActual) {
+    localStorage.setItem("flashmind_puntos", String(puntos))
+    return true
+  }
 
   if (puntos <= 0 || invalido) {
     await eliminarResultadoFlashmind()

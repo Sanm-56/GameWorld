@@ -1,7 +1,7 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
-import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
@@ -14,8 +14,13 @@ const BASE_SPAWN_CADA = 0.95
 const MIN_SPAWN_CADA = 0.55
 const BASE_VELOCIDAD = 120
 const MAX_VELOCIDAD = 245
+const HISTORIA_PENDING_KEY = "historia_trial_pending"
+const HISTORIA_NOVATO_PROGRESS_KEY = "historia_novato_progress"
+const HISTORIA_OBJETIVO_PUNTOS = 120
 
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
+const esHistoriaActual = esModoHistoria(JUEGO_ACTUAL)
+const FINAL_GUARD_KEY = esHistoriaActual ? "numcatch_historia" : JUEGO_ACTUAL
 
 const candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
 if (!candadoJuego.ok) {
@@ -25,7 +30,7 @@ if (!candadoJuego.ok) {
 }
 
 const usuario = localStorage.getItem("usuario")
-iniciarFinalProtegido(JUEGO_ACTUAL)
+iniciarFinalProtegido(FINAL_GUARD_KEY)
 document.getElementById("usuarioLabel").innerText = usuario
 
 const gameEl = document.getElementById("game")
@@ -51,6 +56,54 @@ let rachaAciertos = 0
 let mejorRachaAciertos = 0
 
 let condicionKey = "multiplos_3"
+
+function leerPruebaHistoriaPendiente() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
+  } catch (error) {
+    return null
+  }
+}
+
+function marcarCapituloHistoriaCompletado() {
+  const pendiente = leerPruebaHistoriaPendiente()
+  if (!pendiente || pendiente.bookId !== "novato" || pendiente.chapterId !== "conexion-establecida" || pendiente.gameId !== JUEGO_ACTUAL) return
+
+  let progreso = {}
+  try {
+    progreso = JSON.parse(localStorage.getItem(HISTORIA_NOVATO_PROGRESS_KEY) || "{}")
+  } catch (error) {
+    progreso = {}
+  }
+
+  const completados = Array.isArray(progreso.completedChapters) ? progreso.completedChapters : []
+  if (!completados.includes(pendiente.chapterId)) completados.push(pendiente.chapterId)
+
+  localStorage.setItem(HISTORIA_NOVATO_PROGRESS_KEY, JSON.stringify({
+    ...progreso,
+    completedChapters: completados,
+    lastCompletedAt: new Date().toISOString(),
+    bookCompleted: true,
+  }))
+
+  localStorage.setItem(HISTORIA_PENDING_KEY, JSON.stringify({
+    ...pendiente,
+    completed: true,
+    completedAt: new Date().toISOString(),
+  }))
+}
+
+function completarPruebaHistoria() {
+  if (!esHistoriaActual || juegoTerminado || resultadoEnviado) return
+  resultadoEnviado = true
+  juegoTerminado = true
+  marcarCapituloHistoriaCompletado()
+  localStorage.setItem("fin_juego", "historia")
+  localStorage.setItem("numcatch_puntos", String(puntaje))
+  localStorage.setItem("juego_actual", JUEGO_ACTUAL)
+  marcarFinalValido(FINAL_GUARD_KEY)
+  window.location.href = "final.html"
+}
 
 function getCondicion(key){
   switch(key){
@@ -161,7 +214,9 @@ function clickNumero(id) {
     rachaAciertos++
     mejorRachaAciertos = Math.max(mejorRachaAciertos, rachaAciertos)
     puntaje += 10
+    if(!esHistoriaActual){
     registrarCheckpointNivel(JUEGO_ACTUAL, puntaje, "points")
+    }
     setLog(`+10 (${item.valor})`)
   } else {
     errores++
@@ -174,6 +229,10 @@ function clickNumero(id) {
   actualizarUI()
   if (nivel > nivelAnterior) {
     setLog(`Subiste a nivel ${nivel}`)
+  }
+
+  if (esHistoriaActual && puntaje >= HISTORIA_OBJETIVO_PUNTOS) {
+    completarPruebaHistoria()
   }
 }
 
@@ -226,7 +285,7 @@ async function descalificarPorActividadSospechosa() {
   localStorage.setItem("fin_juego", "descalificado")
   alert("Descalificado por actividad sospechosa")
   await enviarResultado("descalificado")
-  marcarFinalValido(JUEGO_ACTUAL)
+  marcarFinalValido(FINAL_GUARD_KEY)
   window.location.href = "final.html"
 }
 
@@ -243,7 +302,7 @@ async function marcarAdvertencia() {
 }
 
 document.addEventListener("visibilitychange", async () => {
-  if (!document.hidden || juegoTerminado) return
+  if (!document.hidden || juegoTerminado || esHistoriaActual) return
 
   const ahora = Date.now()
   if (ahora - ultimoCambio < 3000) return
@@ -287,7 +346,7 @@ async function iniciarCronometro() {
           return
         }
       }
-      marcarFinalValido(JUEGO_ACTUAL)
+      marcarFinalValido(FINAL_GUARD_KEY)
       window.location.href = "final.html"
       return
     }
@@ -498,6 +557,10 @@ async function enviarResultado(fin) {
   localStorage.setItem("fin_juego", fin)
   localStorage.setItem("numcatch_puntos", String(puntosFinal))
 
+  if (esHistoriaActual) {
+    return true
+  }
+
   if (puntosFinal <= 0 || invalido) {
     await eliminarResultadoNumcatch()
   } else {
@@ -534,6 +597,15 @@ actualizarUI()
 setLog("Cargando condicion del torneo...")
 
 async function cargarCondicionDesdeTorneo(){
+  if (esHistoriaActual) {
+    condicionKey = "multiplos_3"
+    condicion = getCondicion(condicionKey)
+    esValido = condicion.fn
+    condicionEl.innerText = condicion.label
+    setLog("Listo. Toca solo multiplos de 3.")
+    return
+  }
+
   const { data } = await supabase
     .from("estado_torneo")
     .select("numcatch_condicion")

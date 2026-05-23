@@ -4,8 +4,37 @@ import { escapeHtml } from "../../js/mensajes.js"
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guard.js"
 
+const HISTORIA_PENDING_KEY = "historia_trial_pending"
+const LAUNCH_KEY = "solitario_game_launch"
+
+function leerPruebaHistoriaPendiente(){
+  try {
+    return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
+  } catch (error) {
+    return null
+  }
+}
+
+function pruebaHistoriaActiva(){
+  let lanzamiento = null
+  try {
+    lanzamiento = JSON.parse(localStorage.getItem(LAUNCH_KEY) || "null")
+  } catch (error) {
+    lanzamiento = null
+  }
+
+  const pendiente = leerPruebaHistoriaPendiente()
+  return lanzamiento?.origin === "historia"
+    && lanzamiento?.game === "flashmind"
+    && pendiente?.bookId === "novato"
+    && pendiente?.chapterId === "camara-inicial"
+    && pendiente?.gameId === "flashmind"
+}
+
+const FINAL_GUARD_KEY = pruebaHistoriaActiva() ? "flashmind_historia" : "flashmind"
+
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
-if (!validarFinalReciente("flashmind")) await new Promise(() => {})
+if (!validarFinalReciente(FINAL_GUARD_KEY)) await new Promise(() => {})
 
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
@@ -88,10 +117,24 @@ async function cargar() {
 }
 
 setMensaje()
-cargar()
+if (pruebaHistoriaActiva()) {
+  const completada = Boolean(leerPruebaHistoriaPendiente()?.completed)
+  resultadoFinal.innerText = completada ? "Prueba del Nexus completada" : "Prueba del Nexus pendiente"
+  posicionDiv.innerText = "Capitulo 4"
+  podioDiv.innerHTML = ""
+  rankingDiv.innerHTML = `<p class="vacio">${completada ? "La camara inicial recupero su pulso." : "La camara inicial sigue inestable."}</p>`
+  const boton = document.querySelector(".contenedor > button:not(.musica)")
+  if (boton) boton.textContent = "Volver al Libro Novato"
+} else {
+  cargar()
+}
 
 window.volverLobby = async function () {
-  limpiarFinalProtegido("flashmind")
+  limpiarFinalProtegido(FINAL_GUARD_KEY)
+  if (pruebaHistoriaActiva()) {
+    window.location.href = "../../historia-novato.html"
+    return
+  }
   await volverDesdeFinal(supabase)
 }
 

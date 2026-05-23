@@ -1,13 +1,18 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
-import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
 const JUEGO_ACTUAL = "matematicas"
+const HISTORIA_PENDING_KEY = "historia_trial_pending"
+const HISTORIA_NOVATO_PROGRESS_KEY = "historia_novato_progress"
+const HISTORIA_OBJETIVO_CORRECTAS = 5
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
+const esHistoriaActual = esModoHistoria(JUEGO_ACTUAL)
+const FINAL_GUARD_KEY = esHistoriaActual ? "matematicas_historia" : JUEGO_ACTUAL
 const candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
 if(!candadoJuego.ok){
 alert(candadoJuego.message)
@@ -21,7 +26,7 @@ if(!usuario){
 window.location.href="index.html"
 }
 
-iniciarFinalProtegido(JUEGO_ACTUAL)
+iniciarFinalProtegido(FINAL_GUARD_KEY)
 
 // 🔒 CONTROL
 let resultadoEnviado = false
@@ -34,7 +39,7 @@ const MAX_ADVERTENCIAS = 3
 let ultimoCambio = 0
 
 document.addEventListener("visibilitychange", async function(){
-if(juegoTerminado) return
+if(juegoTerminado || esHistoriaActual) return
 if(document.hidden){
 let ahora = Date.now()
 
@@ -58,7 +63,7 @@ localStorage.setItem("fin_juego","descalificado")
 if(!resultadoEnviado){
 resultadoEnviado = true
 let error = null
-if(!esMiniTorneo(JUEGO_ACTUAL)){
+if(!esMiniTorneo(JUEGO_ACTUAL) && !esHistoriaActual){
 const resultadoRanking = await guardarRankingMatematicas({
 usuario,
 tiempo: 0,
@@ -80,6 +85,7 @@ resultadoEnviado = false
 return
 }
 
+if(!esHistoriaActual){
 await registrarPartidaDesdeRanking({
 usuario,
 juego: "matematicas",
@@ -93,9 +99,10 @@ invalido: true,
 motivo: "Demasiados cambios de pestana"
 })
 }
+}
 guardarResultadoFinalLocal("descalificado")
 alert("❌ Descalificado por cambiar de pestaña")
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href = "final.html"
 }
 
@@ -182,6 +189,67 @@ preguntas,
 precision,
 fecha: new Date().toISOString()
 }))
+}
+
+function leerPruebaHistoriaPendiente(){
+try{
+return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
+}
+catch(error){
+return null
+}
+}
+
+function marcarCapituloHistoriaCompletado(){
+const pendiente = leerPruebaHistoriaPendiente()
+if(!pendiente || pendiente.bookId !== "novato" || pendiente.chapterId !== "primer-codigo" || pendiente.gameId !== JUEGO_ACTUAL){
+return
+}
+
+let progreso = {}
+try{
+progreso = JSON.parse(localStorage.getItem(HISTORIA_NOVATO_PROGRESS_KEY) || "{}")
+}
+catch(error){
+progreso = {}
+}
+
+const completados = Array.isArray(progreso.completedChapters) ? progreso.completedChapters : []
+if(!completados.includes(pendiente.chapterId)){
+completados.push(pendiente.chapterId)
+}
+
+localStorage.setItem(HISTORIA_NOVATO_PROGRESS_KEY, JSON.stringify({
+...progreso,
+completedChapters: completados,
+lastCompletedAt: new Date().toISOString(),
+}))
+
+localStorage.setItem(HISTORIA_PENDING_KEY, JSON.stringify({
+...pendiente,
+completed: true,
+completedAt: new Date().toISOString(),
+}))
+}
+
+function finalizarPruebaHistoria(){
+if(!esHistoriaActual || juegoTerminado || resultadoEnviado) return
+
+resultadoEnviado = true
+juegoTerminado = true
+if(intervalo) clearInterval(intervalo)
+
+const respuestaInput = document.getElementById("respuesta")
+const botonResponder = document.querySelector(".btn.responder")
+if(respuestaInput) respuestaInput.disabled = true
+if(botonResponder) botonResponder.disabled = true
+
+guardarResultadoFinalLocal("historia")
+marcarCapituloHistoriaCompletado()
+localStorage.setItem("fin_juego", "historia")
+localStorage.setItem("juego_actual", JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
+window.location.href = "final.html"
 }
 
 function aleatorio(min, max){
@@ -367,7 +435,9 @@ const tolerancia = Number.isInteger(respuestaCorrecta) ? 0 : 0.01
 if(Number.isFinite(r) && Math.abs(r - respuestaCorrecta) <= tolerancia){
 correctas++
 actualizarMarcador()
+if(!esHistoriaActual){
 registrarCheckpointNivel(JUEGO_ACTUAL, correctas * 10, "points")
+}
 rachaCorrectas++
 mejorRachaCorrectas = Math.max(mejorRachaCorrectas, rachaCorrectas)
 
@@ -394,6 +464,10 @@ rachaRapida5s++
 rachaRapida5s = 0
 }
 mejorRachaRapida5s = Math.max(mejorRachaRapida5s, rachaRapida5s)
+if(esHistoriaActual && correctas >= HISTORIA_OBJETIVO_CORRECTAS){
+finalizarPruebaHistoria()
+return
+}
 correctasTiempos.push((performance.now() - inicioSesionMs) / 1000)
 document.getElementById("resultado").textContent = "✅ Bien"
 }else{
@@ -520,7 +594,7 @@ if(!resultadoEnviado && !descalificado){
 resultadoEnviado = true
 
 let error = null
-if(!esMiniTorneo(JUEGO_ACTUAL)){
+if(!esMiniTorneo(JUEGO_ACTUAL) && !esHistoriaActual){
 const resultadoRanking = await guardarRankingMatematicas({
 usuario,
 tiempo: correctas * 10,
@@ -542,6 +616,7 @@ resultadoEnviado = false
 return
 }
 
+if(!esHistoriaActual){
 await registrarPartidaDesdeRanking({
 usuario,
 juego: "matematicas",
@@ -554,6 +629,7 @@ invalido: false
 })
 
 await guardarEstadisticasMatematicas()
+}
 
 }
 
@@ -561,7 +637,7 @@ await guardarEstadisticasMatematicas()
 localStorage.setItem("fin_juego","tiempo")
 guardarResultadoFinalLocal()
 
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href="final.html"
 return
 }

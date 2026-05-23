@@ -28,6 +28,7 @@ export function esModoHistoria(juego) {
 
 export function redirigirFinalNivelSolitario() {
   const juego = localStorage.getItem("juego_actual") || localStorage.getItem("solitario_juego")
+  if (esModoHistoria(juego)) return false
   if (!esNivelSolitario(juego)) return false
   window.location.replace("../../solitario/final-nivel.html")
   return true
