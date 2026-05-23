@@ -12,13 +12,18 @@ export function esMiniTorneo(juego) {
 
 const DURACION_JUEGO_MS = 10 * 60 * 1000
 const LANZAMIENTO_JUEGO_KEY = "solitario_game_launch"
-const ORIGENES_LANZAMIENTO_VALIDOS = ["torneo", "sala", "nivel"]
+const ORIGENES_LANZAMIENTO_VALIDOS = ["torneo", "sala", "nivel", "historia"]
 
 export function esNivelSolitario(juego) {
   const context = leerContextoNivel()
   return localStorage.getItem("solitario_origen") === "nivel"
     && context
     && context.game === juego
+}
+
+export function esModoHistoria(juego) {
+  const lanzamiento = leerContextoLanzamiento()
+  return lanzamiento?.origin === "historia" && lanzamiento?.game === juego && lanzamientoJuegoValido(juego, "historia")
 }
 
 export function redirigirFinalNivelSolitario() {
@@ -29,12 +34,18 @@ export function redirigirFinalNivelSolitario() {
 }
 
 export function obtenerOrigenExperiencia(juego) {
+  if (esModoHistoria(juego)) return "historia"
   if (esNivelSolitario(juego)) return "solitario"
   if (esMiniTorneo(juego)) return "minitorneo"
   return "torneo"
 }
 
 export async function obtenerInicioTorneo(supabase, juego) {
+  if (esModoHistoria(juego)) {
+    await obtenerSnapshotBonusXP(juego, "historia")
+    return inicioSeguroParaSolitario(juego, "historia", leerContextoLanzamiento()?.launchedAt)
+  }
+
   if (esMiniTorneo(juego)) {
     await obtenerSnapshotBonusXP(juego, "minitorneo")
     const salaId = localStorage.getItem("solitario_sala_id")
@@ -109,7 +120,9 @@ export async function validarAccesoJuego(supabase, juego) {
   }
 
   const lanzamiento = leerContextoLanzamiento()
-  const origin = lanzamiento?.origin === "torneo"
+  const origin = lanzamiento?.origin === "historia"
+    ? "historia"
+    : lanzamiento?.origin === "torneo"
     ? "torneo"
     : esNivelSolitario(juego)
       ? "nivel"
@@ -192,6 +205,8 @@ async function obtenerAhoraServidor(supabase, juego) {
 }
 
 export async function debeSalirDelTorneo(supabase, juego) {
+  if (esModoHistoria(juego)) return false
+
   if (esMiniTorneo(juego)) {
     const salaId = localStorage.getItem("solitario_sala_id")
     const usuario = localStorage.getItem("usuario")
@@ -249,6 +264,7 @@ export function bloquearFinalizacionInicialSolitario(juego, motivo = "finalizaci
 
 export function salidaTorneoUrl() {
   const lanzamiento = leerContextoLanzamiento()
+  if (lanzamiento?.origin === "historia") return "../../historia-novato.html"
   if (lanzamiento?.origin === "torneo") return "lobby.html"
 
   if (esNivelSolitario(localStorage.getItem("solitario_juego"))) {

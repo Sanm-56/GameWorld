@@ -1,10 +1,12 @@
 import { supabase } from "../../js/supabase.js"
 import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
-import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
 
 const JUEGO_ACTUAL = "sudoku"
+const HISTORIA_PENDING_KEY = "historia_trial_pending"
+const HISTORIA_NOVATO_PROGRESS_KEY = "historia_novato_progress"
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 
@@ -37,6 +39,49 @@ let erroresPartida = 0
 const celdasConError = new Set()
 
 const DURACION = 600
+const HISTORIA_PUZZLE = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+const HISTORIA_SOLUCION = "534678912672195348198342567859761423426853791713924856961537284287419635345286179"
+
+function leerPruebaHistoriaPendiente(){
+try{
+return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
+}
+catch(error){
+return null
+}
+}
+
+function marcarCapituloHistoriaCompletado(){
+const pendiente = leerPruebaHistoriaPendiente()
+if(!pendiente || pendiente.bookId !== "novato" || pendiente.chapterId !== "activacion" || pendiente.gameId !== JUEGO_ACTUAL){
+return
+}
+
+let progreso = {}
+try{
+progreso = JSON.parse(localStorage.getItem(HISTORIA_NOVATO_PROGRESS_KEY) || "{}")
+}
+catch(error){
+progreso = {}
+}
+
+const completados = Array.isArray(progreso.completedChapters) ? progreso.completedChapters : []
+if(!completados.includes(pendiente.chapterId)){
+completados.push(pendiente.chapterId)
+}
+
+localStorage.setItem(HISTORIA_NOVATO_PROGRESS_KEY, JSON.stringify({
+...progreso,
+completedChapters: completados,
+lastCompletedAt: new Date().toISOString(),
+}))
+
+localStorage.setItem(HISTORIA_PENDING_KEY, JSON.stringify({
+...pendiente,
+completed: true,
+completedAt: new Date().toISOString(),
+}))
+}
 
 function registrarErrorCelda(indice){
 if(!celdasConError.has(indice)){
@@ -64,7 +109,9 @@ else if(advertencias >= MAX_ADVERTENCIAS){
 descalificado = true
 juegoTerminado = true
 await guardarResultado(9999, true, true, "Demasiados cambios de pestana")
+if(!esModoHistoria(JUEGO_ACTUAL)){
 await reiniciarRachasSudoku()
+}
 localStorage.setItem("juego_actual", "sudoku")
 marcarFinalValido(JUEGO_ACTUAL)
 window.location.href = "final.html"
@@ -80,7 +127,7 @@ if(resultadoEnviado) return false
 resultadoEnviado = true
 
 let error = null
-if(!esMiniTorneo(JUEGO_ACTUAL)){
+if(!esMiniTorneo(JUEGO_ACTUAL) && !esModoHistoria(JUEGO_ACTUAL)){
 const resultadoRanking = await supabase
 .from("ranking")
 .upsert({
@@ -101,6 +148,7 @@ resultadoEnviado = false
 return false
 }
 
+if(!esModoHistoria(JUEGO_ACTUAL)){
 await registrarPartidaDesdeRanking({
 usuario,
 juego: "sudoku",
@@ -113,6 +161,7 @@ await registrarPuntosMiniTorneo(supabase, JUEGO_ACTUAL, invalido ? 0 : Math.max(
 invalido,
 motivo
 })
+}
 
 return true
 }
@@ -265,6 +314,13 @@ console.warn("No se pudieron reiniciar las rachas de logros", error)
 
 async function cargarSudoku(){
 
+if(esModoHistoria(JUEGO_ACTUAL)){
+puzzleActual = HISTORIA_PUZZLE
+solucionActual = HISTORIA_SOLUCION
+crearTablero(puzzleActual)
+return
+}
+
 let { data: user } = await supabase
 .from("usuarios")
 .select("tablero_id")
@@ -389,7 +445,7 @@ reloj.innerText = "0:00"
 if(!descalificado){
 const posicionInicial = await obtenerPosicionSudoku()
 const resultadoGuardado = await guardarResultado(DURACION, false, false, "Tiempo agotado")
-if(resultadoGuardado){
+if(resultadoGuardado && !esModoHistoria(JUEGO_ACTUAL)){
 const posicion = await obtenerPosicionSudoku()
 await guardarEstadisticasSudoku({
 tiempo: DURACION,
@@ -496,6 +552,7 @@ const resultadoGuardado = await guardarResultado(invalido ? 9999 : tiempo, sospe
 
 if(resultadoGuardado && !invalido){
 const posicion = await obtenerPosicionSudoku()
+if(!esModoHistoria(JUEGO_ACTUAL)){
 await guardarEstadisticasSudoku({
 tiempo,
 tiempoJugado: tiempo,
@@ -505,7 +562,9 @@ posicion,
 posicionInicial,
 })
 }
-else if(resultadoGuardado && invalido){
+marcarCapituloHistoriaCompletado()
+}
+else if(resultadoGuardado && invalido && !esModoHistoria(JUEGO_ACTUAL)){
 await reiniciarRachasSudoku()
 }
 

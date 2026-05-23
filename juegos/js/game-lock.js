@@ -115,7 +115,7 @@ function escribirCandado(key, payload) {
 
 function detectarOrigenJuego(juego) {
   const lanzamiento = leerJson("solitario_game_launch")
-  if (lanzamiento?.game === juego && ["torneo", "sala", "nivel"].includes(lanzamiento.origin)) {
+  if (lanzamiento?.game === juego && ["torneo", "sala", "nivel", "historia"].includes(lanzamiento.origin)) {
     return lanzamiento.origin
   }
 

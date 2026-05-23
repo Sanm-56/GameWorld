@@ -7,6 +7,7 @@ import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guar
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
 if (!validarFinalReciente("sudoku")) await new Promise(() => {})
 
+const HISTORIA_PENDING_KEY = "historia_trial_pending"
 const podioDiv = document.getElementById("podio")
 const rankingDiv = document.getElementById("ranking")
 const usuario = localStorage.getItem("usuario")
@@ -14,6 +15,25 @@ const posicionDiv = document.createElement("h2")
 instalarEstilosPersonalizacion()
 
 document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
+
+function leerPruebaHistoriaPendiente(){
+  try {
+    return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
+  } catch (error) {
+    return null
+  }
+}
+
+function pruebaHistoriaActiva(){
+  const pendiente = leerPruebaHistoriaPendiente()
+  return pendiente?.bookId === "novato" && pendiente?.chapterId === "activacion" && pendiente?.gameId === "sudoku"
+}
+
+function actualizarSalidaHistoria(){
+  const boton = document.querySelector(".contenedor > button:not(.musica)")
+  if (!boton || !pruebaHistoriaActiva()) return
+  boton.textContent = "Volver al Libro Novato"
+}
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -94,8 +114,13 @@ supabase
   .subscribe()
 
 cargarResultados()
+actualizarSalidaHistoria()
 
 window.volverLobby = async function () {
   limpiarFinalProtegido("sudoku")
+  if (pruebaHistoriaActiva()) {
+    window.location.href = "../../historia-novato.html"
+    return
+  }
   await volverDesdeFinal(supabase)
 }

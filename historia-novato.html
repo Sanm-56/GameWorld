@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libro Novato - El Despertar</title>
+<link rel="stylesheet" href="juegos/css/historia.css">
+</head>
+<body class="reader-body">
+  <main class="reader-shell">
+    <nav class="story-nav reader-nav" aria-label="Navegacion">
+      <a href="historia.html">Biblioteca</a>
+      <a href="index.html">Inicio</a>
+    </nav>
+
+    <section class="reader-hero" aria-labelledby="readerTitle">
+      <div>
+        <span class="story-eyebrow">Libro Novato</span>
+        <h1 id="readerTitle">El Despertar</h1>
+        <p>Primera conexion al Nexus. La biblioteca detecta al jugador y activa los sellos iniciales del torneo.</p>
+      </div>
+      <div class="reader-phase">
+        <span>Fase</span>
+        <strong>3.1</strong>
+      </div>
+    </section>
+
+    <section class="reader-layout" aria-label="Libro abierto Novato">
+      <aside class="chapter-index" aria-label="Capitulos del libro">
+        <span class="detail-kicker">Indice</span>
+        <h2>Capitulos</h2>
+        <div class="chapter-list" id="chapterList"></div>
+      </aside>
+
+      <section class="open-book-stage" aria-live="polite">
+        <div class="open-book">
+          <span class="book-binding" aria-hidden="true"></span>
+          <article class="book-page page-left" id="pageLeft"></article>
+          <article class="book-page page-right" id="pageRight"></article>
+        </div>
+
+        <div class="reader-controls">
+          <button type="button" id="prevPage">Anterior</button>
+          <span id="pageIndicator">1 / 1</span>
+          <button type="button" id="nextPage">Siguiente</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="juegos/js/historia-novato.js"></script>
+</body>
+</html>

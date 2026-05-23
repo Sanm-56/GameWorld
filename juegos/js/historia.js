@@ -128,9 +128,15 @@ function renderFeatured(rank, visual) {
 function renderDetail(rank, status, visual) {
   if (!detailEl) return
   const range = rank.desde === rank.hasta ? `Nivel ${rank.desde}` : `Niveles ${rank.desde}-${rank.hasta}`
+  const isNovato = normalize(rank.titulo) === 'novato'
   const phaseText = status === 'locked'
     ? 'Este tomo queda sellado hasta alcanzar su rango.'
-    : 'Este tomo ya puede ser parte de la coleccion visual del jugador.'
+    : isNovato
+      ? 'El primer tomo ya tiene una vista de lectura para probar el interior del sistema.'
+      : 'Este tomo ya puede ser parte de la coleccion visual del jugador.'
+  const action = isNovato
+    ? '<button class="detail-open" type="button" onclick="window.location.href=\'historia-novato.html\'">Abrir Libro Novato</button>'
+    : '<button type="button" disabled>Libro funcional en una fase futura</button>'
 
   detailEl.style.setProperty('--book-rgb', visual.rgb)
   detailEl.innerHTML = `
@@ -141,7 +147,7 @@ function renderDetail(rank, status, visual) {
       <span>${escapeHtml(range)}</span>
       <strong>${escapeHtml(statusText(status))}</strong>
     </div>
-    <button type="button" disabled>Libro funcional en Fase 3</button>
+    ${action}
   `
 }
 
