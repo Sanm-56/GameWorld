@@ -3,9 +3,13 @@ import { redirigirFinalNivelSolitario, volverDesdeFinal } from '../../js/mini-to
 import { cleanText, escapeHtml, setCleanText } from '../../js/mensajes.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from '../../js/personalizacion-visual.js'
 import { limpiarFinalProtegido, validarFinalReciente } from '../../js/final-guard.js'
+import { leerPruebaHistoriaPendiente, pruebaHistoriaActiva } from '../../js/historia-core.js'
 
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
-if (!validarFinalReciente('damas')) await new Promise(() => {})
+const esHistoriaFinal = pruebaHistoriaActiva('damas')
+const FINAL_GUARD_KEY = esHistoriaFinal ? 'damas_historia' : 'damas'
+const pruebaPendienteHistoria = esHistoriaFinal ? leerPruebaHistoriaPendiente() : null
+if (!validarFinalReciente(FINAL_GUARD_KEY)) await new Promise(() => {})
 
 const resultadoFinal = document.getElementById('resultadoFinal')
 const podioDiv = document.getElementById('podio')
@@ -19,6 +23,16 @@ instalarEstilosPersonalizacion()
 setCleanText(resultadoFinal, resultado.toLowerCase().includes('descalificado')
   ? 'Descalificado por actividad sospechosa'
   : cleanText(resultado, 'Partida finalizada.'))
+
+if (esHistoriaFinal) {
+  const posicionDiv = document.createElement('h2')
+  posicionDiv.innerText = resultado.toLowerCase().includes('descalificado') ? 'Prueba no completada' : 'Prueba completada'
+  document.querySelector('.contenedor').insertBefore(posicionDiv, podioDiv)
+  podioDiv.innerHTML = ''
+  rankingDiv.innerHTML = '<p>El libro registro tu avance. Regresa para continuar la historia.</p>'
+  const botonVolver = document.querySelector('button[onclick="volverLobby()"]')
+  if (botonVolver) botonVolver.innerText = 'Volver al libro'
+}
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -161,11 +175,19 @@ async function cargarResultados() {
   })
 }
 
-cargarResultados()
+if (!esHistoriaFinal) cargarResultados()
 
 window.volverLobby = async function () {
+  if (esHistoriaFinal) {
+    limpiarFinalProtegido(FINAL_GUARD_KEY)
+    localStorage.removeItem('damasSinPosicion')
+    localStorage.removeItem('damasEstadisticasPendientes')
+    window.location.href = `../../${pruebaPendienteHistoria?.returnUrl || 'historia.html'}`
+    return
+  }
+
   await volverDesdeFinal(supabase, () => {
-    limpiarFinalProtegido('damas')
+    limpiarFinalProtegido(FINAL_GUARD_KEY)
     localStorage.removeItem('damasSinPosicion')
     localStorage.removeItem('damasEstadisticasPendientes')
   })

@@ -3,10 +3,9 @@ import { registrarPartidaDesdeRanking } from "../../js/partidas.js"
 import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
+import { completarCapituloHistoria } from "../../js/historia-core.js"
 
 const JUEGO_ACTUAL = "sudoku"
-const HISTORIA_PENDING_KEY = "historia_trial_pending"
-const HISTORIA_NOVATO_PROGRESS_KEY = "historia_novato_progress"
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
 const esHistoriaActual = esModoHistoria(JUEGO_ACTUAL)
@@ -44,45 +43,8 @@ const DURACION = 600
 const HISTORIA_PUZZLE = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
 const HISTORIA_SOLUCION = "534678912672195348198342567859761423426853791713924856961537284287419635345286179"
 
-function leerPruebaHistoriaPendiente(){
-try{
-return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
-}
-catch(error){
-return null
-}
-}
-
 function marcarCapituloHistoriaCompletado(){
-const pendiente = leerPruebaHistoriaPendiente()
-if(!pendiente || pendiente.bookId !== "novato" || pendiente.chapterId !== "activacion" || pendiente.gameId !== JUEGO_ACTUAL){
-return
-}
-
-let progreso = {}
-try{
-progreso = JSON.parse(localStorage.getItem(HISTORIA_NOVATO_PROGRESS_KEY) || "{}")
-}
-catch(error){
-progreso = {}
-}
-
-const completados = Array.isArray(progreso.completedChapters) ? progreso.completedChapters : []
-if(!completados.includes(pendiente.chapterId)){
-completados.push(pendiente.chapterId)
-}
-
-localStorage.setItem(HISTORIA_NOVATO_PROGRESS_KEY, JSON.stringify({
-...progreso,
-completedChapters: completados,
-lastCompletedAt: new Date().toISOString(),
-}))
-
-localStorage.setItem(HISTORIA_PENDING_KEY, JSON.stringify({
-...pendiente,
-completed: true,
-completedAt: new Date().toISOString(),
-}))
+completarCapituloHistoria(JUEGO_ACTUAL)
 }
 
 function registrarErrorCelda(indice){

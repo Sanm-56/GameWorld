@@ -66,6 +66,7 @@ const usuario = localStorage.getItem("usuario")
 const esHistoriaActual = esModoHistoria(gameKey)
 const HISTORIA_ARCADE_OBJETIVOS = {
   esquivaobstaculos: 260,
+  subelamontana: 320,
   torreinfinita: 80,
 }
 

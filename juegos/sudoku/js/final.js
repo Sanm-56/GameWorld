@@ -3,32 +3,14 @@ import { redirigirFinalNivelSolitario, volverDesdeFinal } from "../../js/mini-to
 import { escapeHtml } from "../../js/mensajes.js"
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guard.js"
-
-const HISTORIA_PENDING_KEY = "historia_trial_pending"
-const LAUNCH_KEY = "solitario_game_launch"
-
-function leerPruebaHistoriaPendiente(){
-  try {
-    return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
-  } catch (error) {
-    return null
-  }
-}
+import { leerPruebaHistoriaPendiente, pruebaHistoriaActiva as esPruebaHistoriaActiva } from "../../js/historia-core.js"
 
 function pruebaHistoriaActiva(){
-  const pendiente = leerPruebaHistoriaPendiente()
-  let lanzamiento = null
-  try {
-    lanzamiento = JSON.parse(localStorage.getItem(LAUNCH_KEY) || "null")
-  } catch (error) {
-    lanzamiento = null
-  }
+  return esPruebaHistoriaActiva("sudoku")
+}
 
-  return lanzamiento?.origin === "historia"
-    && lanzamiento?.game === "sudoku"
-    && pendiente?.bookId === "novato"
-    && pendiente?.chapterId === "activacion"
-    && pendiente?.gameId === "sudoku"
+function historiaReturnUrl(){
+  return leerPruebaHistoriaPendiente()?.returnUrl || "historia.html"
 }
 
 const FINAL_GUARD_KEY = pruebaHistoriaActiva() ? "sudoku_historia" : "sudoku"
@@ -51,8 +33,8 @@ function renderResultadoHistoria(){
   rankingDiv.innerHTML = `
     <div class="vacio">
       ${completada
-        ? "El primer codigo fue estabilizado. Vuelve al Libro Novato para continuar la historia."
-        : "La prueba no se estabilizo todavia. Vuelve al Libro Novato e intenta de nuevo cuando estes listo."}
+        ? "El codigo fue estabilizado. Vuelve al libro para continuar la historia."
+        : "La prueba no se estabilizo todavia. Vuelve al libro e intenta de nuevo cuando estes listo."}
     </div>
   `
 }
@@ -60,7 +42,7 @@ function renderResultadoHistoria(){
 function actualizarSalidaHistoria(){
   const boton = document.querySelector(".contenedor > button:not(.musica)")
   if (!boton || !pruebaHistoriaActiva()) return
-  boton.textContent = "Volver al Libro Novato"
+  boton.textContent = "Volver al libro"
 }
 
 function formatearTiempo(segundos) {
@@ -151,7 +133,7 @@ if (pruebaHistoriaActiva()) {
 window.volverLobby = async function () {
   limpiarFinalProtegido(FINAL_GUARD_KEY)
   if (pruebaHistoriaActiva()) {
-    window.location.href = "../../historia-novato.html"
+    window.location.href = `../../${historiaReturnUrl()}`
     return
   }
   await volverDesdeFinal(supabase)

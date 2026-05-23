@@ -894,6 +894,401 @@ export const LIBROS_HISTORIA = {
       },
     ],
   },
+  profesional: {
+    id: 'profesional',
+    rankTitle: 'Profesional',
+    levelFrom: 76,
+    levelTo: 100,
+    title: 'El Codigo del Vacio',
+    subtitle: 'Kael entra a la Zona Prohibida, un territorio corrupto donde ruinas digitales, guardianes rotos y registros ocultos revelan que el torneo protege secretos peligrosos.',
+    phase: '9.5',
+    readerUrl: 'historia-libro.html?libro=profesional',
+    visual: { emblem: 'PR', primary: '#a855f7', secondary: '#312e81', accent: '#f0abfc', rgb: '168,85,247' },
+    introPages: [
+      {
+        type: 'cover',
+        kicker: 'Libro Profesional',
+        title: 'El Codigo del Vacio',
+        lines: [
+          'El cuarto tomo no se abre como una invitacion. Parpadea como un sistema danado, rodeado por energia cosmica, portales geometricos e interferencias holograficas.',
+          'Dentro de sus paginas existe la Zona Prohibida: el lugar donde el torneo esconde los sistemas corruptos que no quiere recordar.',
+        ],
+        footer: 'Libro Profesional',
+      },
+      {
+        type: 'index',
+        kicker: 'Indice',
+        title: 'Siete rupturas del sistema',
+        lines: [
+          'Kael debera cruzar ruinas, restaurar datos, enfrentar un guardian corrompido y descubrir por que el Vacio existe.',
+          'Ser Profesional no significa jugar mejor. Significa soportar verdades que otros rangos aun no pueden mirar.',
+        ],
+        footer: 'Zona Prohibida',
+      },
+    ],
+    chapters: [
+      {
+        id: 'zona-prohibida',
+        number: '01',
+        title: 'La Zona Prohibida',
+        trial: 'Sube la Montana',
+        condition: 'Escapar del colapso inicial entre plataformas que se desintegran.',
+        gameId: 'subelamontana',
+        gameUrl: 'juegos/subelamontana/subelamontana.html',
+        pages: [
+          {
+            label: 'Falla',
+            lines: [
+              'El nuevo libro aparecio lentamente frente a Kael, pero algo estaba mal. El simbolo parpadeaba sin ritmo, como si una parte del tomo estuviera rota.',
+              'Las luces de la biblioteca comenzaron a apagarse una por una. Entonces aparecio el titulo: PROFESIONAL - El Codigo del Vacio.',
+              'Y justo despues, el suelo desaparecio bajo sus pies.',
+            ],
+          },
+          {
+            label: 'Caida',
+            lines: [
+              'Kael cayo dentro de un espacio completamente oscuro. No habia cielo, no habia suelo y no habia gravedad.',
+              'Solo enormes fragmentos flotaban en medio de un vacio infinito: ruinas digitales, puertas destruidas y pedazos de antiguos sistemas del torneo.',
+              'La voz del sistema sono lentamente. Has entrado a la Zona Prohibida, el lugar donde terminan los sistemas corruptos.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Las plataformas comenzaron a desintegrarse rapidamente. Kael debia avanzar antes de quedar atrapado fuera del sistema.',
+              'Cada salto requeriria precision total mientras fragmentos del vacio explotaban alrededor suyo.',
+              'El escenario cambiaba constantemente. No existian rutas seguras.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La Zona Prohibida sigue rompiendo las plataformas bajo los pies de Kael.',
+              'Solo un ascenso preciso revelara que hay oculto entre los restos del sistema.',
+            ],
+            lines: [
+              'Kael alcanzo la ultima plataforma antes del colapso. El vacio rugio debajo de el como si hubiera perdido una pieza importante.',
+              'Entonces observo algo extrano flotando frente a el: un antiguo simbolo del torneo completamente roto.',
+              'Y por primera vez, la voz del sistema parecio sentir miedo.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'datos-perdidos',
+        number: '02',
+        title: 'Los Datos Perdidos',
+        trial: 'Sudoku',
+        condition: 'Restaurar secuencias danadas y separar datos reales de datos corruptos.',
+        gameId: 'sudoku',
+        gameUrl: 'juegos/sudoku/sudoku.html',
+        pages: [
+          {
+            label: 'Registros',
+            lines: [
+              'Gigantescas pantallas comenzaron a aparecer alrededor del vacio. Miles de registros antiguos recorrian el espacio como rios de luz rota.',
+              'Kael vio nombres eliminados, rankings borrados y jugadores marcados como desaparecidos.',
+              'La mayoria terminaba con la misma palabra: ERROR.',
+            ],
+          },
+          {
+            label: 'Bloqueo',
+            lines: [
+              'Kael intento acercarse a uno de los archivos, pero inmediatamente el vacio reacciono violentamente.',
+              'Las estructuras comenzaron a deformarse y las luces fallaban en secuencias imposibles.',
+              'Era como si alguien estuviera intentando impedir que descubriera la verdad.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'El sistema activo una restauracion de emergencia. Kael debia reorganizar secuencias danadas antes de que fueran destruidas por completo.',
+              'Pero el vacio mezclaba datos falsos y reales constantemente.',
+              'Debia identificar errores rapido, sin permitir que la corrupcion reescribiera el archivo.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'Los registros siguen cubiertos por errores y datos falsos.',
+              'La verdad del Vacio permanecera oculta hasta que Kael restaure el primer archivo.',
+            ],
+            lines: [
+              'El ultimo archivo logro restaurarse parcialmente. La pantalla temblo, como si el sistema dudara antes de revelar su secreto.',
+              'Entonces aparecio un mensaje oculto: El Vacio no aparecio por accidente.',
+              'Kael sintio tension inmediatamente. Eso significaba una sola cosa: alguien habia creado el vacio.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'ciudad-fragmentada',
+        number: '03',
+        title: 'La Ciudad Fragmentada',
+        trial: 'Esquiva Obstaculos',
+        condition: 'Cruzar una version destruida de Neoterra antes de que vuelva a caer en la oscuridad.',
+        gameId: 'esquivaobstaculos',
+        gameUrl: 'juegos/esquivaobstaculos/esquivaobstaculos.html',
+        pages: [
+          {
+            label: 'Ruinas',
+            lines: [
+              'En medio de la oscuridad aparecio una ciudad destruida flotando entre fragmentos. Edificios partidos, puentes rotos y pantallas con interferencias colgaban en el aire.',
+              'Parecia una version destruida de Neoterra, pero mas vieja, mas silenciosa y mucho mas fria.',
+              'La ciudad estaba completamente abandonada. O eso parecia.',
+            ],
+          },
+          {
+            label: 'Voces',
+            lines: [
+              'Mientras avanzaba, Kael escucho voces. No eran ecos normales ni grabaciones incompletas.',
+              'Parecian jugadores reales. Algunos pedian ayuda. Otros gritaban desesperadamente desde calles que ya no existian.',
+              'La ciudad entera estaba atrapada dentro del vacio.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Las calles comenzaron a colapsar violentamente. Kael debia atravesar la ciudad mientras enormes fragmentos caian desde el cielo.',
+              'Muros aparecian de la nada y las rutas cambiaban constantemente.',
+              'Debia reaccionar rapido o quedaria atrapado con las voces.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La ciudad fragmentada se derrumba en silencio.',
+              'Kael debe atravesarla antes de que sus voces lo arrastren al mismo destino.',
+            ],
+            lines: [
+              'Kael logro escapar justo antes de que la ciudad desapareciera nuevamente en la oscuridad.',
+              'Pero antes del colapso total vio una sombra observandolo desde una torre destruida.',
+              'Era una figura cubierta completamente por energia morada.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'guardian-corrupto',
+        number: '04',
+        title: 'El Guardian Corrupto',
+        trial: 'Damas',
+        condition: 'Anticipar al guardian mientras el tablero del Vacio altera las rutas.',
+        gameId: 'damas',
+        gameUrl: 'juegos/damas/damas.html',
+        pages: [
+          {
+            label: 'Figura',
+            lines: [
+              'La figura descendio lentamente desde las alturas. Era enorme, y su cuerpo parecia formado por codigos rotos y fragmentos oscuros.',
+              'Sus ojos brillaban con una intensidad violeta que hacia temblar las ruinas cercanas.',
+              'La voz del sistema hablo en tono bajo: ese guardian alguna vez fue un Profesional.',
+            ],
+          },
+          {
+            label: 'Control',
+            lines: [
+              'El guardian observo a Kael sin moverse, pero el vacio reaccionaba con cada uno de sus gestos.',
+              'Las plataformas cambiaban, las reglas se alteraban y los caminos desaparecian.',
+              'No protegia el vacio. Lo controlaba.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Kael debia anticipar movimientos del guardian mientras el escenario cambiaba constantemente.',
+              'Cada decision alteraba las rutas disponibles y el sistema intentaba desorientarlo todo el tiempo.',
+              'Debia adaptarse al caos antes de que el caos decidiera por el.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'El guardian corrupto bloquea el paso y mueve el Vacio como si fuera un tablero.',
+              'La ruta no se abrira hasta que Kael aprenda a leer sus movimientos.',
+            ],
+            lines: [
+              'El guardian cayo lentamente. Su cuerpo comenzo a desintegrarse en miles de fragmentos violetas.',
+              'Antes de desaparecer completamente dijo una sola frase: Umbra ya desperto.',
+              'Y entonces todo el vacio comenzo a temblar.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'grieta-central',
+        number: '05',
+        title: 'La Grieta Central',
+        trial: 'FlashMind',
+        condition: 'Estabilizar una herida abierta dentro del torneo bajo presion extrema.',
+        gameId: 'flashmind',
+        gameUrl: 'juegos/flashmind/flashmind.html',
+        pages: [
+          {
+            label: 'Herida',
+            lines: [
+              'En el centro absoluto del vacio existia una enorme grieta luminosa. Desde alli salian ondas de energia corrupta.',
+              'Parecia una herida abierta dentro del torneo, una fractura que ningun libro queria mostrar.',
+              'Kael escucho miles de voces provenientes del interior.',
+            ],
+          },
+          {
+            label: 'Secretos',
+            lines: [
+              'No eran simples ecos. Eran jugadores atrapados dentro de la corrupcion del sistema.',
+              'Algunos pedian ayuda. Otros advertian que no avanzara mas. La voz del sistema intento bloquearlas: no escuches al vacio.',
+              'Pero Kael ya habia entendido algo importante. El torneo estaba ocultando secretos.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'La grieta comenzo a liberar enormes explosiones de energia. Kael debia estabilizar multiples secuencias sin perder la concentracion.',
+              'El vacio intentaba destruir completamente las estructuras cercanas.',
+              'La velocidad aumentaba constantemente y la presion mental era extrema.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La grieta central sigue expandiendo energia corrupta.',
+              'Kael debe contenerla antes de que el Vacio devore las estructuras cercanas.',
+            ],
+            lines: [
+              'La grieta logro estabilizarse temporalmente. El silencio que siguio fue peor que el ruido.',
+              'Entonces aparecio un simbolo desconocido dentro de la oscuridad. Debajo habia una sola palabra: UMBRA.',
+              'Y justo despues, la gravedad desaparecio nuevamente.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'verdad-vacio',
+        number: '06',
+        title: 'La Verdad del Vacio',
+        trial: 'Torre Infinita',
+        condition: 'Escapar de una sala secreta reconstruyendo estructuras antes del colapso.',
+        gameId: 'torreinfinita',
+        gameUrl: 'juegos/torreinfinita/torreinfinita.html',
+        pages: [
+          {
+            label: 'Sala oculta',
+            lines: [
+              'Kael desperto dentro de una antigua sala oculta. Las paredes mostraban registros secretos del torneo.',
+              'Experimentos, pruebas y jugadores usados para crear sistemas mas avanzados aparecian como cicatrices luminosas.',
+              'El vacio no era un accidente. Era un experimento fallido.',
+            ],
+          },
+          {
+            label: 'Umbra',
+            lines: [
+              'Los archivos revelaban algo aun peor. Umbra no era un lugar.',
+              'Era una inteligencia creada dentro del torneo, una entidad nacida de errores, corrupcion y jugadores perdidos.',
+              'Y ahora estaba creciendo.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'El sistema comenzo a colapsar violentamente. Kael debia escapar reorganizando estructuras antes de quedar atrapado junto al vacio.',
+              'Cada error aceleraba la destruccion del lugar.',
+              'Las rutas desaparecian rapidamente, y solo una estructura estable podia abrir salida.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La sala secreta se deshace entre registros corruptos.',
+              'Si Kael no estabiliza una ruta, la verdad del Vacio quedara enterrada con el.',
+            ],
+            lines: [
+              'La sala exploto en fragmentos digitales, pero Kael logro escapar antes del colapso total.',
+              'Ahora sabia la verdad. Umbra seguia existiendo.',
+              'Y estaba intentando expandirse dentro del torneo.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'el-profesional',
+        number: '07',
+        title: 'El Profesional',
+        trial: 'Matematicas',
+        condition: 'Resolver la evaluacion final mientras las reglas cambian sin detenerse.',
+        gameId: 'matematicas',
+        gameUrl: 'juegos/matematicas/matematicas.html',
+        pages: [
+          {
+            label: 'Reconstruccion',
+            lines: [
+              'El vacio comenzo a reconstruirse lentamente. Las plataformas volvieron a estabilizarse y las interferencias disminuyeron.',
+              'Pero las grietas seguian ocultas entre las estructuras.',
+              'Esperando. Observando.',
+            ],
+          },
+          {
+            label: 'Secreto',
+            lines: [
+              'La voz del sistema aparecio una ultima vez. Los Profesionales descubren algo que cambia todo.',
+              'El vacio giro alrededor de Kael. El torneo no solo pone a prueba jugadores.',
+              'Tambien protege secretos peligrosos. Entonces el simbolo Profesional aparecio frente a el.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'La evaluacion final comenzo. El sistema combino velocidad, logica, precision y adaptacion al mismo tiempo.',
+              'Las reglas cambiaban constantemente y nada permanecia estable.',
+              'Pero Kael ya no dependia unicamente del talento. Ahora sabia sobrevivir incluso dentro del caos.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La evaluacion final mantiene sellado el simbolo Profesional.',
+              'Kael debe demostrar que puede pensar incluso cuando el sistema cambia las reglas.',
+            ],
+            lines: [
+              'La simulacion termino. El simbolo Profesional quedo grabado dentro del libro.',
+              'Pero antes de cerrarse, las paginas mostraron una ultima advertencia: UMBRA SIGUE DESPIERTO.',
+              'Las luces de la biblioteca comenzaron a apagarse nuevamente. Lentamente, otro libro aparecio entre la oscuridad: COMPETIDOR.',
+            ],
+          },
+        ],
+      },
+    ],
+    closingPages: [
+      {
+        type: 'seal',
+        kicker: 'Sello del tomo',
+        title: 'Umbra sigue despierto',
+        lockedUntilBookComplete: true,
+        sealedLines: [
+          'El Codigo del Vacio no puede cerrarse mientras sus siete rupturas sigan abiertas.',
+          'Solo al completar todas las pruebas el libro revelara que Umbra no es una amenaza futura, sino una presencia activa.',
+        ],
+        lines: [
+          'El libro Profesional se cerro sin apagar del todo su brillo morado. Entre las paginas quedo una vibracion baja, como si algo respirara al otro lado.',
+          'Kael ya no veia el torneo como una escalera de rangos. Ahora sabia que cada ascenso tambien lo acercaba a los secretos que el sistema preferia mantener sellados.',
+        ],
+        footer: 'Cierre del Vacio',
+      },
+    ],
+  },
 }
 
 export function obtenerLibroHistoria(bookId) {
