@@ -882,6 +882,264 @@ h1{
   color:#bae6fd;
 }
 
+.story-mode{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) minmax(170px, 240px);
+  align-items:center;
+  gap:22px;
+  width:min(860px, 100%);
+  min-height:238px;
+  margin:22px auto 0;
+  padding:24px;
+  overflow:hidden;
+  border:1px solid rgba(250,204,21,0.30);
+  border-radius:8px;
+  color:#f8fafc;
+  background:
+    radial-gradient(circle at 74% 44%, rgba(250,204,21,0.22), transparent 24%),
+    radial-gradient(circle at 24% 18%, rgba(56,189,248,0.18), transparent 30%),
+    linear-gradient(135deg, rgba(2,6,23,0.98), rgba(15,23,42,0.92) 46%, rgba(49,46,129,0.56));
+  box-shadow:0 24px 58px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.07);
+  isolation:isolate;
+}
+
+.story-mode::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:
+    linear-gradient(90deg, rgba(250,204,21,0.12), transparent 34%, rgba(56,189,248,0.12)),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 24px);
+  opacity:0.78;
+}
+
+.story-mode::after{
+  content:"";
+  position:absolute;
+  inset:16px;
+  z-index:-1;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:6px;
+  pointer-events:none;
+}
+
+.story-copy{
+  position:relative;
+  z-index:2;
+  display:grid;
+  gap:10px;
+  text-align:left;
+}
+
+.story-kicker{
+  width:max-content;
+  padding:6px 10px;
+  border:1px solid rgba(250,204,21,0.28);
+  border-radius:999px;
+  color:#fde68a;
+  background:rgba(120,53,15,0.20);
+  font-size:11px;
+  font-weight:1000;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+}
+
+.story-copy h2{
+  margin:0;
+  color:#fff7ed;
+  font-size:clamp(26px, 3.2vw, 42px);
+  line-height:1.02;
+  letter-spacing:0;
+  text-shadow:0 16px 30px rgba(0,0,0,0.34);
+}
+
+.story-copy p{
+  max-width:520px;
+  margin:0;
+  color:#dbeafe;
+  font-size:15px;
+  line-height:1.55;
+}
+
+.story-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:2px;
+}
+
+.story-meta span{
+  padding:6px 9px;
+  border:1px solid rgba(148,163,184,0.18);
+  border-radius:999px;
+  color:#e0f2fe;
+  background:rgba(2,6,23,0.34);
+  font-size:12px;
+  font-weight:900;
+}
+
+.story-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:4px;
+}
+
+.story-action{
+  min-height:44px;
+  padding:12px 16px;
+  border:1px solid rgba(250,204,21,0.42);
+  border-radius:8px;
+  color:#111827;
+  background:linear-gradient(135deg, #fde68a, #f59e0b);
+  box-shadow:0 16px 30px rgba(245,158,11,0.20);
+  cursor:pointer;
+  font:inherit;
+  font-size:14px;
+  font-weight:1000;
+  transition:transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.story-action:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.04);
+  box-shadow:0 20px 38px rgba(245,158,11,0.26);
+}
+
+.story-action.secondary{
+  color:#e0f2fe;
+  background:rgba(15,23,42,0.58);
+  border-color:rgba(56,189,248,0.30);
+  box-shadow:0 12px 24px rgba(2,6,23,0.22);
+}
+
+.story-stage{
+  position:relative;
+  z-index:1;
+  display:grid;
+  place-items:center;
+  min-height:188px;
+  perspective:900px;
+}
+
+.story-glow{
+  position:absolute;
+  width:210px;
+  height:210px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(250,204,21,0.24), rgba(56,189,248,0.12) 46%, transparent 68%);
+  filter:blur(4px);
+  animation:storyPulse 4.8s ease-in-out infinite;
+}
+
+.story-book{
+  position:relative;
+  width:128px;
+  height:172px;
+  border-radius:7px 13px 13px 7px;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.38) 0 12px, rgba(255,255,255,0.09) 13px 15px, transparent 16px),
+    radial-gradient(circle at 78% 18%, rgba(250,204,21,0.30), transparent 26%),
+    linear-gradient(145deg, #0f172a, #1d4ed8 48%, #92400e);
+  box-shadow:
+    0 26px 42px rgba(0,0,0,0.42),
+    inset 0 0 0 1px rgba(255,255,255,0.13),
+    inset -10px 0 18px rgba(0,0,0,0.24);
+  transform:rotateY(-20deg) rotateZ(-4deg);
+  animation:storyFloat 5.4s ease-in-out infinite;
+}
+
+.story-book::before{
+  content:"";
+  position:absolute;
+  inset:18px 18px 18px 24px;
+  border:1px solid rgba(250,204,21,0.44);
+  border-radius:5px;
+  background:
+    linear-gradient(90deg, rgba(250,204,21,0.20) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(250,204,21,0.18) 1px, transparent 1px);
+  background-size:18px 18px;
+  box-shadow:inset 0 0 18px rgba(56,189,248,0.12);
+}
+
+.story-book::after{
+  content:"I";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border:1px solid rgba(253,230,138,0.48);
+  border-radius:50%;
+  color:#fef3c7;
+  background:rgba(2,6,23,0.42);
+  font-size:24px;
+  font-weight:1000;
+  text-shadow:0 0 18px rgba(250,204,21,0.56);
+}
+
+.story-pages{
+  position:absolute;
+  right:22px;
+  bottom:5px;
+  width:88px;
+  height:14px;
+  border-radius:0 0 9px 3px;
+  background:repeating-linear-gradient(180deg, #f8fafc 0 2px, #dbeafe 2px 3px);
+  transform:skewX(-22deg);
+  opacity:0.82;
+}
+
+.story-runes{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+.story-runes span{
+  position:absolute;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#fde68a;
+  box-shadow:0 0 16px rgba(250,204,21,0.78);
+  opacity:0.72;
+  animation:storySpark 5.8s ease-in-out infinite;
+}
+
+.story-runes span:nth-child(1){ left:12%; top:26%; animation-delay:-1s; }
+.story-runes span:nth-child(2){ right:16%; top:18%; animation-delay:-2.2s; }
+.story-runes span:nth-child(3){ right:9%; bottom:22%; animation-delay:-3.4s; }
+.story-runes span:nth-child(4){ left:22%; bottom:18%; animation-delay:-4.1s; }
+
+@keyframes storyFloat{
+  0%, 100%{ transform:translateY(0) rotateY(-20deg) rotateZ(-4deg); }
+  50%{ transform:translateY(-10px) rotateY(-14deg) rotateZ(-2deg); }
+}
+
+@keyframes storyPulse{
+  0%, 100%{ transform:scale(0.94); opacity:0.72; }
+  50%{ transform:scale(1.06); opacity:1; }
+}
+
+@keyframes storySpark{
+  0%, 100%{ transform:translateY(0) scale(0.86); opacity:0.38; }
+  50%{ transform:translateY(-12px) scale(1); opacity:0.9; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .story-book,
+  .story-glow,
+  .story-runes span{
+    animation:none;
+  }
+}
+
 @media (max-width:560px){
   .season-event{
     align-items:flex-start;
@@ -892,6 +1150,45 @@ h1{
     width:42px;
     height:42px;
     font-size:13px;
+  }
+
+  .story-mode{
+    grid-template-columns:1fr;
+    min-height:0;
+    padding:18px;
+    gap:16px;
+  }
+
+  .story-copy{
+    text-align:center;
+    justify-items:center;
+  }
+
+  .story-copy p{
+    font-size:14px;
+  }
+
+  .story-actions{
+    width:100%;
+  }
+
+  .story-action{
+    flex:1 1 130px;
+  }
+
+  .story-stage{
+    min-height:156px;
+    order:-1;
+  }
+
+  .story-book{
+    width:106px;
+    height:144px;
+  }
+
+  .story-glow{
+    width:170px;
+    height:170px;
   }
 }
 
@@ -3563,6 +3860,32 @@ h1{
         <button class="boton whatsapp-link" type="button" onclick="abrirWhatsapp()">WhatsApp</button>
         <button class="boton vip-link" type="button" onclick="irVip()">★ Zona VIP</button>
       </div>
+      <section class="story-mode" aria-labelledby="storyModeTitle">
+        <div class="story-copy">
+          <span class="story-kicker">Nuevo modo</span>
+          <h2 id="storyModeTitle">Modo Historia</h2>
+          <p>Entra a la Biblioteca de Historias y descubre libros ligados a tus rangos. Cada tomo sera una campana narrativa con pruebas tomadas de los juegos del torneo.</p>
+          <div class="story-meta" aria-label="Estado del modo historia">
+            <span>Fase 1 y 2</span>
+            <span>Libros por rango</span>
+            <span>Primer tomo visual</span>
+          </div>
+          <div class="story-actions">
+            <button class="story-action" type="button" onclick="irHistoria()">Entrar a la biblioteca</button>
+            <button class="story-action secondary" type="button" onclick="window.location.href='ruta-rangos.html'">Ver rangos</button>
+          </div>
+        </div>
+        <div class="story-stage" aria-hidden="true">
+          <span class="story-glow"></span>
+          <span class="story-book"><span class="story-pages"></span></span>
+          <span class="story-runes">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </div>
+      </section>
       <div class="season-event" id="seasonEvent" aria-live="polite"></div>
       <div class="season-event coin-season-event" id="coinSeasonEvent" aria-live="polite"></div>
     </section>
@@ -3863,6 +4186,10 @@ function irAdmin(){
 
 function irVip(){
   window.location.href = 'vip.html'
+}
+
+function irHistoria(){
+  window.location.href = 'historia.html'
 }
 
 const WHATSAPP_URL = 'https://chat.whatsapp.com/FcDz95lx5al9xH6lRSZ8Y0'

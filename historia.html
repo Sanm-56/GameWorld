@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca de Historias</title>
+<link rel="stylesheet" href="juegos/css/historia.css">
+</head>
+<body>
+  <main class="story-shell">
+    <header class="story-header">
+      <nav class="story-nav" aria-label="Navegacion">
+        <a href="index.html">Inicio</a>
+        <a href="ruta-rangos.html">Rangos</a>
+      </nav>
+      <section class="story-hero" aria-labelledby="libraryTitle">
+        <div class="story-hero-copy">
+          <span class="story-eyebrow">Modo Historia</span>
+          <h1 id="libraryTitle">Biblioteca de Historias</h1>
+          <p>Los rangos del torneo se convierten en libros. Cada tomo guardara capitulos narrativos y pruebas conectadas con los juegos existentes.</p>
+        </div>
+        <div class="featured-book" id="featuredBook" aria-live="polite">
+          <span class="featured-halo"></span>
+          <div class="book-cover">
+            <span class="book-spine"></span>
+            <span class="book-emblem">NV</span>
+            <span class="book-title">Novato</span>
+          </div>
+          <div class="featured-info">
+            <span>Libro seleccionado</span>
+            <strong>Novato</strong>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <section class="library-status" aria-label="Estado de biblioteca">
+      <article>
+        <span>Fase actual</span>
+        <strong>1 y 2</strong>
+      </article>
+      <article>
+        <span>Libros</span>
+        <strong id="bookCount">0</strong>
+      </article>
+      <article>
+        <span>Libro activo</span>
+        <strong id="activeBookName">Novato</strong>
+      </article>
+    </section>
+
+    <section class="library-layout" aria-label="Coleccion de libros por rango">
+      <aside class="book-detail" id="bookDetail">
+        <span class="detail-kicker">Tomo inicial</span>
+        <h2>Libro Novato</h2>
+        <p>La primera historia empezara aqui. En la siguiente fase este libro se abrira con paginas animadas y capitulos.</p>
+        <div class="detail-progress">
+          <span>Capitulos visuales</span>
+          <strong>Prototipo</strong>
+        </div>
+        <button type="button" disabled>Libro funcional en Fase 3</button>
+      </aside>
+
+      <div class="shelf-wrap">
+        <div class="shelf-head">
+          <div>
+            <span>Archivo de rangos</span>
+            <h2>Tomos del torneo</h2>
+          </div>
+          <p id="libraryHint">Solo el primer libro queda activo como base visual.</p>
+        </div>
+        <div class="book-shelf" id="bookShelf"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="juegos/js/historia.js"></script>
+</body>
+</html>
