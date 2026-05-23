@@ -763,7 +763,7 @@ button{
   position:relative;
   display:grid;
   grid-template-columns:1fr 1fr;
-  min-height:560px;
+  min-height:610px;
   overflow:hidden;
   border:1px solid rgba(250,204,21,0.22);
   border-radius:10px;
@@ -803,6 +803,8 @@ button{
   align-content:space-between;
   gap:22px;
   min-width:0;
+  max-height:610px;
+  overflow:auto;
   padding:38px;
   color:#102033;
   background:
@@ -833,16 +835,17 @@ button{
 .book-page h2{
   margin:10px 0 14px;
   color:#0f172a;
-  font-size:clamp(28px, 3vw, 44px);
+  font-size:clamp(26px, 2.6vw, 40px);
   line-height:1;
   letter-spacing:0;
 }
 
 .book-page p{
-  margin:0 0 12px;
+  max-width:64ch;
+  margin:0 0 14px;
   color:#1e293b;
-  font-size:17px;
-  line-height:1.7;
+  font-size:16px;
+  line-height:1.72;
 }
 
 .page-mark{
@@ -866,6 +869,17 @@ button{
   border:1px solid rgba(14,165,233,0.18);
   border-radius:8px;
   background:rgba(14,165,233,0.08);
+}
+
+.sealed-note{
+  margin-top:18px;
+  padding:12px 14px;
+  border:1px solid rgba(3,105,161,0.18);
+  border-radius:8px;
+  color:#075985;
+  background:rgba(14,165,233,0.08);
+  font-size:13px;
+  font-weight:900;
 }
 
 .trial-card span{
@@ -964,7 +978,7 @@ button{
 
   .open-book{
     grid-template-columns:1fr;
-    min-height:520px;
+    min-height:560px;
   }
 
   .book-binding,
@@ -1006,16 +1020,21 @@ button{
   }
 
   .open-book{
-    min-height:500px;
+    min-height:560px;
   }
 
   .book-page{
-    padding:26px 22px;
+    max-height:560px;
+    padding:24px 20px;
+  }
+
+  .book-page h2{
+    font-size:28px;
   }
 
   .book-page p{
-    font-size:15px;
-    line-height:1.62;
+    font-size:14.5px;
+    line-height:1.66;
   }
 
   .reader-controls{

@@ -2,6 +2,8 @@ import {
   obtenerProgresoNivel,
   obtenerRangosDesdeNivel,
 } from './progreso-nivel.js'
+import { crearIdLibroDesdeTitulo } from './historia-core.js'
+import { LIBROS_HISTORIA, obtenerLibroHistoria } from './historia-libros.js'
 
 const shelfEl = document.getElementById('bookShelf')
 const countEl = document.getElementById('bookCount')
@@ -67,7 +69,14 @@ function hashText(value) {
   return [...String(value || '')].reduce((total, char) => ((total << 5) - total + char.charCodeAt(0)) | 0, 0)
 }
 
-function visualForRank(title) {
+function visualForRank(title, book = null) {
+  if (book?.visual?.primary) {
+    return {
+      ...book.visual,
+      emblem: book.visual.emblem || initials(title),
+    }
+  }
+
   const key = normalize(title)
   const base = RANK_VISUALS[key]
   if (base) return base
@@ -103,13 +112,13 @@ function bookStatus(rank, level) {
   return 'locked'
 }
 
-function statusText(status) {
+function statusText(status, registered = false) {
   if (status === 'current') return 'Actual'
-  if (status === 'unlocked') return 'Abierto'
+  if (status === 'unlocked') return registered ? 'Listo' : 'Pendiente'
   return 'Sellado'
 }
 
-function renderFeatured(rank, visual) {
+function renderFeatured(rank, visual, book = null) {
   if (!featuredEl) return
   featuredEl.innerHTML = `
     <span class="featured-halo"></span>
@@ -120,42 +129,43 @@ function renderFeatured(rank, visual) {
     </div>
     <div class="featured-info">
       <span>Libro seleccionado</span>
-      <strong>${escapeHtml(rank.titulo)}</strong>
+      <strong>${escapeHtml(book?.title || rank.titulo)}</strong>
     </div>
   `
 }
 
-function renderDetail(rank, status, visual) {
+function renderDetail(rank, status, visual, book = null) {
   if (!detailEl) return
   const range = rank.desde === rank.hasta ? `Nivel ${rank.desde}` : `Niveles ${rank.desde}-${rank.hasta}`
-  const isNovato = normalize(rank.titulo) === 'novato'
+  const registered = Boolean(book)
   const phaseText = status === 'locked'
     ? 'Este tomo queda sellado hasta alcanzar su rango.'
-    : isNovato
-      ? 'El primer tomo ya tiene una vista de lectura para probar el interior del sistema.'
-      : 'Este tomo ya puede ser parte de la coleccion visual del jugador.'
-  const action = isNovato
-    ? '<button class="detail-open" type="button" onclick="window.location.href=\'historia-novato.html\'">Abrir Libro Novato</button>'
-    : '<button type="button" disabled>Libro funcional en una fase futura</button>'
+    : registered
+      ? 'Este tomo ya esta registrado en el motor de Modo Historia.'
+      : 'Este tomo ya existe como libro visual, pero su historia aun no esta producida.'
+  const action = registered && status !== 'locked'
+    ? `<button class="detail-open" type="button" data-open-book="${escapeHtml(book.readerUrl)}">Abrir ${escapeHtml(book.rankTitle || rank.titulo)}</button>`
+    : `<button type="button" disabled>${status === 'locked' ? 'Tomo sellado' : 'Libro pendiente'}</button>`
 
   detailEl.style.setProperty('--book-rgb', visual.rgb)
   detailEl.innerHTML = `
     <span class="detail-kicker">${status === 'current' ? 'Tomo activo' : status === 'unlocked' ? 'Tomo desbloqueado' : 'Tomo sellado'}</span>
-    <h2>Libro ${escapeHtml(rank.titulo)}</h2>
-    <p>${phaseText} En Fase 3 el primer libro se abrira con paginas animadas y estructura de capitulos.</p>
+    <h2>${escapeHtml(book?.title ? `Libro ${rank.titulo}: ${book.title}` : `Libro ${rank.titulo}`)}</h2>
+    <p>${escapeHtml(phaseText)} ${escapeHtml(book?.subtitle || 'Cuando se produzca, tendra historia, capitulos, pruebas y progreso propio.')}</p>
     <div class="detail-progress">
       <span>${escapeHtml(range)}</span>
-      <strong>${escapeHtml(statusText(status))}</strong>
+      <strong>${escapeHtml(registered ? 'Registrado' : statusText(status, registered))}</strong>
     </div>
     ${action}
   `
 }
 
 function selectBook(rank, status) {
-  const visual = visualForRank(rank.titulo)
+  const book = obtenerLibroHistoria(crearIdLibroDesdeTitulo(rank.titulo))
+  const visual = visualForRank(rank.titulo, book)
   setBookTheme(visual)
-  renderFeatured(rank, visual)
-  renderDetail(rank, status, visual)
+  renderFeatured(rank, visual, book)
+  renderDetail(rank, status, visual, book)
   if (activeBookNameEl) activeBookNameEl.textContent = rank.titulo
 
   shelfEl?.querySelectorAll('.rank-book').forEach((button) => {
@@ -173,19 +183,21 @@ async function initLibrary() {
 
   if (countEl) countEl.textContent = String(ranks.length)
   if (hintEl) {
+    const registeredCount = Object.keys(LIBROS_HISTORIA).length
     hintEl.textContent = usuario
-      ? `Nivel actual: ${level}. La biblioteca ya refleja rangos abiertos y sellados.`
-      : 'Sin usuario activo: se muestra la biblioteca desde Novato.'
+      ? `Nivel actual: ${level}. Libros registrados: ${registeredCount} de ${ranks.length}.`
+      : `Sin usuario activo: se muestra la biblioteca desde Novato. Libros registrados: ${registeredCount} de ${ranks.length}.`
   }
 
   shelfEl.innerHTML = ranks.map((rank) => {
-    const visual = visualForRank(rank.titulo)
+    const book = obtenerLibroHistoria(crearIdLibroDesdeTitulo(rank.titulo))
+    const visual = visualForRank(rank.titulo, book)
     const status = bookStatus(rank, level)
     return `
-      <button class="rank-book ${status}" type="button" data-rank-title="${escapeHtml(rank.titulo)}" data-status="${status}" style="${styleVars(visual)}">
+      <button class="rank-book ${status} ${book ? 'registered' : 'pending'}" type="button" data-rank-title="${escapeHtml(rank.titulo)}" data-status="${status}" data-book-id="${escapeHtml(crearIdLibroDesdeTitulo(rank.titulo))}" style="${styleVars(visual)}">
         <span class="rank-book-cover" data-emblem="${escapeHtml(visual.emblem)}"></span>
         <span class="rank-book-name">${escapeHtml(rank.titulo)}</span>
-        <span class="rank-book-state">${escapeHtml(statusText(status))}</span>
+        <span class="rank-book-state">${escapeHtml(book ? 'Registrado' : statusText(status, false))}</span>
       </button>
     `
   }).join('')
@@ -200,6 +212,12 @@ async function initLibrary() {
     selectBook(rank, button.dataset.status || 'locked')
   })
 }
+
+detailEl?.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-open-book]')
+  if (!button) return
+  window.location.href = button.dataset.openBook
+})
 
 initLibrary().catch((error) => {
   console.warn('No se pudo cargar la biblioteca de historias', error)
