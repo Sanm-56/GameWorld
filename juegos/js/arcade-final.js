@@ -2,6 +2,7 @@ import { supabase } from "./supabase.js"
 import { redirigirFinalNivelSolitario, volverDesdeFinal } from "./mini-torneo.js"
 import { escapeHtml } from "./mensajes.js"
 import { getArcadeGame } from "./arcade-games.js"
+import { leerPruebaHistoriaPendiente, pruebaHistoriaActiva } from "./historia-core.js"
 
 const gameKey = document.body.dataset.game
 const config = getArcadeGame(gameKey)
@@ -14,6 +15,7 @@ const score = Number(localStorage.getItem(`${gameKey}_puntos`) || 0)
 const elapsed = Number(localStorage.getItem(`${gameKey}_elapsed`) || 0)
 const combo = Number(localStorage.getItem(`${gameKey}_combo`) || 0)
 const isMini = localStorage.getItem("solitario_origen") === "sala"
+const isHistory = pruebaHistoriaActiva(gameKey)
 const usaAltura = gameKey === "torreinfinita"
 const rewards = readJson(localStorage.getItem(`ultimo_resultado_${gameKey}`))
 const bestStorageKey = usaAltura ? `${gameKey}_best_m` : `${gameKey}_best`
@@ -74,8 +76,19 @@ els.result.textContent = fin === "descalificado"
     : "Sin puntuacion"
 
 async function load() {
+  if (isHistory) return loadHistoryResult()
   if (isMini) return loadMiniRanking()
   return loadTournamentRanking()
+}
+
+async function loadHistoryResult() {
+  const pendiente = leerPruebaHistoriaPendiente()
+  els.subtitle.textContent = "Resultado de Modo Historia"
+  els.result.textContent = pendiente?.completed ? "Prueba completada" : "Prueba pendiente"
+  els.delta.textContent = pendiente?.completed ? "Vuelve al libro para continuar la historia." : "Vuelve al libro para intentarlo de nuevo."
+  els.podio.innerHTML = ""
+  els.ranking.innerHTML = "<div class='empty'>El resultado quedo guardado solo en el progreso del libro.</div>"
+  if (els.back) els.back.textContent = "Volver al libro"
 }
 
 async function loadTournamentRanking() {
@@ -261,6 +274,12 @@ function esErrorColumnaInvalido(error) {
 }
 
 els.back.addEventListener("click", async () => {
+  if (isHistory) {
+    const returnUrl = leerPruebaHistoriaPendiente()?.returnUrl || "historia.html"
+    limpiarResultadoLocal()
+    window.location.href = `../../${returnUrl}`
+    return
+  }
   await volverDesdeFinal(supabase, () => {
     limpiarResultadoLocal()
   })
@@ -280,6 +299,7 @@ function limpiarResultadoLocal() {
 }
 
 function activarActualizacionRanking() {
+  if (isHistory) return
   const channel = supabase.channel(`final-ranking-${gameKey}-${Date.now()}`)
 
   if (isMini) {

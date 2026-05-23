@@ -3,6 +3,7 @@ import { redirigirFinalNivelSolitario, volverDesdeFinal } from "../../js/mini-to
 import { escapeHtml } from "../../js/mensajes.js"
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guard.js"
+import { pruebaHistoriaActiva as esPruebaHistoriaActiva } from "../../js/historia-core.js"
 
 const HISTORIA_PENDING_KEY = "historia_trial_pending"
 const LAUNCH_KEY = "solitario_game_launch"
@@ -16,19 +17,11 @@ function leerPruebaHistoriaPendiente(){
 }
 
 function pruebaHistoriaActiva(){
-  let lanzamiento = null
-  try {
-    lanzamiento = JSON.parse(localStorage.getItem(LAUNCH_KEY) || "null")
-  } catch (error) {
-    lanzamiento = null
-  }
+  return esPruebaHistoriaActiva("flashmind")
+}
 
-  const pendiente = leerPruebaHistoriaPendiente()
-  return lanzamiento?.origin === "historia"
-    && lanzamiento?.game === "flashmind"
-    && pendiente?.bookId === "novato"
-    && pendiente?.chapterId === "camara-inicial"
-    && pendiente?.gameId === "flashmind"
+function historiaReturnUrl(){
+  return leerPruebaHistoriaPendiente()?.returnUrl || "historia.html"
 }
 
 const FINAL_GUARD_KEY = pruebaHistoriaActiva() ? "flashmind_historia" : "flashmind"
@@ -124,7 +117,7 @@ if (pruebaHistoriaActiva()) {
   podioDiv.innerHTML = ""
   rankingDiv.innerHTML = `<p class="vacio">${completada ? "La camara inicial recupero su pulso." : "La camara inicial sigue inestable."}</p>`
   const boton = document.querySelector(".contenedor > button:not(.musica)")
-  if (boton) boton.textContent = "Volver al Libro Novato"
+  if (boton) boton.textContent = "Volver al libro"
 } else {
   cargar()
 }
@@ -132,7 +125,7 @@ if (pruebaHistoriaActiva()) {
 window.volverLobby = async function () {
   limpiarFinalProtegido(FINAL_GUARD_KEY)
   if (pruebaHistoriaActiva()) {
-    window.location.href = "../../historia-novato.html"
+    window.location.href = `../../${historiaReturnUrl()}`
     return
   }
   await volverDesdeFinal(supabase)

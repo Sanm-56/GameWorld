@@ -300,6 +300,302 @@ export const LIBROS_HISTORIA = {
       },
     ],
   },
+  amateur: {
+    id: 'amateur',
+    rankTitle: 'Amateur',
+    levelFrom: 26,
+    levelTo: 50,
+    title: 'Las Primeras Pruebas',
+    subtitle: 'Kael entra a un entrenamiento digital de energia verde donde memoria, reaccion, precision y logica empiezan a convertirlo en un verdadero competidor.',
+    phase: '9.3',
+    visual: { emblem: 'AM', primary: '#22c55e', secondary: '#14b8a6', accent: '#bbf7d0', rgb: '34,197,94' },
+    introPages: [
+      {
+        type: 'cover',
+        kicker: 'Libro Amateur',
+        title: 'Las Primeras Pruebas',
+        lines: [
+          'El portal verde se abre para quienes ya sobrevivieron al despertar inicial del Nexus.',
+          'Dentro de este tomo, Kael descubre que avanzar no significa saberlo todo, sino aceptar cada prueba sin perder el control.',
+        ],
+        footer: 'Libro Amateur',
+      },
+      {
+        type: 'index',
+        kicker: 'Indice',
+        title: 'Cinco pruebas de control',
+        lines: [
+          'Memoria, reaccion, precision, calculo y adaptacion forman la ruta del Amateur.',
+          'Cada capitulo abre una camara distinta del entrenamiento digital y revela una consecuencia al completar su prueba.',
+        ],
+        footer: 'Historia continua',
+      },
+    ],
+    chapters: [
+      {
+        id: 'despertar-aspirante',
+        number: '01',
+        title: 'El Despertar del Aspirante',
+        trial: 'Memoria',
+        condition: 'Leer patrones bajo presion sin perder concentracion.',
+        gameId: 'memoria',
+        gameUrl: 'juegos/memoria/memoria.html',
+        pages: [
+          {
+            label: 'Portal',
+            lines: [
+              'El enorme portal verde se abrio lentamente frente a Kael. Miles de lineas luminosas recorrian las paredes de la Biblioteca de Historias mientras simbolos triangulares giraban alrededor del techo.',
+              'El aire vibraba como si toda la estructura estuviera viva. Kael observo el libro frente a el: AMATEUR - Las Primeras Pruebas.',
+              'El simbolo del torneo aparecio flotando delante de sus ojos. Si abriste este libro, significa que ya no eres un Novato.',
+            ],
+          },
+          {
+            label: 'Nucleo',
+            lines: [
+              'Kael avanzo lentamente. Cada paso activaba fragmentos holograficos del pasado: jugadores cayendo, otros triunfando, algunos desapareciendo del sistema del torneo.',
+              'Una voz mecanica resono en toda la sala. Los Amateur ya conocen las reglas basicas, pero aun no dominan el control mental.',
+              'Las paredes cambiaron de forma hasta parecer un laberinto tecnologico. Entonces aparecio el primer nucleo de prueba: una esfera luminosa suspendida en el aire.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'La esfera exploto en cientos de fragmentos digitales: simbolos, patrones y secuencias. Kael entendio inmediatamente que la prueba era de memoria y velocidad mental.',
+              'Las figuras aparecian y desaparecian cada vez mas rapido mientras el sistema intentaba confundirlo. El suelo incluso comenzo a moverse para romper su concentracion.',
+              'Kael respiro profundo. No debia entrar en panico. Debia leer el patron y pensar antes de actuar.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'El nucleo verde sigue suspendido, esperando que Kael demuestre control mental.',
+              'La consecuencia del capitulo se revelara al completar la prueba de memoria.',
+            ],
+            lines: [
+              'La ultima secuencia brillo intensamente. Luego, silencio. Las paredes comenzaron a apagarse: Kael habia superado la prueba.',
+              'El nucleo verde descendio lentamente hasta quedar frente a el. Sin control mental, ningun jugador puede avanzar.',
+              'El simbolo Amateur aparecio grabado en el aire, pero antes de que pudiera descansar, la siguiente puerta ya se estaba abriendo. Esta vez, el calor del sistema aumentaba.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'ruta-fragmentada',
+        number: '02',
+        title: 'La Ruta Fragmentada',
+        trial: 'Esquiva Obstaculos',
+        condition: 'Reaccionar antes de que el camino colapse.',
+        gameId: 'esquivaobstaculos',
+        gameUrl: 'juegos/esquivaobstaculos/esquivaobstaculos.html',
+        pages: [
+          {
+            label: 'Puentes',
+            lines: [
+              'El nuevo escenario parecia completamente distinto: puentes flotantes, plataformas triangulares y fragmentos de datos cayendo desde el cielo digital.',
+              'Kael observo el vacio bajo sus pies. No habia caminos seguros; cada estructura se movia constantemente.',
+              'La voz volvio a aparecer. Un Amateur no solo debe pensar rapido, tambien debe reaccionar rapido.',
+            ],
+          },
+          {
+            label: 'Distraccion',
+            lines: [
+              'Kael empezo a correr. Cada salto activaba particulas verdes debajo de sus pies, pero algo extrano ocurria.',
+              'El sistema no estaba intentando simplemente detenerlo; estaba intentando distraerlo. Aparecian falsas rutas, puertas ilusorias y sombras digitales moviendose entre las estructuras.',
+              'La presion aumentaba. El tiempo tambien.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Una alarma roja atraveso el escenario. Las plataformas comenzaron a destruirse detras de Kael, y ahora debia avanzar antes de quedar atrapado en el vacio digital.',
+              'Obstaculos mecanicos aparecian constantemente: muros, barreras y laseres triangulares. La velocidad aumentaba cada segundo.',
+              'No habia tiempo para dudar.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'Las plataformas siguen colapsando detras de Kael.',
+              'La salida solo aparecera cuando cruce la ruta fragmentada.',
+            ],
+            lines: [
+              'Kael logro cruzar la ultima plataforma justo antes del colapso total. El escenario desaparecio detras de el.',
+              'Fragmentos verdes flotaban lentamente en el aire como cenizas digitales. Muchos jugadores piensan demasiado y terminan inmoviles.',
+              'Un verdadero Amateur aprende cuando pensar y cuando actuar. Entonces algo aparecio en la oscuridad: una enorme torre iluminada, imposible de alcanzar desde abajo.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'torre-energia',
+        number: '03',
+        title: 'La Torre de Energia',
+        trial: 'Torre Infinita',
+        condition: 'Construir con precision mientras la torre vibra.',
+        gameId: 'torreinfinita',
+        gameUrl: 'juegos/torreinfinita/torreinfinita.html',
+        pages: [
+          {
+            label: 'Ascenso',
+            lines: [
+              'La torre se elevaba hasta desaparecer entre nubes digitales. Bloques gigantes se movian alrededor de ella.',
+              'Kael observo como otros jugadores intentaban subir y fallaban. Algunos perdian el equilibrio; otros destruian su propio camino.',
+              'La voz del sistema volvio a sonar. La precision separa a los jugadores comunes de los verdaderos competidores.',
+            ],
+          },
+          {
+            label: 'Equilibrio',
+            lines: [
+              'Cada nivel de la torre reaccionaba de manera diferente. Algunos bloques eran veloces, otros inestables, otros parecian perfectamente alineados hasta que se movian inesperadamente.',
+              'Kael comprendio algo importante: la desesperacion arruinaba el equilibrio.',
+              'Debia mantener calma absoluta.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'El sistema activo la construccion central. Bloques de energia comenzaron a desplazarse horizontalmente a gran velocidad.',
+              'Kael debia construir una estructura estable mientras la torre vibraba constantemente. Un error podia derrumbar todo.',
+              'Pero si lograba mantener precision, la torre responderia a su energia.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La torre sigue incompleta y vibra bajo los pies de Kael.',
+              'La cima solo se revelara cuando la estructura sea estable.',
+            ],
+            lines: [
+              'El ultimo bloque quedo perfectamente alineado. La torre emitio una explosion de luz verde y las estructuras comenzaron a estabilizarse.',
+              'Kael observo la cima. Ahora podia verla.',
+              'Pero la voz del sistema sono mas seria que antes. La estabilidad no garantiza la victoria, porque el siguiente desafio pondria a prueba su mente.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'calculos-sistema',
+        number: '04',
+        title: 'Los Calculos del Sistema',
+        trial: 'Matematicas',
+        condition: 'Resolver bajo presion sin responder por impulso.',
+        gameId: 'matematicas',
+        gameUrl: 'juegos/matematicas/matematicas.html',
+        pages: [
+          {
+            label: 'Nucleo',
+            lines: [
+              'La nueva sala parecia un nucleo matematico gigante. Numeros flotaban alrededor de Kael y ecuaciones se movian sobre las paredes.',
+              'Triangulos verdes giraban formando patrones imposibles. Todo parecia un enorme cerebro digital.',
+              'La temperatura del sistema descendio. Todo quedo en silencio.',
+            ],
+          },
+          {
+            label: 'Presion',
+            lines: [
+              'La voz hablo lentamente. El torneo no premia unicamente velocidad. Premia inteligencia.',
+              'Las ecuaciones comenzaron a cambiar rapidamente. Algunas eran faciles; otras parecian trampas disenadas para provocar errores.',
+              'Kael entendio que el sistema queria presionarlo. Queria hacerlo fallar por desesperacion.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Pantallas holograficas aparecieron frente a Kael: operaciones, patrones y problemas de logica.',
+              'Todo avanzaba cada vez mas rapido. El tiempo corria y los errores acumulaban sobrecarga en el sistema.',
+              'Kael respiro profundo. No debia responder por impulso. Debia analizar.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'Las ecuaciones siguen girando alrededor del nucleo.',
+              'El sistema no abrira la sala hasta que Kael resuelva los calculos.',
+            ],
+            lines: [
+              'La ultima ecuacion desaparecio. Las luces rojas del sistema cambiaron nuevamente a verde.',
+              'Kael habia logrado mantener el control. La sala comenzo a abrirse lentamente.',
+              'Pero algo extrano ocurrio. Por primera vez, la voz del torneo no hablo inmediatamente. Como si estuviera observandolo. Evaluandolo.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'verdadero-amateur',
+        number: '05',
+        title: 'El Verdadero Amateur',
+        trial: 'FlashMind',
+        condition: 'Adaptarse a una simulacion que cambia sin detenerse.',
+        gameId: 'flashmind',
+        gameUrl: 'juegos/flashmind/flashmind.html',
+        pages: [
+          {
+            label: 'Camara',
+            lines: [
+              'Kael llego a la ultima camara del libro. Era enorme, mas grande que todas las anteriores.',
+              'En el centro habia un simbolo triangular girando lentamente. Alrededor flotaban fragmentos de todas las pruebas anteriores.',
+              'Memoria, velocidad, precision y logica. Todo conectado.',
+            ],
+          },
+          {
+            label: 'Leccion',
+            lines: [
+              'La voz hablo por ultima vez. Muchos creen que ser Amateur significa ser debil.',
+              'Las paredes comenzaron a iluminarse intensamente. Pero el verdadero Amateur es quien acepta que todavia tiene mucho por aprender.',
+              'El simbolo central descendio lentamente. Y aun asi, continua avanzando. Entonces aparecio la prueba final.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'El sistema activo una simulacion completa: cambios rapidos, decisiones instantaneas y movimiento constante.',
+              'Kael debia adaptarse a situaciones impredecibles mientras el entorno cambiaba sin detenerse. La dificultad aumentaba cada minuto.',
+              'Pero ahora ya no reaccionaba con miedo. Ahora entendia el sistema. Ahora entendia el torneo.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La simulacion final sigue activa alrededor de Kael.',
+              'El simbolo Amateur solo quedara grabado si supera la ultima prueba.',
+            ],
+            lines: [
+              'La simulacion se detuvo. Todo quedo en silencio. El simbolo Amateur brillo frente a Kael y finalmente quedo grabado en el libro.',
+              'Las paginas comenzaron a cerrarse lentamente. Antes de desaparecer, la voz dijo una ultima frase: el Amateur ya sobrevivio a sus primeras pruebas, pero los verdaderos desafios apenas comienzan.',
+              'A lo lejos, otro libro comenzo a iluminarse: ASPIRANTE.',
+            ],
+          },
+        ],
+      },
+    ],
+    closingPages: [
+      {
+        type: 'seal',
+        kicker: 'Sello del tomo',
+        title: 'Primeras pruebas superadas',
+        lockedUntilBookComplete: true,
+        sealedLines: [
+          'El cierre del Libro Amateur espera que las cinco pruebas queden grabadas.',
+          'Solo entonces el sistema reconocera a Kael como un verdadero Amateur.',
+        ],
+        lines: [
+          'El libro se cerro con una linea verde recorriendo su lomo. Kael habia aprendido que avanzar no era cuestion de fuerza, sino de control.',
+          'El siguiente tomo ya estaba despierto. Aspirante no parecia una invitacion; parecia una advertencia.',
+        ],
+        footer: 'Cierre del entrenamiento',
+      },
+    ],
+  },
 }
 
 export function obtenerLibroHistoria(bookId) {

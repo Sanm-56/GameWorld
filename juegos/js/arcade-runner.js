@@ -6,6 +6,7 @@ import {
   crearRelojTorneo,
   debeSalirDelTorneo,
   esMiniTorneo,
+  esModoHistoria,
   esNivelSolitario,
   obtenerTiempoTranscurridoTorneo,
   registrarPuntosMiniTorneo,
@@ -14,6 +15,7 @@ import {
 } from "./mini-torneo.js"
 import { getArcadeGame } from "./arcade-games.js"
 import { adquirirCandadoJuego } from "./game-lock.js"
+import { completarCapituloHistoria } from "./historia-core.js"
 
 const MAX_ADVERTENCIAS = 3
 const CRICKET_HIT_ZONE = 21
@@ -61,6 +63,11 @@ const gameKey = document.body.dataset.game
 const DURACION = 600
 const config = getArcadeGame(gameKey)
 const usuario = localStorage.getItem("usuario")
+const esHistoriaActual = esModoHistoria(gameKey)
+const HISTORIA_ARCADE_OBJETIVOS = {
+  esquivaobstaculos: 260,
+  torreinfinita: 80,
+}
 
 if (!await validarAccesoJuego(supabase, gameKey)) await new Promise(() => {})
 
@@ -173,6 +180,7 @@ localStorage.setItem("juego_actual", gameKey)
 
 async function validarAccesoEsquiva() {
   if (!usuario) return false
+  if (esHistoriaActual) return true
   if (esNivelSolitario(gameKey)) return true
 
   if (esMiniTorneo(gameKey)) {
@@ -332,11 +340,19 @@ function addScore(points) {
   combo += 1
   bestCombo = Math.max(bestCombo, combo)
   level = Math.max(1, Math.floor(score / 180) + 1)
-  registrarCheckpointNivel(gameKey, getCompetitiveValue(), "points", {
+  if (!esHistoriaActual) registrarCheckpointNivel(gameKey, getCompetitiveValue(), "points", {
     elapsed: Math.max(0, Math.round((performance.now() - startMs) / 1000)),
   })
   setStatus(`+${gained} puntos`)
   renderHud()
+  completarPruebaHistoriaSiCorresponde()
+}
+
+function completarPruebaHistoriaSiCorresponde() {
+  if (!esHistoriaActual || juegoTerminado) return
+  const objetivo = HISTORIA_ARCADE_OBJETIVOS[gameKey]
+  if (!objetivo || getCompetitiveValue() < objetivo) return
+  endGame("historia")
 }
 
 function getCompetitiveValue() {
@@ -1298,7 +1314,7 @@ if (config.type === "climb") {
 }
 
 document.addEventListener("visibilitychange", async () => {
-  if (!document.hidden || juegoTerminado || (gameKey === "esquivaobstaculos" && !juegoActivo)) return
+  if (!document.hidden || juegoTerminado || esHistoriaActual || (gameKey === "esquivaobstaculos" && !juegoActivo)) return
   const ahora = Date.now()
   if (ahora - ultimoCambio < 3000) return
   ultimoCambio = ahora
@@ -1316,7 +1332,7 @@ async function startTimer() {
   if (!relojTorneo) {
     console.warn(`No hay inicio valido para ${gameKey}`)
     setStatus("El torneo aun no ha iniciado")
-    if (gameKey === "esquivaobstaculos") {
+    if (gameKey === "esquivaobstaculos" && !esHistoriaActual) {
       cleanupRuntime()
       window.location.replace(salidaTorneoUrl())
       return false
@@ -1478,7 +1494,9 @@ async function saveResult(reason) {
   const elapsedServer = await obtenerTiempoTranscurridoTorneo(supabase, gameKey, DURACION)
   const elapsed = Math.max(1, Number(elapsedServer ?? Math.round((performance.now() - startMs) / 1000)))
 
-  if (!esMiniTorneo(gameKey) && (finalScore > 0 || gameKey === "esquivaobstaculos") && !invalid) {
+  if (esHistoriaActual) {
+    completarCapituloHistoria(gameKey)
+  } else if (!esMiniTorneo(gameKey) && (finalScore > 0 || gameKey === "esquivaobstaculos") && !invalid) {
     const { data: recordActual, error: recordError } = await supabase
       .from("ranking")
       .select("tiempo,invalido")
@@ -1534,13 +1552,15 @@ async function saveResult(reason) {
     }
   }
 
-  await registrarPartidaDesdeRanking({ usuario, juego: gameKey, valor: finalScore, modo: "points", invalido: invalid })
-  await registrarPuntosMiniTorneo(supabase, gameKey, finalScore, {
-    invalido: invalid,
-    motivo: invalid ? "Descalificado por actividad sospechosa" : "",
-  })
-  const position = await getPosition()
-  if (!invalid) await saveStats(position, elapsed)
+  if (!esHistoriaActual) {
+    await registrarPartidaDesdeRanking({ usuario, juego: gameKey, valor: finalScore, modo: "points", invalido: invalid })
+    await registrarPuntosMiniTorneo(supabase, gameKey, finalScore, {
+      invalido: invalid,
+      motivo: invalid ? "Descalificado por actividad sospechosa" : "",
+    })
+    const position = await getPosition()
+    if (!invalid) await saveStats(position, elapsed)
+  }
 
   localStorage.setItem("fin_juego", reason)
   localStorage.setItem(`${gameKey}_puntos`, String(finalScore))

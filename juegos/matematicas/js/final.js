@@ -3,6 +3,7 @@ import { redirigirFinalNivelSolitario, volverDesdeFinal } from "../../js/mini-to
 import { escapeHtml } from "../../js/mensajes.js"
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guard.js"
+import { leerPruebaHistoriaPendiente as leerPendienteHistoria, pruebaHistoriaActiva as esPruebaHistoriaActiva } from "../../js/historia-core.js"
 
 const HISTORIA_PENDING_KEY = "historia_trial_pending"
 const LAUNCH_KEY = "solitario_game_launch"
@@ -16,21 +17,12 @@ return null
 }
 }
 
-function pruebaHistoriaActiva(){
-let lanzamiento = null
-try{
-lanzamiento = JSON.parse(localStorage.getItem(LAUNCH_KEY) || "null")
-}
-catch(error){
-lanzamiento = null
+function historiaReturnUrl(){
+return leerPruebaHistoriaPendiente()?.returnUrl || "../../historia.html"
 }
 
-const pendiente = leerPruebaHistoriaPendiente()
-return lanzamiento?.origin === "historia"
-&& lanzamiento?.game === "matematicas"
-&& pendiente?.bookId === "novato"
-&& pendiente?.chapterId === "primer-codigo"
-&& pendiente?.gameId === "matematicas"
+function pruebaHistoriaActiva(){
+return esPruebaHistoriaActiva("matematicas")
 }
 
 const FINAL_GUARD_KEY = pruebaHistoriaActiva() ? "matematicas_historia" : "matematicas"
@@ -68,15 +60,15 @@ renderResumenFinal()
 function renderResultadoHistoria(){
 const completada = Boolean(leerPruebaHistoriaPendiente()?.completed)
 const boton = document.querySelector(".contenedor > button:not(.musica)")
-if(boton) boton.textContent = "Volver al Libro Novato"
+if(boton) boton.textContent = "Volver al libro"
 mensajeDiv.textContent = completada ? "Prueba del Nexus completada" : "Prueba del Nexus pendiente"
 posicionDiv.textContent = completada ? "El segundo codigo fue estabilizado" : "El segundo codigo sigue inestable"
 podioDiv.innerHTML = ""
 rankingDiv.innerHTML = `
 <div class="vacio">
   ${completada
-    ? "La compuerta inicial respondio al calculo. Vuelve al Libro Novato para continuar la historia."
-    : "La secuencia no se completo todavia. Vuelve al Libro Novato e intenta de nuevo cuando estes listo."}
+    ? "La prueba respondio al calculo. Vuelve al libro para continuar la historia."
+    : "La secuencia no se completo todavia. Vuelve al libro e intenta de nuevo cuando estes listo."}
 </div>
 `
 }
@@ -252,7 +244,7 @@ window.volverLobby = async function(){
 limpiarFinalProtegido(FINAL_GUARD_KEY)
 localStorage.removeItem("matematicas_resultado_final")
 if(pruebaHistoriaActiva()){
-window.location.href = "../../historia-novato.html"
+window.location.href = `../../${historiaReturnUrl()}`
 return
 }
 await volverDesdeFinal(supabase)

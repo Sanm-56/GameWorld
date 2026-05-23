@@ -109,14 +109,55 @@ export function limpiarPruebaPendienteDelLibro(bookId) {
   }
 }
 
+export function leerPruebaHistoriaPendiente() {
+  return leerJsonLocal(HISTORIA_PENDING_KEY, null)
+}
+
+export function pruebaHistoriaActiva(gameId) {
+  const launch = leerJsonLocal(HISTORIA_LAUNCH_KEY, null)
+  const pending = leerPruebaHistoriaPendiente()
+  return launch?.origin === 'historia'
+    && launch?.game === gameId
+    && pending?.gameId === gameId
+    && Boolean(pending.bookId)
+    && Boolean(pending.chapterId)
+}
+
+export function completarCapituloHistoria(gameId, options = {}) {
+  const pending = leerPruebaHistoriaPendiente()
+  if (!pending || pending.gameId !== gameId || !pending.bookId || !pending.chapterId) return false
+
+  const progress = leerProgresoLibro(pending.bookId)
+  const completedChapters = [...progress.completedChapters]
+  if (!completedChapters.includes(pending.chapterId)) completedChapters.push(pending.chapterId)
+
+  guardarProgresoLibro(pending.bookId, {
+    ...progress,
+    completedChapters,
+    lastCompletedAt: new Date().toISOString(),
+    bookCompleted: Boolean(options.bookCompleted || pending.finalChapter || progress.bookCompleted),
+  })
+
+  escribirJsonLocal(HISTORIA_PENDING_KEY, {
+    ...pending,
+    completed: true,
+    completedAt: new Date().toISOString(),
+  })
+
+  return true
+}
+
 export function prepararLanzamientoPrueba(book, chapter) {
   if (!book?.id || !chapter?.id || !chapter?.gameId || !chapter?.gameUrl) return false
+  const chapters = Array.isArray(book.chapters) ? book.chapters : []
+  const finalChapter = chapters.length > 0 && chapters[chapters.length - 1]?.id === chapter.id
 
   escribirJsonLocal(HISTORIA_PENDING_KEY, {
     bookId: book.id,
     chapterId: chapter.id,
     gameId: chapter.gameId,
     returnUrl: book.readerUrl || `historia-libro.html?libro=${encodeURIComponent(book.id)}`,
+    finalChapter,
     startedAt: new Date().toISOString(),
   })
   escribirJsonLocal(HISTORIA_LAUNCH_KEY, {

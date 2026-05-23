@@ -264,7 +264,14 @@ export function bloquearFinalizacionInicialSolitario(juego, motivo = "finalizaci
 
 export function salidaTorneoUrl() {
   const lanzamiento = leerContextoLanzamiento()
-  if (lanzamiento?.origin === "historia") return "../../historia-novato.html"
+  if (lanzamiento?.origin === "historia") {
+    try {
+      const pendiente = JSON.parse(localStorage.getItem("historia_trial_pending") || "null")
+      return pendiente?.returnUrl ? `../../${pendiente.returnUrl}` : "../../historia.html"
+    } catch (error) {
+      return "../../historia.html"
+    }
+  }
   if (lanzamiento?.origin === "torneo") return "lobby.html"
 
   if (esNivelSolitario(localStorage.getItem("solitario_juego"))) {
