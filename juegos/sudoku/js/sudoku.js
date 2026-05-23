@@ -9,6 +9,8 @@ const HISTORIA_PENDING_KEY = "historia_trial_pending"
 const HISTORIA_NOVATO_PROGRESS_KEY = "historia_novato_progress"
 
 if(!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
+const esHistoriaActual = esModoHistoria(JUEGO_ACTUAL)
+const FINAL_GUARD_KEY = esHistoriaActual ? "sudoku_historia" : JUEGO_ACTUAL
 
 const candadoJuego = adquirirCandadoJuego(JUEGO_ACTUAL)
 if(!candadoJuego.ok){
@@ -23,7 +25,7 @@ if(!usuario){
 window.location.href = "index.html"
 }
 
-iniciarFinalProtegido(JUEGO_ACTUAL)
+iniciarFinalProtegido(FINAL_GUARD_KEY)
 
 let resultadoEnviado = false
 let descalificado = false
@@ -92,7 +94,7 @@ erroresPartida++
 
 document.addEventListener("visibilitychange", async function(){
 
-if(juegoTerminado) return
+if(juegoTerminado || esHistoriaActual) return
 
 if(document.hidden){
 advertencias++
@@ -109,11 +111,11 @@ else if(advertencias >= MAX_ADVERTENCIAS){
 descalificado = true
 juegoTerminado = true
 await guardarResultado(9999, true, true, "Demasiados cambios de pestana")
-if(!esModoHistoria(JUEGO_ACTUAL)){
+if(!esHistoriaActual){
 await reiniciarRachasSudoku()
 }
 localStorage.setItem("juego_actual", "sudoku")
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href = "final.html"
 }
 }
@@ -127,7 +129,7 @@ if(resultadoEnviado) return false
 resultadoEnviado = true
 
 let error = null
-if(!esMiniTorneo(JUEGO_ACTUAL) && !esModoHistoria(JUEGO_ACTUAL)){
+if(!esMiniTorneo(JUEGO_ACTUAL) && !esHistoriaActual){
 const resultadoRanking = await supabase
 .from("ranking")
 .upsert({
@@ -148,7 +150,7 @@ resultadoEnviado = false
 return false
 }
 
-if(!esModoHistoria(JUEGO_ACTUAL)){
+if(!esHistoriaActual){
 await registrarPartidaDesdeRanking({
 usuario,
 juego: "sudoku",
@@ -314,7 +316,7 @@ console.warn("No se pudieron reiniciar las rachas de logros", error)
 
 async function cargarSudoku(){
 
-if(esModoHistoria(JUEGO_ACTUAL)){
+if(esHistoriaActual){
 puzzleActual = HISTORIA_PUZZLE
 solucionActual = HISTORIA_SOLUCION
 crearTablero(puzzleActual)
@@ -443,9 +445,9 @@ clearInterval(intervalo)
 reloj.innerText = "0:00"
 
 if(!descalificado){
-const posicionInicial = await obtenerPosicionSudoku()
+const posicionInicial = esHistoriaActual ? null : await obtenerPosicionSudoku()
 const resultadoGuardado = await guardarResultado(DURACION, false, false, "Tiempo agotado")
-if(resultadoGuardado && !esModoHistoria(JUEGO_ACTUAL)){
+if(resultadoGuardado && !esHistoriaActual){
 const posicion = await obtenerPosicionSudoku()
 await guardarEstadisticasSudoku({
 tiempo: DURACION,
@@ -462,7 +464,7 @@ juegoTerminado = true
 
 alert("Tiempo terminado")
 localStorage.setItem("juego_actual", "sudoku")
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href = "final.html"
 return
 }
@@ -526,33 +528,33 @@ let sospechoso = false
 let invalido = false
 let motivo = ""
 
-if(tiempo < 60){
+if(!esHistoriaActual && tiempo < 60){
 sospechoso = true
 motivo += "Tiempo menor a 1 minuto"
 }
 
-if(tiempo < 30){
+if(!esHistoriaActual && tiempo < 30){
 sospechoso = true
 invalido = true
 motivo += " | Tiempo extremadamente bajo (<30s)"
 }
 
-if(advertencias > 0){
+if(!esHistoriaActual && advertencias > 0){
 sospechoso = true
 motivo += " | Cambio de pestana"
 }
 
-if(advertencias >= MAX_ADVERTENCIAS){
+if(!esHistoriaActual && advertencias >= MAX_ADVERTENCIAS){
 invalido = true
 motivo += " | Demasiados cambios"
 }
 
-const posicionInicial = invalido ? null : await obtenerPosicionSudoku()
+const posicionInicial = invalido || esHistoriaActual ? null : await obtenerPosicionSudoku()
 const resultadoGuardado = await guardarResultado(invalido ? 9999 : tiempo, sospechoso, invalido, motivo)
 
 if(resultadoGuardado && !invalido){
+if(!esHistoriaActual){
 const posicion = await obtenerPosicionSudoku()
-if(!esModoHistoria(JUEGO_ACTUAL)){
 await guardarEstadisticasSudoku({
 tiempo,
 tiempoJugado: tiempo,
@@ -564,7 +566,7 @@ posicionInicial,
 }
 marcarCapituloHistoriaCompletado()
 }
-else if(resultadoGuardado && invalido && !esModoHistoria(JUEGO_ACTUAL)){
+else if(resultadoGuardado && invalido && !esHistoriaActual){
 await reiniciarRachasSudoku()
 }
 
@@ -581,7 +583,7 @@ alert("Sudoku completado")
 }
 
 localStorage.setItem("juego_actual", "sudoku")
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href = "final.html"
 }
 

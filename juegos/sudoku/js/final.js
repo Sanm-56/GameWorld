@@ -4,17 +4,8 @@ import { escapeHtml } from "../../js/mensajes.js"
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guard.js"
 
-if (redirigirFinalNivelSolitario()) await new Promise(() => {})
-if (!validarFinalReciente("sudoku")) await new Promise(() => {})
-
 const HISTORIA_PENDING_KEY = "historia_trial_pending"
-const podioDiv = document.getElementById("podio")
-const rankingDiv = document.getElementById("ranking")
-const usuario = localStorage.getItem("usuario")
-const posicionDiv = document.createElement("h2")
-instalarEstilosPersonalizacion()
-
-document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
+const LAUNCH_KEY = "solitario_game_launch"
 
 function leerPruebaHistoriaPendiente(){
   try {
@@ -26,7 +17,44 @@ function leerPruebaHistoriaPendiente(){
 
 function pruebaHistoriaActiva(){
   const pendiente = leerPruebaHistoriaPendiente()
-  return pendiente?.bookId === "novato" && pendiente?.chapterId === "activacion" && pendiente?.gameId === "sudoku"
+  let lanzamiento = null
+  try {
+    lanzamiento = JSON.parse(localStorage.getItem(LAUNCH_KEY) || "null")
+  } catch (error) {
+    lanzamiento = null
+  }
+
+  return lanzamiento?.origin === "historia"
+    && lanzamiento?.game === "sudoku"
+    && pendiente?.bookId === "novato"
+    && pendiente?.chapterId === "activacion"
+    && pendiente?.gameId === "sudoku"
+}
+
+const FINAL_GUARD_KEY = pruebaHistoriaActiva() ? "sudoku_historia" : "sudoku"
+
+if (redirigirFinalNivelSolitario()) await new Promise(() => {})
+if (!validarFinalReciente(FINAL_GUARD_KEY)) await new Promise(() => {})
+
+const podioDiv = document.getElementById("podio")
+const rankingDiv = document.getElementById("ranking")
+const usuario = localStorage.getItem("usuario")
+const posicionDiv = document.createElement("h2")
+instalarEstilosPersonalizacion()
+
+document.querySelector(".contenedor").insertBefore(posicionDiv, podioDiv)
+
+function renderResultadoHistoria(){
+  const completada = Boolean(leerPruebaHistoriaPendiente()?.completed)
+  posicionDiv.innerText = completada ? "Prueba del Nexus completada" : "Prueba del Nexus pendiente"
+  podioDiv.innerHTML = ""
+  rankingDiv.innerHTML = `
+    <div class="vacio">
+      ${completada
+        ? "El primer codigo fue estabilizado. Vuelve al Libro Novato para continuar la historia."
+        : "La prueba no se estabilizo todavia. Vuelve al Libro Novato e intenta de nuevo cuando estes listo."}
+    </div>
+  `
 }
 
 function actualizarSalidaHistoria(){
@@ -108,16 +136,20 @@ function lanzarConfeti() {
   }
 }
 
-supabase
-  .channel("final-ranking")
-  .on("postgres_changes", { event: "*", schema: "public", table: "ranking" }, () => cargarResultados())
-  .subscribe()
+if (pruebaHistoriaActiva()) {
+  renderResultadoHistoria()
+  actualizarSalidaHistoria()
+} else {
+  supabase
+    .channel("final-ranking")
+    .on("postgres_changes", { event: "*", schema: "public", table: "ranking" }, () => cargarResultados())
+    .subscribe()
 
-cargarResultados()
-actualizarSalidaHistoria()
+  cargarResultados()
+}
 
 window.volverLobby = async function () {
-  limpiarFinalProtegido("sudoku")
+  limpiarFinalProtegido(FINAL_GUARD_KEY)
   if (pruebaHistoriaActiva()) {
     window.location.href = "../../historia-novato.html"
     return

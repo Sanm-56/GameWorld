@@ -42,8 +42,7 @@ export function obtenerOrigenExperiencia(juego) {
 
 export async function obtenerInicioTorneo(supabase, juego) {
   if (esModoHistoria(juego)) {
-    await obtenerSnapshotBonusXP(juego, "historia")
-    return inicioSeguroParaSolitario(juego, "historia", leerContextoLanzamiento()?.launchedAt)
+    return leerContextoLanzamiento()?.launchedAt || new Date().toISOString()
   }
 
   if (esMiniTorneo(juego)) {
@@ -169,11 +168,11 @@ export async function crearRelojTorneo(supabase, juego, duracionSegundos) {
   const inicioTorneo = await obtenerInicioTorneo(supabase, juego)
   if (!inicioTorneo) return null
 
-  const horaServer = await obtenerAhoraServidor(supabase, juego)
   const inicio = Date.parse(inicioTorneo)
   const ahoraMs = Date.now()
+  const horaServer = esModoHistoria(juego) ? null : await obtenerAhoraServidor(supabase, juego)
   const ahoraServidor = Date.parse(horaServer)
-  const offsetServidor = Number.isFinite(ahoraServidor) ? ahoraServidor - ahoraMs : 0
+  const offsetServidor = !esModoHistoria(juego) && Number.isFinite(ahoraServidor) ? ahoraServidor - ahoraMs : 0
   const duracion = Number(duracionSegundos || 0)
 
   if (!Number.isFinite(inicio)) return null
