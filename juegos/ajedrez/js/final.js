@@ -3,9 +3,13 @@ import { redirigirFinalNivelSolitario, volverDesdeFinal } from '../../js/mini-to
 import { cleanText, escapeHtml, setCleanText } from '../../js/mensajes.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from '../../js/personalizacion-visual.js'
 import { limpiarFinalProtegido, validarFinalReciente } from '../../js/final-guard.js'
+import { leerPruebaHistoriaPendiente, pruebaHistoriaActiva } from '../../js/historia-core.js'
 
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
-if (!validarFinalReciente('ajedrez')) await new Promise(() => {})
+const esHistoriaFinal = pruebaHistoriaActiva('ajedrez')
+const FINAL_GUARD_KEY = esHistoriaFinal ? 'ajedrez_historia' : 'ajedrez'
+const pruebaPendienteHistoria = esHistoriaFinal ? leerPruebaHistoriaPendiente() : null
+if (!validarFinalReciente(FINAL_GUARD_KEY)) await new Promise(() => {})
 
 const resultadoFinal = document.getElementById('resultadoFinal')
 const podioDiv = document.getElementById('podio')
@@ -18,6 +22,16 @@ instalarEstilosPersonalizacion()
 setCleanText(resultadoFinal, fin === 'descalificado'
   ? 'Descalificado por actividad sospechosa'
   : cleanText(resultado, 'Partida finalizada.'))
+
+if (esHistoriaFinal) {
+  const posicionDiv = document.createElement('h2')
+  posicionDiv.innerText = fin === 'descalificado' ? 'Prueba no completada' : 'Prueba completada'
+  document.querySelector('.contenedor').insertBefore(posicionDiv, podioDiv)
+  podioDiv.innerHTML = ''
+  rankingDiv.innerHTML = '<p>El libro registro tu avance. Regresa para continuar la historia.</p>'
+  const botonVolver = document.querySelector('button[onclick="volverLobby()"]')
+  if (botonVolver) botonVolver.innerText = 'Volver al libro'
+}
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -89,9 +103,13 @@ async function cargarResultados() {
   }
 }
 
-cargarResultados()
+if (!esHistoriaFinal) cargarResultados()
 
 window.volverLobby = async function () {
-  limpiarFinalProtegido('ajedrez')
+  limpiarFinalProtegido(FINAL_GUARD_KEY)
+  if (esHistoriaFinal) {
+    window.location.href = `../../${pruebaPendienteHistoria?.returnUrl || 'historia.html'}`
+    return
+  }
   await volverDesdeFinal(supabase)
 }

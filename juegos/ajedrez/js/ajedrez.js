@@ -1,9 +1,10 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { confirmAction } from '../../js/mensajes.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 import { adquirirCandadoJuego } from '../../js/game-lock.js'
+import { completarCapituloHistoria } from '../../js/historia-core.js'
 
 // =============================
 // 🔒 BLOQUEO MULTI-PESTAÑA
@@ -35,7 +36,9 @@ window.addEventListener('pagehide', liberarBloqueoPestana)
 let usuario = localStorage.getItem('usuario') || 'anónimo'
 const JUEGO_ACTUAL = 'ajedrez'
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
-iniciarFinalProtegido(JUEGO_ACTUAL)
+const esHistoriaActual = esModoHistoria(JUEGO_ACTUAL)
+const FINAL_GUARD_KEY = esHistoriaActual ? 'ajedrez_historia' : JUEGO_ACTUAL
+iniciarFinalProtegido(FINAL_GUARD_KEY)
 
 // =============================
 // 🔒 CONTROL GLOBAL
@@ -128,7 +131,7 @@ let pendingPromotion = null
 // 🔥 ANTI-TRAMPA: CAMBIO PESTAÑA
 // =============================
 document.addEventListener("visibilitychange", function(){
-if(juegoTerminado) return
+if(juegoTerminado || esHistoriaActual) return
 if(document.hidden){
 let ahora = Date.now()
 
@@ -150,7 +153,7 @@ descalificado = true
 juegoTerminado = true
 localStorage.setItem("fin_juego","descalificado")
 alert("❌ Descalificado por cambiar de pestaña")
-marcarFinalValido(JUEGO_ACTUAL)
+marcarFinalValido(FINAL_GUARD_KEY)
 window.location.href = "final.html"
 }
 
@@ -281,7 +284,7 @@ async function iniciarCronometro() {
       juegoTerminado = true
       alert('Tiempo terminado')
       localStorage.setItem('juego_actual', 'ajedrez')
-      marcarFinalValido(JUEGO_ACTUAL)
+      marcarFinalValido(FINAL_GUARD_KEY)
       window.location.href = 'final.html'
       return
     }
@@ -954,6 +957,11 @@ function evaluarLogrosAjedrez(tiempo, posicion) {
 }
 
 async function guardarEstadisticasAjedrez(tiempo, posicion) {
+  if (esHistoriaActual) {
+    completarCapituloHistoria(JUEGO_ACTUAL)
+    return
+  }
+
   await esperarAnalisisStockfish()
 
   const { data: actual, error: lecturaError } = await supabase
@@ -1086,6 +1094,11 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     fecha: new Date().toISOString(),
   }
 
+  if (esHistoriaActual) {
+    if (!invalido_final) completarCapituloHistoria(JUEGO_ACTUAL)
+    return
+  }
+
   if (esMiniTorneo(JUEGO_ACTUAL)) {
     await registrarPartidaDesdeRanking({
       usuario,
@@ -1158,6 +1171,7 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
 }
 
 async function eliminarResultadoAjedrez() {
+  if (esHistoriaActual) return
   if (esMiniTorneo(JUEGO_ACTUAL)) return
 
   const ranking = await supabase
@@ -1182,6 +1196,8 @@ async function eliminarResultadoAjedrez() {
 }
 
 async function marcarDerrotaAjedrez() {
+  if (esHistoriaActual) return
+
   const { data: actual } = await supabase
     .from('estadisticas_logros')
     .select('ajedrez_racha_victoria_tras_derrota_actual')
@@ -1225,7 +1241,7 @@ async function finishGame(message, wasVictory = true) {
   localStorage.setItem('ajedrezResultado', message)
 
   setTimeout(() => {
-    marcarFinalValido(JUEGO_ACTUAL)
+    marcarFinalValido(FINAL_GUARD_KEY)
     window.location.href = 'final.html'
   }, 1400)
 }
@@ -1279,7 +1295,7 @@ function resign() {
   setTimeout(async () => {
     await eliminarResultadoAjedrez()
     await marcarDerrotaAjedrez()
-    marcarFinalValido(JUEGO_ACTUAL)
+    marcarFinalValido(FINAL_GUARD_KEY)
     window.location.href = 'final.html'
   }, 1400)
 }

@@ -4,6 +4,7 @@ import { registrarCheckpointNivel } from "../../js/solitario-niveles.js"
 import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from "../../js/mini-torneo.js"
 import { iniciarFinalProtegido, marcarFinalValido } from "../../js/final-guard.js"
 import { adquirirCandadoJuego } from "../../js/game-lock.js"
+import { completarCapituloHistoria } from "../../js/historia-core.js"
 
 const DURACION = 600
 const JUEGO_ACTUAL = "numcatch"
@@ -14,8 +15,6 @@ const BASE_SPAWN_CADA = 0.95
 const MIN_SPAWN_CADA = 0.55
 const BASE_VELOCIDAD = 120
 const MAX_VELOCIDAD = 245
-const HISTORIA_PENDING_KEY = "historia_trial_pending"
-const HISTORIA_NOVATO_PROGRESS_KEY = "historia_novato_progress"
 const HISTORIA_OBJETIVO_PUNTOS = 120
 
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
@@ -57,40 +56,8 @@ let mejorRachaAciertos = 0
 
 let condicionKey = "multiplos_3"
 
-function leerPruebaHistoriaPendiente() {
-  try {
-    return JSON.parse(localStorage.getItem(HISTORIA_PENDING_KEY) || "null")
-  } catch (error) {
-    return null
-  }
-}
-
 function marcarCapituloHistoriaCompletado() {
-  const pendiente = leerPruebaHistoriaPendiente()
-  if (!pendiente || pendiente.bookId !== "novato" || pendiente.chapterId !== "conexion-establecida" || pendiente.gameId !== JUEGO_ACTUAL) return
-
-  let progreso = {}
-  try {
-    progreso = JSON.parse(localStorage.getItem(HISTORIA_NOVATO_PROGRESS_KEY) || "{}")
-  } catch (error) {
-    progreso = {}
-  }
-
-  const completados = Array.isArray(progreso.completedChapters) ? progreso.completedChapters : []
-  if (!completados.includes(pendiente.chapterId)) completados.push(pendiente.chapterId)
-
-  localStorage.setItem(HISTORIA_NOVATO_PROGRESS_KEY, JSON.stringify({
-    ...progreso,
-    completedChapters: completados,
-    lastCompletedAt: new Date().toISOString(),
-    bookCompleted: true,
-  }))
-
-  localStorage.setItem(HISTORIA_PENDING_KEY, JSON.stringify({
-    ...pendiente,
-    completed: true,
-    completedAt: new Date().toISOString(),
-  }))
+  completarCapituloHistoria(JUEGO_ACTUAL)
 }
 
 function completarPruebaHistoria() {

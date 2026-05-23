@@ -3,6 +3,7 @@ import { redirigirFinalNivelSolitario, volverDesdeFinal } from "../../js/mini-to
 import { escapeHtml } from "../../js/mensajes.js"
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "../../js/personalizacion-visual.js"
 import { limpiarFinalProtegido, validarFinalReciente } from "../../js/final-guard.js"
+import { pruebaHistoriaActiva as esPruebaHistoriaActiva } from "../../js/historia-core.js"
 
 const HISTORIA_PENDING_KEY = "historia_trial_pending"
 const LAUNCH_KEY = "solitario_game_launch"
@@ -16,22 +17,14 @@ function leerPruebaHistoriaPendiente(){
 }
 
 function pruebaHistoriaActiva(){
-  let lanzamiento = null
-  try {
-    lanzamiento = JSON.parse(localStorage.getItem(LAUNCH_KEY) || "null")
-  } catch (error) {
-    lanzamiento = null
-  }
-
-  const pendiente = leerPruebaHistoriaPendiente()
-  return lanzamiento?.origin === "historia"
-    && lanzamiento?.game === "numcatch"
-    && pendiente?.bookId === "novato"
-    && pendiente?.chapterId === "conexion-establecida"
-    && pendiente?.gameId === "numcatch"
+  return esPruebaHistoriaActiva("numcatch")
 }
 
 const FINAL_GUARD_KEY = pruebaHistoriaActiva() ? "numcatch_historia" : "numcatch"
+
+function historiaReturnUrl(){
+  return leerPruebaHistoriaPendiente()?.returnUrl || "historia.html"
+}
 
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
 if (!validarFinalReciente(FINAL_GUARD_KEY)) await new Promise(() => {})
@@ -133,9 +126,9 @@ if (pruebaHistoriaActiva()) {
   resumenFinal.innerText = completada ? "El primer sello del rango Novato quedo establecido." : "El sello final sigue inestable."
   posicionDiv.innerText = "Capitulo 5"
   podioDiv.innerHTML = ""
-  rankingDiv.innerHTML = `<p class="vacio">${completada ? "La conexion fue establecida. Vuelve al Libro Novato para ver el cierre." : "Vuelve al Libro Novato para intentarlo de nuevo."}</p>`
+  rankingDiv.innerHTML = `<p class="vacio">${completada ? "La conexion fue establecida. Vuelve al libro para ver el cierre." : "Vuelve al libro para intentarlo de nuevo."}</p>`
   const boton = document.querySelector(".contenedor > button:not(.musica)")
-  if (boton) boton.textContent = "Volver al Libro Novato"
+  if (boton) boton.textContent = "Volver al libro"
 } else {
   cargar()
 }
@@ -143,7 +136,7 @@ if (pruebaHistoriaActiva()) {
 window.volverLobby = async function () {
   limpiarFinalProtegido(FINAL_GUARD_KEY)
   if (pruebaHistoriaActiva()) {
-    window.location.href = "../../historia-novato.html"
+    window.location.href = `../../${historiaReturnUrl()}`
     return
   }
   await volverDesdeFinal(supabase)

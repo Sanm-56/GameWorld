@@ -3,9 +3,13 @@ import { redirigirFinalNivelSolitario, volverDesdeFinal } from '../../js/mini-to
 import { cleanText, escapeHtml, setCleanText } from '../../js/mensajes.js'
 import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from '../../js/personalizacion-visual.js'
 import { limpiarFinalProtegido, validarFinalReciente } from '../../js/final-guard.js'
+import { leerPruebaHistoriaPendiente, pruebaHistoriaActiva } from '../../js/historia-core.js'
 
 if (redirigirFinalNivelSolitario()) await new Promise(() => {})
-if (!validarFinalReciente('domino')) await new Promise(() => {})
+const esHistoriaFinal = pruebaHistoriaActiva('domino')
+const FINAL_GUARD_KEY = esHistoriaFinal ? 'domino_historia' : 'domino'
+const pruebaPendienteHistoria = esHistoriaFinal ? leerPruebaHistoriaPendiente() : null
+if (!validarFinalReciente(FINAL_GUARD_KEY)) await new Promise(() => {})
 
 const resultadoFinal = document.getElementById('resultadoFinal')
 const podioDiv = document.getElementById('podio')
@@ -22,6 +26,14 @@ document.querySelector('.contenedor').insertBefore(posicionDiv, podioDiv)
 setCleanText(resultadoFinal, resultado.toLowerCase().includes('descalificado')
   ? 'Descalificado por actividad sospechosa'
   : cleanText(resultado, 'Partida finalizada.'))
+
+if (esHistoriaFinal) {
+  posicionDiv.innerText = resultado.toLowerCase().includes('descalificado') ? 'Prueba no completada' : 'Prueba completada'
+  podioDiv.innerHTML = ''
+  rankingDiv.innerHTML = '<p>El libro registro tu avance. Regresa para continuar la historia.</p>'
+  const botonVolver = document.querySelector('button[onclick="volverLobby()"]')
+  if (botonVolver) botonVolver.innerText = 'Volver al libro'
+}
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -159,17 +171,27 @@ async function obtenerRankingDomino() {
   return [...porUsuario.values()].sort((a, b) => Number(a.tiempo || 9999) - Number(b.tiempo || 9999))
 }
 
-supabase
-  .channel('final-ranking-domino')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'ranking' }, cargarResultados)
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'ranking_domino' }, cargarResultados)
-  .subscribe()
+if (!esHistoriaFinal) {
+  supabase
+    .channel('final-ranking-domino')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'ranking' }, cargarResultados)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'ranking_domino' }, cargarResultados)
+    .subscribe()
 
-cargarResultados()
+  cargarResultados()
+}
 
 window.volverLobby = async function () {
+  if (esHistoriaFinal) {
+    limpiarFinalProtegido(FINAL_GUARD_KEY)
+    localStorage.removeItem('dominoSinPosicion')
+    localStorage.removeItem('dominoEstadisticasPendientes')
+    window.location.href = `../../${pruebaPendienteHistoria?.returnUrl || 'historia.html'}`
+    return
+  }
+
   await volverDesdeFinal(supabase, () => {
-    limpiarFinalProtegido('domino')
+    limpiarFinalProtegido(FINAL_GUARD_KEY)
     localStorage.removeItem('dominoSinPosicion')
     localStorage.removeItem('dominoEstadisticasPendientes')
   })

@@ -597,6 +597,303 @@ export const LIBROS_HISTORIA = {
       },
     ],
   },
+  aspirante: {
+    id: 'aspirante',
+    rankTitle: 'Aspirante',
+    levelFrom: 51,
+    levelTo: 75,
+    title: 'La Ciudad de los Ecos',
+    subtitle: 'Kael entra a Neoterra, una ciudad holografica donde los ecos de jugadores perdidos ponen a prueba energia, concentracion, estrategia y voluntad.',
+    phase: '9.4',
+    readerUrl: 'historia-libro.html?libro=aspirante',
+    visual: { emblem: 'AS', primary: '#38bdf8', secondary: '#2563eb', accent: '#bfdbfe', rgb: '56,189,248' },
+    introPages: [
+      {
+        type: 'cover',
+        kicker: 'Libro Aspirante',
+        title: 'La Ciudad de los Ecos',
+        lines: [
+          'Neoterra se abre como una ciudad imposible hecha de cristal azul, lluvia digital y voces que no pertenecen al presente.',
+          'Cada distrito guarda restos de jugadores que intentaron avanzar, y cada eco parece saber algo que Kael aun no entiende.',
+        ],
+        footer: 'Libro Aspirante',
+      },
+      {
+        type: 'index',
+        kicker: 'Indice',
+        title: 'Cinco distritos de Neoterra',
+        lines: [
+          'Energia, concentracion, estrategia, reconstruccion y voluntad sostienen la ruta del Aspirante.',
+          'La ciudad no solo examina habilidad. Tambien revela lo que ocurre con quienes pierden su camino dentro del torneo.',
+        ],
+        footer: 'Historia continua',
+      },
+    ],
+    chapters: [
+      {
+        id: 'entrada-neoterra',
+        number: '01',
+        title: 'La Entrada a Neoterra',
+        trial: 'NumCatch',
+        condition: 'Activar nucleos de energia mientras la ciudad cambia sus rutas.',
+        gameId: 'numcatch',
+        gameUrl: 'juegos/numcatch/numcatch.html',
+        pages: [
+          {
+            label: 'Ciudad',
+            lines: [
+              'El nuevo libro se abrio lentamente frente a Kael. Una rafaga de energia azul recorrio toda la biblioteca y las paginas comenzaron a girar solas mientras simbolos luminosos aparecian alrededor del salon.',
+              'Entonces surgio el nombre: ASPIRANTE - La Ciudad de los Ecos.',
+              'Kael levanto la mirada. Ya no estaba en la biblioteca; ahora se encontraba frente a una gigantesca ciudad futurista iluminada por miles de hologramas flotantes.',
+            ],
+          },
+          {
+            label: 'Ecos',
+            lines: [
+              'La ciudad parecia infinita. Torres de cristal azul atravesaban las nubes digitales mientras vehiculos luminosos cruzaban el cielo.',
+              'Pero algo extrano ocurria. No habia personas, solo ecos: sombras digitales que repetian fragmentos de conversaciones antiguas, risas, advertencias, gritos y mensajes incompletos.',
+              'La voz del sistema aparecio lentamente. Bienvenido a Neoterra, la ciudad construida por jugadores que jamas lograron avanzar.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Las luces de la ciudad comenzaron a apagarse por sectores. El sistema detectaba una falla de energia.',
+              'Kael debia activar antiguos nucleos repartidos entre estructuras digitales mientras plataformas y rutas cambiaban constantemente.',
+              'Cada movimiento incorrecto bloqueaba caminos nuevos. Debia pensar rapido, pero tambien moverse rapido.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'Neoterra pierde energia por sectores y los nucleos siguen apagados.',
+              'La ciudad no revelara su primera voz hasta que Kael restaure el flujo azul.',
+            ],
+            lines: [
+              'El ultimo nucleo se encendio y toda la ciudad reacciono inmediatamente. Miles de luces azules iluminaron nuevamente Neoterra.',
+              'Los ecos comenzaron a desaparecer lentamente. Pero antes de irse, uno de ellos hablo directamente a Kael: no dejes que la ciudad te cambie.',
+              'Kael sintio un escalofrio. Por primera vez, los ecos parecian reales.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'voces-distrito-central',
+        number: '02',
+        title: 'Las Voces del Distrito Central',
+        trial: 'FlashMind',
+        condition: 'Mantener concentracion entre rutas falsas y voces hostiles.',
+        gameId: 'flashmind',
+        gameUrl: 'juegos/flashmind/flashmind.html',
+        pages: [
+          {
+            label: 'Distrito',
+            lines: [
+              'Kael avanzo hacia el centro de la ciudad. Pantallas holograficas flotaban sobre las calles mostrando nombres de antiguos jugadores.',
+              'Muchos estaban marcados como desconectado, perdido o eliminado. La ciudad parecia guardar recuerdos de todos ellos.',
+              'Entonces una alarma comenzo a sonar. Algo se estaba moviendo entre los edificios.',
+            ],
+          },
+          {
+            label: 'Sombras',
+            lines: [
+              'Sombras digitales aparecieron entre la niebla azul. No tenian rostro, solo ojos brillantes.',
+              'Cada una repetia frases antiguas del torneo: no eres suficiente, vas a fallar, nunca llegaras al final.',
+              'Kael intento ignorarlas, pero mientras mas avanzaba, mas fuertes se volvian las voces. La ciudad estaba intentando romper su concentracion.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Las calles comenzaron a transformarse. Muros aparecian de la nada y rutas falsas intentaban desviarlo.',
+              'Las sombras bloqueaban el camino constantemente. Kael debia encontrar la salida antes de quedar atrapado dentro del distrito.',
+              'La presion mental aumentaba con cada segundo.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'Las voces del distrito siguen creciendo entre la niebla azul.',
+              'Kael debe encontrar la salida antes de escuchar la verdad que ocultan.',
+            ],
+            lines: [
+              'Kael logro salir justo antes de que el distrito colapsara. Las sombras desaparecieron junto con las voces.',
+              'Pero una frase quedo resonando en el aire: el torneo no destruye jugadores; los jugadores se destruyen solos.',
+              'La ciudad entera comenzo a vibrar. Algo enorme acababa de activarse.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'nucleo-estrategico',
+        number: '03',
+        title: 'El Nucleo Estrategico',
+        trial: 'Ajedrez',
+        condition: 'Anticipar movimientos antes de que el tablero controle la ciudad.',
+        gameId: 'ajedrez',
+        gameUrl: 'juegos/ajedrez/ajedrez.html',
+        pages: [
+          {
+            label: 'Fortaleza',
+            lines: [
+              'En el centro de Neoterra existia una estructura gigantesca: una fortaleza suspendida sobre la ciudad.',
+              'Todo el edificio estaba cubierto por simbolos triangulares giratorios. Kael entro lentamente.',
+              'En el interior habia un tablero, pero no era un tablero normal. Las piezas parecian vivas.',
+            ],
+          },
+          {
+            label: 'Tablero',
+            lines: [
+              'Cada movimiento del tablero alteraba partes reales de la ciudad. Puentes se levantaban, torres desaparecian y calles completas cambiaban de lugar.',
+              'La voz del sistema hablo nuevamente. La fuerza sin estrategia no tiene valor.',
+              'Las piezas comenzaron a moverse solas y el tablero activo el modo de combate.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Kael debia anticipar movimientos antes de que el sistema tomara control total del tablero.',
+              'Las piezas atacaban desde multiples direcciones mientras la ciudad cambiaba constantemente alrededor de el.',
+              'No bastaba reaccionar. Debia adelantarse y leer el patron completo.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'El tablero sigue alterando los puentes de Neoterra.',
+              'La fortaleza no se estabilizara hasta que Kael tome una decision estrategica.',
+            ],
+            lines: [
+              'La ultima pieza cayo lentamente. Toda la fortaleza se estabilizo y las luces rojas cambiaron nuevamente a azul.',
+              'La ciudad habia aceptado su decision estrategica.',
+              'Pero algo extrano aparecio en una pantalla cercana: no todos los Aspirantes quieren avanzar. Entonces, la lluvia digital comenzo.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'tormenta-azul',
+        number: '04',
+        title: 'La Tormenta Azul',
+        trial: 'Domino',
+        condition: 'Reorganizar fragmentos del sistema antes del colapso.',
+        gameId: 'domino',
+        gameUrl: 'juegos/domino/domino.html',
+        pages: [
+          {
+            label: 'Lluvia',
+            lines: [
+              'La ciudad quedo cubierta por una intensa tormenta de datos. Fragmentos luminosos caian del cielo como lluvia electrica.',
+              'Las calles comenzaron a colapsar. Kael corria entre edificios mientras enormes estructuras digitales se derrumbaban alrededor suyo.',
+              'La ciudad estaba fallando.',
+            ],
+          },
+          {
+            label: 'Advertencia',
+            lines: [
+              'El sistema habia perdido estabilidad. Las rutas cambiaban constantemente y cada zona parecia mas peligrosa que la anterior.',
+              'Pero algo era diferente esta vez. La ciudad ya no parecia una prueba.',
+              'Parecia una advertencia, como si estuviera intentando decirle algo.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'Kael encontro una antigua consola central. Para estabilizar Neoterra debia reorganizar multiples fragmentos del sistema antes de que la tormenta destruyera completamente la ciudad.',
+              'Pero cada decision afectaba otras partes del nucleo.',
+              'Un movimiento incorrecto podia empeorar todo.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La tormenta azul sigue cayendo sobre Neoterra.',
+              'El nucleo necesita que sus fragmentos queden conectados antes de abrir el cielo.',
+            ],
+            lines: [
+              'El ultimo fragmento quedo conectado. La tormenta comenzo a disminuir lentamente y los edificios dejaron de colapsar.',
+              'Las luces volvieron a encenderse una por una. Entonces la ciudad hablo por primera vez sin usar la voz del sistema: aun existe esperanza.',
+              'Kael observo el cielo y vio algo imposible: una puerta flotando sobre las nubes digitales.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'salida-neoterra',
+        number: '05',
+        title: 'La Salida de Neoterra',
+        trial: 'Esquiva Obstaculos',
+        condition: 'Adaptarse a una salida que cambia con cada movimiento.',
+        gameId: 'esquivaobstaculos',
+        gameUrl: 'juegos/esquivaobstaculos/esquivaobstaculos.html',
+        pages: [
+          {
+            label: 'Puerta',
+            lines: [
+              'Kael llego a la cima de la ciudad. La enorme puerta azul flotaba frente a el.',
+              'Pero antes de abrirse, aparecieron cientos de ecos observandolo desde abajo.',
+              'Todos eran jugadores antiguos. Todos parecian atrapados dentro de Neoterra.',
+            ],
+          },
+          {
+            label: 'Voluntad',
+            lines: [
+              'La voz del sistema regreso. Los Aspirantes aprenden algo importante.',
+              'Los ecos comenzaron a desaparecer lentamente. El torneo no solo mide habilidad.',
+              'Mide voluntad. La puerta comenzo a abrirse lentamente, pero una ultima prueba aparecio frente a Kael.',
+            ],
+          },
+          {
+            label: 'Prueba',
+            trial: true,
+            lines: [
+              'El sistema combino multiples mecanicas al mismo tiempo: velocidad, memoria, decisiones rapidas y adaptacion.',
+              'La ciudad entera reaccionaba a cada movimiento de Kael. Todo cambiaba constantemente.',
+              'Pero ahora el ya no dudaba. Ahora entendia como sobrevivir dentro del torneo.',
+            ],
+          },
+          {
+            label: 'Consecuencia',
+            afterTrial: true,
+            sealedLines: [
+              'La puerta de Neoterra sigue cerrada sobre las nubes digitales.',
+              'La salida solo se abrira si Kael demuestra voluntad hasta el final.',
+            ],
+            lines: [
+              'La puerta termino de abrirse. La ciudad quedo atras lentamente.',
+              'Los ecos observaron en silencio mientras Kael avanzaba hacia la luz azul. Antes de desaparecer, una ultima voz resono desde Neoterra: no olvides a quienes quedaron atrapados aqui.',
+              'El libro comenzo a cerrarse lentamente y otro simbolo aparecio flotando frente a el: PROFESIONAL.',
+            ],
+          },
+        ],
+      },
+    ],
+    closingPages: [
+      {
+        type: 'seal',
+        kicker: 'Sello del tomo',
+        title: 'Neoterra queda atras',
+        lockedUntilBookComplete: true,
+        sealedLines: [
+          'La salida de Neoterra permanece oculta entre la lluvia digital.',
+          'Los cinco distritos deben quedar estabilizados antes de que el libro revele su cierre.',
+        ],
+        lines: [
+          'Neoterra no desaparecio. La ciudad siguio brillando a lo lejos, llena de ecos que ahora parecian menos perdidos.',
+          'Kael habia aprendido que aspirar a algo no era solo querer avanzar. Era cargar tambien con las voces de quienes no pudieron hacerlo.',
+        ],
+        footer: 'Cierre de Neoterra',
+      },
+    ],
+  },
 }
 
 export function obtenerLibroHistoria(bookId) {

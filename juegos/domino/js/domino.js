@@ -1,8 +1,9 @@
 import { supabase } from '../../js/supabase.js'
 import { registrarPartidaDesdeRanking } from '../../js/partidas.js'
-import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
+import { bloquearFinalizacionInicialSolitario, crearRelojTorneo, debeSalirDelTorneo, esMiniTorneo, esModoHistoria, obtenerTiempoTranscurridoTorneo, registrarPuntosMiniTorneo, salidaTorneoUrl, validarAccesoJuego } from '../../js/mini-torneo.js'
 import { iniciarFinalProtegido, marcarFinalValido } from '../../js/final-guard.js'
 import { adquirirCandadoJuego } from '../../js/game-lock.js'
+import { completarCapituloHistoria } from '../../js/historia-core.js'
 
 // =============================
 // BLOQUEO MULTI-PESTANA
@@ -34,7 +35,9 @@ window.addEventListener('pagehide', liberarBloqueoPestana)
 const usuario = localStorage.getItem('usuario') || 'anonimo'
 const JUEGO_ACTUAL = 'domino'
 if (!await validarAccesoJuego(supabase, JUEGO_ACTUAL)) await new Promise(() => {})
-iniciarFinalProtegido(JUEGO_ACTUAL)
+const esHistoriaActual = esModoHistoria(JUEGO_ACTUAL)
+const FINAL_GUARD_KEY = esHistoriaActual ? 'domino_historia' : JUEGO_ACTUAL
+iniciarFinalProtegido(FINAL_GUARD_KEY)
 let statusEl = null
 let resultEl = null
 let handEl = null
@@ -69,7 +72,7 @@ let consecutivePasses = 0
 // ANTI-TRAMPA: CAMBIO PESTANA
 // =============================
 document.addEventListener('visibilitychange', () => {
-  if (juegoTerminado || !document.hidden) return
+  if (juegoTerminado || esHistoriaActual || !document.hidden) return
 
   const ahora = Date.now()
   if (ahora - ultimoCambio < 3000) return
@@ -88,7 +91,7 @@ document.addEventListener('visibilitychange', () => {
     localStorage.setItem('dominoResultado', 'Descalificado por cambiar de pestaña.')
     localStorage.setItem('juego_actual', 'domino')
     alert('Descalificado por cambiar de pestaña')
-    marcarFinalValido(JUEGO_ACTUAL)
+    marcarFinalValido(FINAL_GUARD_KEY)
     window.location.href = 'final.html'
   }
 })
@@ -149,14 +152,14 @@ async function finalizarPorTiempo() {
   juegoTerminado = true
   liberarBloqueoPestana()
 
-  if (!resultadoEnviado && !descalificado) {
+  if (!resultadoEnviado && !descalificado && !esHistoriaActual) {
     await guardarResultado(DURACION, false, false, '')
   }
 
   localStorage.setItem('juego_actual', 'domino')
   localStorage.setItem('dominoResultado', 'Tiempo terminado.')
   alert('Tiempo terminado')
-  marcarFinalValido(JUEGO_ACTUAL)
+  marcarFinalValido(FINAL_GUARD_KEY)
   window.location.href = 'final.html'
 }
 
@@ -468,6 +471,11 @@ async function guardarResultado(tiempo, sospechoso = false, invalido = false, mo
     fecha: new Date().toISOString(),
   }
 
+  if (esHistoriaActual) {
+    if (!invalidoFinal) completarCapituloHistoria(JUEGO_ACTUAL)
+    return
+  }
+
   if (esMiniTorneo(JUEGO_ACTUAL)) {
     await registrarPartidaDesdeRanking({
       usuario,
@@ -553,7 +561,7 @@ async function finishGame(message, shouldSaveResult = true) {
   }
 
   setTimeout(() => {
-    marcarFinalValido(JUEGO_ACTUAL)
+    marcarFinalValido(FINAL_GUARD_KEY)
     window.location.href = 'final.html'
   }, 1400)
 }
