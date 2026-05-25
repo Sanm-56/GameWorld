@@ -7,6 +7,8 @@ const pageLeftEl = document.getElementById('archivePageLeft')
 const pageRightEl = document.getElementById('archivePageRight')
 const prevPageEl = document.getElementById('prevArchivePage')
 const nextPageEl = document.getElementById('nextArchivePage')
+const prevStoryEl = document.getElementById('prevArchiveStory')
+const nextStoryEl = document.getElementById('nextArchiveStory')
 const pageIndicatorEl = document.getElementById('archivePageIndicator')
 const titleEl = document.getElementById('archiveReaderTitle')
 const summaryEl = document.getElementById('archiveReaderSummary')
@@ -18,6 +20,15 @@ const params = new URLSearchParams(window.location.search)
 const storyId = normalizarIdHistoria(params.get('libro') || params.get('historia') || '')
 const story = obtenerLibroHistoria(storyId) || LIBROS_HISTORIA[storyId]
 const content = ARCHIVO_HISTORIAS[storyId]
+const loadedStories = Object.values(LIBROS_HISTORIA).filter((book) => {
+  const bookContent = ARCHIVO_HISTORIAS[book.id]
+  return Array.isArray(bookContent?.capitulos) && bookContent.capitulos.length
+})
+const loadedStoryIndex = loadedStories.findIndex((book) => book.id === storyId)
+const prevStory = loadedStoryIndex > 0 ? loadedStories[loadedStoryIndex - 1] : null
+const nextStory = loadedStoryIndex >= 0 && loadedStoryIndex < loadedStories.length - 1
+  ? loadedStories[loadedStoryIndex + 1]
+  : null
 
 let currentPage = 0
 let pages = []
@@ -101,6 +112,27 @@ function renderBook() {
   })
 }
 
+function storyTitle(targetStory) {
+  if (!targetStory) return ''
+  return ARCHIVO_HISTORIAS[targetStory.id]?.titulo || targetStory.title || targetStory.rankTitle || targetStory.id
+}
+
+function archiveReaderUrl(targetStory) {
+  return `archivo-historia.html?libro=${encodeURIComponent(targetStory.id)}`
+}
+
+function renderStoryNavigation() {
+  if (prevStoryEl) {
+    prevStoryEl.disabled = !prevStory
+    prevStoryEl.title = prevStory ? `Anterior: ${storyTitle(prevStory)}` : 'No hay historia anterior disponible'
+  }
+
+  if (nextStoryEl) {
+    nextStoryEl.disabled = !nextStory
+    nextStoryEl.title = nextStory ? `Siguiente: ${storyTitle(nextStory)}` : 'No hay siguiente historia disponible'
+  }
+}
+
 function goToPage(page) {
   const total = pageCount()
   currentPage = Math.max(0, Math.min(total - 1, page))
@@ -163,6 +195,7 @@ function renderMissing() {
   if (pageIndicatorEl) pageIndicatorEl.textContent = '1 / 1'
   if (prevPageEl) prevPageEl.disabled = true
   if (nextPageEl) nextPageEl.disabled = true
+  renderStoryNavigation()
 }
 
 function applyMeta() {
@@ -176,6 +209,14 @@ function applyMeta() {
 
 prevPageEl?.addEventListener('click', () => goToPage(currentPage - 1))
 nextPageEl?.addEventListener('click', () => goToPage(currentPage + 1))
+prevStoryEl?.addEventListener('click', () => {
+  if (!prevStory) return
+  window.location.href = archiveReaderUrl(prevStory)
+})
+nextStoryEl?.addEventListener('click', () => {
+  if (!nextStory) return
+  window.location.href = archiveReaderUrl(nextStory)
+})
 
 chapterListEl?.addEventListener('click', (event) => {
   const button = event.target.closest('[data-chapter-index]')
@@ -202,5 +243,6 @@ if (!story || !content?.capitulos?.length) {
   applyVisual()
   applyMeta()
   renderChapters()
+  renderStoryNavigation()
   renderBook()
 }

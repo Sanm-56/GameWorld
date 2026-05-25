@@ -969,6 +969,29 @@ button{
   text-align:center;
 }
 
+.reader-story-controls{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-top:12px;
+}
+
+.reader-story-controls button{
+  min-width:172px;
+  min-height:42px;
+  border:1px solid rgba(250,204,21,0.28);
+  border-radius:8px;
+  color:#fef3c7;
+  background:rgba(30,41,59,0.72);
+  cursor:pointer;
+  font-weight:1000;
+}
+
+.reader-story-controls button:disabled{
+  cursor:not-allowed;
+  opacity:0.46;
+}
+
 .archive-reader{
   margin-top:18px;
 }
@@ -1083,5 +1106,16 @@ button{
   .reader-controls button{
     min-width:0;
     padding:0 10px;
+  }
+
+  .reader-story-controls{
+    grid-template-columns:1fr;
+    display:grid;
+    gap:8px;
+  }
+
+  .reader-story-controls button{
+    min-width:0;
+    width:100%;
   }
 }
