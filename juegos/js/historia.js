@@ -32,6 +32,60 @@ const RANK_VISUALS = {
   'leyenda maxima': { emblem: 'LM', primary: '#fef08a', secondary: '#ca8a04', accent: '#ffffff', rgb: '254,240,138' },
 }
 
+const CUSTOM_CSS_BOOKS = new Set([
+  'novato',
+  'amateur',
+  'aspirante',
+  'profesional',
+  'competidor',
+  'experto',
+])
+
+const KEY_BOOKS = new Set([
+  'rey-de-umbra-eterna',
+  'deidad-del-abismo-carmesi',
+  'monarca-de-la-ultima-ruina',
+  'rey-del-trono-absoluto',
+  'custodio-del-fin-del-tiempo',
+  'arquitecto-del-eclipse-eterno',
+  'monarca-del-horizonte-supremo',
+  'rey-de-la-ultima-dimension',
+  'emperador-del-juicio-final',
+  'titan-del-vacio-primordial',
+  'el-ultimo-ascendido',
+])
+
+const IMPORTANT_BOOKS = new Set([
+  'gran-maestro',
+  'supremo',
+  'titan',
+  'inmortal',
+  'leyenda-maxima',
+  'arquitecto-del-vacio',
+  'emperador-umbrio',
+  'senor-del-horizonte-negro',
+  'heredero-de-umbra',
+  'deidad-del-eclipse',
+  'soberano-del-vacio-viviente',
+  'rey-del-infinito-oscuro',
+  'deidad-del-horizonte-negro',
+  'emisario-de-la-ultima-era',
+  'emperador-del-vacio-infinito',
+  'devorador-de-estrellas-eternas',
+  'senor-de-los-ecos-del-fin',
+  'arquitecto-de-los-mundos-eternos',
+  'portador-de-la-corona-final',
+  'vigia-del-infinito-absoluto',
+  'heraldo-del-eclipse-primordial',
+  'emperador-de-las-estrellas-muertas',
+  'guardian-del-vacio-viviente',
+  'deidad-de-la-eternidad-negra',
+  'soberano-de-los-reinos-perdidos',
+  'portador-de-la-corona-del-vacio',
+  'devorador-del-reino-astral',
+  'heraldo-de-las-sombras-eternas',
+])
+
 const THEMES = [
   { match: ['vacio', 'umbra', 'negro'], emblem: 'VX', primary: '#818cf8', secondary: '#111827', accent: '#c084fc', rgb: '129,140,248' },
   { match: ['astral', 'estrella', 'constelacion'], emblem: 'AS', primary: '#38bdf8', secondary: '#4338ca', accent: '#f0abfc', rgb: '56,189,248' },
@@ -90,13 +144,42 @@ function visualForRank(title, book = null) {
   }
 }
 
-function styleVars(visual) {
-  return [
+function coverArtUrl(book = null) {
+  return book?.visual?.coverArt || book?.coverArt || ''
+}
+
+function visualProfileForBook(bookId, book = null) {
+  const configuredTier = book?.visual?.tier || book?.visualTier
+  const configuredMode = book?.visual?.mode || book?.visualMode
+  const tier = configuredTier
+    || (KEY_BOOKS.has(bookId) ? 'clave' : IMPORTANT_BOOKS.has(bookId) ? 'importante' : 'normal')
+  const mode = configuredMode
+    || (CUSTOM_CSS_BOOKS.has(bookId) ? 'css' : tier === 'clave' ? 'rive' : tier === 'importante' ? 'svg-gsap' : 'svg')
+
+  return {
+    tier,
+    mode,
+    coverArt: coverArtUrl(book),
+  }
+}
+
+function cssUrl(value) {
+  return String(value || '').replace(/\\/g, '/').replace(/"/g, '%22')
+}
+
+function styleVars(visual, profile = null) {
+  const vars = [
     ['--rank-primary', visual.primary],
     ['--rank-secondary', visual.secondary],
     ['--rank-accent', visual.accent],
     ['--rank-rgb', visual.rgb],
-  ].map(([name, value]) => `${name}:${value}`).join(';')
+  ]
+
+  if (profile?.coverArt) {
+    vars.push(['--cover-art', `url("${cssUrl(profile.coverArt)}")`])
+  }
+
+  return vars.map(([name, value]) => `${name}:${value}`).join(';')
 }
 
 function setBookTheme(visual) {
@@ -121,10 +204,12 @@ function statusText(status, registered = false) {
 function renderFeatured(rank, visual, book = null) {
   if (!featuredEl) return
   const bookId = book?.id || crearIdLibroDesdeTitulo(rank.titulo)
+  const profile = visualProfileForBook(bookId, book)
   featuredEl.innerHTML = `
     <span class="featured-halo"></span>
-    <div class="book-cover" data-book-id="${escapeHtml(bookId)}">
+    <div class="book-cover" data-book-id="${escapeHtml(bookId)}" data-visual-tier="${escapeHtml(profile.tier)}" data-visual-mode="${escapeHtml(profile.mode)}" style="${styleVars(visual, profile)}">
       <span class="book-spine"></span>
+      <span class="book-art" aria-hidden="true"></span>
       <span class="book-emblem">${escapeHtml(visual.emblem)}</span>
       <span class="book-title">${escapeHtml(rank.titulo)}</span>
       <span class="book-sigil" aria-hidden="true"></span>
@@ -346,10 +431,14 @@ async function initLibrary() {
   shelfEl.innerHTML = ranks.map((rank) => {
     const book = obtenerLibroHistoria(crearIdLibroDesdeTitulo(rank.titulo))
     const visual = visualForRank(rank.titulo, book)
+    const bookId = crearIdLibroDesdeTitulo(rank.titulo)
+    const profile = visualProfileForBook(bookId, book)
     const status = bookStatus(rank, level)
     return `
-      <button class="rank-book ${status} ${book ? 'registered' : 'pending'}" type="button" data-rank-title="${escapeHtml(rank.titulo)}" data-status="${status}" data-book-id="${escapeHtml(crearIdLibroDesdeTitulo(rank.titulo))}" style="${styleVars(visual)}">
-        <span class="rank-book-cover" data-emblem="${escapeHtml(visual.emblem)}"></span>
+      <button class="rank-book ${status} ${book ? 'registered' : 'pending'}" type="button" data-rank-title="${escapeHtml(rank.titulo)}" data-status="${status}" data-book-id="${escapeHtml(bookId)}" data-visual-tier="${escapeHtml(profile.tier)}" data-visual-mode="${escapeHtml(profile.mode)}" style="${styleVars(visual, profile)}">
+        <span class="rank-book-cover" data-emblem="${escapeHtml(visual.emblem)}">
+          <span class="rank-book-art" aria-hidden="true"></span>
+        </span>
         <span class="rank-book-name">${escapeHtml(rank.titulo)}</span>
         <span class="rank-book-state">${escapeHtml(book ? 'Registrado' : statusText(status, false))}</span>
       </button>
