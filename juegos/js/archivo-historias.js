@@ -37,8 +37,20 @@ function hasContent(storyId) {
   return Boolean(storyContent(storyId)?.capitulos.length)
 }
 
+function archiveTitle(story) {
+  return storyContent(story.id)?.titulo || story.title || story.rankTitle
+}
+
+function archiveSubtitle(story) {
+  return storyContent(story.id)?.subtitulo || story.subtitle || ''
+}
+
+function archiveVisual(story) {
+  return storyContent(story.id)?.visual || story.visual || {}
+}
+
 function visualVars(story) {
-  const visual = story?.visual || {}
+  const visual = archiveVisual(story)
   return [
     ['--rank-primary', visual.primary || '#38bdf8'],
     ['--rank-secondary', visual.secondary || '#0f172a'],
@@ -56,11 +68,11 @@ function renderShelf() {
 
   shelfEl.innerHTML = stories.map((story) => {
     const loaded = hasContent(story.id)
-    const visual = story.visual || {}
+    const visual = archiveVisual(story)
     return `
       <button class="rank-book ${story.id === selectedId ? 'selected' : ''} ${loaded ? 'registered' : 'pending'}" type="button" data-story-id="${escapeHtml(story.id)}" style="${visualVars(story)}">
         <span class="rank-book-cover" data-emblem="${escapeHtml(visual.emblem || 'AH')}"></span>
-        <span class="rank-book-name">${escapeHtml(story.title || story.rankTitle)}</span>
+        <span class="rank-book-name">${escapeHtml(archiveTitle(story))}</span>
         <span class="rank-book-state">${loaded ? 'Disponible' : 'Pendiente'}</span>
       </button>
     `
@@ -73,14 +85,15 @@ function renderDetail(story) {
   const content = storyContent(story.id)
   const loaded = Boolean(content?.capitulos.length)
   const range = story.levelFrom === story.levelTo ? `Nivel ${story.levelFrom}` : `Niveles ${story.levelFrom}-${story.levelTo}`
+  const visual = archiveVisual(story)
 
-  detailEl.style.setProperty('--book-rgb', story.visual?.rgb || '56,189,248')
+  detailEl.style.setProperty('--book-rgb', visual.rgb || '56,189,248')
   detailEl.innerHTML = `
     <span class="detail-kicker">${loaded ? 'Historia completa' : 'Pendiente de texto'}</span>
-    <h2>${escapeHtml(story.title)}</h2>
-    <p>${loaded
+    <h2>${escapeHtml(archiveTitle(story))}</h2>
+    <p>${escapeHtml(loaded
       ? 'Esta historia completa ya esta cargada para lectura continua.'
-      : 'Este relato ya tiene base visual. Cuando compartas la historia completa, aparecera aqui sin pruebas ni juegos.'}</p>
+      : 'Este relato ya tiene base visual. Cuando compartas la historia completa, aparecera aqui sin pruebas ni juegos.')} ${escapeHtml(archiveSubtitle(story))}</p>
     <div class="detail-progress">
       <span>${escapeHtml(range)}</span>
       <strong>${escapeHtml(story.rankTitle || story.id)}</strong>
@@ -120,7 +133,7 @@ function renderReader(story) {
   const chapter = chapters[selectedChapterIndex]
 
   if (!chapter) {
-    readerTitleEl.textContent = story.title
+    readerTitleEl.textContent = archiveTitle(story)
     readerMetaEl.textContent = `${story.rankTitle || 'Relato'} | Historia completa pendiente`
     readerBodyEl.innerHTML = `
       <p>La base del Archivo ya esta conectada con este relato.</p>
@@ -134,7 +147,7 @@ function renderReader(story) {
 
   const paragraphs = Array.isArray(chapter.texto) ? chapter.texto : [chapter.texto]
   readerTitleEl.textContent = chapter.titulo || story.title
-  readerMetaEl.textContent = `${story.rankTitle || 'Relato'} | ${story.title}`
+  readerMetaEl.textContent = `${story.rankTitle || 'Relato'} | ${archiveTitle(story)}`
   readerBodyEl.innerHTML = paragraphs
     .filter((paragraph) => String(paragraph || '').trim())
     .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
