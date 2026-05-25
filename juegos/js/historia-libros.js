@@ -606,7 +606,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael entra a Neoterra, una ciudad holografica donde los ecos de jugadores perdidos ponen a prueba energia, concentracion, estrategia y voluntad.',
     phase: '9.4',
     readerUrl: 'historia-libro.html?libro=aspirante',
-    visual: { emblem: 'AS', primary: '#38bdf8', secondary: '#2563eb', accent: '#bfdbfe', rgb: '56,189,248' },
+    visual: { emblem: 'AS', primary: '#38bdf8', secondary: '#2563eb', accent: '#bfdbfe', rgb: '56,189,248', tier: 'normal', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/aspirante.svg' },
     introPages: [
       {
         type: 'cover',
@@ -903,7 +903,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael entra a la Zona Prohibida, un territorio corrupto donde ruinas digitales, guardianes rotos y registros ocultos revelan que el torneo protege secretos peligrosos.',
     phase: '9.5',
     readerUrl: 'historia-libro.html?libro=profesional',
-    visual: { emblem: 'PR', primary: '#a855f7', secondary: '#312e81', accent: '#f0abfc', rgb: '168,85,247' },
+    visual: { emblem: 'PR', primary: '#a855f7', secondary: '#312e81', accent: '#f0abfc', rgb: '168,85,247', tier: 'normal', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/profesional.svg' },
     introPages: [
       {
         type: 'cover',
@@ -1298,7 +1298,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael entra en una megaciudad dividida por facciones, nucleos energeticos y una guerra futurista manipulada por Umbra desde el interior del torneo.',
     phase: '9.6',
     readerUrl: 'historia-libro.html?libro=competidor',
-    visual: { emblem: 'CO', primary: '#ef4444', secondary: '#7f1d1d', accent: '#f97316', rgb: '239,68,68' },
+    visual: { emblem: 'CO', primary: '#ef4444', secondary: '#7f1d1d', accent: '#f97316', rgb: '239,68,68', tier: 'normal', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/competidor.svg' },
     introPages: [
       {
         type: 'cover',
@@ -1693,7 +1693,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael atraviesa portales cian, bibliotecas infinitas y realidades reflejadas donde Umbra aprende a moverse entre dimensiones.',
     phase: '9.7',
     readerUrl: 'historia-libro.html?libro=experto',
-    visual: { emblem: 'EX', primary: '#22d3ee', secondary: '#0e7490', accent: '#e0f2fe', rgb: '34,211,238' },
+    visual: { emblem: 'EX', primary: '#22d3ee', secondary: '#0e7490', accent: '#e0f2fe', rgb: '34,211,238', tier: 'normal', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/experto.svg' },
     introPages: [
       {
         type: 'cover',

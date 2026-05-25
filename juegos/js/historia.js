@@ -176,7 +176,7 @@ function styleVars(visual, profile = null) {
   ]
 
   if (profile?.coverArt) {
-    vars.push(['--cover-art', `url("${cssUrl(profile.coverArt)}")`])
+    vars.push(['--cover-art', `url(${cssUrl(profile.coverArt)})`])
   }
 
   return vars.map(([name, value]) => `${name}:${value}`).join(';')
@@ -291,6 +291,7 @@ function animateBookHover(bookButton, active) {
   const gsap = window.gsap
   if (!gsap || !bookButton) return
   const cover = bookButton.querySelector('.rank-book-cover')
+  const art = bookButton.querySelector('.rank-book-art')
   const state = bookButton.querySelector('.rank-book-state')
   if (!cover) return
 
@@ -302,6 +303,18 @@ function animateBookHover(bookButton, active) {
     ease: active ? 'power2.out' : 'power2.inOut',
     overwrite: true,
   })
+
+  if (art && bookButton.dataset.visualMode === 'svg-gsap') {
+    gsap.to(art, {
+      scale: active ? 1.08 : 1.01,
+      x: active ? 2 : 0,
+      y: active ? -2 : 0,
+      opacity: active ? 0.96 : 0.84,
+      duration: active ? 0.34 : 0.42,
+      ease: 'power2.out',
+      overwrite: true,
+    })
+  }
 
   if (state) {
     gsap.to(state, {
@@ -329,6 +342,7 @@ function animateFeaturedBook(bookId) {
   const gsap = window.gsap
   if (!gsap || !featuredEl) return
   const cover = featuredEl.querySelector('.book-cover')
+  const art = featuredEl.querySelector('.book-art')
   const emblem = featuredEl.querySelector('.book-emblem')
   const sigil = featuredEl.querySelector('.book-sigil')
   const info = featuredEl.querySelector('.featured-info')
@@ -348,6 +362,13 @@ function animateFeaturedBook(bookId) {
     gsap.fromTo(emblem,
       { scale: 0.84 },
       { scale: 1, duration: 0.36, delay: 0.12, ease: 'back.out(2)', overwrite: true },
+    )
+  }
+
+  if (art && cover.dataset.visualMode === 'svg-gsap') {
+    gsap.fromTo(art,
+      { scale: 1.08, x: -4, opacity: 0.35 },
+      { scale: 1, x: 0, opacity: 0.88, duration: 0.58, delay: 0.08, ease: 'power2.out', overwrite: true },
     )
   }
 

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 226" role="img" aria-label="Nucleo tactico de Competidor">
+  <defs>
+    <linearGradient id="war" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#450a0a"/>
+      <stop offset=".50" stop-color="#ef4444"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <radialGradient id="reactor" cx=".50" cy=".38" r=".42">
+      <stop offset="0" stop-color="#fff7ed" stop-opacity=".72"/>
+      <stop offset=".22" stop-color="#fecaca" stop-opacity=".42"/>
+      <stop offset=".55" stop-color="#ef4444" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#7f1d1d" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="hot" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="166" height="226" rx="12" fill="url(#war)"/>
+  <rect width="166" height="226" fill="url(#reactor)"/>
+  <g filter="url(#hot)" fill="none" stroke="#fed7aa" stroke-linecap="round">
+    <circle cx="83" cy="86" r="31" stroke-opacity=".46"/>
+    <circle cx="83" cy="86" r="17" stroke-opacity=".60"/>
+    <path d="M83 36v22M83 114v24M33 86h25M108 86h25M47 50l18 18M101 104l18 18M119 50l-18 18M65 104l-18 18" stroke-opacity=".42"/>
+  </g>
+  <g fill="#7f1d1d" fill-opacity=".48" stroke="#fecaca" stroke-opacity=".28">
+    <path d="M25 147h33v38H25z"/>
+    <path d="M66 130h35v55H66z"/>
+    <path d="M109 142h31v43h-31z"/>
+  </g>
+  <g stroke="#450a0a" stroke-opacity=".58" stroke-width="1.3">
+    <path d="M15 42h136M15 45h136M15 189h136"/>
+    <path d="M18 156 145 126M30 203 137 151M18 80 148 23"/>
+  </g>
+  <g fill="#fff7ed" fill-opacity=".76">
+    <circle cx="50" cy="62" r="1.4"/>
+    <circle cx="118" cy="74" r="1.6"/>
+    <circle cx="96" cy="158" r="1.3"/>
+    <circle cx="37" cy="173" r="1.2"/>
+  </g>
+</svg>
