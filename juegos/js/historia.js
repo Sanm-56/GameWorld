@@ -169,13 +169,133 @@ function renderDetail(rank, status, visual, book = null) {
 function selectBook(rank, status) {
   const book = obtenerLibroHistoria(crearIdLibroDesdeTitulo(rank.titulo))
   const visual = visualForRank(rank.titulo, book)
+  const bookId = book?.id || crearIdLibroDesdeTitulo(rank.titulo)
   setBookTheme(visual)
   renderFeatured(rank, visual, book)
   renderDetail(rank, status, visual, book)
+  animateFeaturedBook(bookId)
   if (activeBookNameEl) activeBookNameEl.textContent = rank.titulo
 
   shelfEl?.querySelectorAll('.rank-book').forEach((button) => {
-    button.classList.toggle('selected', button.dataset.rankTitle === rank.titulo)
+    const selected = button.dataset.rankTitle === rank.titulo
+    button.classList.toggle('selected', selected)
+    if (!selected) animateBookHover(button, false)
+  })
+}
+
+function animateShelfEntry() {
+  const gsap = window.gsap
+  const books = shelfEl ? [...shelfEl.querySelectorAll('.rank-book')] : []
+  if (!gsap || !books.length) return
+
+  gsap.set(books, { autoAlpha: 0, y: 18, rotate: -1.5 })
+  gsap.to(books, {
+    autoAlpha: 1,
+    y: 0,
+    rotate: 0,
+    duration: 0.48,
+    ease: 'power2.out',
+    stagger: {
+      each: 0.025,
+      from: 'start',
+    },
+  })
+}
+
+function animateBookHover(bookButton, active) {
+  const gsap = window.gsap
+  if (!gsap || !bookButton) return
+  const cover = bookButton.querySelector('.rank-book-cover')
+  const state = bookButton.querySelector('.rank-book-state')
+  if (!cover) return
+
+  gsap.to(cover, {
+    y: active ? -10 : 0,
+    rotate: active ? 0 : -1,
+    scale: active ? 1.04 : 1,
+    duration: active ? 0.28 : 0.34,
+    ease: active ? 'power2.out' : 'power2.inOut',
+    overwrite: true,
+  })
+
+  if (state) {
+    gsap.to(state, {
+      y: active ? -2 : 0,
+      autoAlpha: active ? 1 : 0.86,
+      duration: 0.24,
+      ease: 'power2.out',
+      overwrite: true,
+    })
+  }
+}
+
+function pulseSelectedBook(bookButton) {
+  const gsap = window.gsap
+  const cover = bookButton?.querySelector('.rank-book-cover')
+  if (!gsap || !cover) return
+
+  gsap.fromTo(cover,
+    { filter: 'brightness(1.18) saturate(1.16)' },
+    { filter: 'brightness(1) saturate(1)', duration: 0.48, ease: 'power2.out', overwrite: true },
+  )
+}
+
+function animateFeaturedBook(bookId) {
+  const gsap = window.gsap
+  if (!gsap || !featuredEl) return
+  const cover = featuredEl.querySelector('.book-cover')
+  const emblem = featuredEl.querySelector('.book-emblem')
+  const sigil = featuredEl.querySelector('.book-sigil')
+  const info = featuredEl.querySelector('.featured-info')
+  if (!cover) return
+
+  gsap.fromTo(cover,
+    { autoAlpha: 0, y: 14, rotateY: -28, rotateZ: -5, scale: 0.94 },
+    { autoAlpha: 1, y: 0, rotateY: -18, rotateZ: -3, scale: 1, duration: 0.5, ease: 'back.out(1.45)', overwrite: true },
+  )
+  if (info) {
+    gsap.fromTo(info,
+      { autoAlpha: 0, y: 8 },
+      { autoAlpha: 1, y: 0, duration: 0.34, delay: 0.08, ease: 'power2.out', overwrite: true },
+    )
+  }
+  if (emblem) {
+    gsap.fromTo(emblem,
+      { scale: 0.84 },
+      { scale: 1, duration: 0.36, delay: 0.12, ease: 'back.out(2)', overwrite: true },
+    )
+  }
+
+  if (bookId === 'novato' && sigil) {
+    gsap.fromTo(sigil,
+      { rotate: 0, opacity: 0.22 },
+      { rotate: 90, opacity: 0.58, duration: 0.7, ease: 'power2.out', overwrite: true },
+    )
+  }
+
+  if (bookId === 'amateur' && sigil) {
+    gsap.fromTo(sigil,
+      { rotate: 18, scale: 0.82, opacity: 0.24 },
+      { rotate: 45, scale: 1, opacity: 0.62, duration: 0.62, ease: 'back.out(1.7)', overwrite: true },
+    )
+  }
+}
+
+function bindShelfAnimations() {
+  const gsap = window.gsap
+  if (!gsap || !shelfEl) return
+
+  shelfEl.querySelectorAll('.rank-book').forEach((button) => {
+    button.addEventListener('mouseenter', () => animateBookHover(button, true))
+    button.addEventListener('mouseleave', () => {
+      if (button.classList.contains('selected')) return
+      animateBookHover(button, false)
+    })
+    button.addEventListener('focus', () => animateBookHover(button, true))
+    button.addEventListener('blur', () => {
+      if (button.classList.contains('selected')) return
+      animateBookHover(button, false)
+    })
   })
 }
 
@@ -208,6 +328,8 @@ async function initLibrary() {
     `
   }).join('')
 
+  animateShelfEntry()
+  bindShelfAnimations()
   selectBook(currentRank, bookStatus(currentRank, level))
 
   shelfEl.addEventListener('click', (event) => {
@@ -216,6 +338,7 @@ async function initLibrary() {
     const rank = ranks.find((item) => item.titulo === button.dataset.rankTitle)
     if (!rank) return
     selectBook(rank, button.dataset.status || 'locked')
+    pulseSelectedBook(button)
   })
 }
 
