@@ -46,7 +46,7 @@ function archiveSubtitle(story) {
 }
 
 function archiveVisual(story) {
-  return storyContent(story.id)?.visual || story.visual || {}
+  return story.visual || storyContent(story.id)?.visual || {}
 }
 
 function visualVars(story) {
