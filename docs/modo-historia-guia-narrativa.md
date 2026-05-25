@@ -2,30 +2,35 @@
 
 ## Estado
 
-Fase 1 y 2 completadas:
+Modo Historia ya tiene la biblioteca base y el ciclo completo de relatos por rango:
 
 - Entrada de Modo Historia en el index.
-- Biblioteca visual de libros por rango.
-- Libros generados a partir de los titulos/rangos del jugador.
+- Biblioteca visual de relatos por rango.
+- Fase 9.2 reservada para la Biblioteca de Historias.
+- 120 relatos registrados para 120 rangos.
+- Relatos abiertos con capitulos, pruebas, progreso local y cierre narrativo.
+- Fases de relatos normalizadas de 9.1 a 9.121, saltando 9.2 porque pertenece a la pantalla general de biblioteca.
 
-Siguiente objetivo:
+Siguiente objetivo recomendado:
 
-- Fase 3.1: Libro Novato abierto.
+- Revisar calidad narrativa, ritmo visual y pruebas relato por relato.
+- Probar recorridos completos desde la Biblioteca hacia los juegos y de regreso al relato.
+- Definir si el progreso de relatos debe seguir solo en localStorage o sincronizarse luego con Supabase.
 
 ## Canon base
 
 El torneo existe conectado a una dimension digital llamada **El Nexus**.
 
-Dentro del Nexus existe la **Biblioteca de Historias**, un archivo vivo que registra el avance de cada jugador. Cada rango del torneo se manifiesta como un libro. Estos libros no son simples textos: contienen memorias, pruebas, sellos y fragmentos narrativos que responden al progreso del jugador.
+Dentro del Nexus existe la **Biblioteca de Historias**, un archivo vivo que registra el avance de cada jugador. Cada rango del torneo se manifiesta como un relato. Estos relatos no son las historias completas: contienen resumenes clave, pruebas, sellos y fragmentos narrativos que responden al progreso del jugador.
 
-Cuando un jugador sube de rango, la biblioteca revela un nuevo tomo.
+Cuando un jugador sube de rango, la biblioteca revela un nuevo relato.
 
 ## Estructura del universo
 
 - **El Nexus:** dimension competitiva donde se procesan los retos del torneo.
-- **Biblioteca de Historias:** zona narrativa donde viven los libros por rango.
-- **Libros:** etapas del jugador, representadas por su rango.
-- **Capitulos:** escenas cortas que desarrollan la historia del libro.
+- **Biblioteca de Historias:** zona narrativa donde viven los relatos por rango.
+- **Relatos:** etapas resumidas del jugador, representadas por su rango.
+- **Capitulos:** escenas cortas que desarrollan el resumen narrativo del relato.
 - **Pruebas:** retos conectados con los juegos existentes.
 - **Sellos:** desbloqueos narrativos que permiten avanzar.
 - **Ecos:** rastros de jugadores anteriores o eventos del sistema.
@@ -57,21 +62,21 @@ La sensacion guia:
 
 ## Reglas narrativas
 
-- Los libros reaccionan al progreso del jugador.
-- Cada rango tiene un libro propio.
+- Los relatos reaccionan al progreso del jugador.
+- Cada rango tiene un relato propio.
 - Las pruebas son simulaciones creadas por el Nexus.
-- Algunos libros estan sellados hasta alcanzar el rango requerido.
+- Algunos relatos estan sellados hasta alcanzar el rango requerido.
 - El Nexus nunca explica todo.
 - Los mejores jugadores pueden dejar ecos dentro de la biblioteca.
 - El misterio es parte del valor de la experiencia.
-- Cada libro debe tener identidad propia, aunque use la misma estructura tecnica.
+- Cada relato debe tener identidad propia, aunque use la misma estructura tecnica.
 
-## Relacion entre libros, capitulos y juegos
+## Relacion entre relatos, capitulos y juegos
 
 La estructura base es:
 
 ```text
-Libro = rango del jugador
+Relato = rango del jugador
 Capitulo = escena narrativa corta
 Juego = prueba para avanzar
 Sello = recompensa/desbloqueo narrativo
@@ -80,7 +85,7 @@ Sello = recompensa/desbloqueo narrativo
 Ejemplo:
 
 ```text
-Libro Novato: El Despertar
+Relato Novato: El Despertar
 Capitulo 1: La Activacion
 Prueba: Sudoku
 Resultado: Primer sello estabilizado
@@ -103,9 +108,9 @@ Ejemplos de integracion:
 - **Torre Infinita:** estabilizacion vertical del archivo.
 - **Sube la Montana:** ascenso hacia un nucleo superior.
 
-## Estructura de cada libro
+## Estructura de cada relato
 
-Cada libro debe tener:
+Cada relato debe tener:
 
 1. Portada.
 2. Introduccion corta.
@@ -152,11 +157,11 @@ Sello, fragmento o frase de avance.
 
 La narrativa debe sentirse como una cinemática interactiva ligera.
 
-## Identidad inicial de libros
+## Identidad inicial de relatos
 
-Esta lista es una guia inicial. Los nombres pueden ajustarse libro por libro.
+Esta lista es una guia inicial. Los nombres pueden ajustarse relato por relato.
 
-| Rango | Nombre del libro | Tema | Color guia | Simbolo |
+| Rango | Nombre del relato | Tema | Color guia | Simbolo |
 | --- | --- | --- | --- | --- |
 | Novato | El Despertar | Primera conexion | Azul neon | Fragmento luminoso |
 | Amateur | Las Primeras Senales | Entrenamiento | Verde energetico | Triangulo |
@@ -167,19 +172,19 @@ Esta lista es una guia inicial. Los nombres pueden ajustarse libro por libro.
 | Elite | La Torre de Cristal | Ascenso | Blanco azulado | Cristal |
 | Maestro | Los Guardianes del Archivo | Prueba mayor | Negro y oro | Llave |
 | Gran Maestro | La Dimension Central | Control | Dorado profundo | Nucleo |
-| Leyenda | El Libro Perdido | Memoria antigua | Amarillo astral | Estrella |
+| Leyenda | El Relato Perdido | Memoria antigua | Amarillo astral | Estrella |
 | Mitico | La Corona del Vacio | Poder oculto | Violeta | Corona rota |
 | Supremo | El Nucleo Eterno | Estabilidad final | Plata y cyan | Anillo |
 | Titan | La Guerra de los Ecos | Ruptura | Carmesi | Marca de impacto |
 | Inmortal | El Ultimo Registro | Permanencia | Turquesa | Registro vivo |
 | Leyenda Maxima | El Archivo Absoluto | Cierre del ciclo | Oro blanco | Sello absoluto |
 
-## Fase 3.1 - Libro Novato
+## Fase 9.1 - Relato Novato
 
 Nombre:
 
 ```text
-Libro Novato: El Despertar
+Relato Novato: El Despertar
 ```
 
 Tema:
@@ -193,7 +198,7 @@ Sensacion visual:
 - Particulas ligeras.
 - Simbolos flotantes.
 - Energia digital.
-- Libro limpio, misterioso y accesible.
+- Relato limpio, misterioso y accesible.
 
 Simbolo:
 
@@ -209,7 +214,7 @@ Capitulos iniciales:
 | 2 | El Primer Codigo | Matematicas | El Nexus mide precision mental |
 | 3 | Memorias Fragmentadas | Memoria | El jugador recompone datos rotos |
 | 4 | La Camara Inicial | FlashMind o NumCatch | El sistema prueba reflejos |
-| 5 | Conexion Establecida | Juego final del libro | El jugador completa el primer sello |
+| 5 | Conexion Establecida | Juego final del relato | El jugador completa el primer sello |
 
 Texto base del Capitulo 1:
 
@@ -230,39 +235,52 @@ Una nueva conexion atraviesa el Nexus.
 
 La biblioteca despierta entre lineas de luz azul.
 
-Un fragmento sin nombre aparece frente al primer libro.
+Un fragmento sin nombre aparece frente al primer relato.
 
 El sistema observa. La prueba inicial comienza.
 ```
 
-## Orden de desarrollo desde ahora
+## Mapa de fases actual
 
-Las fases 1 y 2 ya estan completadas.
+La fase 9.2 no representa un relato. Es la pantalla general de Biblioteca de Historias, donde se listan los relatos por rango, se muestra el relato activo y se abren los lectores.
 
-A partir de ahora el desarrollo debe avanzar por ciclos de libro:
+Los relatos usan la secuencia:
 
 ```text
-Ciclo Novato
-3.1 Libro Novato abierto
-4.1 Pruebas del Libro Novato
-5.1 Progreso del Libro Novato
-
-Ciclo Amateur
-3.2 Libro Amateur abierto
-4.2 Pruebas del Libro Amateur
-5.2 Progreso del Libro Amateur
-
-Ciclo Aspirante
-3.3 Libro Aspirante abierto
-4.3 Pruebas del Libro Aspirante
-5.3 Progreso del Libro Aspirante
+9.1 Relato Novato
+9.2 Biblioteca de Historias
+9.3 Relato Amateur
+9.4 Relato Aspirante
+...
+9.119 Relato Emperador del Juicio Final
+9.120 Relato Titan del Vacio Primordial
+9.121 Relato El Ultimo Ascendido
 ```
 
-Primero se debe terminar un libro usable antes de avanzar al siguiente.
+Si se agregan nuevos rangos, cada nuevo relato debe recibir una fase posterior a 9.121 o abrir un nuevo bloque de version narrativa.
+
+## Orden de desarrollo desde ahora
+
+La estructura de relatos ya esta completa. A partir de ahora el desarrollo debe avanzar por ciclos de revision:
+
+```text
+Revision de biblioteca
+Confirmar que 9.2 se entiende como pantalla general, no como relato faltante.
+
+Revision por relato
+Leer portada, capitulos, pruebas y cierre.
+Verificar que el tono sea propio y que la prueba conecte con la escena.
+
+Revision de recorrido
+Abrir prueba desde el relato.
+Completar juego.
+Volver al relato.
+Confirmar que el capitulo queda completado y el siguiente se desbloquea.
+```
 
 ## Criterios de calidad
 
-Un libro se considera listo cuando:
+Un relato se considera listo cuando:
 
 - Tiene identidad visual propia.
 - Tiene capitulos claros y cortos.
@@ -276,4 +294,4 @@ Un libro se considera listo cuando:
 
 Sistema reutilizable, contenido artesanal.
 
-La tecnologia puede repetirse. La sensacion de cada libro no.
+La tecnologia puede repetirse. La sensacion de cada relato no.

@@ -92,7 +92,7 @@ function pageTemplate(page, index) {
       <h2>${escaparHtml(page.title)}</h2>
       ${body}
       ${sealedAfterTrial ? '<div class="sealed-note">Pagina sellada hasta completar la prueba.</div>' : ''}
-      ${sealedBookEnd ? '<div class="sealed-note">Cierre sellado hasta completar el libro.</div>' : ''}
+      ${sealedBookEnd ? '<div class="sealed-note">Cierre sellado hasta completar el relato.</div>' : ''}
       ${trial}
     </div>
     <div class="page-mark">
@@ -159,10 +159,10 @@ function goToChapter(chapterId) {
 }
 
 function renderMissingBook() {
-  document.title = 'Libro no configurado'
+  document.title = 'Relato no configurado'
   if (readerBookLabelEl) readerBookLabelEl.textContent = 'Biblioteca'
-  if (readerTitleEl) readerTitleEl.textContent = 'Libro no configurado'
-  if (readerSummaryEl) readerSummaryEl.textContent = 'Este tomo todavia no tiene historia registrada en la base de Modo Historia.'
+  if (readerTitleEl) readerTitleEl.textContent = 'Relato no configurado'
+  if (readerSummaryEl) readerSummaryEl.textContent = 'Este relato todavia no tiene historia registrada en la base de Modo Historia.'
   if (readerPhaseEl) readerPhaseEl.textContent = '9.0'
   if (chapterListEl) chapterListEl.innerHTML = '<button class="chapter-tab locked" type="button" disabled><span>--</span><span><strong>Pendiente</strong><small>Sin capitulos</small></span></button>'
   if (pageLeftEl) {
@@ -170,10 +170,10 @@ function renderMissingBook() {
       <div>
         <span class="page-kicker">Fase 9.0</span>
         <h2>Base preparada</h2>
-        <p>El lector dinamico ya puede cargar libros por identificador cuando sus datos esten registrados.</p>
+        <p>El lector dinamico ya puede cargar relatos por identificador cuando sus datos esten registrados.</p>
         <p>Novato permanece en su lector actual hasta la migracion controlada de la Fase 9.1.</p>
       </div>
-      <div class="page-mark"><span>Motor de libros</span><span>01</span></div>
+      <div class="page-mark"><span>Motor de relatos</span><span>01</span></div>
     `
   }
   if (pageRightEl) pageRightEl.innerHTML = ''
@@ -183,10 +183,10 @@ function renderMissingBook() {
 }
 
 function applyBookMeta() {
-  document.title = `Libro ${book.rankTitle || book.title} - ${book.title}`
-  if (readerBookLabelEl) readerBookLabelEl.textContent = `Libro ${book.rankTitle || book.title}`
+  document.title = `Relato ${book.rankTitle || book.title} - ${book.title}`
+  if (readerBookLabelEl) readerBookLabelEl.textContent = `Relato ${book.rankTitle || book.title}`
   if (readerTitleEl) readerTitleEl.textContent = book.title
-  if (readerSummaryEl) readerSummaryEl.textContent = book.subtitle || 'Tomo registrado en la Biblioteca de Historias.'
+  if (readerSummaryEl) readerSummaryEl.textContent = book.subtitle || 'Relato registrado en la Biblioteca de Historias.'
   if (readerPhaseEl) readerPhaseEl.textContent = book.phase || '9.x'
 
   const visual = book.visual || {}

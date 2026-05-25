@@ -4340,7 +4340,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 415,
     title: 'Los Ecos del Nuevo Cosmos',
     subtitle: 'El nuevo universo respira por primera vez, pero los ecos del cosmos anterior siguen ocultos entre rutas astrales, nebulosas rojas y ciudades nacidas del recuerdo.',
-    phase: '9.17',
+    phase: '9.18',
     readerUrl: 'historia-libro.html?libro=heraldo-astral',
     visual: { emblem: 'HA', primary: '#38bdf8', secondary: '#2563eb', accent: '#a5f3fc', rgb: '56,189,248' },
     introPages: [
@@ -4450,7 +4450,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 440,
     title: 'El Imperio de las Estrellas Rojas',
     subtitle: 'El Imperio Carmesi protege mundos nacientes con una mano de hierro, mientras una amenaza escondida comienza a devorar la memoria de sus estrellas.',
-    phase: '9.18',
+    phase: '9.19',
     readerUrl: 'historia-libro.html?libro=soberano-carmesi',
     visual: { emblem: 'SC', primary: '#ef4444', secondary: '#f97316', accent: '#fecaca', rgb: '239,68,68' },
     introPages: [
@@ -4560,7 +4560,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 465,
     title: 'Las Memorias del Universo Muerto',
     subtitle: 'El nuevo universo empieza a olvidar. Kael desciende a estrellas huecas, bibliotecas grises y memorias absolutas donde el pasado lucha por no desaparecer.',
-    phase: '9.19',
+    phase: '9.20',
     readerUrl: 'historia-libro.html?libro=devorador-de-ecos',
     visual: { emblem: 'DE', primary: '#94a3b8', secondary: '#64748b', accent: '#f8fafc', rgb: '148,163,184' },
     introPages: [
@@ -4670,7 +4670,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 490,
     title: 'El Eclipse Eterno',
     subtitle: 'Las estrellas del nuevo cosmos comienzan a apagarse y los Guardianes del Eclipse despiertan para impedir que el vacio consciente reemplace la luz universal.',
-    phase: '9.20',
+    phase: '9.21',
     readerUrl: 'historia-libro.html?libro=guardian-del-eclipse',
     visual: { emblem: 'GE', primary: '#facc15', secondary: '#111827', accent: '#fde68a', rgb: '250,204,21' },
     introPages: [
@@ -4750,7 +4750,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 515,
     title: 'El Trono de Umbra Renacida',
     subtitle: 'Umbra regresa estable y poderoso, no para destruir dimensiones, sino para reconstruirlas con oscuridad consciente y preparar un imperio contra algo mas antiguo.',
-    phase: '9.21',
+    phase: '9.22',
     readerUrl: 'historia-libro.html?libro=emperador-umbrio',
     visual: { emblem: 'EU', primary: '#a855f7', secondary: '#111827', accent: '#d8b4fe', rgb: '168,85,247' },
     introPages: [
@@ -4845,7 +4845,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 540,
     title: 'Las Fronteras de la Existencia',
     subtitle: 'Kael atraviesa caminos blancos, universos paralelos y observadores eternos para descubrir que incluso el infinito tiene fronteras, y algo camina mas alla de ellas.',
-    phase: '9.22',
+    phase: '9.23',
     readerUrl: 'historia-libro.html?libro=portador-del-infinito',
     visual: { emblem: 'PI', primary: '#f8fafc', secondary: '#60a5fa', accent: '#c4b5fd', rgb: '248,250,252' },
     introPages: [
@@ -4970,7 +4970,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 565,
     title: 'El Reino de los Universos Muertos',
     subtitle: 'Kael atraviesa galaxias quemadas, cementerios universales y la Ultima Llama para descubrir que incluso los universos muertos siguen guardando advertencias.',
-    phase: '9.23',
+    phase: '9.24',
     readerUrl: 'historia-libro.html?libro=rey-de-las-cenizas',
     visual: { emblem: 'RC', primary: '#9ca3af', secondary: '#f97316', accent: '#e5e7eb', rgb: '156,163,175' },
     introPages: [
@@ -5080,7 +5080,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 590,
     title: 'El Despertar del Ether Primordial',
     subtitle: 'El Ether anterior al vacio vuelve a moverse, conectando universos y revelando que incluso la energia fundamental puede ser corrompida desde fuera del infinito.',
-    phase: '9.24',
+    phase: '9.25',
     readerUrl: 'historia-libro.html?libro=dominador-de-ether',
     visual: { emblem: 'DE', primary: '#2dd4bf', secondary: '#0891b2', accent: '#ccfbf1', rgb: '45,212,191' },
     introPages: [
@@ -5220,7 +5220,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 615,
     title: 'La Oscuridad Bajo la Existencia',
     subtitle: 'El Abismo Exterior se abre bajo el infinito: ciudades sumergidas, coronas gravitacionales y ojos eternos revelan que todo lo creado puede caer.',
-    phase: '9.25',
+    phase: '9.26',
     readerUrl: 'historia-libro.html?libro=monarca-del-abismo',
     visual: { emblem: 'MA', primary: '#1e3a8a', secondary: '#020617', accent: '#93c5fd', rgb: '30,58,138' },
     introPages: [
@@ -5345,7 +5345,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 640,
     title: 'Los Observadores del Fin Universal',
     subtitle: 'Kael llega a torres plateadas fuera del tiempo, donde los Eternos observan el final de todos los ciclos y descubren que la oscuridad exterior ya mira al nuevo cosmos.',
-    phase: '9.26',
+    phase: '9.27',
     readerUrl: 'historia-libro.html?libro=vigia-de-los-eternos',
     visual: { emblem: 'VE', primary: '#cbd5e1', secondary: '#64748b', accent: '#e0f2fe', rgb: '203,213,225' },
     introPages: [
@@ -5485,7 +5485,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 665,
     title: 'El Borde del Fin Absoluto',
     subtitle: 'El Horizonte Negro detiene estrellas, ciudades y lineas temporales enteras mientras una puerta antigua anuncia la llegada del Profeta del Fin.',
-    phase: '9.27',
+    phase: '9.28',
     readerUrl: 'historia-libro.html?libro=senor-del-horizonte-negro',
     visual: { emblem: 'HN', primary: '#111827', secondary: '#020617', accent: '#94a3b8', rgb: '17,24,39' },
     introPages: [
@@ -5595,7 +5595,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 690,
     title: 'Las Visiones del Ultimo Colapso',
     subtitle: 'Kael entra en templos del destino donde los futuros se rompen y todas las profecias apuntan hacia la Puerta del Fin.',
-    phase: '9.28',
+    phase: '9.29',
     readerUrl: 'historia-libro.html?libro=profeta-del-fin',
     visual: { emblem: 'PF', primary: '#d97706', secondary: '#422006', accent: '#fde68a', rgb: '217,119,6' },
     introPages: [
@@ -5705,7 +5705,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 715,
     title: 'El Legado del Vacio Consciente',
     subtitle: 'Umbra regresa al nuevo cosmos para revelar que la oscuridad consciente no era el enemigo final, sino una defensa imperfecta contra algo anterior a toda existencia.',
-    phase: '9.29',
+    phase: '9.30',
     readerUrl: 'historia-libro.html?libro=heredero-de-umbra',
     visual: { emblem: 'HU', primary: '#7e22ce', secondary: '#1e1b4b', accent: '#c084fc', rgb: '126,34,206' },
     introPages: [
@@ -5815,7 +5815,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 740,
     title: 'El Dominio de los Cielos Eternos',
     subtitle: 'Los cielos descienden con promesas de salvacion perfecta, pero su luz exige obediencia absoluta y amenaza con purificar el nuevo universo hasta vaciarlo de libertad.',
-    phase: '9.30',
+    phase: '9.31',
     readerUrl: 'historia-libro.html?libro=tirano-celestial',
     visual: { emblem: 'TC', primary: '#f8fafc', secondary: '#facc15', accent: '#fef3c7', rgb: '248,250,252' },
     introPages: [
@@ -5925,7 +5925,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 765,
     title: 'El Fuego que Sobrevive al Final',
     subtitle: 'La Ultima Llama arde despues de todos los finales, preservando solo aquello capaz de resistir el colapso absoluto.',
-    phase: '9.31',
+    phase: '9.32',
     readerUrl: 'historia-libro.html?libro=custodio-de-la-ultima-llama',
     visual: { emblem: 'UL', primary: '#f97316', secondary: '#7c2d12', accent: '#fed7aa', rgb: '249,115,22' },
     introPages: [
@@ -6050,7 +6050,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 790,
     title: 'La Guerra por el Cosmos Infinito',
     subtitle: 'Las civilizaciones supervivientes unen flotas, fortalezas y coronas estelares para decidir que parte de la existencia puede sobrevivir a la guerra final.',
-    phase: '9.32',
+    phase: '9.33',
     readerUrl: 'historia-libro.html?libro=conquistador-astral',
     visual: { emblem: 'CA', primary: '#2563eb', secondary: '#1e40af', accent: '#bfdbfe', rgb: '37,99,235' },
     introPages: [
@@ -6175,7 +6175,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 815,
     title: 'El Nacimiento de la Oscuridad Absoluta',
     subtitle: 'La luz comienza a temer existir cuando las Deidades del Eclipse despiertan desde regiones anteriores al infinito universal.',
-    phase: '9.33',
+    phase: '9.34',
     readerUrl: 'historia-libro.html?libro=deidad-del-eclipse',
     visual: { emblem: 'DX', primary: '#6d28d9', secondary: '#020617', accent: '#ddd6fe', rgb: '109,40,217' },
     introPages: [
@@ -6330,7 +6330,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 840,
     title: 'La Conciencia Mas Antigua del Cosmos',
     subtitle: 'El vacio consciente despierta completo y transforma galaxias, memoria y energia en un organismo universal que quiere comprenderlo todo.',
-    phase: '9.34',
+    phase: '9.35',
     readerUrl: 'historia-libro.html?libro=soberano-del-vacio-viviente',
     visual: { emblem: 'VV', primary: '#22c55e', secondary: '#020617', accent: '#86efac', rgb: '34,197,94' },
     introPages: [
@@ -6425,7 +6425,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 865,
     title: 'El Peso del Ultimo Reino',
     subtitle: 'La Corona Negra no entrega poder absoluto: entrega la responsabilidad de preservar aquello que aun sobrevive cuando todos los reinos caen.',
-    phase: '9.35',
+    phase: '9.36',
     readerUrl: 'historia-libro.html?libro=portador-de-la-corona-negra',
     visual: { emblem: 'CN', primary: '#27272a', secondary: '#020617', accent: '#a1a1aa', rgb: '39,39,42' },
     introPages: [
@@ -6520,7 +6520,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 890,
     title: 'El Trono Mas Alla del Fin',
     subtitle: 'Kael enfrenta una oscuridad que no consume mundos: borra el concepto de realidad y deja regiones completas fuera de toda existencia.',
-    phase: '9.35',
+    phase: '9.37',
     readerUrl: 'historia-libro.html?libro=rey-del-infinito-oscuro',
     visual: { emblem: 'IO', primary: '#0f172a', secondary: '#000000', accent: '#64748b', rgb: '15,23,42' },
     introPages: [
@@ -6630,7 +6630,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 915,
     title: 'Los Restos del Ultimo Universo',
     subtitle: 'Tras el Infinito Oscuro, Kael encuentra ruinas que se niegan a desaparecer y un Guardian que protege la memoria de universos olvidados.',
-    phase: '9.36',
+    phase: '9.38',
     readerUrl: 'historia-libro.html?libro=guardian-de-las-ruinas-eternas',
     visual: { emblem: 'RE', primary: '#9ca3af', secondary: '#3f3f46', accent: '#e5e7eb', rgb: '156,163,175' },
     introPages: [
@@ -6710,7 +6710,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 940,
     title: 'La Corrupcion del Ether Primordial',
     subtitle: 'El Ether Primordial se oscurece y revela una energia viva, inestable y capaz de acelerar la destruccion de universos.',
-    phase: '9.37',
+    phase: '9.39',
     readerUrl: 'historia-libro.html?libro=monarca-del-ether-oscuro',
     visual: { emblem: 'EO', primary: '#7c3aed', secondary: '#111827', accent: '#c4b5fd', rgb: '124,58,237' },
     introPages: [
@@ -6805,7 +6805,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 965,
     title: 'La Llegada del Cielo Sangriento',
     subtitle: 'El horizonte se tine de rojo y anuncia la etapa final de conflicto: una guerra que empezo antes de que Kael naciera.',
-    phase: '9.38',
+    phase: '9.40',
     readerUrl: 'historia-libro.html?libro=heraldo-del-horizonte-carmesi',
     visual: { emblem: 'HC', primary: '#dc2626', secondary: '#450a0a', accent: '#fecaca', rgb: '220,38,38' },
     introPages: [
@@ -6900,7 +6900,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 990,
     title: 'Los Colosos Antes del Tiempo',
     subtitle: 'Los Titanes Primordiales despiertan y revelan que no nacieron dentro del universo: ayudaron a construirlo y sellaron amenazas anteriores al Ether.',
-    phase: '9.39',
+    phase: '9.41',
     readerUrl: 'historia-libro.html?libro=emisario-de-los-titanes',
     visual: { emblem: 'ET', primary: '#b45309', secondary: '#292524', accent: '#fcd34d', rgb: '180,83,9' },
     introPages: [
@@ -7025,7 +7025,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1015,
     title: 'El Reino de los Soles Extinguidos',
     subtitle: 'Las estrellas muertas despiertan como tumbas cosmicas y revelan que el Eclipse Final ya empieza a cubrir galaxias enteras.',
-    phase: '9.40',
+    phase: '9.42',
     readerUrl: 'historia-libro.html?libro=senor-de-las-estrellas-muertas',
     visual: { emblem: 'EM', primary: '#71717a', secondary: '#020617', accent: '#d4d4d8', rgb: '113,113,122' },
     introPages: [
@@ -7120,7 +7120,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1040,
     title: 'La Maquina que Consume Universos',
     subtitle: 'El Eclipse Final revela una arquitectura ancestral disenada para destruir universos y reconstruir la existencia desde cero.',
-    phase: '9.41',
+    phase: '9.43',
     readerUrl: 'historia-libro.html?libro=arquitecto-del-eclipse-final',
     visual: { emblem: 'EF', primary: '#111827', secondary: '#7f1d1d', accent: '#fca5a5', rgb: '17,24,39' },
     introPages: [
@@ -7230,7 +7230,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1065,
     title: 'Las Cenizas del Universo Caido',
     subtitle: 'Mientras el Eclipse Final convierte imperios en combustible, despierta una entidad creada para borrar civilizaciones completas.',
-    phase: '9.42',
+    phase: '9.44',
     readerUrl: 'historia-libro.html?libro=devastador-de-imperios',
     visual: { emblem: 'DI', primary: '#ef4444', secondary: '#1f2937', accent: '#fca5a5', rgb: '239,68,68' },
     introPages: [
@@ -7310,7 +7310,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1090,
     title: 'El Reino que Respira Universos',
     subtitle: 'En el centro del Eclipse Final despierta un trono organico que respira universos y abre la puerta al verdadero Reino del Abismo Eterno.',
-    phase: '9.43',
+    phase: '9.45',
     readerUrl: 'historia-libro.html?libro=trono-viviente',
     visual: { emblem: 'TV', primary: '#16a34a', secondary: '#450a0a', accent: '#86efac', rgb: '22,163,74' },
     introPages: [
@@ -7435,7 +7435,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1115,
     title: 'El Ojo que Observa el Fin',
     subtitle: 'El oceano de oscuridad consciente abre un ojo ancestral que no destruye universos: los juzga mientras busca el Noveno Sello.',
-    phase: '9.44',
+    phase: '9.46',
     readerUrl: 'historia-libro.html?libro=vigia-del-abismo-eterno',
     visual: { emblem: 'VA', primary: '#020617', secondary: '#312e81', accent: '#67e8f9', rgb: '2,6,23' },
     introPages: [
@@ -7515,7 +7515,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1140,
     title: 'La Puerta que Nunca Debio Abrirse',
     subtitle: 'El Noveno Sello se fractura sobre el Abismo Eterno y revela una puerta ancestral que encierra una conciencia universal imposible de destruir.',
-    phase: '9.45',
+    phase: '9.47',
     readerUrl: 'historia-libro.html?libro=portador-del-noveno-sello',
     visual: { emblem: 'NS', primary: '#4c1d95', secondary: '#020617', accent: '#facc15', rgb: '76,29,149' },
     introPages: [
@@ -7595,7 +7595,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1165,
     title: 'El Primer Reino de la Oscuridad',
     subtitle: 'Umbra Prime despierta como una ciudad infinita sobre un universo muerto, y su emperador revela el origen del Fin Absoluto.',
-    phase: '9.46',
+    phase: '9.48',
     readerUrl: 'historia-libro.html?libro=emperador-de-umbra-prime',
     visual: { emblem: 'UP', primary: '#0f172a', secondary: '#581c87', accent: '#a855f7', rgb: '15,23,42' },
     introPages: [
@@ -7705,7 +7705,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1190,
     title: 'La Corona del Ultimo Colapso',
     subtitle: 'Una corona negra emerge desde el Fin Absoluto y revela al guardia terminal encargado de ejecutar el ultimo reinicio universal.',
-    phase: '9.47',
+    phase: '9.49',
     readerUrl: 'historia-libro.html?libro=custodio-del-fin-absoluto',
     visual: { emblem: 'FA', primary: '#030712', secondary: '#7f1d1d', accent: '#f87171', rgb: '3,7,18' },
     introPages: [
@@ -7785,7 +7785,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1215,
     title: 'El Trono de la Realidad Olvidada',
     subtitle: 'El Reino Perdido emerge congelado fuera del tiempo y revela un trono vacio que anuncia el regreso de su rey ancestral.',
-    phase: '9.48',
+    phase: '9.50',
     readerUrl: 'historia-libro.html?libro=rey-del-reino-perdido',
     visual: { emblem: 'RP', primary: '#475569', secondary: '#111827', accent: '#cbd5e1', rgb: '71,85,105' },
     introPages: [
@@ -7880,7 +7880,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1240,
     title: 'La Luz que Sobrevivio al Fin',
     subtitle: 'La Ultima Aurora despierta como una ciudad de Ether puro, la ultima esperanza del cosmos contra el avance del Fin Absoluto.',
-    phase: '9.49',
+    phase: '9.51',
     readerUrl: 'historia-libro.html?libro=heraldo-de-la-ultima-aurora',
     visual: { emblem: 'UA', primary: '#facc15', secondary: '#0f172a', accent: '#fef08a', rgb: '250,204,21' },
     introPages: [
@@ -8020,7 +8020,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1265,
     title: 'El Soberano de las Constelaciones Eternas',
     subtitle: 'El Trono Astral despierta sobre la Ultima Aurora y revela a un soberano creado para sostener el equilibrio cosmico entre reinicios universales.',
-    phase: '9.50',
+    phase: '9.52',
     readerUrl: 'historia-libro.html?libro=dominador-del-trono-astral',
     visual: { emblem: 'TA', primary: '#38bdf8', secondary: '#1e1b4b', accent: '#fde68a', rgb: '56,189,248' },
     introPages: [
@@ -8100,7 +8100,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1290,
     title: 'El Reino Donde la Luz Desaparece',
     subtitle: 'La Eternidad Negra congela galaxias, apaga estrellas y revela un reino donde la existencia desaparece lentamente para siempre.',
-    phase: '9.51',
+    phase: '9.53',
     readerUrl: 'historia-libro.html?libro=monarca-de-la-eternidad-negra',
     visual: { emblem: 'EN', primary: '#020617', secondary: '#18181b', accent: '#64748b', rgb: '2,6,23' },
     introPages: [
@@ -8180,7 +8180,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1315,
     title: 'La Boca del Universo',
     subtitle: 'El horizonte se rompe y revela una criatura ancestral que consume no mundos, sino los limites mismos de la existencia.',
-    phase: '9.52',
+    phase: '9.54',
     readerUrl: 'historia-libro.html?libro=devorador-del-horizonte',
     visual: { emblem: 'DH', primary: '#111827', secondary: '#3f1d1d', accent: '#fb7185', rgb: '17,24,39' },
     introPages: [
@@ -8260,7 +8260,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1340,
     title: 'Las Voces del Universo Perdido',
     subtitle: 'Los ecos conscientes de universos extinguidos forman una corona espectral y revelan una voz capaz de ordenar memorias del vacio.',
-    phase: '9.53',
+    phase: '9.55',
     readerUrl: 'historia-libro.html?libro=soberano-de-los-ecos-infinitos',
     visual: { emblem: 'EI', primary: '#7c3aed', secondary: '#020617', accent: '#c4b5fd', rgb: '124,58,237' },
     introPages: [
@@ -8355,7 +8355,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1365,
     title: 'La Ultima Estrella Extinguida',
     subtitle: 'El Sol Muerto se fractura y revela a su guardian, protector de un nucleo estelar moribundo y de la Llama del Juicio Final.',
-    phase: '9.54',
+    phase: '9.56',
     readerUrl: 'historia-libro.html?libro=guardian-del-sol-muerto',
     visual: { emblem: 'SM', primary: '#27272a', secondary: '#7f1d1d', accent: '#f59e0b', rgb: '39,39,42' },
     introPages: [
@@ -8435,7 +8435,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1390,
     title: 'La Llama que Condena Universos',
     subtitle: 'La Llama del Juicio Final marca galaxias y abre un tribunal cosmico donde el universo actual empieza a ser condenado.',
-    phase: '9.55',
+    phase: '9.57',
     readerUrl: 'historia-libro.html?libro=portador-del-juicio-final',
     visual: { emblem: 'JF', primary: '#991b1b', secondary: '#111827', accent: '#fb923c', rgb: '153,27,27' },
     introPages: [
@@ -8530,7 +8530,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1415,
     title: 'El Soberano del Trono Inmortal',
     subtitle: 'La Corona Eterna despierta a su rey y conecta el reinado final con un Vacio Absoluto anterior a toda oscuridad consciente.',
-    phase: '9.56',
+    phase: '9.58',
     readerUrl: 'historia-libro.html?libro=rey-de-la-corona-eterna',
     visual: { emblem: 'CE', primary: '#f97316', secondary: '#1f2937', accent: '#fde68a', rgb: '249,115,22' },
     introPages: [
@@ -8610,7 +8610,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1440,
     title: 'El Mensajero del Abismo Primordial',
     subtitle: 'Desde un vacio anterior al primer ciclo universal despierta un emisario que busca algo oculto dentro del cosmos actual.',
-    phase: '9.57',
+    phase: '9.59',
     readerUrl: 'historia-libro.html?libro=emisario-del-vacio-absoluto',
     visual: { emblem: 'VA', primary: '#0f172a', secondary: '#020617', accent: '#818cf8', rgb: '15,23,42' },
     introPages: [
@@ -8690,7 +8690,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1465,
     title: 'El Coloso de la Corrupcion Universal',
     subtitle: 'Un Titan Carmesi fuera de control absorbe galaxias y amenaza con convertir la existencia restante en corrupcion viviente.',
-    phase: '9.58',
+    phase: '9.60',
     readerUrl: 'historia-libro.html?libro=titan-del-eclipse-carmesi',
     visual: { emblem: 'TC', primary: '#dc2626', secondary: '#450a0a', accent: '#fca5a5', rgb: '220,38,38' },
     introPages: [
@@ -8755,7 +8755,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1490,
     title: 'Las Murallas de la Ultima Luz Pura',
     subtitle: 'El Reino Celestial abre sus puertas para proteger el ultimo nucleo puro mientras el Titan Carmesi prepara la guerra final.',
-    phase: '9.59',
+    phase: '9.61',
     readerUrl: 'historia-libro.html?libro=custodio-del-reino-celestial',
     visual: { emblem: 'RC', primary: '#facc15', secondary: '#1e3a8a', accent: '#bfdbfe', rgb: '250,204,21' },
     introPages: [
@@ -8850,7 +8850,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1515,
     title: 'El Mapa del Origen Universal',
     subtitle: 'La Ultima Constelacion revela rutas hacia el origen universal, pero el mapa apunta a una oscuridad anterior al Vacio Absoluto.',
-    phase: '9.60',
+    phase: '9.62',
     readerUrl: 'historia-libro.html?libro=senor-de-la-ultima-constelacion',
     visual: { emblem: 'UC', primary: '#60a5fa', secondary: '#172554', accent: '#fef3c7', rgb: '96,165,250' },
     introPages: [
@@ -8915,7 +8915,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1540,
     title: 'Los Dioses Antes de la Existencia',
     subtitle: 'Las Sombras Eternas despiertan desde un reino anterior al tiempo y abren el Horizonte Infinito hacia deidades que buscan reemplazar el cosmos actual.',
-    phase: '9.61',
+    phase: '9.63',
     readerUrl: 'historia-libro.html?libro=deidad-de-las-sombras-eternas',
     visual: { emblem: 'SE', primary: '#18181b', secondary: '#020617', accent: '#a78bfa', rgb: '24,24,27' },
     introPages: [
@@ -8980,7 +8980,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1565,
     title: 'El Trono Mas Alla del Cosmos',
     subtitle: 'El Horizonte Infinito une realidades bajo una corona imperial y revela un ser que empieza a trascender el cosmos actual.',
-    phase: '9.62',
+    phase: '9.64',
     readerUrl: 'historia-libro.html?libro=emperador-del-horizonte-infinito',
     visual: { emblem: 'HI', primary: '#2563eb', secondary: '#020617', accent: '#a5b4fc', rgb: '37,99,235' },
     introPages: [
@@ -9045,7 +9045,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1590,
     title: 'El Ser Mas Alla de la Existencia',
     subtitle: 'Una entidad que abandono los limites del cosmos intenta elevar toda la existencia hacia una trascendencia imposible.',
-    phase: '9.63',
+    phase: '9.65',
     readerUrl: 'historia-libro.html?libro=trascendente-astral',
     visual: { emblem: 'TA', primary: '#a78bfa', secondary: '#1e1b4b', accent: '#f0abfc', rgb: '167,139,250' },
     introPages: [
@@ -9110,7 +9110,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1615,
     title: 'El Jardin Donde el Tiempo Murio',
     subtitle: 'El Fin Eterno detiene galaxias, mares de Ether y universos completos hasta convertirlos en recuerdos inmoviles.',
-    phase: '9.64',
+    phase: '9.66',
     readerUrl: 'historia-libro.html?libro=rey-del-fin-eterno',
     visual: { emblem: 'FE', primary: '#94a3b8', secondary: '#1e293b', accent: '#e0f2fe', rgb: '148,163,184' },
     introPages: [
@@ -9175,7 +9175,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1640,
     title: 'Las Profundidades Antes del Cosmos',
     subtitle: 'El Mar Primordial despierta bajo la existencia y revela templos sumergidos, ojos ancestrales y una criatura que quiere arrastrar el cosmos a sus aguas.',
-    phase: '9.65',
+    phase: '9.67',
     readerUrl: 'historia-libro.html?libro=heraldo-del-vacio-primordial',
     visual: { emblem: 'VP', primary: '#0891b2', secondary: '#082f49', accent: '#67e8f9', rgb: '8,145,178' },
     introPages: [
@@ -9240,7 +9240,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1665,
     title: 'La Biblioteca Fuera del Tiempo',
     subtitle: 'Bibliotecas infinitas emergen desde el oceano primordial y revelan archivos capaces de registrar ciclos que ocurrieron, no ocurrieron y podrian borrarse.',
-    phase: '9.66',
+    phase: '9.68',
     readerUrl: 'historia-libro.html?libro=arquitecto-de-la-eternidad',
     visual: { emblem: 'AE', primary: '#c084fc', secondary: '#312e81', accent: '#fef3c7', rgb: '192,132,252' },
     introPages: [
@@ -9305,7 +9305,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1690,
     title: 'La Arena de los Soles Caidos',
     subtitle: 'El Eclipse Supremo transforma colapsos universales en coliseos cosmicos donde campeones perdidos alimentan su poder.',
-    phase: '9.67',
+    phase: '9.69',
     readerUrl: 'historia-libro.html?libro=monarca-del-eclipse-supremo',
     visual: { emblem: 'ES', primary: '#ef4444', secondary: '#1f2937', accent: '#facc15', rgb: '239,68,68' },
     introPages: [
@@ -9370,7 +9370,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1715,
     title: 'El Laberinto de las Puertas Selladas',
     subtitle: 'Una puerta prohibida revela un laberinto infinito donde cada entrada contiene una realidad sellada que no debia volver.',
-    phase: '9.68',
+    phase: '9.70',
     readerUrl: 'historia-libro.html?libro=vigia-del-reino-prohibido',
     visual: { emblem: 'RP', primary: '#7c3aed', secondary: '#111827', accent: '#fbbf24', rgb: '124,58,237' },
     introPages: [
@@ -9435,7 +9435,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1740,
     title: 'El Teatro de las Realidades Falsas',
     subtitle: 'El cosmos se convierte en un teatro infinito donde mascaras, escenarios e hilos universales revelan que algunas realidades nunca fueron reales.',
-    phase: '9.69',
+    phase: '9.71',
     readerUrl: 'historia-libro.html?libro=portador-de-la-ultima-verdad',
     visual: { emblem: 'UV', primary: '#f59e0b', secondary: '#312e81', accent: '#fef3c7', rgb: '245,158,11' },
     introPages: [
@@ -9500,7 +9500,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1765,
     title: 'La Ciudad Donde las Leyes Murieron',
     subtitle: 'Kael cae en una ciudad imposible donde la gravedad, el tiempo y las rutas dejaron de obedecer cualquier logica universal.',
-    phase: '9.70',
+    phase: '9.72',
     readerUrl: 'historia-libro.html?libro=devastador-del-infinito',
     visual: { emblem: 'DI', primary: '#22d3ee', secondary: '#4c1d95', accent: '#f472b6', rgb: '34,211,238' },
     introPages: [
@@ -9565,7 +9565,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1790,
     title: 'El Mercado de los Universos Perdidos',
     subtitle: 'El Trono Negro conduce a un mercado cosmico donde se venden futuros, secretos y universos perdidos como reliquias prohibidas.',
-    phase: '9.71',
+    phase: '9.73',
     readerUrl: 'historia-libro.html?libro=senor-del-trono-negro',
     visual: { emblem: 'TN', primary: '#facc15', secondary: '#111827', accent: '#22d3ee', rgb: '250,204,21' },
     introPages: [
@@ -9630,7 +9630,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1815,
     title: 'El Tren de los Universos Perdidos',
     subtitle: 'Una estacion astral conecta los ultimos caminos antes del colapso final, donde trenes oscuros roban recuerdos a los sobrevivientes de universos muertos.',
-    phase: '9.72',
+    phase: '9.74',
     readerUrl: 'historia-libro.html?libro=custodio-del-horizonte-final',
     visual: { emblem: 'HF', primary: '#f59e0b', secondary: '#1f2937', accent: '#93c5fd', rgb: '245,158,11' },
     introPages: [
@@ -9695,7 +9695,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1840,
     title: 'La Isla de las Civilizaciones Perdidas',
     subtitle: 'Un archipielago universal conserva ruinas de mundos destruidos, reunidos por un emperador que colecciona civilizaciones caidas.',
-    phase: '9.73',
+    phase: '9.75',
     readerUrl: 'historia-libro.html?libro=emperador-de-los-mundos-caidos',
     visual: { emblem: 'MC', primary: '#22c55e', secondary: '#14532d', accent: '#fde68a', rgb: '34,197,94' },
     introPages: [
@@ -9760,7 +9760,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1865,
     title: 'El Carnaval de las Sombras Dormidas',
     subtitle: 'Una puerta abismal abre un carnaval eterno creado para dormir entidades peligrosas mediante ilusiones conscientes.',
-    phase: '9.74',
+    phase: '9.76',
     readerUrl: 'historia-libro.html?libro=heredero-del-abismo-supremo',
     visual: { emblem: 'AS', primary: '#ec4899', secondary: '#312e81', accent: '#fde047', rgb: '236,72,153' },
     introPages: [
@@ -9825,7 +9825,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1890,
     title: 'La Fabrica de los Universos Artificiales',
     subtitle: 'Ether Prime revela una megaciudad tecnologica capaz de fabricar galaxias, simulaciones y copias artificiales de la existencia.',
-    phase: '9.75',
+    phase: '9.77',
     readerUrl: 'historia-libro.html?libro=soberano-de-ether-prime',
     visual: { emblem: 'EP', primary: '#06b6d4', secondary: '#0f172a', accent: '#a7f3d0', rgb: '6,182,212' },
     introPages: [
@@ -9890,7 +9890,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1915,
     title: 'El Museo de los Universos Extintos',
     subtitle: 'Un museo suspendido en vacio blanco preserva recuerdos vivos de universos muertos y revela un final buscado para detener algo peor.',
-    phase: '9.76',
+    phase: '9.78',
     readerUrl: 'historia-libro.html?libro=rey-del-vacio-eterno',
     visual: { emblem: 'VE', primary: '#e5e7eb', secondary: '#334155', accent: '#fbbf24', rgb: '229,231,235' },
     introPages: [
@@ -9955,7 +9955,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1940,
     title: 'La Fortaleza Bajo la Nieve Estelar',
     subtitle: 'Una fortaleza congelada conserva la guerra del Ultimo Eclipse, donde soldados vivos bajo hielo esperan que vuelva una batalla inconclusa.',
-    phase: '9.77',
+    phase: '9.79',
     readerUrl: 'historia-libro.html?libro=guardian-del-ultimo-eclipse',
     visual: { emblem: 'UE', primary: '#bae6fd', secondary: '#1e3a8a', accent: '#f8fafc', rgb: '186,230,253' },
     introPages: [
@@ -10020,7 +10020,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1965,
     title: 'La Escuela de los Universos Prohibidos',
     subtitle: 'Una academia astral revela el pasado de Umbra y el experimento Ether Oscuro que escapo desde sus propias aulas.',
-    phase: '9.78',
+    phase: '9.80',
     readerUrl: 'historia-libro.html?libro=trascendente-del-ether-oscuro',
     visual: { emblem: 'EO', primary: '#6366f1', secondary: '#111827', accent: '#c4b5fd', rgb: '99,102,241' },
     introPages: [
@@ -10085,7 +10085,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 1990,
     title: 'El Planeta Que Estaba Vivo',
     subtitle: 'Un planeta consciente absorbe fragmentos de civilizaciones y revela que el Monarca no lo controla: el mundo vivo controla al Monarca.',
-    phase: '9.79',
+    phase: '9.81',
     readerUrl: 'historia-libro.html?libro=monarca-de-la-ruina-celestial',
     visual: { emblem: 'RC', primary: '#22c55e', secondary: '#064e3b', accent: '#86efac', rgb: '34,197,94' },
     introPages: [
@@ -10150,7 +10150,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2015,
     title: 'La Region Donde Mueren Las Estrellas',
     subtitle: 'La senal del Corazon del Mundo alcanza una zona sin estrellas, donde los Vigilantes del Horizonte revelan que la oscuridad es una fuerza natural del equilibrio cosmico.',
-    phase: '9.80',
+    phase: '9.82',
     readerUrl: 'historia-libro.html?libro=deidad-del-horizonte-negro',
     visual: { emblem: 'HN', primary: '#020617', secondary: '#334155', accent: '#a5b4fc', rgb: '2,6,23' },
     introPages: [
@@ -10215,7 +10215,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2040,
     title: 'El Mensajero Del Fin Cosmico',
     subtitle: 'Kael, Umbra y Lyra enfrentan una region donde el tiempo se rompe y el Emisario anuncia el final de la era actual reescribiendo el futuro.',
-    phase: '9.81',
+    phase: '9.83',
     readerUrl: 'historia-libro.html?libro=emisario-de-la-ultima-era',
     visual: { emblem: 'UE', primary: '#991b1b', secondary: '#1f2937', accent: '#fca5a5', rgb: '153,27,27' },
     introPages: [
@@ -10280,7 +10280,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2065,
     title: 'El Nucleo De Las Estrellas Eternas',
     subtitle: 'Kael, Umbra y Lyra llegan a templos estelares donde el Corazon Astral late con el universo y revela que Umbra aparece en registros demasiado antiguos.',
-    phase: '9.82',
+    phase: '9.84',
     readerUrl: 'historia-libro.html?libro=portador-del-corazon-astral',
     visual: { emblem: 'CA', primary: '#2563eb', secondary: '#0f172a', accent: '#93c5fd', rgb: '37,99,235' },
     introPages: [
@@ -10345,7 +10345,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2090,
     title: 'El Reino Bajo Las Primeras Tinieblas',
     subtitle: 'Kael, Umbra y Lyra entran en un reino anterior a la luz, donde las Sombras Primordiales siguen vivas y un mural revela el pasado de Umbra.',
-    phase: '9.83',
+    phase: '9.85',
     readerUrl: 'historia-libro.html?libro=rey-de-las-sombras-primordiales',
     visual: { emblem: 'SP', primary: '#18181b', secondary: '#030712', accent: '#f97316', rgb: '24,24,27' },
     introPages: [
@@ -10410,7 +10410,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2115,
     title: 'La Fortaleza Del Ultimo Juicio',
     subtitle: 'Una ciudad blanca sostenida por maquinaria cosmica revela que el Trono Eterno ya juzgo a Umbra, al Rey Primordial y a la Deidad del Horizonte Negro.',
-    phase: '9.84',
+    phase: '9.86',
     readerUrl: 'historia-libro.html?libro=custodio-del-trono-eterno',
     visual: { emblem: 'TE', primary: '#f8fafc', secondary: '#64748b', accent: '#facc15', rgb: '248,250,252' },
     introPages: [
@@ -10475,7 +10475,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2140,
     title: 'Las Llamas Del Juicio Universal',
     subtitle: 'Kael conoce a Seraph en un mundo de guerra carmesi donde un soberano de fuego juzga entidades cosmicas fuera de control.',
-    phase: '9.85',
+    phase: '9.87',
     readerUrl: 'historia-libro.html?libro=soberano-del-juicio-carmesi',
     visual: { emblem: 'JC', primary: '#dc2626', secondary: '#450a0a', accent: '#fb923c', rgb: '220,38,38' },
     introPages: [
@@ -10540,7 +10540,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2165,
     title: 'La Ciudad Construida Sobre La Realidad',
     subtitle: 'Una ciudad artificial reconstruye mundos almacenados y revela que el Arquitecto intenta reemplazar el universo con una realidad perfecta.',
-    phase: '9.86',
+    phase: '9.88',
     readerUrl: 'historia-libro.html?libro=arquitecto-del-reino-absoluto',
     visual: { emblem: 'RA', primary: '#e5e7eb', secondary: '#1d4ed8', accent: '#22d3ee', rgb: '229,231,235' },
     introPages: [
@@ -10605,7 +10605,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2190,
     title: 'El Reino Donde Nadie Puede Escapar',
     subtitle: 'Kael cae separado de sus aliados en un vacio de ecos, recuerdos rotos y sombras que imitan a quienes quedaron perdidos para siempre.',
-    phase: '9.87',
+    phase: '9.89',
     readerUrl: 'historia-libro.html?libro=emperador-del-vacio-infinito',
     visual: { emblem: 'VI', primary: '#020617', secondary: '#312e81', accent: '#818cf8', rgb: '2,6,23' },
     introPages: [
@@ -10670,7 +10670,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2215,
     title: 'El Cementerio De Las Divinidades',
     subtitle: 'Kael y Orpheus llegan a un cementerio de dioses petrificados, donde el Vigia revela que las divinidades no murieron: fueron selladas.',
-    phase: '9.88',
+    phase: '9.90',
     readerUrl: 'historia-libro.html?libro=vigia-de-los-dioses-caidos',
     visual: { emblem: 'DC', primary: '#6b7280', secondary: '#111827', accent: '#d1d5db', rgb: '107,114,128' },
     introPages: [
@@ -10735,7 +10735,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2240,
     title: 'La Frontera Donde Termina La Realidad',
     subtitle: 'En el limite del universo, Kael encuentra otra version de si mismo y descubre que Umbra podria haber causado el colapso en muchas realidades.',
-    phase: '9.89',
+    phase: '9.91',
     readerUrl: 'historia-libro.html?libro=portador-del-horizonte-absoluto',
     visual: { emblem: 'HA', primary: '#f8fafc', secondary: '#0f172a', accent: '#38bdf8', rgb: '248,250,252' },
     introPages: [
@@ -10800,7 +10800,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2265,
     title: 'La Ciudad Al Final Del Cosmos',
     subtitle: 'Kael y Orpheus entran en un reino vacio de lluvia plateada donde todos los caminos terminan y el Monarca afirma que Kael tambien estaba destinado al trono.',
-    phase: '9.90',
+    phase: '9.92',
     readerUrl: 'historia-libro.html?libro=monarca-del-ultimo-reino',
     visual: { emblem: 'UR', primary: '#475569', secondary: '#020617', accent: '#cbd5e1', rgb: '71,85,105' },
     introPages: [
@@ -10865,7 +10865,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2290,
     title: 'El Ultimo Camino Compartido',
     subtitle: 'Kael se reencuentra con Lyra, Seraph y Orpheus bajo grietas carmesi, pero la Eternidad Carmesi separa definitivamente sus caminos.',
-    phase: '9.91',
+    phase: '9.93',
     readerUrl: 'historia-libro.html?libro=heraldo-de-la-eternidad-carmesi',
     visual: { emblem: 'EC', primary: '#b91c1c', secondary: '#1f2937', accent: '#f87171', rgb: '185,28,28' },
     introPages: [
@@ -10930,7 +10930,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2315,
     title: 'El Abismo Que Consumio Los Soles',
     subtitle: 'Kael avanza solo por un universo sin luz donde una entidad hambrienta devora estrellas y revela que Umbra pertenecio a algo prohibido.',
-    phase: '9.92',
+    phase: '9.94',
     readerUrl: 'historia-libro.html?libro=devorador-de-estrellas-eternas',
     visual: { emblem: 'EE', primary: '#111827', secondary: '#7f1d1d', accent: '#facc15', rgb: '17,24,39' },
     introPages: [
@@ -10995,7 +10995,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2340,
     title: 'La Fortaleza Del Ultimo Silencio',
     subtitle: 'Una fortaleza detenida en el tiempo conserva tronos abandonados, sellos prohibidos y un asiento vacio que pertenece a Umbra.',
-    phase: '9.93',
+    phase: '9.95',
     readerUrl: 'historia-libro.html?libro=custodio-del-trono-del-fin',
     visual: { emblem: 'TF', primary: '#0f172a', secondary: '#334155', accent: '#94a3b8', rgb: '15,23,42' },
     introPages: [
@@ -11060,7 +11060,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2365,
     title: 'El Reino Del Primer Portador',
     subtitle: 'Kael descubre el antiguo reino de Umbra, una corona negra perdida y la verdad de que su guia fue rey antes de fracasar intentando detener el final.',
-    phase: '9.94',
+    phase: '9.96',
     readerUrl: 'historia-libro.html?libro=rey-de-umbra-eterna',
     visual: { emblem: 'UE', primary: '#1e1b4b', secondary: '#020617', accent: '#a78bfa', rgb: '30,27,75' },
     introPages: [
@@ -11125,7 +11125,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2390,
     title: 'La Region Donde Muere La Luz',
     subtitle: 'Kael entra en un templo construido alrededor de un eclipse viviente y descubre que Umbra fue creado por poderes anteriores a su reinado.',
-    phase: '9.95',
+    phase: '9.97',
     readerUrl: 'historia-libro.html?libro=trascendente-del-eclipse-infinito',
     visual: { emblem: 'EI', primary: '#020617', secondary: '#1e293b', accent: '#fde68a', rgb: '2,6,23' },
     introPages: [
@@ -11190,7 +11190,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2415,
     title: 'El Portal Sobre Los Cielos Muertos',
     subtitle: 'Kael cruza un portal sobre cielos fracturados y encuentra tronos vacios de gobernantes anteriores incluso a Umbra.',
-    phase: '9.96',
+    phase: '9.98',
     readerUrl: 'historia-libro.html?libro=emperador-del-vacio-celestial',
     visual: { emblem: 'VC', primary: '#e0f2fe', secondary: '#1e293b', accent: '#60a5fa', rgb: '224,242,254' },
     introPages: [
@@ -11255,7 +11255,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2440,
     title: 'Vaelkor, El Que Escucha Los Universos Morir',
     subtitle: 'Vaelkor escucha los ultimos momentos de universos destruidos y muestra a Kael ecos donde incluso su propia voz anuncia ruina.',
-    phase: '9.97',
+    phase: '9.99',
     readerUrl: 'historia-libro.html?libro=senor-de-los-ecos-del-fin',
     visual: { emblem: 'EF', primary: '#312e81', secondary: '#020617', accent: '#a78bfa', rgb: '49,46,129' },
     introPages: [
@@ -11320,7 +11320,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2465,
     title: 'Astrael, El Constructor De Realidades Infinitas',
     subtitle: 'Astrael construye mundos artificiales perfectos y revela que Umbra fue creado como parte de un proyecto para reconstruir la realidad.',
-    phase: '9.98',
+    phase: '9.100',
     readerUrl: 'historia-libro.html?libro=arquitecto-de-los-mundos-eternos',
     visual: { emblem: 'ME', primary: '#f8fafc', secondary: '#2563eb', accent: '#22c55e', rgb: '248,250,252' },
     introPages: [
@@ -11385,7 +11385,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2490,
     title: 'Nyxar, La Voz Dentro Del Abismo',
     subtitle: 'Nyxar transforma el abismo en una prueba mental donde Kael enfrenta versiones de si mismo y la sospecha de que Umbra siempre supo lo que ocurriria.',
-    phase: '9.99',
+    phase: '9.101',
     readerUrl: 'historia-libro.html?libro=deidad-del-abismo-carmesi',
     visual: { emblem: 'AC', primary: '#991b1b', secondary: '#020617', accent: '#f43f5e', rgb: '153,27,27' },
     introPages: [
@@ -11450,7 +11450,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2515,
     title: 'Kaorath, El Ultimo Rey Del Universo',
     subtitle: 'Kaorath revela que otros viajeros recorrieron los mismos caminos de Kael, portaron coronas finales y fracasaron antes que el.',
-    phase: '9.100',
+    phase: '9.102',
     readerUrl: 'historia-libro.html?libro=portador-de-la-corona-final',
     visual: { emblem: 'CF', primary: '#111827', secondary: '#4c1d95', accent: '#e5e7eb', rgb: '17,24,39' },
     introPages: [
@@ -11515,7 +11515,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2540,
     title: 'Aethon, El Que Observa Todas Las Realidades',
     subtitle: 'Aethon muestra a Kael una biblioteca de realidades donde casi todos los futuros lo convierten en otro Umbra.',
-    phase: '9.101',
+    phase: '9.103',
     readerUrl: 'historia-libro.html?libro=vigia-del-infinito-absoluto',
     visual: { emblem: 'IA', primary: '#f8fafc', secondary: '#312e81', accent: '#38bdf8', rgb: '248,250,252' },
     introPages: [
@@ -11580,7 +11580,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2565,
     title: 'Zareth, El Rey Del Universo Colapsado',
     subtitle: 'Zareth gobierna un futuro destruido y revela ser una version futura de Kael que llego mas lejos que todos.',
-    phase: '9.102',
+    phase: '9.104',
     readerUrl: 'historia-libro.html?libro=monarca-de-la-ultima-ruina',
     visual: { emblem: 'UR', primary: '#374151', secondary: '#111827', accent: '#9ca3af', rgb: '55,65,81' },
     introPages: [
@@ -11645,7 +11645,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2590,
     title: 'Malthor, El Que Borra La Esperanza',
     subtitle: 'Malthor usa el Eclipse Primordial para quebrar la voluntad de Kael con versiones que cedieron y recuerdos falsos de abandono.',
-    phase: '9.103',
+    phase: '9.105',
     readerUrl: 'historia-libro.html?libro=heraldo-del-eclipse-primordial',
     visual: { emblem: 'EP', primary: '#7f1d1d', secondary: '#020617', accent: '#ef4444', rgb: '127,29,29' },
     introPages: [
@@ -11710,7 +11710,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2615,
     title: 'Veylthar, El Rey Del Cosmos Sin Vida',
     subtitle: 'Veylthar muestra a Kael la verdad de los Portadores: muchos existieron antes, y Umbra lo eligio para reemplazarlo.',
-    phase: '9.104',
+    phase: '9.106',
     readerUrl: 'historia-libro.html?libro=emperador-de-las-estrellas-muertas',
     visual: { emblem: 'EM', primary: '#4b5563', secondary: '#030712', accent: '#d1d5db', rgb: '75,85,99' },
     introPages: [
@@ -11775,7 +11775,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2640,
     title: 'Azael, El Que Se Sento Sobre La Verdad',
     subtitle: 'Azael enfrenta a Kael con verdades contradictorias: salvar el universo podria prolongar su dolor, y Umbra quizas fue necesario.',
-    phase: '9.105',
+    phase: '9.107',
     readerUrl: 'historia-libro.html?libro=rey-del-trono-absoluto',
     visual: { emblem: 'TA', primary: '#f8fafc', secondary: '#111827', accent: '#a855f7', rgb: '248,250,252' },
     introPages: [
@@ -11840,7 +11840,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2665,
     title: 'Eryndor, El Que Mantiene El Universo Despierto',
     subtitle: 'Eryndor revela que el universo esta consciente, cansado y temeroso de existir eternamente.',
-    phase: '9.106',
+    phase: '9.108',
     readerUrl: 'historia-libro.html?libro=guardian-del-vacio-viviente',
     visual: { emblem: 'VV', primary: '#064e3b', secondary: '#020617', accent: '#34d399', rgb: '6,78,59' },
     introPages: [
@@ -11905,7 +11905,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2690,
     title: 'Xyrel, El Que Niega El Descanso Del Universo',
     subtitle: 'Xyrel revela que la inmortalidad absoluta puede ser una condena y que salvar el universo tambien puede prolongar su sufrimiento.',
-    phase: '9.107',
+    phase: '9.109',
     readerUrl: 'historia-libro.html?libro=deidad-de-la-eternidad-negra',
     visual: { emblem: 'EN', primary: '#111827', secondary: '#020617', accent: '#64748b', rgb: '17,24,39' },
     introPages: [
@@ -11970,7 +11970,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2715,
     title: 'Valtherion, El Que Enterro Los Universos',
     subtitle: 'Valtherion revela universos abandonados por eleccion propia y enfrenta a Kael con el derecho a desaparecer.',
-    phase: '9.108',
+    phase: '9.110',
     readerUrl: 'historia-libro.html?libro=soberano-de-los-reinos-perdidos',
     visual: { emblem: 'RP', primary: '#6b7280', secondary: '#1f2937', accent: '#9ca3af', rgb: '107,114,128' },
     introPages: [
@@ -12035,7 +12035,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2740,
     title: 'Ithrael, El Hombre Que Recordaba Todas Las Mentiras',
     subtitle: 'Ithrael encierra a Kael en un bosque de recuerdos fabricados y sugiere que muchos Portadores nunca fueron elegidos.',
-    phase: '9.109',
+    phase: '9.111',
     readerUrl: 'historia-libro.html?libro=custodio-del-fin-del-tiempo',
     visual: { emblem: 'FT', primary: '#475569', secondary: '#064e3b', accent: '#94a3b8', rgb: '71,85,105' },
     introPages: [
@@ -12100,7 +12100,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2765,
     title: 'Noxviel, El Rey Que Renuncio A La Verdad',
     subtitle: 'Noxviel muestra a Kael documentos que lo describen como entidad artificial y defiende la mentira como refugio ante una verdad destructiva.',
-    phase: '9.110',
+    phase: '9.112',
     readerUrl: 'historia-libro.html?libro=portador-de-la-corona-del-vacio',
     visual: { emblem: 'CV', primary: '#f8fafc', secondary: '#111827', accent: '#f59e0b', rgb: '248,250,252' },
     introPages: [
@@ -12165,7 +12165,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2790,
     title: 'Mirelth, El Que Reescribia Las Vidas',
     subtitle: 'Mirelth encierra a Kael en una ciudad humana falsa y le muestra la vida que Umbra habria destruido para convertirlo en Portador.',
-    phase: '9.111',
+    phase: '9.113',
     readerUrl: 'historia-libro.html?libro=arquitecto-del-eclipse-eterno',
     visual: { emblem: 'EE', primary: '#1f2937', secondary: '#020617', accent: '#f87171', rgb: '31,41,55' },
     introPages: [
@@ -12230,7 +12230,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2815,
     title: 'Vaeros, El Ultimo Seguidor De Umbra',
     subtitle: 'Vaeros muestra un mundo que adoro y odio a Umbra, y revela que Umbra destruyo civilizaciones para salvar otras.',
-    phase: '9.112',
+    phase: '9.114',
     readerUrl: 'historia-libro.html?libro=emisario-de-umbra-infinita',
     visual: { emblem: 'UI', primary: '#111827', secondary: '#1e3a8a', accent: '#60a5fa', rgb: '17,24,39' },
     introPages: [
@@ -12295,7 +12295,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2840,
     title: 'Eldrak, El Hombre Que Conocio El Primer Kael',
     subtitle: 'Eldrak guia a Kael hacia un faro costero donde aparecen diarios, fotografias y la primera mentira que Umbra le impuso.',
-    phase: '9.113',
+    phase: '9.115',
     readerUrl: 'historia-libro.html?libro=monarca-del-horizonte-supremo',
     visual: { emblem: 'HS', primary: '#94a3b8', secondary: '#0f172a', accent: '#38bdf8', rgb: '148,163,184' },
     introPages: [
@@ -12360,7 +12360,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2865,
     title: 'Solvareth, El Guardian Del Recuerdo Original',
     subtitle: 'Solvareth revela que Kael no fue salvado aquella noche: fue reconstruido con fragmentos prohibidos del Horizonte Negro.',
-    phase: '9.114',
+    phase: '9.116',
     readerUrl: 'historia-libro.html?libro=rey-de-la-ultima-dimension',
     visual: { emblem: 'UD', primary: '#e5e7eb', secondary: '#475569', accent: '#93c5fd', rgb: '229,231,235' },
     introPages: [
@@ -12425,7 +12425,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2890,
     title: 'Morveth, El Que Consumio Su Propia Alma',
     subtitle: 'Morveth muestra un reino que intento eliminar dolor, miedo y culpa, y termino devorando todo lo humano de si mismo.',
-    phase: '9.115',
+    phase: '9.117',
     readerUrl: 'historia-libro.html?libro=devorador-del-reino-astral',
     visual: { emblem: 'RA', primary: '#7c3aed', secondary: '#1e1b4b', accent: '#c4b5fd', rgb: '124,58,237' },
     introPages: [
@@ -12490,7 +12490,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2915,
     title: 'Serak, El Hombre Que Mato Su Propio Corazon',
     subtitle: 'Serak ofrece a Kael una ciudad industrial donde las emociones fueron extraidas para evitar sufrimiento, pero dejaron algo peor.',
-    phase: '9.116',
+    phase: '9.118',
     readerUrl: 'historia-libro.html?libro=heraldo-de-las-sombras-eternas',
     visual: { emblem: 'SE', primary: '#1f2937', secondary: '#7f1d1d', accent: '#ef4444', rgb: '31,41,55' },
     introPages: [
@@ -12555,7 +12555,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2940,
     title: 'Astreon, El Que Juzgaba Las Almas Falsas',
     subtitle: 'Astreon enfrenta a Kael con la posibilidad de que Lyra, Seraph y Orpheus fueran construcciones para mantener estable su mente.',
-    phase: '9.117',
+    phase: '9.119',
     readerUrl: 'historia-libro.html?libro=emperador-del-juicio-final',
     visual: { emblem: 'JF', primary: '#f8fafc', secondary: '#374151', accent: '#60a5fa', rgb: '248,250,252' },
     introPages: [
@@ -12620,7 +12620,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 2965,
     title: 'Gharos, El Ultimo Testigo Del Origen',
     subtitle: 'Gharos revela que Umbra creo muchos Kael antes, cada uno un intento de fabricar un sucesor capaz de soportar la verdad.',
-    phase: '9.118',
+    phase: '9.120',
     readerUrl: 'historia-libro.html?libro=titan-del-vacio-primordial',
     visual: { emblem: 'VP', primary: '#1f2937', secondary: '#7f1d1d', accent: '#f97316', rgb: '31,41,55' },
     introPages: [
@@ -12685,7 +12685,7 @@ export const LIBROS_HISTORIA = {
     levelTo: 3000,
     title: 'El Ultimo Ascendido',
     subtitle: 'Kael atraviesa todos sus nombres, la verdad de Umbra y el sistema que obligaba al universo a continuar existiendo.',
-    phase: '9.120',
+    phase: '9.121',
     readerUrl: 'historia-libro.html?libro=el-ultimo-ascendido',
     visual: { emblem: 'UA', primary: '#f8fafc', secondary: '#111827', accent: '#facc15', rgb: '248,250,252' },
     introPages: [

@@ -128,7 +128,7 @@ function renderFeatured(rank, visual, book = null) {
       <span class="book-title">${escapeHtml(rank.titulo)}</span>
     </div>
     <div class="featured-info">
-      <span>Libro seleccionado</span>
+      <span>Relato seleccionado</span>
       <strong>${escapeHtml(book?.title || rank.titulo)}</strong>
     </div>
   `
@@ -140,20 +140,20 @@ function renderDetail(rank, status, visual, book = null) {
   const registered = Boolean(book)
   const phaseText = status === 'locked'
     ? registered
-      ? 'Este tomo aun esta sellado por rango, pero esta disponible para revisar su produccion.'
-      : 'Este tomo queda sellado hasta alcanzar su rango.'
+      ? 'Este relato aun esta sellado por rango, pero esta disponible para revisar su produccion.'
+      : 'Este relato queda sellado hasta alcanzar su rango.'
     : registered
-      ? 'Este tomo ya esta registrado en el motor de Modo Historia.'
-      : 'Este tomo ya existe como libro visual, pero su historia aun no esta producida.'
+      ? 'Este relato ya esta registrado en el motor de Modo Historia.'
+      : 'Este relato ya existe como resumen visual, pero su historia aun no esta producida.'
   const bookUrl = book?.readerUrl || `historia-libro.html?libro=${encodeURIComponent(crearIdLibroDesdeTitulo(rank.titulo))}`
   const action = registered
     ? `<button class="detail-open" type="button" data-open-book="${escapeHtml(bookUrl)}">${status === 'locked' ? 'Revisar' : 'Abrir'} ${escapeHtml(book.rankTitle || rank.titulo)}</button>`
-    : `<button type="button" disabled>${status === 'locked' ? 'Tomo sellado' : 'Libro pendiente'}</button>`
+    : `<button type="button" disabled>${status === 'locked' ? 'Relato sellado' : 'Relato pendiente'}</button>`
 
   detailEl.style.setProperty('--book-rgb', visual.rgb)
   detailEl.innerHTML = `
-    <span class="detail-kicker">${status === 'current' ? 'Tomo activo' : status === 'unlocked' ? 'Tomo desbloqueado' : 'Tomo sellado'}</span>
-    <h2>${escapeHtml(book?.title ? `Libro ${rank.titulo}: ${book.title}` : `Libro ${rank.titulo}`)}</h2>
+    <span class="detail-kicker">${status === 'current' ? 'Relato activo' : status === 'unlocked' ? 'Relato desbloqueado' : 'Relato sellado'}</span>
+    <h2>${escapeHtml(book?.title ? `Relato ${rank.titulo}: ${book.title}` : `Relato ${rank.titulo}`)}</h2>
     <p>${escapeHtml(phaseText)} ${escapeHtml(book?.subtitle || 'Cuando se produzca, tendra historia, capitulos, pruebas y progreso propio.')}</p>
     <div class="detail-progress">
       <span>${escapeHtml(range)}</span>
@@ -188,8 +188,8 @@ async function initLibrary() {
   if (hintEl) {
     const registeredCount = Object.keys(LIBROS_HISTORIA).length
     hintEl.textContent = usuario
-      ? `Nivel actual: ${level}. Libros registrados: ${registeredCount} de ${ranks.length}.`
-      : `Sin usuario activo: se muestra la biblioteca desde Novato. Libros registrados: ${registeredCount} de ${ranks.length}.`
+      ? `Nivel actual: ${level}. Relatos registrados: ${registeredCount} de ${ranks.length}.`
+      : `Sin usuario activo: se muestra la biblioteca desde Novato. Relatos registrados: ${registeredCount} de ${ranks.length}.`
   }
 
   shelfEl.innerHTML = ranks.map((rank) => {
