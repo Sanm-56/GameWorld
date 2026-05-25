@@ -7,17 +7,8 @@ const hintEl = document.getElementById('archiveHint')
 const totalEl = document.getElementById('archiveTotal')
 const loadedEl = document.getElementById('archiveLoaded')
 const activeEl = document.getElementById('archiveActive')
-const chapterListEl = document.getElementById('archiveChapterList')
-const readerTitleEl = document.getElementById('archiveReaderTitle')
-const readerMetaEl = document.getElementById('archiveReaderMeta')
-const readerBodyEl = document.getElementById('archiveReaderBody')
-const prevChapterEl = document.getElementById('prevArchiveChapter')
-const nextChapterEl = document.getElementById('nextArchiveChapter')
-const chapterIndicatorEl = document.getElementById('archiveChapterIndicator')
-
 const stories = Object.values(LIBROS_HISTORIA)
 let selectedId = stories[0]?.id || ''
-let selectedChapterIndex = 0
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -47,6 +38,10 @@ function archiveSubtitle(story) {
 
 function archiveVisual(story) {
   return story.visual || storyContent(story.id)?.visual || {}
+}
+
+function archiveReaderUrl(storyId) {
+  return `archivo-historia.html?libro=${encodeURIComponent(storyId)}`
 }
 
 function visualVars(story) {
@@ -98,64 +93,9 @@ function renderDetail(story) {
       <span>${escapeHtml(range)}</span>
       <strong>${escapeHtml(story.rankTitle || story.id)}</strong>
     </div>
-    <button class="detail-open" type="button" data-scroll-reader>${loaded ? 'Leer historia' : 'Ver lector'}</button>
+    <button class="detail-open" type="button" ${loaded ? `data-open-archive-reader="${escapeHtml(story.id)}"` : 'disabled'}>${loaded ? 'Leer historia' : 'Pendiente'}</button>
     <button class="detail-secondary" type="button" data-open-relato="${escapeHtml(story.readerUrl || 'historia.html')}">Abrir relato</button>
   `
-}
-
-function renderChapters(story) {
-  if (!chapterListEl || !story) return
-
-  const content = storyContent(story.id)
-  const chapters = content?.capitulos || []
-
-  if (!chapters.length) {
-    chapterListEl.innerHTML = '<button class="chapter-tab locked" type="button" disabled><span>--</span><span><strong>Pendiente</strong><small>Sin texto completo</small></span></button>'
-    return
-  }
-
-  chapterListEl.innerHTML = chapters.map((chapter, index) => `
-    <button class="chapter-tab ${index === selectedChapterIndex ? 'active' : ''}" type="button" data-chapter-index="${index}">
-      <span>${String(index + 1).padStart(2, '0')}</span>
-      <span>
-        <strong>${escapeHtml(chapter.titulo || `Capitulo ${index + 1}`)}</strong>
-        <small>Lectura completa</small>
-      </span>
-    </button>
-  `).join('')
-}
-
-function renderReader(story) {
-  if (!readerTitleEl || !readerMetaEl || !readerBodyEl || !story) return
-
-  const content = storyContent(story.id)
-  const chapters = content?.capitulos || []
-  const chapter = chapters[selectedChapterIndex]
-
-  if (!chapter) {
-    readerTitleEl.textContent = archiveTitle(story)
-    readerMetaEl.textContent = `${story.rankTitle || 'Relato'} | Historia completa pendiente`
-    readerBodyEl.innerHTML = `
-      <p>La base del Archivo ya esta conectada con este relato.</p>
-      <p>Cuando compartas la version completa, el texto aparecera aqui como lectura continua, sin pruebas, juegos ni progreso bloqueado.</p>
-    `
-    if (chapterIndicatorEl) chapterIndicatorEl.textContent = '0 / 0'
-    if (prevChapterEl) prevChapterEl.disabled = true
-    if (nextChapterEl) nextChapterEl.disabled = true
-    return
-  }
-
-  const paragraphs = Array.isArray(chapter.texto) ? chapter.texto : [chapter.texto]
-  readerTitleEl.textContent = chapter.titulo || story.title
-  readerMetaEl.textContent = `${story.rankTitle || 'Relato'} | ${archiveTitle(story)}`
-  readerBodyEl.innerHTML = paragraphs
-    .filter((paragraph) => String(paragraph || '').trim())
-    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
-    .join('')
-
-  if (chapterIndicatorEl) chapterIndicatorEl.textContent = `${selectedChapterIndex + 1} / ${chapters.length}`
-  if (prevChapterEl) prevChapterEl.disabled = selectedChapterIndex <= 0
-  if (nextChapterEl) nextChapterEl.disabled = selectedChapterIndex >= chapters.length - 1
 }
 
 function renderStatus() {
@@ -175,47 +115,27 @@ function renderArchive() {
   renderStatus()
   renderShelf()
   renderDetail(story)
-  renderChapters(story)
-  renderReader(story)
 }
 
 shelfEl?.addEventListener('click', (event) => {
   const button = event.target.closest('[data-story-id]')
   if (!button) return
   selectedId = button.dataset.storyId
-  selectedChapterIndex = 0
-  renderArchive()
-})
-
-chapterListEl?.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-chapter-index]')
-  if (!button) return
-  selectedChapterIndex = Number(button.dataset.chapterIndex) || 0
   renderArchive()
 })
 
 detailEl?.addEventListener('click', (event) => {
+  const archiveReaderButton = event.target.closest('[data-open-archive-reader]')
+  if (archiveReaderButton) {
+    window.location.href = archiveReaderUrl(archiveReaderButton.dataset.openArchiveReader)
+    return
+  }
+
   const relatoButton = event.target.closest('[data-open-relato]')
   if (relatoButton) {
     window.location.href = relatoButton.dataset.openRelato
     return
   }
-
-  if (event.target.closest('[data-scroll-reader]')) {
-    document.getElementById('archiveReader')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-})
-
-prevChapterEl?.addEventListener('click', () => {
-  selectedChapterIndex = Math.max(0, selectedChapterIndex - 1)
-  renderArchive()
-})
-
-nextChapterEl?.addEventListener('click', () => {
-  const chapters = storyContent(selectedId)?.capitulos || []
-  if (!chapters.length) return
-  selectedChapterIndex = Math.min(chapters.length - 1, selectedChapterIndex + 1)
-  renderArchive()
 })
 
 renderArchive()

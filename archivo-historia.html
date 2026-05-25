@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archivo de Historia</title>
+<link rel="stylesheet" href="juegos/css/historia.css">
+</head>
+<body class="reader-body">
+  <main class="reader-shell">
+    <nav class="story-nav reader-nav" aria-label="Navegacion">
+      <a href="archivo-historias.html">Archivo</a>
+      <a href="historia.html">Relatos</a>
+      <a href="index.html">Inicio</a>
+    </nav>
+
+    <section class="reader-hero" aria-labelledby="archiveReaderTitle">
+      <div>
+        <span class="story-eyebrow" id="archiveReaderBookLabel">Archivo de Historias</span>
+        <h1 id="archiveReaderTitle">Cargando...</h1>
+        <p id="archiveReaderSummary">Preparando la historia completa.</p>
+      </div>
+      <div class="reader-phase">
+        <span>Lectura</span>
+        <strong id="archiveReaderPhase">AH</strong>
+      </div>
+    </section>
+
+    <section class="reader-layout" aria-label="Historia completa abierta">
+      <aside class="chapter-index" aria-label="Capitulos de la historia">
+        <span class="detail-kicker">Indice</span>
+        <h2>Capitulos</h2>
+        <div class="chapter-list" id="archiveChapterList"></div>
+      </aside>
+
+      <section class="open-book-stage" aria-live="polite">
+        <div class="open-book">
+          <span class="book-binding" aria-hidden="true"></span>
+          <article class="book-page page-left" id="archivePageLeft"></article>
+          <article class="book-page page-right" id="archivePageRight"></article>
+        </div>
+
+        <div class="reader-controls">
+          <button type="button" id="prevArchivePage">Anterior</button>
+          <span id="archivePageIndicator">1 / 1</span>
+          <button type="button" id="nextArchivePage">Siguiente</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="juegos/js/archivo-historia.js"></script>
+</body>
+</html>
