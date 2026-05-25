@@ -160,6 +160,7 @@ function renderDetail(rank, status, visual, book = null) {
       <strong>${escapeHtml(registered ? 'Registrado' : statusText(status, registered))}</strong>
     </div>
     ${action}
+    <button class="detail-secondary" type="button" data-open-archive>Leer historias completas</button>
   `
 }
 
@@ -217,6 +218,12 @@ async function initLibrary() {
 }
 
 detailEl?.addEventListener('click', (event) => {
+  const archiveButton = event.target.closest('[data-open-archive]')
+  if (archiveButton) {
+    window.location.href = 'archivo-historias.html'
+    return
+  }
+
   const button = event.target.closest('[data-open-book]')
   if (!button) return
   window.location.href = button.dataset.openBook

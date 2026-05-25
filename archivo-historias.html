@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archivo de Historias</title>
+<link rel="stylesheet" href="juegos/css/historia.css">
+</head>
+<body>
+  <main class="story-shell">
+    <header class="story-header">
+      <nav class="story-nav" aria-label="Navegacion">
+        <a href="historia.html">Relatos</a>
+        <a href="index.html">Inicio</a>
+      </nav>
+
+      <section class="story-hero" aria-labelledby="archiveTitle">
+        <div class="story-hero-copy">
+          <span class="story-eyebrow">Archivo narrativo</span>
+          <h1 id="archiveTitle">Archivo de Historias</h1>
+          <p>Historias completas conectadas a los relatos por rango. Esta seccion conserva el estilo visual de la Biblioteca, pero se dedica solo a lectura continua, sin pruebas ni juegos.</p>
+        </div>
+
+        <div class="featured-book" aria-hidden="true">
+          <span class="featured-halo"></span>
+          <div class="book-cover">
+            <span class="book-spine"></span>
+            <span class="book-emblem">AH</span>
+            <span class="book-title">Archivo</span>
+          </div>
+          <div class="featured-info">
+            <span>Historias completas</span>
+            <strong>Lectura pura</strong>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <section class="library-status" aria-label="Estado del archivo de historias">
+      <article>
+        <span>Relatos base</span>
+        <strong id="archiveTotal">0</strong>
+      </article>
+      <article>
+        <span>Cargadas</span>
+        <strong id="archiveLoaded">0</strong>
+      </article>
+      <article>
+        <span>Activa</span>
+        <strong id="archiveActive">Archivo</strong>
+      </article>
+    </section>
+
+    <section class="library-layout" aria-label="Archivo de historias completas">
+      <aside class="book-detail" id="archiveDetail">
+        <span class="detail-kicker">Lectura completa</span>
+        <h2>Historias sin resumen</h2>
+        <p>Este espacio recibira las versiones completas que escribas para cada relato. Los colores, portadas y emblemas podran reutilizarse desde la Biblioteca de Relatos.</p>
+        <div class="detail-progress">
+          <span>Base visual</span>
+          <strong>Preparada</strong>
+        </div>
+        <button class="detail-open" type="button" onclick="window.location.href='historia.html'">Volver a Relatos</button>
+      </aside>
+
+      <div class="shelf-wrap">
+        <div class="shelf-head">
+          <div>
+            <span>Historias completas</span>
+            <h2>Archivo pendiente de contenido</h2>
+          </div>
+          <p id="archiveHint">Cuando compartas una historia, se integrara aqui como lectura completa asociada a su relato.</p>
+        </div>
+
+        <div class="book-shelf" id="archiveShelf" aria-label="Historias completas"></div>
+      </div>
+    </section>
+
+    <section class="reader-layout archive-reader" id="archiveReader" aria-label="Lector de historia completa">
+      <aside class="chapter-index" aria-label="Capitulos de la historia completa">
+        <span class="detail-kicker">Indice</span>
+        <h2>Capitulos</h2>
+        <div class="chapter-list" id="archiveChapterList"></div>
+      </aside>
+
+      <section class="open-book-stage" aria-live="polite">
+        <div class="open-book">
+          <span class="book-binding" aria-hidden="true"></span>
+          <article class="book-page page-left archive-page">
+            <div>
+              <span class="page-kicker" id="archiveReaderMeta">Archivo de Historias</span>
+              <h2 id="archiveReaderTitle">Selecciona una historia</h2>
+              <div class="archive-story-text" id="archiveReaderBody"></div>
+            </div>
+            <div class="page-mark">
+              <span>Historia completa</span>
+              <span>AH</span>
+            </div>
+          </article>
+          <article class="book-page page-right" aria-hidden="true"></article>
+        </div>
+
+        <div class="reader-controls">
+          <button type="button" id="prevArchiveChapter">Anterior</button>
+          <span id="archiveChapterIndicator">0 / 0</span>
+          <button type="button" id="nextArchiveChapter">Siguiente</button>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="juegos/js/archivo-historias.js"></script>
+</body>
+</html>
