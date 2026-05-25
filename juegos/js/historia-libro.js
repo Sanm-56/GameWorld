@@ -25,6 +25,9 @@ const mobileQuery = window.matchMedia('(max-width: 920px)')
 const params = new URLSearchParams(window.location.search)
 const bookId = normalizarIdHistoria(params.get('libro') || params.get('rango') || document.body.dataset.bookId || '')
 const book = obtenerLibroHistoria(bookId)
+if (book?.id) {
+  document.body.dataset.bookId = book.id
+}
 
 let currentPage = 0
 let progress = book ? leerProgresoLibro(book.id) : null
@@ -85,9 +88,16 @@ function pageTemplate(page, index) {
       </div>
     `
     : ''
+  const pageKind = page.trial
+    ? 'trial'
+    : page.afterTrial
+      ? 'consequence'
+      : page.lockedUntilBookComplete || page.type === 'seal'
+        ? 'seal'
+        : page.type || 'story'
 
   return `
-    <div>
+    <div class="page-content page-content-${escaparHtml(pageKind)}">
       <span class="page-kicker">${escaparHtml(page.kicker)}</span>
       <h2>${escaparHtml(page.title)}</h2>
       ${body}

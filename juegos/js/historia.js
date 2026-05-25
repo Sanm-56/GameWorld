@@ -120,12 +120,14 @@ function statusText(status, registered = false) {
 
 function renderFeatured(rank, visual, book = null) {
   if (!featuredEl) return
+  const bookId = book?.id || crearIdLibroDesdeTitulo(rank.titulo)
   featuredEl.innerHTML = `
     <span class="featured-halo"></span>
-    <div class="book-cover">
+    <div class="book-cover" data-book-id="${escapeHtml(bookId)}">
       <span class="book-spine"></span>
       <span class="book-emblem">${escapeHtml(visual.emblem)}</span>
       <span class="book-title">${escapeHtml(rank.titulo)}</span>
+      <span class="book-sigil" aria-hidden="true"></span>
     </div>
     <div class="featured-info">
       <span>Relato seleccionado</span>

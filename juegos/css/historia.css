@@ -225,6 +225,54 @@ button{
   text-shadow:0 8px 18px rgba(0,0,0,0.36);
 }
 
+.book-sigil{
+  position:absolute;
+  left:50%;
+  top:48%;
+  z-index:1;
+  width:72px;
+  height:72px;
+  transform:translate(-50%, -50%);
+  border:1px solid rgba(253,230,138,0.20);
+  border-radius:50%;
+  opacity:0.42;
+  pointer-events:none;
+}
+
+.book-cover[data-book-id="novato"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.52) 0 17px, rgba(255,255,255,0.16) 18px 20px, transparent 21px),
+    radial-gradient(circle at 50% 38%, rgba(187,247,208,0.34), transparent 23%),
+    radial-gradient(circle at 76% 18%, rgba(56,189,248,0.42), transparent 27%),
+    linear-gradient(145deg, #071421 0%, #0369a1 43%, #14532d 100%);
+  box-shadow:
+    0 34px 58px rgba(0,0,0,0.52),
+    0 0 42px rgba(56,189,248,0.20),
+    inset 0 0 0 1px rgba(255,255,255,0.18),
+    inset -16px 0 26px rgba(0,0,0,0.30);
+}
+
+.book-cover[data-book-id="novato"]::before{
+  border-color:rgba(187,247,208,0.42);
+  background:
+    linear-gradient(90deg, rgba(187,247,208,0.18) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(56,189,248,0.16) 1px, transparent 1px);
+  background-size:18px 18px;
+}
+
+.book-cover[data-book-id="novato"] .book-emblem{
+  border-color:rgba(187,247,208,0.62);
+  background:rgba(2,44,34,0.56);
+  box-shadow:0 0 22px rgba(34,197,94,0.25), inset 0 0 18px rgba(56,189,248,0.18);
+}
+
+.book-cover[data-book-id="novato"] .book-sigil{
+  box-shadow:
+    0 0 0 8px rgba(56,189,248,0.06),
+    0 0 0 18px rgba(34,197,94,0.04),
+    inset 0 0 24px rgba(187,247,208,0.16);
+}
+
 .featured-info{
   position:absolute;
   left:50%;
@@ -478,6 +526,25 @@ button{
   color:#fde68a;
 }
 
+.rank-book[data-book-id="novato"] .rank-book-cover{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.50) 0 10px, rgba(255,255,255,0.15) 11px 12px, transparent 13px),
+    radial-gradient(circle at 50% 38%, rgba(187,247,208,0.30), transparent 28%),
+    linear-gradient(145deg, #082f49, #0284c7 48%, #166534);
+}
+
+.rank-book[data-book-id="novato"] .rank-book-cover::before{
+  border-color:rgba(187,247,208,0.56);
+  background:rgba(2,44,34,0.52);
+}
+
+.rank-book[data-book-id="novato"].selected .rank-book-cover{
+  box-shadow:
+    0 24px 38px rgba(56,189,248,0.28),
+    0 0 0 1px rgba(187,247,208,0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.16);
+}
+
 @keyframes bookFloat{
   0%, 100%{ transform:translateY(0) rotateY(-18deg) rotateZ(-3deg); }
   50%{ transform:translateY(-11px) rotateY(-12deg) rotateZ(-1deg); }
@@ -597,6 +664,15 @@ button{
     linear-gradient(145deg, #06172d 0%, #020617 58%, #000 100%);
 }
 
+.reader-body[data-book-id="novato"]{
+  background:
+    radial-gradient(circle at 15% 12%, rgba(56,189,248,0.24), transparent 27%),
+    radial-gradient(circle at 82% 18%, rgba(34,197,94,0.16), transparent 24%),
+    linear-gradient(115deg, rgba(187,247,208,0.04) 1px, transparent 1px),
+    linear-gradient(145deg, #031525 0%, #020617 58%, #00140f 100%);
+  background-size:auto, auto, 34px 34px, auto;
+}
+
 .reader-shell{
   width:min(1220px, calc(100% - 32px));
   margin:0 auto;
@@ -626,6 +702,20 @@ button{
   background:
     radial-gradient(circle at 82% 28%, rgba(250,204,21,0.16), transparent 30%),
     linear-gradient(135deg, rgba(8,16,30,0.90), rgba(15,23,42,0.68));
+}
+
+.reader-body[data-book-id="novato"] .reader-hero{
+  border-color:rgba(56,189,248,0.28);
+  background:
+    radial-gradient(circle at 82% 28%, rgba(34,197,94,0.20), transparent 28%),
+    radial-gradient(circle at 18% 20%, rgba(56,189,248,0.20), transparent 30%),
+    linear-gradient(135deg, rgba(3,21,37,0.94), rgba(5,46,22,0.58));
+}
+
+.reader-body[data-book-id="novato"] .reader-phase{
+  border-color:rgba(187,247,208,0.36);
+  background:rgba(2,44,34,0.42);
+  box-shadow:inset 0 0 28px rgba(56,189,248,0.10);
 }
 
 .reader-hero h1{
@@ -687,6 +777,13 @@ button{
   background:
     radial-gradient(circle at 78% 12%, rgba(56,189,248,0.16), transparent 32%),
     linear-gradient(145deg, rgba(15,23,42,0.86), rgba(2,6,23,0.70));
+}
+
+.reader-body[data-book-id="novato"] .chapter-index{
+  border-color:rgba(56,189,248,0.26);
+  background:
+    radial-gradient(circle at 78% 12%, rgba(34,197,94,0.16), transparent 32%),
+    linear-gradient(145deg, rgba(8,47,73,0.78), rgba(2,6,23,0.74));
 }
 
 .chapter-index h2{
@@ -788,6 +885,13 @@ button{
   perspective:1400px;
 }
 
+.reader-body[data-book-id="novato"] .open-book{
+  border-color:rgba(187,247,208,0.26);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(34,197,94,0.12), transparent 34%),
+    linear-gradient(135deg, rgba(8,47,73,0.94), rgba(2,6,23,0.88));
+}
+
 .open-book::before{
   content:"";
   position:absolute;
@@ -828,6 +932,38 @@ button{
   box-shadow:inset 0 0 34px rgba(15,23,42,0.12);
   transform-origin:center;
   animation:pageReveal 0.34s ease both;
+}
+
+.reader-body[data-book-id="novato"] .book-page{
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.70), transparent 18% 82%, rgba(15,23,42,0.08)),
+    repeating-linear-gradient(0deg, rgba(14,165,233,0.055) 0 1px, transparent 1px 28px),
+    linear-gradient(145deg, #f8fafc, #dff7ef);
+}
+
+.reader-body[data-book-id="novato"] .page-content-trial .page-kicker,
+.reader-body[data-book-id="novato"] .page-content-trial h2{
+  color:#065f46;
+}
+
+.reader-body[data-book-id="novato"] .page-content-consequence .page-kicker,
+.reader-body[data-book-id="novato"] .page-content-seal .page-kicker{
+  color:#854d0e;
+}
+
+.reader-body[data-book-id="novato"] .page-content-trial{
+  padding:14px;
+  border:1px solid rgba(16,185,129,0.22);
+  border-radius:8px;
+  background:linear-gradient(145deg, rgba(16,185,129,0.10), rgba(14,165,233,0.06));
+}
+
+.reader-body[data-book-id="novato"] .page-content-consequence,
+.reader-body[data-book-id="novato"] .page-content-seal{
+  padding:14px;
+  border:1px solid rgba(245,158,11,0.24);
+  border-radius:8px;
+  background:linear-gradient(145deg, rgba(253,230,138,0.18), rgba(255,255,255,0.20));
 }
 
 .page-left{
