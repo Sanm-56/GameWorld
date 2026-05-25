@@ -674,6 +674,167 @@ button{
   animation:amateurSigilPulse 4.2s ease-in-out infinite;
 }
 
+.rank-book[data-book-id="aspirante"] .rank-book-cover{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.54) 0 12px, rgba(125,211,252,0.22) 13px 15px, transparent 16px),
+    radial-gradient(circle at 52% 34%, rgba(244,114,182,0.22), transparent 22%),
+    linear-gradient(90deg, transparent 0 22px, rgba(224,242,254,0.24) 23px, transparent 24px, transparent 38px, rgba(125,211,252,0.18) 39px, transparent 40px),
+    linear-gradient(0deg, rgba(14,165,233,0.18) 0 18%, transparent 18%),
+    linear-gradient(145deg, #082f49 0%, #0ea5e9 48%, #2563eb 100%);
+}
+
+.rank-book[data-book-id="aspirante"] .rank-book-cover::before{
+  border-color:rgba(186,230,253,0.64);
+  background:rgba(12,74,110,0.58);
+  box-shadow:
+    0 0 0 7px rgba(244,114,182,0.07),
+    0 0 20px rgba(14,165,233,0.24),
+    inset 0 0 18px rgba(186,230,253,0.12);
+}
+
+.rank-book[data-book-id="aspirante"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 26% 26%, rgba(224,242,254,0.80) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 30%, rgba(244,114,182,0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 62% 68%, rgba(186,230,253,0.62) 0 1px, transparent 2px),
+    linear-gradient(0deg, transparent 0 29px, rgba(186,230,253,0.28) 30px, transparent 31px, transparent 38px, rgba(244,114,182,0.16) 39px, transparent 40px),
+    linear-gradient(90deg, transparent 22px, rgba(186,230,253,0.22) 23px, transparent 24px, transparent 47px, rgba(186,230,253,0.16) 48px, transparent 49px);
+  animation:aspiranteCityPulse 4.6s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="profesional"] .rank-book-cover{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.58) 0 12px, rgba(196,181,253,0.20) 13px 15px, transparent 16px),
+    linear-gradient(115deg, transparent 0 36%, rgba(15,23,42,0.70) 37%, transparent 39%),
+    linear-gradient(70deg, transparent 0 52%, rgba(216,180,254,0.26) 53%, transparent 55%),
+    radial-gradient(circle at 70% 20%, rgba(216,180,254,0.28), transparent 26%),
+    linear-gradient(145deg, #1e1b4b 0%, #7c3aed 48%, #312e81 100%);
+}
+
+.rank-book[data-book-id="profesional"] .rank-book-cover::before{
+  border-color:rgba(216,180,254,0.62);
+  background:rgba(30,27,75,0.62);
+  box-shadow:
+    0 0 0 7px rgba(168,85,247,0.08),
+    0 0 22px rgba(124,58,237,0.28),
+    inset 0 0 18px rgba(216,180,254,0.10);
+}
+
+.rank-book[data-book-id="profesional"] .rank-book-cover::after{
+  background:
+    linear-gradient(110deg, transparent 0 20%, rgba(15,23,42,0.74) 21%, transparent 23%),
+    linear-gradient(74deg, transparent 0 58%, rgba(15,23,42,0.62) 59%, transparent 61%),
+    linear-gradient(0deg, transparent 0 26px, rgba(216,180,254,0.24) 27px, transparent 28px, transparent 37px, rgba(15,23,42,0.44) 38px, transparent 39px),
+    repeating-linear-gradient(0deg, rgba(216,180,254,0.16) 0 1px, transparent 1px 9px);
+  animation:profesionalGlitch 3.2s steps(2, end) infinite;
+}
+
+.rank-book[data-book-id="competidor"] .rank-book-cover{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.58) 0 12px, rgba(254,202,202,0.22) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 36%, rgba(254,202,202,0.34), transparent 24%),
+    linear-gradient(135deg, transparent 0 42%, rgba(251,146,60,0.24) 43%, transparent 45%),
+    linear-gradient(45deg, transparent 0 58%, rgba(127,29,29,0.54) 59%, transparent 61%),
+    linear-gradient(145deg, #7f1d1d 0%, #ef4444 48%, #f97316 100%);
+}
+
+.rank-book[data-book-id="competidor"] .rank-book-cover::before{
+  border-color:rgba(254,202,202,0.64);
+  background:rgba(69,10,10,0.62);
+  box-shadow:
+    0 0 0 7px rgba(248,113,113,0.08),
+    0 0 24px rgba(239,68,68,0.28),
+    inset 0 0 18px rgba(254,202,202,0.12);
+}
+
+.rank-book[data-book-id="competidor"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 36%, transparent 0 27px, rgba(254,202,202,0.30) 28px, transparent 31px),
+    linear-gradient(0deg, transparent 0 24px, rgba(254,202,202,0.24) 25px, transparent 26px, transparent 34px, rgba(251,146,60,0.24) 35px, transparent 36px),
+    linear-gradient(90deg, transparent 12px, rgba(254,202,202,0.20) 13px, transparent 14px, transparent 68px, rgba(254,202,202,0.18) 69px, transparent 70px),
+    repeating-linear-gradient(135deg, transparent 0 11px, rgba(127,29,29,0.34) 12px 13px);
+  animation:competidorCorePulse 2.8s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="experto"] .rank-book-cover{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.56) 0 12px, rgba(165,243,252,0.22) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 36%, rgba(165,243,252,0.28), transparent 24%),
+    linear-gradient(90deg, transparent 0 25px, rgba(165,243,252,0.22) 26px, transparent 27px, transparent 58px, rgba(165,243,252,0.16) 59px, transparent 60px),
+    linear-gradient(140deg, transparent 0 40%, rgba(14,165,233,0.22) 41%, transparent 43%),
+    linear-gradient(145deg, #164e63 0%, #22d3ee 48%, #0f766e 100%);
+}
+
+.rank-book[data-book-id="experto"] .rank-book-cover::before{
+  border-color:rgba(165,243,252,0.66);
+  background:rgba(8,47,73,0.62);
+  box-shadow:
+    0 0 0 7px rgba(34,211,238,0.08),
+    0 0 24px rgba(34,211,238,0.28),
+    inset 0 0 18px rgba(165,243,252,0.12);
+}
+
+.rank-book[data-book-id="experto"] .rank-book-cover::after{
+  background:
+    linear-gradient(90deg, transparent 18px, rgba(165,243,252,0.28) 19px, transparent 20px, transparent 62px, rgba(165,243,252,0.20) 63px, transparent 64px),
+    linear-gradient(0deg, transparent 18px, rgba(165,243,252,0.24) 19px, transparent 20px, transparent 72px, rgba(165,243,252,0.18) 73px, transparent 74px),
+    radial-gradient(circle at 50% 36%, transparent 0 25px, rgba(165,243,252,0.32) 26px, transparent 28px),
+    radial-gradient(circle at 32% 68%, rgba(224,242,254,0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 24%, rgba(224,242,254,0.58) 0 1px, transparent 2px);
+  animation:expertoPortalDrift 4.4s ease-in-out infinite;
+}
+
+.book-cover[data-book-id="aspirante"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.52) 0 17px, rgba(125,211,252,0.20) 18px 20px, transparent 21px),
+    radial-gradient(circle at 52% 34%, rgba(244,114,182,0.20), transparent 22%),
+    linear-gradient(90deg, transparent 0 48px, rgba(224,242,254,0.22) 49px, transparent 50px, transparent 82px, rgba(125,211,252,0.16) 83px, transparent 84px),
+    linear-gradient(0deg, rgba(14,165,233,0.16) 0 18%, transparent 18%),
+    linear-gradient(145deg, #082f49 0%, #0ea5e9 48%, #2563eb 100%);
+}
+
+.book-cover[data-book-id="profesional"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.56) 0 17px, rgba(196,181,253,0.20) 18px 20px, transparent 21px),
+    linear-gradient(115deg, transparent 0 36%, rgba(15,23,42,0.70) 37%, transparent 39%),
+    linear-gradient(70deg, transparent 0 52%, rgba(216,180,254,0.26) 53%, transparent 55%),
+    radial-gradient(circle at 70% 20%, rgba(216,180,254,0.28), transparent 26%),
+    linear-gradient(145deg, #1e1b4b 0%, #7c3aed 48%, #312e81 100%);
+}
+
+.book-cover[data-book-id="competidor"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.58) 0 17px, rgba(254,202,202,0.22) 18px 20px, transparent 21px),
+    radial-gradient(circle at 50% 36%, rgba(254,202,202,0.34), transparent 24%),
+    linear-gradient(135deg, transparent 0 42%, rgba(251,146,60,0.24) 43%, transparent 45%),
+    linear-gradient(45deg, transparent 0 58%, rgba(127,29,29,0.54) 59%, transparent 61%),
+    linear-gradient(145deg, #7f1d1d 0%, #ef4444 48%, #f97316 100%);
+}
+
+.book-cover[data-book-id="experto"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.56) 0 17px, rgba(165,243,252,0.22) 18px 20px, transparent 21px),
+    radial-gradient(circle at 50% 36%, rgba(165,243,252,0.28), transparent 24%),
+    linear-gradient(90deg, transparent 0 56px, rgba(165,243,252,0.22) 57px, transparent 58px, transparent 112px, rgba(165,243,252,0.16) 113px, transparent 114px),
+    linear-gradient(140deg, transparent 0 40%, rgba(14,165,233,0.22) 41%, transparent 43%),
+    linear-gradient(145deg, #164e63 0%, #22d3ee 48%, #0f766e 100%);
+}
+
+.book-cover[data-book-id="aspirante"] .book-sigil,
+.book-cover[data-book-id="experto"] .book-sigil{
+  box-shadow:0 0 0 8px rgba(125,211,252,0.07), 0 0 0 18px rgba(244,114,182,0.04), inset 0 0 24px rgba(186,230,253,0.16);
+}
+
+.book-cover[data-book-id="profesional"] .book-sigil{
+  border-color:rgba(216,180,254,0.28);
+  box-shadow:0 0 0 8px rgba(168,85,247,0.07), 0 0 0 18px rgba(15,23,42,0.12), inset 0 0 24px rgba(216,180,254,0.16);
+}
+
+.book-cover[data-book-id="competidor"] .book-sigil{
+  border-color:rgba(254,202,202,0.28);
+  box-shadow:0 0 0 8px rgba(239,68,68,0.08), 0 0 0 18px rgba(251,146,60,0.05), inset 0 0 24px rgba(254,202,202,0.16);
+}
+
 @keyframes bookFloat{
   0%, 100%{ transform:translateY(0) rotateY(-18deg) rotateZ(-3deg); }
   50%{ transform:translateY(-11px) rotateY(-12deg) rotateZ(-1deg); }
@@ -689,6 +850,27 @@ button{
   50%{ opacity:0.62; }
 }
 
+@keyframes aspiranteCityPulse{
+  0%, 100%{ opacity:0.54; transform:translateY(0); }
+  50%{ opacity:0.90; transform:translateY(-4px); }
+}
+
+@keyframes profesionalGlitch{
+  0%, 92%, 100%{ opacity:0.58; transform:translate(0, 0); }
+  94%{ opacity:0.88; transform:translate(1px, -1px); }
+  96%{ opacity:0.72; transform:translate(-1px, 1px); }
+}
+
+@keyframes competidorCorePulse{
+  0%, 100%{ opacity:0.58; filter:brightness(1); }
+  50%{ opacity:0.92; filter:brightness(1.25); }
+}
+
+@keyframes expertoPortalDrift{
+  0%, 100%{ opacity:0.58; transform:translateX(0); }
+  50%{ opacity:0.90; transform:translateX(3px); }
+}
+
 @keyframes haloPulse{
   0%, 100%{ opacity:0.72; transform:scale(0.94); }
   50%{ opacity:1; transform:scale(1.05); }
@@ -698,6 +880,10 @@ button{
   .book-cover,
   .featured-halo,
   .rank-book[data-book-id="amateur"] .rank-book-cover::after,
+  .rank-book[data-book-id="aspirante"] .rank-book-cover::after,
+  .rank-book[data-book-id="profesional"] .rank-book-cover::after,
+  .rank-book[data-book-id="competidor"] .rank-book-cover::after,
+  .rank-book[data-book-id="experto"] .rank-book-cover::after,
   .book-cover[data-book-id="amateur"] .book-sigil{
     animation:none;
   }

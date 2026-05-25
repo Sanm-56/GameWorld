@@ -279,6 +279,34 @@ function animateFeaturedBook(bookId) {
       { rotate: 45, scale: 1, opacity: 0.62, duration: 0.62, ease: 'back.out(1.7)', overwrite: true },
     )
   }
+
+  if (bookId === 'aspirante' && sigil) {
+    gsap.fromTo(sigil,
+      { scale: 0.82, opacity: 0.18 },
+      { scale: 1.14, opacity: 0.56, duration: 0.68, ease: 'sine.out', overwrite: true },
+    )
+  }
+
+  if (bookId === 'profesional' && cover) {
+    gsap.fromTo(cover,
+      { x: -2, filter: 'brightness(1.18) saturate(1.2)' },
+      { x: 0, filter: 'brightness(1) saturate(1)', duration: 0.38, ease: 'steps(3)', overwrite: true },
+    )
+  }
+
+  if (bookId === 'competidor' && cover) {
+    gsap.fromTo(cover,
+      { scale: 1.04, filter: 'brightness(1.22) saturate(1.18)' },
+      { scale: 1, filter: 'brightness(1) saturate(1)', duration: 0.42, ease: 'back.out(2.2)', overwrite: true },
+    )
+  }
+
+  if (bookId === 'experto' && sigil) {
+    gsap.fromTo(sigil,
+      { rotate: -18, scale: 0.88, opacity: 0.24 },
+      { rotate: 18, scale: 1.08, opacity: 0.58, duration: 0.66, ease: 'power2.out', overwrite: true },
+    )
+  }
 }
 
 function bindShelfAnimations() {
