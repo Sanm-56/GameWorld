@@ -1,55 +1,75 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 226" role="img" aria-label="Diagrama tecnico de Maestro">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 226" role="img" aria-label="Maquina del Destino del libro Maestro">
   <defs>
-    <linearGradient id="manual" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#111827"/>
-      <stop offset=".42" stop-color="#dbeafe"/>
-      <stop offset=".70" stop-color="#60a5fa"/>
+    <linearGradient id="machineBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset=".36" stop-color="#e5e7eb"/>
+      <stop offset=".66" stop-color="#93c5fd"/>
       <stop offset="1" stop-color="#1e3a8a"/>
     </linearGradient>
-    <radialGradient id="coldCenter" cx=".50" cy=".40" r=".50">
-      <stop offset="0" stop-color="#ffffff" stop-opacity=".70"/>
-      <stop offset=".34" stop-color="#bfdbfe" stop-opacity=".30"/>
-      <stop offset=".72" stop-color="#60a5fa" stop-opacity=".12"/>
+    <radialGradient id="blueCore" cx=".50" cy=".42" r=".54">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".84"/>
+      <stop offset=".25" stop-color="#dbeafe" stop-opacity=".48"/>
+      <stop offset=".55" stop-color="#60a5fa" stop-opacity=".18"/>
       <stop offset="1" stop-color="#020617" stop-opacity="0"/>
     </radialGradient>
-    <filter id="coldGlow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="1.9" result="blur"/>
+    <filter id="precisionGlow" x="-45%" y="-45%" width="190%" height="190%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
-  <rect width="166" height="226" rx="12" fill="url(#manual)"/>
-  <rect width="166" height="226" fill="url(#coldCenter)"/>
-  <g stroke="#eff6ff" stroke-opacity=".24" fill="none">
-    <path d="M25 30h116v166H25z"/>
-    <path d="M42 30v166M124 30v166M25 55h116M25 172h116"/>
-    <path d="M83 24v178"/>
+
+  <rect width="166" height="226" rx="13" fill="url(#machineBase)"/>
+  <rect width="166" height="226" fill="url(#blueCore)"/>
+
+  <g stroke="#0f172a" stroke-opacity=".32" fill="none">
+    <path d="M24 25h118v176H24z"/>
+    <path d="M34 36h98v154H34z"/>
+    <path d="M83 18v190"/>
+    <path d="M24 58h118M24 169h118"/>
   </g>
-  <g filter="url(#coldGlow)" fill="none" stroke="#eff6ff" stroke-linecap="round">
-    <circle cx="83" cy="92" r="39" stroke-opacity=".54"/>
-    <circle cx="83" cy="92" r="25" stroke-opacity=".40"/>
-    <circle cx="83" cy="92" r="8" stroke-opacity=".68"/>
-    <path d="M83 53v78M44 92h78M55 64l56 56M111 64l-56 56" stroke-opacity=".36"/>
-    <path d="M83 53 112 92 83 131 54 92z" stroke-opacity=".44"/>
+
+  <g filter="url(#precisionGlow)" fill="none" stroke="#eff6ff" stroke-linecap="round">
+    <circle cx="83" cy="92" r="51" stroke-opacity=".58" stroke-width="1.5"/>
+    <circle cx="83" cy="92" r="36" stroke-opacity=".45"/>
+    <circle cx="83" cy="92" r="20" stroke-opacity=".52"/>
+    <circle cx="83" cy="92" r="6" stroke-opacity=".82" stroke-width="2"/>
+    <path d="M83 40v104M31 92h104" stroke-opacity=".42"/>
+    <path d="M47 56l72 72M119 56l-72 72" stroke-opacity=".30"/>
+    <path d="M83 42 119 92 83 142 47 92z" stroke-opacity=".58" stroke-width="1.3"/>
+    <path d="M62 72h42l14 20-14 20H62L48 92z" stroke-opacity=".40"/>
   </g>
-  <g fill="none" stroke="#0f172a" stroke-opacity=".45">
-    <circle cx="49" cy="153" r="13"/>
-    <circle cx="119" cy="154" r="15"/>
-    <path d="M62 153h42M49 140v26M119 139v30"/>
-    <path d="M36 188h94M45 198h76"/>
+
+  <g fill="none" stroke="#0f172a" stroke-opacity=".55">
+    <circle cx="48" cy="161" r="15"/>
+    <circle cx="118" cy="161" r="18"/>
+    <circle cx="83" cy="177" r="12"/>
+    <path d="M63 161h37M83 165v12"/>
+    <path d="M48 146v30M33 161h30M118 143v36M100 161h36"/>
   </g>
+
+  <g stroke="#eff6ff" stroke-opacity=".62" stroke-linecap="round">
+    <path d="M45 200h76"/>
+    <path d="M53 191h60"/>
+    <path d="M64 40h38"/>
+    <path d="M70 50h26"/>
+  </g>
+
   <g fill="#eff6ff">
-    <circle cx="83" cy="53" r="1.8"/>
-    <circle cx="122" cy="92" r="1.8"/>
-    <circle cx="83" cy="131" r="1.8"/>
-    <circle cx="44" cy="92" r="1.8"/>
-    <circle cx="49" cy="153" r="1.5"/>
-    <circle cx="119" cy="154" r="1.5"/>
+    <circle cx="83" cy="40" r="1.8"/>
+    <circle cx="135" cy="92" r="1.8"/>
+    <circle cx="83" cy="144" r="1.8"/>
+    <circle cx="31" cy="92" r="1.8"/>
+    <circle cx="47" cy="56" r="1.4"/>
+    <circle cx="119" cy="56" r="1.4"/>
+    <circle cx="47" cy="128" r="1.4"/>
+    <circle cx="119" cy="128" r="1.4"/>
   </g>
-  <g stroke="#1e3a8a" stroke-opacity=".36">
-    <path d="M20 74h126M20 76h126M20 177h126"/>
-    <path d="M31 41 138 185M138 41 31 185"/>
+
+  <g stroke="#1e3a8a" stroke-opacity=".32">
+    <path d="M18 75h130M18 77h130M18 188h130"/>
+    <path d="M28 35 138 186M138 35 28 186"/>
   </g>
 </svg>
