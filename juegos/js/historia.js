@@ -332,6 +332,12 @@ function pulseSelectedBook(bookButton) {
   const cover = bookButton?.querySelector('.rank-book-cover')
   if (!gsap || !cover) return
 
+  bookButton.classList.remove('glitch-click')
+  window.requestAnimationFrame(() => {
+    bookButton.classList.add('glitch-click')
+    window.setTimeout(() => bookButton.classList.remove('glitch-click'), 520)
+  })
+
   gsap.fromTo(cover,
     { filter: 'brightness(1.18) saturate(1.16)' },
     { filter: 'brightness(1) saturate(1)', duration: 0.48, ease: 'power2.out', overwrite: true },
