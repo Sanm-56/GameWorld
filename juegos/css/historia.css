@@ -1379,6 +1379,111 @@ button{
   animation:bookClickGlitch 0.46s steps(2, end);
 }
 
+.rank-book[data-book-id="rey-del-reino-perdido"] .rank-book-cover,
+.book-cover[data-book-id="rey-del-reino-perdido"],
+.rank-book[data-book-id="monarca-de-la-eternidad-negra"] .rank-book-cover,
+.book-cover[data-book-id="monarca-de-la-eternidad-negra"],
+.rank-book[data-book-id="emisario-del-vacio-absoluto"] .rank-book-cover,
+.book-cover[data-book-id="emisario-del-vacio-absoluto"]{
+  --space-ring:rgba(255,255,255,0.34);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.84) 0 12px, rgba(255,255,255,0.20) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,0.28), transparent 24%),
+    radial-gradient(circle at 68% 76%, rgba(88,28,135,0.40), transparent 30%),
+    linear-gradient(145deg, #000 0%, #f8fafc 45%, #12031f 100%);
+}
+
+.rank-book[data-book-id="rey-del-reino-perdido"] .rank-book-cover::after,
+.rank-book[data-book-id="monarca-de-la-eternidad-negra"] .rank-book-cover::after,
+.rank-book[data-book-id="emisario-del-vacio-absoluto"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 36%, transparent 0 22px, var(--space-ring) 23px, transparent 25px, transparent 34px, var(--space-ring) 35px, transparent 37px),
+    radial-gradient(circle at 24% 25%, rgba(255,255,255,0.90) 0 1px, transparent 2px),
+    radial-gradient(circle at 76% 28%, rgba(255,255,255,0.74) 0 1px, transparent 2px),
+    radial-gradient(circle at 68% 70%, rgba(255,255,255,0.70) 0 1px, transparent 2px),
+    radial-gradient(circle at 34% 74%, rgba(255,255,255,0.62) 0 1px, transparent 2px),
+    linear-gradient(90deg, transparent 18px, rgba(255,255,255,0.24) 19px, transparent 20px);
+  animation:spaceVoidPulse 4.4s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="heraldo-de-la-ultima-aurora"] .rank-book-cover,
+.book-cover[data-book-id="heraldo-de-la-ultima-aurora"],
+.rank-book[data-book-id="rey-de-la-corona-eterna"] .rank-book-cover,
+.book-cover[data-book-id="rey-de-la-corona-eterna"],
+.rank-book[data-book-id="custodio-del-reino-celestial"] .rank-book-cover,
+.book-cover[data-book-id="custodio-del-reino-celestial"]{
+  --noble-line:rgba(254,243,199,0.38);
+  --noble-ring:rgba(255,255,255,0.34);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.62) 0 12px, rgba(254,243,199,0.28) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 36%, rgba(255,255,255,0.34), transparent 24%),
+    radial-gradient(circle at 72% 78%, rgba(250,204,21,0.34), transparent 28%),
+    linear-gradient(145deg, #1f2937 0%, #f8fafc 38%, #facc15 72%, #334155 100%);
+}
+
+.rank-book[data-book-id="heraldo-de-la-ultima-aurora"] .rank-book-cover::after,
+.rank-book[data-book-id="rey-de-la-corona-eterna"] .rank-book-cover::after,
+.rank-book[data-book-id="custodio-del-reino-celestial"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 36%, transparent 0 25px, var(--noble-ring) 26px, transparent 28px),
+    linear-gradient(90deg, transparent 17px, var(--noble-line) 18px, transparent 19px, transparent 62px, var(--noble-line) 63px, transparent 64px),
+    linear-gradient(0deg, transparent 28px, var(--noble-line) 29px, transparent 30px, transparent 43px, var(--noble-line) 44px, transparent 45px),
+    linear-gradient(118deg, transparent 0 42%, rgba(255,255,255,0.16) 43%, transparent 58%);
+  animation:nobleGoldLines 4.8s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="devorador-del-horizonte"] .rank-book-cover,
+.book-cover[data-book-id="devorador-del-horizonte"],
+.rank-book[data-book-id="guardian-del-sol-muerto"] .rank-book-cover,
+.book-cover[data-book-id="guardian-del-sol-muerto"],
+.rank-book[data-book-id="titan-del-eclipse-carmesi"] .rank-book-cover,
+.book-cover[data-book-id="titan-del-eclipse-carmesi"]{
+  --red-matte:rgba(248,113,113,0.38);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.78) 0 12px, rgba(248,113,113,0.20) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 36%, rgba(248,113,113,0.30), transparent 22%),
+    linear-gradient(115deg, transparent 0 38%, rgba(0,0,0,0.54) 39%, transparent 41%),
+    repeating-linear-gradient(0deg, rgba(248,113,113,0.16) 0 1px, transparent 1px 11px),
+    linear-gradient(145deg, #050505 0%, #7f1d1d 54%, #111827 100%);
+}
+
+.rank-book[data-book-id="devorador-del-horizonte"] .rank-book-cover::after,
+.rank-book[data-book-id="guardian-del-sol-muerto"] .rank-book-cover::after,
+.rank-book[data-book-id="titan-del-eclipse-carmesi"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 36%, transparent 0 25px, var(--red-matte) 26px, transparent 29px),
+    linear-gradient(90deg, transparent 18px, rgba(254,202,202,0.24) 19px, transparent 20px),
+    linear-gradient(110deg, transparent 0 24%, rgba(0,0,0,0.72) 25%, transparent 28%),
+    linear-gradient(74deg, transparent 0 58%, rgba(248,113,113,0.32) 59%, transparent 61%);
+  animation:redMatteGlitch 3.2s steps(2, end) infinite;
+}
+
+.rank-book[data-book-id="dominador-del-trono-astral"] .rank-book-cover,
+.book-cover[data-book-id="dominador-del-trono-astral"],
+.rank-book[data-book-id="soberano-de-los-ecos-infinitos"] .rank-book-cover,
+.book-cover[data-book-id="soberano-de-los-ecos-infinitos"],
+.rank-book[data-book-id="portador-del-juicio-final"] .rank-book-cover,
+.book-cover[data-book-id="portador-del-juicio-final"]{
+  --silver-pulse:rgba(255,255,255,0.42);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.58) 0 12px, rgba(226,232,240,0.28) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 34%, rgba(255,255,255,0.42), transparent 24%),
+    radial-gradient(circle at 67% 76%, rgba(148,163,184,0.32), transparent 30%),
+    linear-gradient(145deg, #020617 0%, #ffffff 48%, #64748b 100%);
+}
+
+.rank-book[data-book-id="dominador-del-trono-astral"] .rank-book-cover::after,
+.rank-book[data-book-id="soberano-de-los-ecos-infinitos"] .rank-book-cover::after,
+.rank-book[data-book-id="portador-del-juicio-final"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 36%, transparent 0 24px, var(--silver-pulse) 25px, transparent 27px, transparent 36px, var(--silver-pulse) 37px, transparent 39px),
+    radial-gradient(circle at 28% 28%, rgba(255,255,255,0.86) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 68%, rgba(255,255,255,0.72) 0 1px, transparent 2px),
+    linear-gradient(90deg, transparent 18px, rgba(255,255,255,0.24) 19px, transparent 20px),
+    linear-gradient(0deg, transparent 32px, rgba(255,255,255,0.20) 33px, transparent 34px);
+  animation:whiteVoidPulse 4.1s ease-in-out infinite;
+}
+
 .rank-book[data-book-id="amateur"] .rank-book-cover{
   background:
     linear-gradient(90deg, rgba(0,0,0,0.54) 0 12px, rgba(45,212,191,0.22) 13px 15px, transparent 16px),
@@ -1670,6 +1775,28 @@ button{
   70%{ transform:translateY(-8px) translateX(1px) skewX(-2deg); filter:brightness(1.2) saturate(1.35); }
 }
 
+@keyframes spaceVoidPulse{
+  0%, 100%{ opacity:0.46; transform:scale(0.98); filter:brightness(1); }
+  50%{ opacity:0.96; transform:scale(1.05); filter:brightness(1.35); }
+}
+
+@keyframes nobleGoldLines{
+  0%, 100%{ opacity:0.50; transform:translateY(0); }
+  50%{ opacity:0.94; transform:translateY(-4px); }
+}
+
+@keyframes redMatteGlitch{
+  0%, 88%, 100%{ opacity:0.56; transform:translate(0, 0); filter:brightness(1); }
+  90%{ opacity:0.92; transform:translate(2px, -1px); filter:brightness(1.35) contrast(1.2); }
+  94%{ opacity:0.64; transform:translate(-2px, 1px); filter:brightness(0.82) contrast(1.4); }
+  97%{ opacity:0.88; transform:translate(1px, 0); filter:brightness(1.22); }
+}
+
+@keyframes whiteVoidPulse{
+  0%, 100%{ opacity:0.48; transform:scale(0.99); filter:brightness(1); }
+  50%{ opacity:0.92; transform:scale(1.04); filter:brightness(1.25); }
+}
+
 @keyframes haloPulse{
   0%, 100%{ opacity:0.72; transform:scale(0.94); }
   50%{ opacity:1; transform:scale(1.05); }
@@ -1707,6 +1834,18 @@ button{
   .rank-book[data-book-id="emisario-de-los-titanes"] .rank-book-cover::after,
   .rank-book[data-book-id="senor-de-las-estrellas-muertas"] .rank-book-cover::after,
   .rank-book[data-book-id="arquitecto-del-eclipse-final"] .rank-book-cover::after,
+  .rank-book[data-book-id="rey-del-reino-perdido"] .rank-book-cover::after,
+  .rank-book[data-book-id="monarca-de-la-eternidad-negra"] .rank-book-cover::after,
+  .rank-book[data-book-id="emisario-del-vacio-absoluto"] .rank-book-cover::after,
+  .rank-book[data-book-id="heraldo-de-la-ultima-aurora"] .rank-book-cover::after,
+  .rank-book[data-book-id="rey-de-la-corona-eterna"] .rank-book-cover::after,
+  .rank-book[data-book-id="custodio-del-reino-celestial"] .rank-book-cover::after,
+  .rank-book[data-book-id="devorador-del-horizonte"] .rank-book-cover::after,
+  .rank-book[data-book-id="guardian-del-sol-muerto"] .rank-book-cover::after,
+  .rank-book[data-book-id="titan-del-eclipse-carmesi"] .rank-book-cover::after,
+  .rank-book[data-book-id="dominador-del-trono-astral"] .rank-book-cover::after,
+  .rank-book[data-book-id="soberano-de-los-ecos-infinitos"] .rank-book-cover::after,
+  .rank-book[data-book-id="portador-del-juicio-final"] .rank-book-cover::after,
   .book-cover[data-book-id="amateur"] .book-sigil{
     animation:none;
   }
