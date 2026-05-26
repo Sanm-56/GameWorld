@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 226" role="img" aria-label="Diagrama tecnico de Maestro">
+  <defs>
+    <linearGradient id="manual" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset=".42" stop-color="#dbeafe"/>
+      <stop offset=".70" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <radialGradient id="coldCenter" cx=".50" cy=".40" r=".50">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".70"/>
+      <stop offset=".34" stop-color="#bfdbfe" stop-opacity=".30"/>
+      <stop offset=".72" stop-color="#60a5fa" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="coldGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.9" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="166" height="226" rx="12" fill="url(#manual)"/>
+  <rect width="166" height="226" fill="url(#coldCenter)"/>
+  <g stroke="#eff6ff" stroke-opacity=".24" fill="none">
+    <path d="M25 30h116v166H25z"/>
+    <path d="M42 30v166M124 30v166M25 55h116M25 172h116"/>
+    <path d="M83 24v178"/>
+  </g>
+  <g filter="url(#coldGlow)" fill="none" stroke="#eff6ff" stroke-linecap="round">
+    <circle cx="83" cy="92" r="39" stroke-opacity=".54"/>
+    <circle cx="83" cy="92" r="25" stroke-opacity=".40"/>
+    <circle cx="83" cy="92" r="8" stroke-opacity=".68"/>
+    <path d="M83 53v78M44 92h78M55 64l56 56M111 64l-56 56" stroke-opacity=".36"/>
+    <path d="M83 53 112 92 83 131 54 92z" stroke-opacity=".44"/>
+  </g>
+  <g fill="none" stroke="#0f172a" stroke-opacity=".45">
+    <circle cx="49" cy="153" r="13"/>
+    <circle cx="119" cy="154" r="15"/>
+    <path d="M62 153h42M49 140v26M119 139v30"/>
+    <path d="M36 188h94M45 198h76"/>
+  </g>
+  <g fill="#eff6ff">
+    <circle cx="83" cy="53" r="1.8"/>
+    <circle cx="122" cy="92" r="1.8"/>
+    <circle cx="83" cy="131" r="1.8"/>
+    <circle cx="44" cy="92" r="1.8"/>
+    <circle cx="49" cy="153" r="1.5"/>
+    <circle cx="119" cy="154" r="1.5"/>
+  </g>
+  <g stroke="#1e3a8a" stroke-opacity=".36">
+    <path d="M20 74h126M20 76h126M20 177h126"/>
+    <path d="M31 41 138 185M138 41 31 185"/>
+  </g>
+</svg>

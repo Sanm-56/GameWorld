@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 226" role="img" aria-label="Insignia dorada de Elite">
+  <defs>
+    <linearGradient id="goldBook" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0f19"/>
+      <stop offset=".42" stop-color="#b45309"/>
+      <stop offset=".72" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <radialGradient id="goldPulse" cx=".54" cy=".38" r=".48">
+      <stop offset="0" stop-color="#fff7ed" stop-opacity=".70"/>
+      <stop offset=".30" stop-color="#fde68a" stop-opacity=".34"/>
+      <stop offset=".68" stop-color="#f59e0b" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="goldGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="166" height="226" rx="12" fill="url(#goldBook)"/>
+  <rect width="166" height="226" fill="url(#goldPulse)"/>
+  <g stroke="#fef3c7" stroke-opacity=".24" fill="none">
+    <path d="M24 27h118v172H24z"/>
+    <path d="M34 39h98v148H34z"/>
+    <path d="M46 51h74v124H46z"/>
+  </g>
+  <g filter="url(#goldGlow)">
+    <path d="M83 44 119 60v38c0 33-20 52-36 63-16-11-36-30-36-63V60z" fill="#111827" fill-opacity=".46" stroke="#fde68a" stroke-opacity=".72" stroke-width="1.4"/>
+    <path d="M83 58 106 69v26c0 21-13 34-23 43-10-9-23-22-23-43V69z" fill="#f59e0b" fill-opacity=".18" stroke="#fff7ed" stroke-opacity=".46"/>
+    <path d="M65 97h36M72 84h22M73 110h20" stroke="#fff7ed" stroke-opacity=".74" stroke-linecap="round"/>
+    <circle cx="83" cy="96" r="34" fill="none" stroke="#fef3c7" stroke-opacity=".28"/>
+  </g>
+  <g stroke="#fff7ed" stroke-opacity=".20" stroke-linecap="round">
+    <path d="M22 74 143 28M22 91 143 45M22 178 143 132"/>
+    <path d="M52 21v182M114 21v182"/>
+  </g>
+  <g fill="#fff7ed" fill-opacity=".82">
+    <circle cx="39" cy="38" r="1.4"/>
+    <circle cx="128" cy="38" r="1.4"/>
+    <circle cx="39" cy="188" r="1.4"/>
+    <circle cx="128" cy="188" r="1.4"/>
+    <circle cx="83" cy="24" r="1.2"/>
+    <circle cx="83" cy="202" r="1.2"/>
+  </g>
+</svg>

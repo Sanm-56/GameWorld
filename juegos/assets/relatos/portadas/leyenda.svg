@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 226" role="img" aria-label="Ruinas del Primer Torneo de Leyenda">
+  <defs>
+    <linearGradient id="ruinSky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b1208"/>
+      <stop offset=".42" stop-color="#b45309"/>
+      <stop offset=".70" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#7f1d1d"/>
+    </linearGradient>
+    <radialGradient id="ancientGlow" cx=".50" cy=".42" r=".54">
+      <stop offset="0" stop-color="#fff7ed" stop-opacity=".60"/>
+      <stop offset=".30" stop-color="#fde68a" stop-opacity=".26"/>
+      <stop offset=".70" stop-color="#dc2626" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="warmGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.1" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="166" height="226" rx="12" fill="url(#ruinSky)"/>
+  <rect width="166" height="226" fill="url(#ancientGlow)"/>
+  <g fill="#3b1208" fill-opacity=".52" stroke="#fde68a" stroke-opacity=".38">
+    <path d="M28 72h20v104H28z"/>
+    <path d="M118 74h20v102h-20z"/>
+    <path d="M23 59h31l-5 13H28z"/>
+    <path d="M113 60h31l-6 14h-20z"/>
+    <path d="M20 176h128v13H20z"/>
+  </g>
+  <g filter="url(#warmGlow)" fill="none" stroke="#fff7ed" stroke-linecap="round">
+    <circle cx="83" cy="103" r="35" stroke-opacity=".44"/>
+    <path d="M83 68v70M48 103h70" stroke-opacity=".36"/>
+    <path d="M60 77 107 130M107 77 60 130" stroke-opacity=".30"/>
+    <path d="M73 74 88 96 78 109 96 135" stroke="#7f1d1d" stroke-opacity=".76" stroke-width="2.2"/>
+  </g>
+  <g stroke="#fde68a" stroke-opacity=".28" fill="none">
+    <path d="M35 43h96"/>
+    <path d="M41 198h84"/>
+    <path d="M56 55h9l4 7-4 7h-9l-4-7z"/>
+    <path d="M101 55h9l4 7-4 7h-9l-4-7z"/>
+    <path d="M50 148h15M101 148h15M50 158h18M98 158h18"/>
+  </g>
+  <g stroke="#3b1208" stroke-opacity=".52">
+    <path d="M18 48 145 31M20 207 141 165M30 27 132 202"/>
+    <path d="M37 78 56 92M130 76 111 92"/>
+  </g>
+  <g fill="#fff7ed" fill-opacity=".72">
+    <circle cx="44" cy="34" r="1.3"/>
+    <circle cx="126" cy="42" r="1.2"/>
+    <circle cx="91" cy="58" r="1.1"/>
+    <circle cx="66" cy="173" r="1.2"/>
+    <circle cx="115" cy="183" r="1.1"/>
+  </g>
+</svg>

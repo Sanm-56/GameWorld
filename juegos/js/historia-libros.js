@@ -2039,7 +2039,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael entra al reino oculto donde Umbra dejo de ser corrupcion y comenzo a comportarse como una entidad capaz de gobernar el torneo.',
     phase: '9.8',
     readerUrl: 'historia-libro.html?libro=elite',
-    visual: { emblem: 'EL', primary: '#fbbf24', secondary: '#111827', accent: '#fef3c7', rgb: '251,191,36' },
+    visual: { emblem: 'EL', primary: '#fbbf24', secondary: '#111827', accent: '#fef3c7', rgb: '251,191,36', tier: 'normal', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/elite.svg' },
     introPages: [
       {
         type: 'cover',
@@ -2532,7 +2532,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael descubre la maquinaria temporal del torneo, las realidades alteradas por Umbra y la existencia de una Puerta Absoluta que nunca debe abrirse.',
     phase: '9.9',
     readerUrl: 'historia-libro.html?libro=maestro',
-    visual: { emblem: 'MA', primary: '#e5e7eb', secondary: '#60a5fa', accent: '#ffffff', rgb: '229,231,235' },
+    visual: { emblem: 'MA', primary: '#e5e7eb', secondary: '#60a5fa', accent: '#ffffff', rgb: '229,231,235', tier: 'normal', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/maestro.svg' },
     introPages: [
       {
         type: 'cover',
@@ -3224,7 +3224,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael recorre coliseos antiguos, campeones de piedra y archivos legendarios para descubrir que el primer torneo ya habia intentado usar a Umbra.',
     phase: '9.11',
     readerUrl: 'historia-libro.html?libro=leyenda',
-    visual: { emblem: 'LY', primary: '#fbbf24', secondary: '#dc2626', accent: '#fff7ed', rgb: '251,191,36' },
+    visual: { emblem: 'LY', primary: '#fbbf24', secondary: '#dc2626', accent: '#fff7ed', rgb: '251,191,36', tier: 'normal', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/leyenda.svg' },
     introPages: [
       {
         type: 'cover',
@@ -3570,7 +3570,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael navega un oceano cosmico de estrellas apagadas, regiones vacias y ciudades dormidas donde los Arquitectos comienzan a despertar.',
     phase: '9.12',
     readerUrl: 'historia-libro.html?libro=mitico',
-    visual: { emblem: 'MT', primary: '#c084fc', secondary: '#4c1d95', accent: '#f0abfc', rgb: '192,132,252' },
+    visual: { emblem: 'MT', primary: '#c084fc', secondary: '#4c1d95', accent: '#f0abfc', rgb: '192,132,252', tier: 'normal', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/mitico.svg' },
     introPages: [
       {
         type: 'cover',
