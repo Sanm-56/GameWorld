@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 226" role="img" aria-label="Trono del Equilibrio Supremo">
+  <defs>
+    <linearGradient id="spBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset=".42" stop-color="#f8fafc"/>
+      <stop offset=".70" stop-color="#94a3b8"/>
+      <stop offset="1" stop-color="#334155"/>
+    </linearGradient>
+    <radialGradient id="spCore" cx=".52" cy=".38" r=".54">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".82"/>
+      <stop offset=".30" stop-color="#e0f2fe" stop-opacity=".40"/>
+      <stop offset=".70" stop-color="#38bdf8" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="spGlow" x="-45%" y="-45%" width="190%" height="190%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="166" height="226" rx="13" fill="url(#spBase)"/>
+  <rect width="166" height="226" fill="url(#spCore)"/>
+  <g stroke="#0f172a" stroke-opacity=".32" fill="none">
+    <path d="M25 25h116v176H25z"/>
+    <path d="M37 37h92v152H37z"/>
+    <path d="M83 18v190"/>
+    <path d="M25 62h116M25 164h116"/>
+  </g>
+  <g filter="url(#spGlow)" fill="none" stroke="#f8fafc" stroke-linecap="round">
+    <path d="M55 150h56l7-55H48z" stroke-width="2" stroke-opacity=".72"/>
+    <path d="M65 95V65h36v30" stroke-opacity=".66"/>
+    <path d="M58 65h50M66 55h34M72 45h22" stroke-opacity=".74"/>
+    <path d="M83 45v105M48 95h70M56 122h54" stroke-opacity=".36"/>
+    <circle cx="83" cy="96" r="43" stroke-opacity=".36"/>
+    <circle cx="83" cy="96" r="28" stroke-opacity=".28"/>
+  </g>
+  <g fill="#0f172a" fill-opacity=".44">
+    <circle cx="50" cy="82" r="2"/>
+    <circle cx="116" cy="82" r="2"/>
+    <circle cx="55" cy="136" r="1.8"/>
+    <circle cx="111" cy="136" r="1.8"/>
+    <circle cx="83" cy="55" r="2"/>
+    <circle cx="83" cy="150" r="2"/>
+  </g>
+  <g stroke="#38bdf8" stroke-opacity=".30" stroke-linecap="round">
+    <path d="M22 42h122M22 184h122"/>
+    <path d="M33 34 132 190M132 34 33 190"/>
+    <path d="M36 76h94M36 116h94M36 156h94"/>
+  </g>
+</svg>

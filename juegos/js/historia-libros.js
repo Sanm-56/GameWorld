@@ -2780,7 +2780,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael llega al sello mayor del torneo, donde Umbra intenta liberar al Origen y romper las cadenas que sostienen todas las dimensiones.',
     phase: '9.10',
     readerUrl: 'historia-libro.html?libro=gran-maestro',
-    visual: { emblem: 'GM', primary: '#ffffff', secondary: '#facc15', accent: '#bae6fd', rgb: '255,255,255' },
+    visual: { emblem: 'GM', primary: '#ffffff', secondary: '#facc15', accent: '#bae6fd', rgb: '255,255,255', tier: 'importante', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/gran-maestro.svg' },
     introPages: [
       {
         type: 'cover',
@@ -3766,7 +3766,7 @@ export const LIBROS_HISTORIA = {
     subtitle: 'Kael llega a la ciudad perfecta de los Arquitectos, donde las reglas del universo se alteran y los Titanes comienzan a despertar.',
     phase: '9.13',
     readerUrl: 'historia-libro.html?libro=supremo',
-    visual: { emblem: 'SP', primary: '#f8fafc', secondary: '#94a3b8', accent: '#38bdf8', rgb: '248,250,252' },
+    visual: { emblem: 'SP', primary: '#f8fafc', secondary: '#94a3b8', accent: '#38bdf8', rgb: '248,250,252', tier: 'importante', mode: 'svg-gsap', coverArt: 'juegos/assets/relatos/portadas/supremo.svg' },
     introPages: [
       {
         type: 'cover',

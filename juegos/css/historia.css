@@ -823,6 +823,185 @@ button{
     inset 0 0 34px rgba(219,234,254,0.10);
 }
 
+.rank-book[data-book-id="gran-maestro"] .rank-book-cover,
+.rank-book[data-book-id="leyenda"] .rank-book-cover,
+.rank-book[data-book-id="mitico"] .rank-book-cover,
+.rank-book[data-book-id="supremo"] .rank-book-cover{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.64) 0 10px, rgba(255,255,255,0.24) 11px 13px, rgba(0,0,0,0.22) 14px 17px, transparent 18px),
+    linear-gradient(145deg, #111827 0%, var(--rank-primary) 50%, var(--rank-secondary) 100%);
+}
+
+.rank-book[data-book-id="gran-maestro"] .rank-book-art,
+.rank-book[data-book-id="leyenda"] .rank-book-art,
+.rank-book[data-book-id="mitico"] .rank-book-art,
+.rank-book[data-book-id="supremo"] .rank-book-art{
+  z-index:3;
+  opacity:1;
+  mix-blend-mode:normal;
+  transform:scale(1.03);
+}
+
+.rank-book[data-book-id="gran-maestro"] .rank-book-cover::before,
+.rank-book[data-book-id="leyenda"] .rank-book-cover::before,
+.rank-book[data-book-id="mitico"] .rank-book-cover::before,
+.rank-book[data-book-id="supremo"] .rank-book-cover::before{
+  z-index:5;
+  top:18px;
+  left:50%;
+  width:27px;
+  height:27px;
+  font-size:10px;
+  background:rgba(15,23,42,0.66);
+}
+
+.rank-book[data-book-id="gran-maestro"] .rank-book-cover::after,
+.rank-book[data-book-id="leyenda"] .rank-book-cover::after,
+.rank-book[data-book-id="mitico"] .rank-book-cover::after,
+.rank-book[data-book-id="supremo"] .rank-book-cover::after{
+  z-index:4;
+  background:
+    linear-gradient(90deg, transparent 17px, rgba(255,255,255,0.24) 18px, transparent 19px),
+    linear-gradient(120deg, transparent 0 62%, rgba(255,255,255,0.11) 63%, transparent 71%);
+  opacity:0.58;
+}
+
+.book-cover[data-book-id="gran-maestro"] .book-art,
+.book-cover[data-book-id="leyenda"] .book-art,
+.book-cover[data-book-id="mitico"] .book-art,
+.book-cover[data-book-id="supremo"] .book-art{
+  z-index:3;
+  opacity:1;
+  mix-blend-mode:normal;
+}
+
+.book-cover[data-book-id="gran-maestro"]::before,
+.book-cover[data-book-id="leyenda"]::before,
+.book-cover[data-book-id="mitico"]::before,
+.book-cover[data-book-id="supremo"]::before{
+  z-index:2;
+  inset:12px;
+  background:none;
+  box-shadow:inset 0 0 30px rgba(15,23,42,0.16);
+}
+
+.book-cover[data-book-id="gran-maestro"] .book-emblem,
+.book-cover[data-book-id="leyenda"] .book-emblem,
+.book-cover[data-book-id="mitico"] .book-emblem,
+.book-cover[data-book-id="supremo"] .book-emblem{
+  z-index:6;
+  position:absolute;
+  top:18px;
+  width:42px;
+  height:42px;
+  font-size:15px;
+  background:rgba(15,23,42,0.66);
+}
+
+.book-cover[data-book-id="gran-maestro"] .book-title,
+.book-cover[data-book-id="leyenda"] .book-title,
+.book-cover[data-book-id="mitico"] .book-title,
+.book-cover[data-book-id="supremo"] .book-title{
+  z-index:6;
+  padding:0 4px;
+}
+
+.rank-book[data-book-id="gran-maestro"] .rank-book-cover{
+  border-color:rgba(254,243,199,0.54);
+  box-shadow:0 24px 38px rgba(250,204,21,0.22), 0 0 0 1px rgba(254,243,199,0.22), inset 0 0 0 1px rgba(255,255,255,0.24);
+}
+
+.rank-book[data-book-id="gran-maestro"] .rank-book-cover::before{
+  color:#fff7ed;
+  border-color:rgba(254,243,199,0.84);
+  box-shadow:0 0 18px rgba(250,204,21,0.30), inset 0 0 14px rgba(255,255,255,0.14);
+}
+
+.book-cover[data-book-id="gran-maestro"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.64) 0 17px, rgba(254,243,199,0.28) 18px 20px, transparent 21px),
+    linear-gradient(145deg, #101827 0%, #f8fafc 42%, #fde68a 68%, #ca8a04 100%);
+  box-shadow:0 36px 64px rgba(0,0,0,0.50), 0 0 46px rgba(250,204,21,0.18), inset 0 0 0 1px rgba(254,243,199,0.30);
+}
+
+.book-cover[data-book-id="gran-maestro"] .book-emblem{
+  color:#fff7ed;
+  border-color:rgba(254,243,199,0.84);
+  box-shadow:0 0 24px rgba(250,204,21,0.30), inset 0 0 16px rgba(255,255,255,0.16);
+}
+
+.rank-book[data-book-id="leyenda"] .rank-book-cover{
+  border-color:rgba(253,230,138,0.50);
+  box-shadow:0 24px 38px rgba(245,158,11,0.24), 0 0 0 1px rgba(253,230,138,0.22), inset 0 0 0 1px rgba(255,255,255,0.16);
+}
+
+.rank-book[data-book-id="leyenda"] .rank-book-cover::before{
+  color:#fff7ed;
+  border-color:rgba(253,230,138,0.78);
+  box-shadow:0 0 18px rgba(245,158,11,0.30), inset 0 0 14px rgba(253,230,138,0.14);
+}
+
+.book-cover[data-book-id="leyenda"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.64) 0 17px, rgba(253,230,138,0.25) 18px 20px, transparent 21px),
+    linear-gradient(145deg, #3b1208 0%, #b45309 42%, #fbbf24 68%, #7f1d1d 100%);
+  box-shadow:0 36px 64px rgba(0,0,0,0.52), 0 0 44px rgba(245,158,11,0.18), inset 0 0 0 1px rgba(253,230,138,0.24);
+}
+
+.book-cover[data-book-id="leyenda"] .book-emblem{
+  color:#fff7ed;
+  border-color:rgba(253,230,138,0.78);
+  box-shadow:0 0 24px rgba(245,158,11,0.30), inset 0 0 16px rgba(253,230,138,0.16);
+}
+
+.rank-book[data-book-id="mitico"] .rank-book-cover{
+  border-color:rgba(216,180,254,0.50);
+  box-shadow:0 24px 38px rgba(168,85,247,0.25), 0 0 0 1px rgba(216,180,254,0.22), inset 0 0 0 1px rgba(255,255,255,0.16);
+}
+
+.rank-book[data-book-id="mitico"] .rank-book-cover::before{
+  color:#f5d0fe;
+  border-color:rgba(216,180,254,0.78);
+  box-shadow:0 0 18px rgba(168,85,247,0.32), inset 0 0 14px rgba(216,180,254,0.16);
+}
+
+.book-cover[data-book-id="mitico"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.64) 0 17px, rgba(216,180,254,0.25) 18px 20px, transparent 21px),
+    linear-gradient(145deg, #09071f 0%, #4c1d95 42%, #7c3aed 68%, #1e1b4b 100%);
+  box-shadow:0 36px 64px rgba(0,0,0,0.54), 0 0 44px rgba(168,85,247,0.22), inset 0 0 0 1px rgba(216,180,254,0.24);
+}
+
+.book-cover[data-book-id="mitico"] .book-emblem{
+  color:#f5d0fe;
+  border-color:rgba(216,180,254,0.78);
+  box-shadow:0 0 24px rgba(168,85,247,0.32), inset 0 0 16px rgba(216,180,254,0.16);
+}
+
+.rank-book[data-book-id="supremo"] .rank-book-cover{
+  border-color:rgba(226,232,240,0.56);
+  box-shadow:0 24px 38px rgba(148,163,184,0.25), 0 0 0 1px rgba(226,232,240,0.22), inset 0 0 0 1px rgba(255,255,255,0.26);
+}
+
+.rank-book[data-book-id="supremo"] .rank-book-cover::before{
+  color:#f8fafc;
+  border-color:rgba(226,232,240,0.86);
+  box-shadow:0 0 18px rgba(148,163,184,0.32), inset 0 0 14px rgba(226,232,240,0.18);
+}
+
+.book-cover[data-book-id="supremo"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.62) 0 17px, rgba(226,232,240,0.28) 18px 20px, transparent 21px),
+    linear-gradient(145deg, #111827 0%, #f8fafc 44%, #94a3b8 70%, #334155 100%);
+  box-shadow:0 36px 64px rgba(0,0,0,0.50), 0 0 44px rgba(148,163,184,0.20), inset 0 0 0 1px rgba(226,232,240,0.28);
+}
+
+.book-cover[data-book-id="supremo"] .book-emblem{
+  color:#f8fafc;
+  border-color:rgba(226,232,240,0.86);
+  box-shadow:0 0 24px rgba(148,163,184,0.32), inset 0 0 16px rgba(226,232,240,0.18);
+}
+
 .rank-book[data-book-id="amateur"] .rank-book-cover{
   background:
     linear-gradient(90deg, rgba(0,0,0,0.54) 0 12px, rgba(45,212,191,0.22) 13px 15px, transparent 16px),
