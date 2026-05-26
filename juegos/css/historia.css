@@ -628,6 +628,102 @@ button{
     inset 0 0 0 1px rgba(255,255,255,0.16);
 }
 
+.rank-book[data-book-id="elite"] .rank-book-cover{
+  border-color:rgba(253,230,138,0.42);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.70) 0 10px, rgba(253,230,138,0.30) 11px 13px, rgba(0,0,0,0.20) 14px 17px, transparent 18px),
+    linear-gradient(145deg, #05070d 0%, #2a1a05 42%, #b77910 70%, #05070d 100%);
+  box-shadow:
+    0 24px 38px rgba(251,191,36,0.24),
+    0 0 0 1px rgba(253,230,138,0.22),
+    0 0 28px rgba(245,158,11,0.16),
+    inset 0 0 0 1px rgba(255,255,255,0.14),
+    inset -12px 0 22px rgba(0,0,0,0.28);
+}
+
+.rank-book[data-book-id="elite"] .rank-book-art{
+  z-index:3;
+  opacity:1;
+  mix-blend-mode:normal;
+  transform:scale(1.03);
+}
+
+.rank-book[data-book-id="elite"] .rank-book-cover::before{
+  content:"EL";
+  z-index:5;
+  top:18px;
+  left:50%;
+  width:27px;
+  height:27px;
+  color:#fff7ed;
+  border-color:rgba(253,230,138,0.74);
+  background:rgba(8,11,18,0.68);
+  font-size:10px;
+  box-shadow:
+    0 0 18px rgba(250,204,21,0.30),
+    inset 0 0 14px rgba(253,230,138,0.12);
+}
+
+.rank-book[data-book-id="elite"] .rank-book-cover::after{
+  z-index:4;
+  background:
+    linear-gradient(90deg, transparent 17px, rgba(253,230,138,0.28) 18px, transparent 19px),
+    linear-gradient(120deg, transparent 0 62%, rgba(255,247,237,0.10) 63%, transparent 71%);
+  opacity:0.66;
+}
+
+.book-cover[data-book-id="elite"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.70) 0 17px, rgba(253,230,138,0.26) 18px 20px, transparent 21px),
+    linear-gradient(145deg, #05070d 0%, #2a1a05 42%, #b77910 70%, #05070d 100%);
+  box-shadow:
+    0 36px 64px rgba(0,0,0,0.56),
+    0 0 46px rgba(250,204,21,0.18),
+    inset 0 0 0 1px rgba(253,230,138,0.22),
+    inset -18px 0 28px rgba(0,0,0,0.28);
+}
+
+.book-cover[data-book-id="elite"] .book-art{
+  z-index:3;
+  opacity:1;
+  mix-blend-mode:normal;
+}
+
+.book-cover[data-book-id="elite"]::before{
+  z-index:2;
+  inset:12px;
+  border-color:rgba(253,230,138,0.18);
+  background:none;
+  box-shadow:inset 0 0 30px rgba(0,0,0,0.18);
+}
+
+.book-cover[data-book-id="elite"] .book-emblem{
+  z-index:6;
+  position:absolute;
+  top:18px;
+  width:42px;
+  height:42px;
+  font-size:15px;
+  border-color:rgba(253,230,138,0.74);
+  background:rgba(8,11,18,0.68);
+  box-shadow:0 0 24px rgba(250,204,21,0.30), inset 0 0 16px rgba(253,230,138,0.14);
+}
+
+.book-cover[data-book-id="elite"] .book-title{
+  z-index:6;
+  padding:0 4px;
+}
+
+.book-cover[data-book-id="elite"] .book-sigil{
+  z-index:4;
+  width:110px;
+  height:110px;
+  border-color:rgba(253,230,138,0.16);
+  box-shadow:
+    0 0 0 12px rgba(250,204,21,0.04),
+    inset 0 0 34px rgba(253,230,138,0.10);
+}
+
 .rank-book[data-book-id="amateur"] .rank-book-cover{
   background:
     linear-gradient(90deg, rgba(0,0,0,0.54) 0 12px, rgba(45,212,191,0.22) 13px 15px, transparent 16px),
