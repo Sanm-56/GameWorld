@@ -1484,6 +1484,160 @@ button{
   animation:whiteVoidPulse 4.1s ease-in-out infinite;
 }
 
+.rank-book[data-book-id="heraldo-del-vacio-primordial"] .rank-book-cover,
+.book-cover[data-book-id="heraldo-del-vacio-primordial"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.66) 0 12px, rgba(153,246,228,0.25) 13px 15px, transparent 16px),
+    radial-gradient(circle at 56% 32%, rgba(204,251,241,0.32), transparent 24%),
+    radial-gradient(circle at 64% 76%, rgba(34,197,94,0.28), transparent 28%),
+    linear-gradient(145deg, #02140f 0%, #2dd4bf 48%, #0f766e 100%);
+}
+
+.rank-book[data-book-id="heraldo-del-vacio-primordial"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 38%, transparent 0 24px, rgba(204,251,241,0.38) 25px, transparent 27px),
+    radial-gradient(circle at 28% 24%, rgba(204,251,241,0.84) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 62%, rgba(153,246,228,0.72) 0 1px, transparent 2px),
+    linear-gradient(90deg, transparent 18px, rgba(153,246,228,0.24) 19px, transparent 20px);
+  animation:greenBluePulse 4.2s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="senor-de-la-ultima-constelacion"] .rank-book-cover,
+.book-cover[data-book-id="senor-de-la-ultima-constelacion"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.60) 0 12px, rgba(219,234,254,0.28) 13px 15px, transparent 16px),
+    radial-gradient(circle at 60% 28%, rgba(255,255,255,0.34), transparent 24%),
+    linear-gradient(145deg, #0f172a 0%, #93c5fd 48%, #1d4ed8 100%);
+}
+
+.rank-book[data-book-id="senor-de-la-ultima-constelacion"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 24% 24%, rgba(255,255,255,0.86) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 34%, rgba(219,234,254,0.76) 0 1px, transparent 2px),
+    radial-gradient(circle at 52% 72%, rgba(255,255,255,0.72) 0 1px, transparent 2px),
+    repeating-linear-gradient(115deg, transparent 0 12px, rgba(255,255,255,0.28) 13px, transparent 15px);
+  animation:blueSilverRunes 2.8s linear infinite;
+}
+
+.rank-book[data-book-id="portador-de-la-ultima-verdad"] .rank-book-cover,
+.book-cover[data-book-id="portador-de-la-ultima-verdad"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.62) 0 12px, rgba(253,224,71,0.25) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 32%, rgba(253,224,71,0.32), transparent 23%),
+    radial-gradient(circle at 67% 72%, rgba(168,85,247,0.34), transparent 30%),
+    linear-gradient(145deg, #450a0a 0%, #facc15 44%, #9333ea 100%);
+}
+
+.rank-book[data-book-id="portador-de-la-ultima-verdad"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 30% 30%, transparent 0 10px, rgba(253,224,71,0.36) 11px, transparent 13px),
+    radial-gradient(circle at 70% 44%, transparent 0 15px, rgba(248,113,113,0.32) 16px, transparent 18px),
+    radial-gradient(circle at 52% 72%, transparent 0 12px, rgba(216,180,254,0.34) 13px, transparent 15px);
+  animation:truthFloatingCircles 5s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="emperador-del-horizonte-infinito"] .rank-book-cover,
+.book-cover[data-book-id="emperador-del-horizonte-infinito"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.74) 0 12px, rgba(147,197,253,0.22) 13px 15px, transparent 16px),
+    radial-gradient(circle at 60% 32%, rgba(147,197,253,0.24), transparent 24%),
+    linear-gradient(145deg, #020617 0%, #1d4ed8 44%, #061026 100%);
+}
+
+.rank-book[data-book-id="emperador-del-horizonte-infinito"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 24% 25%, rgba(255,255,255,0.90) 0 1px, transparent 2px),
+    radial-gradient(circle at 42% 68%, rgba(255,255,255,0.74) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 36%, rgba(255,255,255,0.78) 0 1px, transparent 2px),
+    repeating-linear-gradient(100deg, transparent 0 18px, rgba(255,255,255,0.34) 19px, transparent 21px);
+  animation:fastHorizonLines 1.4s linear infinite;
+}
+
+.rank-book[data-book-id="trascendente-astral"] .rank-book-cover,
+.book-cover[data-book-id="trascendente-astral"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.62) 0 12px, rgba(216,180,254,0.25) 13px 15px, transparent 16px),
+    radial-gradient(circle at 52% 32%, rgba(226,232,240,0.28), transparent 22%),
+    linear-gradient(145deg, #1e1b4b 0%, #8b5cf6 48%, #94a3b8 100%);
+}
+
+.rank-book[data-book-id="deidad-de-las-sombras-eternas"] .rank-book-cover,
+.book-cover[data-book-id="deidad-de-las-sombras-eternas"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.76) 0 12px, rgba(34,197,94,0.20) 13px 15px, transparent 16px),
+    radial-gradient(circle at 54% 34%, rgba(187,247,208,0.22), transparent 22%),
+    linear-gradient(145deg, #000 0%, #166534 48%, #030712 100%);
+}
+
+.rank-book[data-book-id="trascendente-astral"] .rank-book-cover::after,
+.rank-book[data-book-id="deidad-de-las-sombras-eternas"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.76) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 66%, rgba(255,255,255,0.64) 0 1px, transparent 2px),
+    radial-gradient(circle at 50% 40%, transparent 0 20px, rgba(255,255,255,0.25) 21px, transparent 23px),
+    radial-gradient(circle at 58% 70%, transparent 0 12px, rgba(255,255,255,0.20) 13px, transparent 15px);
+  animation:matteFloatDots 4.7s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="devastador-del-infinito"] .rank-book-cover,
+.book-cover[data-book-id="devastador-del-infinito"],
+.rank-book[data-book-id="senor-del-trono-negro"] .rank-book-cover,
+.book-cover[data-book-id="senor-del-trono-negro"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.78) 0 12px, rgba(125,211,252,0.20) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 36%, rgba(125,211,252,0.22), transparent 22%),
+    linear-gradient(145deg, #020617 0%, #0e7490 44%, #111827 100%);
+}
+
+.rank-book[data-book-id="devastador-del-infinito"] .rank-book-cover::after,
+.rank-book[data-book-id="senor-del-trono-negro"] .rank-book-cover::after{
+  background:
+    linear-gradient(95deg, transparent 0 28%, rgba(255,255,255,0.34) 29%, transparent 31%),
+    linear-gradient(110deg, transparent 0 55%, rgba(125,211,252,0.28) 56%, transparent 58%),
+    repeating-linear-gradient(100deg, transparent 0 15px, rgba(255,255,255,0.26) 16px, transparent 18px);
+  animation:shipWarpLines 1.2s linear infinite;
+}
+
+.rank-book[data-book-id="arquitecto-de-la-eternidad"] .rank-book-cover,
+.book-cover[data-book-id="arquitecto-de-la-eternidad"],
+.rank-book[data-book-id="vigia-del-reino-prohibido"] .rank-book-cover,
+.book-cover[data-book-id="vigia-del-reino-prohibido"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.62) 0 12px, rgba(226,232,240,0.25) 13px 15px, transparent 16px),
+    radial-gradient(circle at 52% 32%, rgba(255,255,255,0.34), transparent 24%),
+    radial-gradient(circle at 68% 74%, rgba(168,85,247,0.28), transparent 28%),
+    linear-gradient(145deg, #0f766e 0%, #38bdf8 42%, #9333ea 72%, #f8fafc 100%);
+}
+
+.rank-book[data-book-id="arquitecto-de-la-eternidad"] .rank-book-cover::after,
+.rank-book[data-book-id="vigia-del-reino-prohibido"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 36%, transparent 0 24px, rgba(255,255,255,0.34) 25px, transparent 27px, transparent 36px, rgba(216,180,254,0.26) 37px, transparent 39px),
+    radial-gradient(circle at 28% 28%, rgba(255,255,255,0.78) 0 1px, transparent 2px),
+    linear-gradient(90deg, transparent 18px, rgba(255,255,255,0.22) 19px, transparent 20px);
+  animation:blueGreenSilverPulse 4s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="monarca-del-eclipse-supremo"] .rank-book-cover,
+.book-cover[data-book-id="monarca-del-eclipse-supremo"],
+.rank-book[data-book-id="rey-del-fin-eterno"] .rank-book-cover,
+.book-cover[data-book-id="rey-del-fin-eterno"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.82) 0 12px, rgba(216,180,254,0.20) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 36%, #020617 0 17%, rgba(88,28,135,0.52) 18%, transparent 34%),
+    radial-gradient(circle at 72% 76%, rgba(20,184,166,0.26), transparent 28%),
+    linear-gradient(145deg, #09011a 0%, #1d4ed8 48%, #7f1d1d 100%);
+}
+
+.rank-book[data-book-id="monarca-del-eclipse-supremo"] .rank-book-cover::after,
+.rank-book[data-book-id="rey-del-fin-eterno"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 36%, #020617 0 19px, rgba(216,180,254,0.42) 20px, transparent 24px, transparent 32px, rgba(20,184,166,0.22) 33px, transparent 36px),
+    radial-gradient(circle at 28% 28%, rgba(255,255,255,0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 70%, rgba(45,212,191,0.54) 0 1px, transparent 2px);
+  animation:blackHoleSpin 4.6s linear infinite;
+}
+
 .rank-book[data-book-id="amateur"] .rank-book-cover{
   background:
     linear-gradient(90deg, rgba(0,0,0,0.54) 0 12px, rgba(45,212,191,0.22) 13px 15px, transparent 16px),
@@ -1797,6 +1951,47 @@ button{
   50%{ opacity:0.92; transform:scale(1.04); filter:brightness(1.25); }
 }
 
+@keyframes greenBluePulse{
+  0%, 100%{ opacity:0.50; transform:scale(0.98); }
+  50%{ opacity:0.92; transform:scale(1.04); }
+}
+
+@keyframes blueSilverRunes{
+  0%{ opacity:0.48; background-position:0 0; }
+  100%{ opacity:0.92; background-position:34px -46px; }
+}
+
+@keyframes truthFloatingCircles{
+  0%, 100%{ opacity:0.54; transform:translate(0, 0) scale(1); }
+  50%{ opacity:0.94; transform:translate(2px, -5px) scale(1.05); }
+}
+
+@keyframes fastHorizonLines{
+  0%{ opacity:0.44; background-position:0 0; }
+  100%{ opacity:0.92; background-position:42px -36px; }
+}
+
+@keyframes matteFloatDots{
+  0%, 100%{ opacity:0.50; transform:translateY(0) scale(1); }
+  50%{ opacity:0.90; transform:translateY(-4px) scale(1.04); }
+}
+
+@keyframes shipWarpLines{
+  0%{ opacity:0.42; transform:translateX(-8px); }
+  100%{ opacity:0.92; transform:translateX(8px); }
+}
+
+@keyframes blueGreenSilverPulse{
+  0%, 100%{ opacity:0.50; transform:scale(0.98); filter:brightness(1); }
+  50%{ opacity:0.94; transform:scale(1.05); filter:brightness(1.28); }
+}
+
+@keyframes blackHoleSpin{
+  0%{ opacity:0.52; transform:rotate(0deg) scale(0.98); filter:brightness(1); }
+  50%{ opacity:0.94; transform:rotate(180deg) scale(1.05); filter:brightness(1.28); }
+  100%{ opacity:0.52; transform:rotate(360deg) scale(0.98); filter:brightness(1); }
+}
+
 @keyframes haloPulse{
   0%, 100%{ opacity:0.72; transform:scale(0.94); }
   50%{ opacity:1; transform:scale(1.05); }
@@ -1846,6 +2041,18 @@ button{
   .rank-book[data-book-id="dominador-del-trono-astral"] .rank-book-cover::after,
   .rank-book[data-book-id="soberano-de-los-ecos-infinitos"] .rank-book-cover::after,
   .rank-book[data-book-id="portador-del-juicio-final"] .rank-book-cover::after,
+  .rank-book[data-book-id="heraldo-del-vacio-primordial"] .rank-book-cover::after,
+  .rank-book[data-book-id="senor-de-la-ultima-constelacion"] .rank-book-cover::after,
+  .rank-book[data-book-id="portador-de-la-ultima-verdad"] .rank-book-cover::after,
+  .rank-book[data-book-id="emperador-del-horizonte-infinito"] .rank-book-cover::after,
+  .rank-book[data-book-id="trascendente-astral"] .rank-book-cover::after,
+  .rank-book[data-book-id="deidad-de-las-sombras-eternas"] .rank-book-cover::after,
+  .rank-book[data-book-id="devastador-del-infinito"] .rank-book-cover::after,
+  .rank-book[data-book-id="senor-del-trono-negro"] .rank-book-cover::after,
+  .rank-book[data-book-id="arquitecto-de-la-eternidad"] .rank-book-cover::after,
+  .rank-book[data-book-id="vigia-del-reino-prohibido"] .rank-book-cover::after,
+  .rank-book[data-book-id="monarca-del-eclipse-supremo"] .rank-book-cover::after,
+  .rank-book[data-book-id="rey-del-fin-eterno"] .rank-book-cover::after,
   .book-cover[data-book-id="amateur"] .book-sigil{
     animation:none;
   }
