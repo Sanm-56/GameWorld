@@ -123,6 +123,52 @@ body::before{
   50%{ transform:scale(1.05); opacity:0.86; filter:blur(0.4px); }
 }
 
+@keyframes profileGridFlow{
+  0%{ background-position:0 0, 0 0, 0 0; opacity:0.58; }
+  50%{ background-position:24px 0, 0 18px, 0 0; opacity:0.9; }
+  100%{ background-position:48px 0, 0 36px, 0 0; opacity:0.58; }
+}
+
+@keyframes profileGlitchShift{
+  0%,100%{ transform:translate3d(0,0,0); opacity:0.58; }
+  16%{ transform:translate3d(5px,-1px,0); opacity:0.82; }
+  18%{ transform:translate3d(-4px,1px,0); opacity:0.44; }
+  42%{ transform:translate3d(3px,0,0); opacity:0.72; }
+  45%{ transform:translate3d(0,0,0); opacity:0.54; }
+}
+
+@keyframes profileFlarePulse{
+  0%,100%{ transform:scale(0.98) rotate(0deg); opacity:0.58; filter:saturate(1); }
+  50%{ transform:scale(1.04) rotate(4deg); opacity:0.92; filter:saturate(1.28); }
+}
+
+@keyframes profileOrbitTurn{
+  0%{ transform:rotate(0deg) scale(1); opacity:0.48; }
+  50%{ transform:rotate(180deg) scale(1.035); opacity:0.86; }
+  100%{ transform:rotate(360deg) scale(1); opacity:0.48; }
+}
+
+@keyframes profileRiftDrift{
+  0%,100%{ background-position:0 0, 0 0, 0 0; opacity:0.58; }
+  50%{ background-position:18px -10px, -16px 14px, 0 0; opacity:0.88; }
+}
+
+@keyframes profileConstellationDrift{
+  0%,100%{ background-position:0 0, 0 0, 0 0, 0 0; opacity:0.56; }
+  50%{ background-position:14px -10px, -18px 12px, 10px 8px, 0 0; opacity:0.92; }
+}
+
+@keyframes profilePrismSlide{
+  0%{ background-position:-36px 0, 0 0, 0 0; opacity:0.56; }
+  50%{ background-position:20px 0, 0 0, 0 0; opacity:0.9; }
+  100%{ background-position:76px 0, 0 0, 0 0; opacity:0.56; }
+}
+
+@keyframes profileEmblemPulse{
+  0%,100%{ transform:translateY(0) scale(1); filter:brightness(1); }
+  50%{ transform:translateY(-1px) scale(1.035); filter:brightness(1.18); }
+}
+
 body{
   --rank-primary:#38bdf8;
   --rank-secondary:#22c55e;
@@ -307,6 +353,87 @@ body[data-rank-tier="ascendido"]{ --rank-primary:#67e8f9; --rank-secondary:#f0ab
     linear-gradient(128deg, transparent 0 27%, rgba(var(--rank-rgb),0.22) 27.4% 28%, transparent 28.6% 100%),
     linear-gradient(52deg, transparent 0 58%, color-mix(in srgb, var(--rank-accent) 24%, transparent) 58.4% 59%, transparent 59.6% 100%),
     radial-gradient(circle at 78% 22%, rgba(var(--rank-rgb),0.16), transparent 30%);
+  animation:profileRiftDrift 6.5s ease-in-out infinite;
+}
+
+.hero[data-rank-motif="grid"]::after{
+  background:
+    linear-gradient(90deg, rgba(var(--rank-rgb),0.13) 0 1px, transparent 1px 26px),
+    linear-gradient(0deg, color-mix(in srgb, var(--rank-secondary) 11%, transparent) 0 1px, transparent 1px 22px),
+    radial-gradient(circle at 78% 18%, rgba(var(--rank-rgb),0.18), transparent 28%);
+  background-size:26px 26px, 22px 22px, auto;
+  animation:profileGridFlow 9s linear infinite;
+}
+
+.hero[data-rank-motif="glitch"]::after{
+  background:
+    linear-gradient(180deg, transparent 0 18%, rgba(var(--rank-rgb),0.24) 18.4% 19.2%, transparent 20% 46%, color-mix(in srgb, var(--rank-accent) 18%, transparent) 46.5% 47.2%, transparent 48% 100%),
+    linear-gradient(90deg, transparent 0 42%, rgba(255,255,255,0.12) 44%, transparent 46% 100%),
+    radial-gradient(circle at 78% 22%, rgba(var(--rank-rgb),0.16), transparent 30%);
+  animation:profileGlitchShift 4.8s steps(1, end) infinite;
+}
+
+.hero[data-rank-motif="flare"]::after{
+  background:
+    radial-gradient(circle at 70% 42%, rgba(2,6,23,0.94) 0 15%, rgba(255,255,255,0.24) 16% 17%, color-mix(in srgb, var(--rank-accent) 28%, transparent) 20%, transparent 36%),
+    conic-gradient(from 124deg at 70% 42%, transparent, color-mix(in srgb, var(--rank-secondary) 26%, transparent), transparent 42%, color-mix(in srgb, var(--rank-accent) 18%, transparent), transparent 80%),
+    radial-gradient(circle at 18% 76%, rgba(var(--rank-rgb),0.16), transparent 28%);
+  animation:profileFlarePulse 5.8s ease-in-out infinite;
+}
+
+.hero[data-rank-motif="orbit"]::after{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.62) 0 1px, transparent 2px),
+    radial-gradient(ellipse at 50% 50%, transparent 0 27%, rgba(var(--rank-rgb),0.24) 28% 29%, transparent 30% 100%),
+    radial-gradient(ellipse at 50% 50%, transparent 0 43%, color-mix(in srgb, var(--rank-accent) 17%, transparent) 44% 45%, transparent 46% 100%),
+    conic-gradient(from 20deg at 50% 50%, transparent, rgba(var(--rank-rgb),0.18), transparent 34%);
+  animation:profileOrbitTurn 13s linear infinite;
+}
+
+.hero[data-rank-motif="rift"]::after{
+  background:
+    linear-gradient(128deg, transparent 0 23%, rgba(var(--rank-rgb),0.28) 23.4% 24.1%, transparent 25% 100%),
+    linear-gradient(64deg, transparent 0 62%, color-mix(in srgb, var(--rank-accent) 25%, transparent) 62.4% 63.2%, transparent 64% 100%),
+    radial-gradient(circle at 82% 18%, rgba(var(--rank-rgb),0.18), transparent 30%);
+  animation:profileRiftDrift 5.6s ease-in-out infinite;
+}
+
+.hero[data-rank-motif="constellation"]::after{
+  background:
+    radial-gradient(circle at 20% 26%, rgba(255,255,255,0.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 36%, rgba(var(--rank-rgb),0.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 74% 64%, color-mix(in srgb, var(--rank-accent) 70%, white) 0 1px, transparent 2px),
+    linear-gradient(26deg, transparent 0 23%, rgba(255,255,255,0.12) 23.2% 23.7%, transparent 24% 100%);
+  background-size:118px 118px, 164px 164px, 142px 142px, auto;
+  animation:profileConstellationDrift 10s ease-in-out infinite;
+}
+
+.hero[data-rank-motif="refraction"]::after{
+  background:
+    linear-gradient(112deg, transparent 0 20%, color-mix(in srgb, var(--rank-primary) 23%, transparent) 21% 31%, transparent 32% 55%, color-mix(in srgb, var(--rank-accent) 18%, transparent) 57% 66%, transparent 67%),
+    conic-gradient(from 18deg at 32% 44%, transparent, rgba(var(--rank-rgb),0.2), transparent 22%),
+    conic-gradient(from 190deg at 72% 48%, transparent, color-mix(in srgb, var(--rank-accent) 21%, transparent), transparent 25%);
+  background-size:180px 100%, auto, auto;
+  animation:profilePrismSlide 8.2s ease-in-out infinite;
+}
+
+.hero[data-rank-motif="halo"]::after,
+.hero[data-rank-motif="ascension"]::after,
+.hero[data-rank-motif="infinity"]::after{
+  background:
+    radial-gradient(circle at 50% 48%, rgba(255,255,255,0.44) 0 2px, rgba(var(--rank-rgb),0.28) 3px 15%, transparent 24%),
+    radial-gradient(circle at 50% 48%, transparent 0 36%, rgba(255,255,255,0.18) 37% 38%, transparent 39%),
+    conic-gradient(from 0deg at 50% 48%, transparent, color-mix(in srgb, var(--rank-primary) 18%, transparent), transparent 28%, color-mix(in srgb, var(--rank-accent) 14%, transparent), transparent 62%);
+  animation:profileOrbitTurn 12s linear infinite;
+}
+
+.hero[data-rank-motif="gravity"]::after,
+.hero[data-rank-motif="singularity"]::after{
+  background:
+    radial-gradient(circle at 52% 48%, rgba(0,0,5,0.94) 0 17%, rgba(var(--rank-rgb),0.25) 18% 20%, transparent 34%),
+    radial-gradient(circle at 52% 48%, transparent 0 34%, rgba(255,255,255,0.11) 35% 36%, transparent 37%),
+    conic-gradient(from 210deg at 52% 48%, transparent, color-mix(in srgb, var(--rank-primary) 22%, transparent), transparent 42%);
+  animation:rankCoreBreathe 4.8s ease-in-out infinite;
 }
 
 .hero > *{
@@ -427,6 +554,22 @@ body[data-rank-tier="ascendido"]{ --rank-primary:#67e8f9; --rank-secondary:#f0ab
   border:1px solid var(--rank-border);
   box-shadow:0 18px 46px rgba(0,0,0,0.28), 0 0 36px var(--rank-glow);
   position:relative;
+  overflow:hidden;
+  animation:profileEmblemPulse 5.8s ease-in-out infinite;
+}
+
+.profile-avatar::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 28% 26%, rgba(255,255,255,0.2), transparent 20%),
+    conic-gradient(from 0deg, transparent, rgba(var(--rank-rgb),0.18), transparent 32%, color-mix(in srgb, var(--rank-accent) 18%, transparent), transparent 70%);
+  opacity:0.72;
+  mix-blend-mode:screen;
+  animation:profileOrbitTurn 9s linear infinite;
+  pointer-events:none;
 }
 
 .profile-avatar::after{
@@ -446,6 +589,7 @@ body[data-rank-tier="ascendido"]{ --rank-primary:#67e8f9; --rank-secondary:#f0ab
   background:linear-gradient(135deg, var(--rank-primary), var(--rank-accent));
   border:1px solid rgba(255,255,255,0.34);
   box-shadow:0 10px 26px rgba(0,0,0,0.34), 0 0 24px var(--rank-glow);
+  animation:profileEmblemPulse 4.6s ease-in-out infinite;
 }
 
 .profile-eyebrow{
@@ -11199,6 +11343,16 @@ body.sudoku-screen-shake{
     margin-bottom:14px;
   }
 
+  .hero::before{
+    opacity:0.52;
+  }
+
+  .hero::after{
+    inset:6px;
+    border-radius:13px;
+    opacity:0.58;
+  }
+
   .profile-identity{
     grid-template-columns:1fr;
     gap:12px;
@@ -11209,6 +11363,12 @@ body.sudoku-screen-shake{
     height:64px;
     border-radius:18px;
     font-size:1.45rem;
+  }
+
+  .profile-avatar::before{
+    inset:6px;
+    border-radius:14px;
+    opacity:0.54;
   }
 
   .profile-avatar::after{
@@ -12351,6 +12511,9 @@ body.sudoku-screen-shake{
 @media (prefers-reduced-motion:reduce){
   .hero::before,
   .hero::after,
+  .profile-avatar,
+  .profile-avatar::before,
+  .profile-avatar::after,
   .rank-node::before,
   .rank-node.current{
     animation:none;
