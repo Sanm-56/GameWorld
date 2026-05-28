@@ -209,12 +209,23 @@ body[data-rank-tier="ascendido"]{ --rank-primary:#67e8f9; --rank-secondary:#f0ab
 }
 
 .topbar{
+  position:sticky;
+  top:0;
+  z-index:60;
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:12px;
   flex-wrap:wrap;
-  margin-bottom:24px;
+  margin:-8px -8px 24px;
+  padding:10px;
+  border:1px solid rgba(var(--rank-rgb),0.2);
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(var(--rank-rgb),0.2), transparent 38%),
+    linear-gradient(135deg, rgba(15,23,42,0.92), rgba(2,6,23,0.9));
+  box-shadow:0 18px 42px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
+  backdrop-filter:blur(14px);
 }
 
 .btn{
@@ -11326,7 +11337,9 @@ body.sudoku-screen-shake{
     display:grid;
     grid-template-columns:minmax(0, 1fr);
     gap:10px;
-    margin-bottom:16px;
+    margin:-4px 0 16px;
+    padding:8px;
+    border-radius:16px;
   }
 
   .btn{
