@@ -566,8 +566,18 @@ button{
   background:rgba(15,23,42,0.38);
 }
 
-.rank-book:hover .rank-book-cover,
 .rank-book.selected .rank-book-cover{
+  transform:translateY(-4px) rotateZ(-0.5deg);
+  filter:saturate(1.08) brightness(1.04);
+  box-shadow:
+    0 20px 30px rgba(var(--rank-rgb),0.22),
+    0 0 0 1px rgba(var(--rank-rgb),0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.16),
+    inset -12px 0 20px rgba(0,0,0,0.16);
+}
+
+.rank-book:hover .rank-book-cover,
+.rank-book.selected:hover .rank-book-cover{
   transform:translateY(-8px) rotateZ(0deg);
   filter:saturate(1.12) brightness(1.08);
   box-shadow:
@@ -4094,6 +4104,306 @@ button{
   animation:archiveYellowBlackLostVoices 4.7s ease-in-out infinite;
 }
 
+#archiveShelf .rank-book-cover[data-archive-id="guardian-del-sol-muerto"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.88) 0 12px, rgba(74,222,128,.18) 13px 15px, transparent 16px), radial-gradient(ellipse at 52% 35%, rgba(187,247,208,.32), transparent 24%), linear-gradient(145deg, #020617 0%, #14532d 45%, #111827 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="guardian-del-sol-muerto"]::after{
+  background:radial-gradient(ellipse at 45% 70%, rgba(134,239,172,.24), transparent 34%), conic-gradient(from 180deg at 50% 38%, transparent 0 38deg, rgba(236,253,245,.20) 42deg 47deg, transparent 52deg 360deg);
+  filter:blur(.2px);
+  animation:archiveGreenBlackDeadSunMist 5.4s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="portador-del-juicio-final"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.86) 0 12px, rgba(34,197,94,.16) 13px 15px, transparent 16px), radial-gradient(circle at 55% 35%, rgba(74,222,128,.24), transparent 25%), linear-gradient(145deg, #030712 0%, #052e16 42%, #7f1d1d 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="portador-del-juicio-final"]::after{
+  background:linear-gradient(115deg, transparent 0 24%, rgba(34,197,94,.28) 26% 30%, transparent 33% 100%), radial-gradient(ellipse at 78% 82%, rgba(239,68,68,.36), transparent 35%);
+  clip-path:polygon(0 0, 100% 0, 100% 72%, 74% 100%, 0 100%);
+  animation:archiveGreenBlackJudgementFlame 3.9s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="rey-de-la-corona-eterna"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.82) 0 12px, rgba(190,242,100,.14) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(190,242,100,.28), transparent 27%), linear-gradient(145deg, #0a0a0a 0%, #1f2937 38%, #365314 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="rey-de-la-corona-eterna"]::after{
+  background:linear-gradient(0deg, transparent 0 46%, rgba(236,252,203,.24) 47% 49%, transparent 50%), linear-gradient(90deg, transparent 0 24%, rgba(132,204,22,.18) 25% 28%, transparent 29% 72%, rgba(132,204,22,.16) 73% 76%, transparent 77%);
+  transform-origin:center bottom;
+  animation:archiveGreenBlackImmortalThrone 4.8s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="emisario-del-vacio-absoluto"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.92) 0 12px, rgba(45,212,191,.13) 13px 15px, transparent 16px), radial-gradient(circle at 72% 25%, rgba(20,184,166,.26), transparent 19%), linear-gradient(145deg, #020617 0%, #031b18 48%, #07111f 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="emisario-del-vacio-absoluto"]::after{
+  background:conic-gradient(from 35deg at 62% 42%, transparent 0 58deg, rgba(20,184,166,.22) 60deg 66deg, transparent 70deg 150deg, rgba(220,252,231,.16) 154deg 158deg, transparent 162deg 360deg);
+  animation:archiveGreenBlackAbyssMessenger 5.8s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="titan-del-eclipse-carmesi"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.84) 0 12px, rgba(34,197,94,.12) 13px 15px, transparent 16px), radial-gradient(circle at 47% 36%, rgba(22,163,74,.26), transparent 26%), linear-gradient(145deg, #050505 0%, #14532d 46%, #450a0a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="titan-del-eclipse-carmesi"]::after{
+  background:radial-gradient(ellipse at 50% 86%, rgba(239,68,68,.30), transparent 30%), repeating-conic-gradient(from 0deg at 50% 36%, rgba(187,247,208,.12) 0 5deg, transparent 6deg 30deg);
+  animation:archiveGreenBlackCorruptionColossus 4.5s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="custodio-del-reino-celestial"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.74) 0 12px, rgba(187,247,208,.18) 13px 15px, transparent 16px), radial-gradient(ellipse at 50% 36%, rgba(255,255,255,.46), transparent 27%), linear-gradient(145deg, #f8fafc 0%, #86efac 45%, #0f172a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="custodio-del-reino-celestial"]::after{
+  background:linear-gradient(90deg, rgba(255,255,255,.34) 0 3px, transparent 4px 31px, rgba(187,247,208,.26) 32px 35px, transparent 36px), linear-gradient(180deg, transparent 0 42%, rgba(255,255,255,.26) 43% 46%, transparent 47%);
+  animation:archiveGreenBlackPureWall 4.2s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="senor-de-la-ultima-constelacion"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.80) 0 12px, rgba(74,222,128,.16) 13px 15px, transparent 16px), radial-gradient(circle at 67% 28%, rgba(34,197,94,.24), transparent 20%), linear-gradient(145deg, #020617 0%, #0f766e 44%, #172554 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="senor-de-la-ultima-constelacion"]::after{
+  background:linear-gradient(30deg, transparent 0 48%, rgba(220,252,231,.22) 49% 50%, transparent 51%), linear-gradient(150deg, transparent 0 44%, rgba(74,222,128,.20) 45% 46%, transparent 47%), radial-gradient(circle at 26% 68%, rgba(240,253,244,.55) 0 1px, transparent 2px);
+  background-size:100% 100%, 100% 100%, 24px 20px;
+  animation:archiveGreenBlackOriginMap 5.6s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="deidad-de-las-sombras-eternas"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.92) 0 12px, rgba(74,222,128,.12) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(21,128,61,.22), transparent 25%), linear-gradient(145deg, #000 0%, #111827 48%, #052e16 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="deidad-de-las-sombras-eternas"]::after{
+  background:linear-gradient(115deg, transparent 0 18%, rgba(255,255,255,.12) 20%, transparent 26%), radial-gradient(ellipse at 50% 78%, rgba(34,197,94,.20), transparent 35%);
+  mix-blend-mode:screen;
+  animation:archiveGreenBlackOldGodVeil 4.9s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="emperador-del-horizonte-infinito"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.86) 0 12px, rgba(134,239,172,.12) 13px 15px, transparent 16px), radial-gradient(circle at 52% 35%, rgba(59,130,246,.18), transparent 24%), linear-gradient(145deg, #020617 0%, #0b1120 40%, #14532d 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="emperador-del-horizonte-infinito"]::after{
+  background:linear-gradient(180deg, transparent 0 25%, rgba(187,247,208,.20) 26% 28%, transparent 29% 62%, rgba(96,165,250,.14) 63% 65%, transparent 66%), conic-gradient(from 250deg at 50% 38%, transparent 0 112deg, rgba(74,222,128,.18) 116deg 122deg, transparent 126deg);
+  animation:archiveGreenBlackBeyondCosmos 5s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="trascendente-astral"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.76) 0 12px, rgba(187,247,208,.16) 13px 15px, transparent 16px), radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.34), transparent 26%), linear-gradient(145deg, #111827 0%, #22c55e 46%, #e5e7eb 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="trascendente-astral"]::after{
+  background:radial-gradient(ellipse at 50% 92%, rgba(255,255,255,.30), transparent 36%), linear-gradient(0deg, transparent 0 34%, rgba(220,252,231,.24) 35% 37%, transparent 38%);
+  animation:archiveGreenBlackBeyondExistence 4.4s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="rey-del-fin-eterno"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.78) 0 12px, rgba(34,197,94,.13) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(148,163,184,.28), transparent 24%), linear-gradient(145deg, #020617 0%, #334155 43%, #052e16 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="rey-del-fin-eterno"]::after{
+  background:linear-gradient(135deg, transparent 0 30%, rgba(187,247,208,.22) 31% 33%, transparent 34%), radial-gradient(ellipse at 52% 78%, rgba(74,222,128,.18), transparent 28%);
+  clip-path:polygon(0 0, 100% 0, 86% 100%, 0 100%);
+  animation:archiveGreenBlackDeadTimeGarden 5.2s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="heraldo-del-vacio-primordial"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.88) 0 12px, rgba(45,212,191,.15) 13px 15px, transparent 16px), radial-gradient(circle at 54% 36%, rgba(6,182,212,.20), transparent 24%), linear-gradient(145deg, #020617 0%, #064e3b 44%, #030712 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="heraldo-del-vacio-primordial"]::after{
+  background:linear-gradient(180deg, rgba(20,184,166,.18), transparent 36%, rgba(34,197,94,.16)), radial-gradient(ellipse at 50% 105%, rgba(15,118,110,.34), transparent 38%);
+  animation:archiveGreenBlackPrimordialDepths 5.5s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="arquitecto-de-la-eternidad"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.78) 0 12px, rgba(190,242,100,.15) 13px 15px, transparent 16px), radial-gradient(circle at 52% 35%, rgba(217,249,157,.26), transparent 25%), linear-gradient(145deg, #020617 0%, #312e81 42%, #166534 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="arquitecto-de-la-eternidad"]::after{
+  background:repeating-linear-gradient(0deg, transparent 0 9px, rgba(220,252,231,.16) 10px, transparent 12px), linear-gradient(115deg, transparent 0 56%, rgba(255,255,255,.24) 57% 60%, transparent 61%);
+  animation:archiveGreenBlackTimelessLibrary 3.8s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="monarca-del-eclipse-supremo"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.82) 0 12px, rgba(74,222,128,.12) 13px 15px, transparent 16px), radial-gradient(circle at 50% 36%, rgba(239,68,68,.24), transparent 25%), linear-gradient(145deg, #030712 0%, #14532d 44%, #7f1d1d 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="monarca-del-eclipse-supremo"]::after{
+  background:linear-gradient(90deg, transparent, rgba(187,247,208,.18), transparent), radial-gradient(ellipse at 50% 84%, rgba(239,68,68,.24), transparent 34%);
+  animation:archiveGreenBlackFallenSunArena 3.6s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="vigia-del-reino-prohibido"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.88) 0 12px, rgba(34,197,94,.14) 13px 15px, transparent 16px), radial-gradient(circle at 50% 36%, rgba(168,85,247,.19), transparent 25%), linear-gradient(145deg, #020617 0%, #14532d 46%, #2e1065 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="vigia-del-reino-prohibido"]::after{
+  background:linear-gradient(90deg, rgba(220,252,231,.20) 0 4px, transparent 5px 44%, rgba(74,222,128,.16) 45% 49%, transparent 50% 100%);
+  transform-origin:center;
+  animation:archiveGreenBlackSealedMaze 4.7s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="portador-de-la-ultima-verdad"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.78) 0 12px, rgba(190,242,100,.14) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(250,204,21,.22), transparent 25%), linear-gradient(145deg, #111827 0%, #365314 40%, #78350f 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="portador-de-la-ultima-verdad"]::after{
+  background:linear-gradient(65deg, transparent 0 34%, rgba(236,252,203,.24) 35% 38%, transparent 39%), linear-gradient(-65deg, transparent 0 58%, rgba(74,222,128,.18) 59% 62%, transparent 63%);
+  animation:archiveGreenBlackFalseTheater 4.2s steps(2,end) infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="devastador-del-infinito"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.84) 0 12px, rgba(45,212,191,.16) 13px 15px, transparent 16px), radial-gradient(circle at 52% 35%, rgba(34,211,238,.24), transparent 25%), linear-gradient(145deg, #020617 0%, #0f766e 42%, #4338ca 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="devastador-del-infinito"]::after{
+  background:linear-gradient(0deg, transparent 0 24%, rgba(220,252,231,.18) 25% 26%, transparent 27% 72%, rgba(45,212,191,.20) 73% 74%, transparent 75%), linear-gradient(120deg, transparent 0 54%, rgba(255,255,255,.22) 55% 57%, transparent 58%);
+  animation:archiveGreenBlackDeadLawCity 4s steps(3,end) infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="senor-del-trono-negro"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.88) 0 12px, rgba(250,204,21,.12) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(132,204,22,.28), transparent 25%), linear-gradient(145deg, #030712 0%, #14532d 48%, #713f12 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="senor-del-trono-negro"]::after{
+  background:linear-gradient(90deg, transparent 0 20%, rgba(187,247,208,.18) 21% 24%, transparent 25% 78%, rgba(250,204,21,.16) 79% 82%, transparent 83%), radial-gradient(ellipse at 50% 90%, rgba(34,197,94,.26), transparent 34%);
+  background-size:38px 100%, 100% 100%;
+  animation:archiveGreenBlackLostMarket 5.1s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="custodio-del-horizonte-final"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.90) 0 12px, rgba(96,165,250,.16) 13px 15px, transparent 16px), radial-gradient(ellipse at 52% 34%, rgba(125,211,252,.28), transparent 24%), linear-gradient(145deg, #020617 0%, #0f172a 42%, #1e3a8a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="custodio-del-horizonte-final"]::after{
+  background:linear-gradient(0deg, transparent 0 44%, rgba(147,197,253,.22) 45% 47%, transparent 48%), repeating-linear-gradient(115deg, transparent 0 12px, rgba(56,189,248,.14) 13px, transparent 15px);
+  animation:archiveBlueBlackLostTrain 4.9s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="emperador-de-los-mundos-caidos"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.86) 0 12px, rgba(14,165,233,.14) 13px 15px, transparent 16px), radial-gradient(circle at 68% 28%, rgba(34,197,94,.24), transparent 20%), linear-gradient(145deg, #020617 0%, #075985 43%, #0f172a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="emperador-de-los-mundos-caidos"]::after{
+  background:linear-gradient(140deg, transparent 0 26%, rgba(186,230,253,.22) 27% 30%, transparent 31%), radial-gradient(ellipse at 50% 86%, rgba(45,212,191,.24), transparent 34%);
+  clip-path:polygon(0 6%, 100% 0, 88% 100%, 0 92%);
+  animation:archiveBlueBlackFallenIsle 5.2s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="heredero-del-abismo-supremo"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.84) 0 12px, rgba(96,165,250,.14) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(168,85,247,.22), transparent 25%), linear-gradient(145deg, #030712 0%, #1e1b4b 42%, #0e7490 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="heredero-del-abismo-supremo"]::after{
+  background:conic-gradient(from 40deg at 50% 38%, transparent 0 46deg, rgba(125,211,252,.22) 48deg 55deg, transparent 58deg 180deg, rgba(216,180,254,.16) 182deg 190deg, transparent 194deg 360deg), linear-gradient(180deg, transparent 0 55%, rgba(147,197,253,.14) 56% 59%, transparent 60%);
+  animation:archiveBlueBlackSleepingCarnival 5.4s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="soberano-de-ether-prime"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.82) 0 12px, rgba(14,165,233,.18) 13px 15px, transparent 16px), radial-gradient(circle at 52% 34%, rgba(34,211,238,.26), transparent 25%), linear-gradient(145deg, #020617 0%, #164e63 44%, #0f172a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="soberano-de-ether-prime"]::after{
+  background:linear-gradient(90deg, transparent 0 18%, rgba(186,230,253,.20) 19% 22%, transparent 23% 58%, rgba(56,189,248,.18) 59% 62%, transparent 63%), linear-gradient(0deg, transparent 0 35%, rgba(14,165,233,.16) 36% 39%, transparent 40%);
+  animation:archiveBlueBlackArtificialFactory 3.8s steps(4,end) infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="rey-del-vacio-eterno"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.78) 0 12px, rgba(147,197,253,.18) 13px 15px, transparent 16px), radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.34), transparent 26%), linear-gradient(145deg, #f8fafc 0%, #93c5fd 44%, #111827 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="rey-del-vacio-eterno"]::after{
+  background:linear-gradient(90deg, rgba(255,255,255,.26) 0 2px, transparent 3px 34px), linear-gradient(180deg, transparent 0 18%, rgba(15,23,42,.16) 19% 21%, transparent 22% 72%, rgba(59,130,246,.16) 73% 75%, transparent 76%);
+  animation:archiveBlueBlackExtinctMuseum 4.6s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="guardian-del-ultimo-eclipse"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.76) 0 12px, rgba(191,219,254,.22) 13px 15px, transparent 16px), radial-gradient(ellipse at 50% 35%, rgba(224,242,254,.52), transparent 28%), linear-gradient(145deg, #e0f2fe 0%, #1e3a8a 48%, #020617 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="guardian-del-ultimo-eclipse"]::after{
+  background:radial-gradient(circle at 18% 14%, rgba(255,255,255,.70) 0 1px, transparent 2px), radial-gradient(circle at 72% 52%, rgba(255,255,255,.55) 0 1px, transparent 2px), linear-gradient(160deg, transparent 0 43%, rgba(255,255,255,.25) 44% 47%, transparent 48%);
+  background-size:23px 29px, 31px 27px, 100% 100%;
+  animation:archiveBlueBlackSnowFortress 5.8s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="trascendente-del-ether-oscuro"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.86) 0 12px, rgba(99,102,241,.16) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(129,140,248,.28), transparent 25%), linear-gradient(145deg, #020617 0%, #312e81 45%, #0f172a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="trascendente-del-ether-oscuro"]::after{
+  background:repeating-linear-gradient(0deg, transparent 0 8px, rgba(191,219,254,.14) 9px, transparent 11px), linear-gradient(110deg, transparent 0 48%, rgba(147,197,253,.22) 49% 51%, transparent 52%);
+  transform-origin:center;
+  animation:archiveBlueBlackForbiddenSchool 4.1s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="monarca-de-la-ruina-celestial"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.84) 0 12px, rgba(14,165,233,.13) 13px 15px, transparent 16px), radial-gradient(circle at 48% 35%, rgba(34,197,94,.22), transparent 25%), linear-gradient(145deg, #020617 0%, #075985 40%, #064e3b 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="monarca-de-la-ruina-celestial"]::after{
+  background:radial-gradient(ellipse at 50% 82%, rgba(74,222,128,.25), transparent 34%), linear-gradient(90deg, transparent 0 38%, rgba(186,230,253,.18) 39% 41%, transparent 42%);
+  animation:archiveBlueBlackLivingPlanet 4.8s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="deidad-del-horizonte-negro"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.92) 0 12px, rgba(59,130,246,.13) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(30,64,175,.22), transparent 25%), linear-gradient(145deg, #000 0%, #111827 45%, #172554 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="deidad-del-horizonte-negro"]::after{
+  background:linear-gradient(180deg, transparent 0 20%, rgba(96,165,250,.20) 21% 23%, transparent 24% 68%, rgba(15,23,42,.50) 69% 74%, transparent 75%), radial-gradient(ellipse at 50% 92%, rgba(37,99,235,.20), transparent 30%);
+  animation:archiveBlueBlackDyingStars 5s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="emisario-de-la-ultima-era"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.84) 0 12px, rgba(96,165,250,.12) 13px 15px, transparent 16px), radial-gradient(circle at 50% 35%, rgba(239,68,68,.22), transparent 25%), linear-gradient(145deg, #020617 0%, #1e3a8a 44%, #450a0a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="emisario-de-la-ultima-era"]::after{
+  background:linear-gradient(90deg, transparent 0 28%, rgba(191,219,254,.20) 29% 31%, transparent 32% 70%, rgba(239,68,68,.18) 71% 73%, transparent 74%), conic-gradient(from 210deg at 50% 38%, transparent 0 100deg, rgba(125,211,252,.18) 105deg 112deg, transparent 118deg);
+  animation:archiveBlueBlackCosmicMessenger 4.3s steps(3,end) infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="portador-del-corazon-astral"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.80) 0 12px, rgba(147,197,253,.18) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(96,165,250,.34), transparent 28%), linear-gradient(145deg, #020617 0%, #1d4ed8 44%, #0f172a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="portador-del-corazon-astral"]::after{
+  background:radial-gradient(ellipse at 50% 50%, transparent 0 22%, rgba(191,219,254,.22) 23% 26%, transparent 27%), linear-gradient(130deg, transparent 0 50%, rgba(125,211,252,.20) 51% 53%, transparent 54%);
+  animation:archiveBlueBlackAstralCore 4.6s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="rey-de-las-sombras-primordiales"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.94) 0 12px, rgba(30,64,175,.12) 13px 15px, transparent 16px), radial-gradient(circle at 50% 35%, rgba(15,23,42,.76), transparent 28%), linear-gradient(145deg, #000 0%, #020617 46%, #1e1b4b 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="rey-de-las-sombras-primordiales"]::after{
+  background:linear-gradient(115deg, transparent 0 22%, rgba(147,197,253,.12) 24%, transparent 31%), radial-gradient(ellipse at 50% 84%, rgba(30,64,175,.26), transparent 35%);
+  animation:archiveBlueBlackFirstDarkness 5.3s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="custodio-del-trono-eterno"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.72) 0 12px, rgba(191,219,254,.22) 13px 15px, transparent 16px), radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.46), transparent 27%), linear-gradient(145deg, #f8fafc 0%, #dbeafe 40%, #1e3a8a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="custodio-del-trono-eterno"]::after{
+  background:linear-gradient(90deg, transparent 0 20%, rgba(30,64,175,.18) 21% 23%, transparent 24% 76%, rgba(255,255,255,.28) 77% 80%, transparent 81%), linear-gradient(0deg, transparent 0 48%, rgba(147,197,253,.22) 49% 52%, transparent 53%);
+  animation:archiveBlueBlackFinalJudgement 4.4s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="soberano-del-juicio-carmesi"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.82) 0 12px, rgba(96,165,250,.12) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(239,68,68,.26), transparent 25%), linear-gradient(145deg, #020617 0%, #1e3a8a 35%, #7f1d1d 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="soberano-del-juicio-carmesi"]::after{
+  background:linear-gradient(40deg, transparent 0 40%, rgba(191,219,254,.20) 41% 43%, transparent 44%), linear-gradient(140deg, transparent 0 58%, rgba(239,68,68,.24) 59% 62%, transparent 63%);
+  animation:archiveBlueBlackUniversalFlames 3.9s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="arquitecto-del-reino-absoluto"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.74) 0 12px, rgba(147,197,253,.18) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(226,232,240,.38), transparent 26%), linear-gradient(145deg, #f8fafc 0%, #60a5fa 42%, #111827 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="arquitecto-del-reino-absoluto"]::after{
+  background:linear-gradient(90deg, transparent 0 31%, rgba(15,23,42,.20) 32% 34%, transparent 35% 66%, rgba(191,219,254,.24) 67% 69%, transparent 70%), linear-gradient(0deg, transparent 0 31%, rgba(96,165,250,.18) 32% 34%, transparent 35% 66%, rgba(15,23,42,.16) 67% 69%, transparent 70%);
+  animation:archiveBlueBlackRealityCity 5s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="emperador-del-vacio-infinito"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.90) 0 12px, rgba(59,130,246,.14) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(79,70,229,.22), transparent 25%), linear-gradient(145deg, #020617 0%, #111827 45%, #1e1b4b 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="emperador-del-vacio-infinito"]::after{
+  background:linear-gradient(90deg, rgba(30,64,175,.18) 0 3px, transparent 4px 48%, rgba(147,197,253,.14) 49% 51%, transparent 52%), radial-gradient(ellipse at 50% 86%, rgba(30,64,175,.26), transparent 34%);
+  animation:archiveBlueBlackNoEscape 5.1s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="vigia-de-los-dioses-caidos"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.82) 0 12px, rgba(148,163,184,.16) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(125,211,252,.20), transparent 24%), linear-gradient(145deg, #020617 0%, #334155 46%, #0f172a 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="vigia-de-los-dioses-caidos"]::after{
+  background:linear-gradient(180deg, transparent 0 24%, rgba(191,219,254,.16) 25% 28%, transparent 29% 70%, rgba(148,163,184,.20) 71% 73%, transparent 74%), radial-gradient(ellipse at 50% 90%, rgba(15,23,42,.46), transparent 36%);
+  animation:archiveBlueBlackDivinityCemetery 4.7s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="portador-del-horizonte-absoluto"]{
+  background:linear-gradient(90deg, rgba(0,0,0,.74) 0 12px, rgba(191,219,254,.22) 13px 15px, transparent 16px), radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.40), transparent 26%), linear-gradient(145deg, #f8fafc 0%, #93c5fd 42%, #020617 100%);
+}
+#archiveShelf .rank-book-cover[data-archive-id="portador-del-horizonte-absoluto"]::after{
+  background:linear-gradient(120deg, transparent 0 44%, rgba(15,23,42,.26) 45% 48%, transparent 49%), linear-gradient(60deg, transparent 0 55%, rgba(191,219,254,.26) 56% 59%, transparent 60%);
+  clip-path:polygon(0 0, 92% 0, 100% 100%, 10% 100%);
+  animation:archiveBlueBlackRealityBorder 5.4s ease-in-out infinite;
+}
+
 @keyframes archiveRedGreenFirstStep{ 0%,100%{opacity:.50;transform:translateY(3px) scale(.98)} 50%{opacity:.96;transform:translateY(-4px) scale(1.04)} }
 @keyframes archiveRedGreenTrials{ 0%,100%{opacity:.48;transform:translateX(-2px)} 50%{opacity:.94;transform:translateX(3px)} }
 @keyframes archiveRedGreenEchoCity{ 0%,100%{opacity:.46;transform:scale(.97)} 50%{opacity:.94;transform:scale(1.06)} }
@@ -4148,6 +4458,42 @@ button{
 @keyframes archiveYellowBlackLightVanishes{ 0%,100%{opacity:.42;transform:translateX(-2px);filter:brightness(.9)} 50%{opacity:.88;transform:translateX(3px);filter:brightness(1.22)} }
 @keyframes archiveYellowBlackUniverseMouth{ 0%{opacity:.46;transform:rotate(0deg) scale(.98)} 100%{opacity:.88;transform:rotate(360deg) scale(1.04)} }
 @keyframes archiveYellowBlackLostVoices{ 0%,100%{opacity:.48;transform:scale(.97)} 50%{opacity:.94;transform:scale(1.06)} }
+@keyframes archiveGreenBlackDeadSunMist{ 0%,100%{opacity:.42;transform:translateY(6px) scale(1.04);filter:blur(.2px)} 50%{opacity:.92;transform:translateY(-6px) scale(1.12);filter:blur(1px)} }
+@keyframes archiveGreenBlackJudgementFlame{ 0%,100%{opacity:.46;transform:skewY(-3deg) translateY(4px);filter:brightness(.95)} 50%{opacity:.96;transform:skewY(4deg) translateY(-5px);filter:brightness(1.35)} }
+@keyframes archiveGreenBlackImmortalThrone{ 0%,100%{opacity:.48;transform:scaleY(.92) translateY(5px)} 50%{opacity:.98;transform:scaleY(1.08) translateY(-5px)} }
+@keyframes archiveGreenBlackAbyssMessenger{ 0%{opacity:.42;transform:rotate(0deg) scale(.98)} 100%{opacity:.86;transform:rotate(360deg) scale(1.06)} }
+@keyframes archiveGreenBlackCorruptionColossus{ 0%,100%{opacity:.44;transform:scale(.96) rotate(-1deg);filter:contrast(1)} 50%{opacity:.96;transform:scale(1.08) rotate(2deg);filter:contrast(1.35)} }
+@keyframes archiveGreenBlackPureWall{ 0%,100%{opacity:.48;transform:scaleX(.92)} 50%{opacity:.98;transform:scaleX(1.08)} }
+@keyframes archiveGreenBlackOriginMap{ 0%{opacity:.48;background-position:0 0, 0 0, 0 0;filter:brightness(1)} 100%{opacity:.92;background-position:0 0, 0 0, 30px -24px;filter:brightness(1.2)} }
+@keyframes archiveGreenBlackOldGodVeil{ 0%,100%{opacity:.40;transform:translateX(-6px) skewX(-3deg)} 50%{opacity:.88;transform:translateX(6px) skewX(4deg)} }
+@keyframes archiveGreenBlackBeyondCosmos{ 0%,100%{opacity:.44;transform:perspective(120px) rotateX(0deg) translateY(4px)} 50%{opacity:.96;transform:perspective(120px) rotateX(9deg) translateY(-5px)} }
+@keyframes archiveGreenBlackBeyondExistence{ 0%,100%{opacity:.48;transform:translateY(7px) scale(.98);filter:brightness(1)} 50%{opacity:1;transform:translateY(-8px) scale(1.07);filter:brightness(1.35)} }
+@keyframes archiveGreenBlackDeadTimeGarden{ 0%,100%{opacity:.42;clip-path:polygon(0 0, 100% 0, 86% 100%, 0 100%);transform:translateX(-2px)} 50%{opacity:.92;clip-path:polygon(12% 0, 100% 0, 100% 100%, 0 100%);transform:translateX(3px)} }
+@keyframes archiveGreenBlackPrimordialDepths{ 0%,100%{opacity:.44;transform:translateY(-8px) scaleY(.95)} 50%{opacity:.94;transform:translateY(8px) scaleY(1.1)} }
+@keyframes archiveGreenBlackTimelessLibrary{ 0%,100%{opacity:.46;transform:skewX(-4deg) translateX(-3px)} 50%{opacity:.95;transform:skewX(4deg) translateX(4px)} }
+@keyframes archiveGreenBlackFallenSunArena{ 0%,100%{opacity:.44;transform:translateX(-7px) skewX(-5deg);filter:blur(.1px)} 50%{opacity:.92;transform:translateX(7px) skewX(5deg);filter:blur(.7px)} }
+@keyframes archiveGreenBlackSealedMaze{ 0%,100%{opacity:.48;transform:scaleX(.82)} 50%{opacity:.96;transform:scaleX(1.12)} }
+@keyframes archiveGreenBlackFalseTheater{ 0%,100%{opacity:.42;transform:translate(0,0) skewX(0deg);filter:brightness(1)} 50%{opacity:.94;transform:translate(3px,-2px) skewX(6deg);filter:brightness(1.32)} }
+@keyframes archiveGreenBlackDeadLawCity{ 0%,100%{opacity:.46;transform:translate(0,0);filter:hue-rotate(0deg)} 50%{opacity:.96;transform:translate(-3px,2px);filter:hue-rotate(18deg)} }
+@keyframes archiveGreenBlackLostMarket{ 0%{opacity:.44;background-position:0 0, 0 0;transform:translateY(3px)} 100%{opacity:.92;background-position:42px 0, 0 0;transform:translateY(-3px)} }
+@keyframes archiveBlueBlackLostTrain{ 0%{opacity:.48;background-position:-40px 0, 0 0;transform:translateX(-4px)} 100%{opacity:.94;background-position:42px 0, 0 0;transform:translateX(4px)} }
+@keyframes archiveBlueBlackFallenIsle{ 0%,100%{opacity:.44;transform:translateY(6px) rotate(-1deg);filter:brightness(.95)} 50%{opacity:.94;transform:translateY(-7px) rotate(2deg);filter:brightness(1.28)} }
+@keyframes archiveBlueBlackSleepingCarnival{ 0%,100%{opacity:.42;transform:rotate(-5deg) scale(.98);filter:saturate(.9)} 50%{opacity:.96;transform:rotate(6deg) scale(1.07);filter:saturate(1.35)} }
+@keyframes archiveBlueBlackArtificialFactory{ 0%,100%{opacity:.44;transform:translate(0,0);filter:brightness(1)} 50%{opacity:.96;transform:translate(3px,-2px);filter:brightness(1.35)} }
+@keyframes archiveBlueBlackExtinctMuseum{ 0%,100%{opacity:.46;transform:perspective(100px) rotateY(-4deg)} 50%{opacity:.96;transform:perspective(100px) rotateY(6deg)} }
+@keyframes archiveBlueBlackSnowFortress{ 0%{opacity:.48;background-position:0 -28px, 0 -18px, 0 0;transform:translateY(-3px)} 100%{opacity:.94;background-position:0 30px, 0 26px, 0 0;transform:translateY(3px)} }
+@keyframes archiveBlueBlackForbiddenSchool{ 0%,100%{opacity:.46;transform:skewX(-3deg) translateX(-3px)} 50%{opacity:.95;transform:skewX(4deg) translateX(4px)} }
+@keyframes archiveBlueBlackLivingPlanet{ 0%,100%{opacity:.46;transform:scaleY(.94) translateY(5px);filter:brightness(1)} 40%{opacity:.98;transform:scaleY(1.1) translateY(-4px);filter:brightness(1.28)} 70%{opacity:.70;transform:scaleY(1.02)} }
+@keyframes archiveBlueBlackDyingStars{ 0%,100%{opacity:.40;transform:translateY(5px) scale(.98);filter:brightness(.86)} 50%{opacity:.92;transform:translateY(-5px) scale(1.06);filter:brightness(1.18)} }
+@keyframes archiveBlueBlackCosmicMessenger{ 0%,100%{opacity:.44;transform:translate(0,0) skewY(0deg)} 50%{opacity:.94;transform:translate(-3px,-2px) skewY(4deg)} }
+@keyframes archiveBlueBlackAstralCore{ 0%,100%{opacity:.46;transform:scale(.92);filter:brightness(1)} 50%{opacity:1;transform:scale(1.12);filter:brightness(1.38)} }
+@keyframes archiveBlueBlackFirstDarkness{ 0%,100%{opacity:.38;transform:translateX(-6px) scaleX(.94);filter:blur(.2px)} 50%{opacity:.88;transform:translateX(6px) scaleX(1.08);filter:blur(.8px)} }
+@keyframes archiveBlueBlackFinalJudgement{ 0%,100%{opacity:.48;transform:scaleY(.9) translateY(6px)} 50%{opacity:.98;transform:scaleY(1.08) translateY(-5px)} }
+@keyframes archiveBlueBlackUniversalFlames{ 0%,100%{opacity:.44;transform:skewX(-5deg) translateX(-4px);filter:brightness(1)} 50%{opacity:.95;transform:skewX(6deg) translateX(5px);filter:brightness(1.32)} }
+@keyframes archiveBlueBlackRealityCity{ 0%,100%{opacity:.46;transform:perspective(120px) rotateX(0deg) translateY(3px)} 50%{opacity:.98;transform:perspective(120px) rotateX(10deg) translateY(-5px)} }
+@keyframes archiveBlueBlackNoEscape{ 0%,100%{opacity:.42;transform:scaleX(.82)} 50%{opacity:.94;transform:scaleX(1.14)} }
+@keyframes archiveBlueBlackDivinityCemetery{ 0%,100%{opacity:.44;transform:translateY(6px);filter:grayscale(.2)} 50%{opacity:.92;transform:translateY(-6px);filter:grayscale(.75)} }
+@keyframes archiveBlueBlackRealityBorder{ 0%,100%{opacity:.44;clip-path:polygon(0 0, 92% 0, 100% 100%, 10% 100%);transform:translateX(-3px)} 50%{opacity:.96;clip-path:polygon(8% 0, 100% 0, 92% 100%, 0 100%);transform:translateX(4px)} }
 
 @media (prefers-reduced-motion: reduce){
   #archiveShelf .rank-book-cover[data-archive-id]::after{
