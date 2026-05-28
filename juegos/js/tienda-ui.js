@@ -8,7 +8,6 @@ import {
   comprarBoosterMonedas,
   comprarCosmetico,
   comprarMembresiaVip,
-  descontarMonedas,
   iniciarSincronizacionRecompensasUsuario,
   obtenerBoosterActivo,
   obtenerBoosterMonedasActivo,
@@ -428,11 +427,12 @@ async function comprarConMonedas(tipo, id) {
       ? BOOSTERS_MONEDAS.find((booster) => booster.id === id)
     : COSMETICOS.find((cosmetico) => cosmetico.id === id)
 
-  if (!item || !descontarMonedas(usuario, item.precio, { tipo, id })) {
-    safeAlert("No tienes monedas suficientes.")
+  if (!item) {
+    safeAlert("Item invalido.")
     return
   }
 
+  statusEl.textContent = "Procesando compra segura..."
   const resultado = tipo === "booster"
     ? await comprarBooster(usuario, id)
     : tipo === "coin-booster"
@@ -440,7 +440,10 @@ async function comprarConMonedas(tipo, id) {
     : await comprarCosmetico(usuario, id)
 
   if (!resultado.ok) {
-    statusEl.textContent = "Compra guardada para este usuario. La sincronizacion remota no esta disponible."
+    statusEl.textContent = resultado.message || "No se pudo completar la compra."
+    safeAlert(statusEl.textContent)
+    if (Number.isFinite(Number(resultado.saldoNuevo))) coinsEl.textContent = `${resultado.saldoNuevo} monedas`
+    return
   } else {
     statusEl.textContent = "Compra activada."
   }

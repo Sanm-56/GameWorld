@@ -551,82 +551,83 @@ async function obtenerBoosterTemporalActivo(usuario, catalogo, localKey) {
 
 export async function comprarBooster(usuario, boosterId) {
   const booster = BOOSTERS_XP.find((item) => item.id === boosterId)
-  return comprarBoosterTemporal(usuario, booster, BOOSTER_LOCAL_KEY)
+  return comprarItemTiendaConMonedas(usuario, "booster_xp", booster, BOOSTER_LOCAL_KEY)
 }
 
 export async function comprarBoosterMonedas(usuario, boosterId) {
   const booster = BOOSTERS_MONEDAS.find((item) => item.id === boosterId)
-  return comprarBoosterTemporal(usuario, booster, COIN_BOOSTER_LOCAL_KEY)
-}
-
-async function comprarBoosterTemporal(usuario, booster, localKey) {
-  if (!usuario || !booster) return { ok: false, error: "Booster invalido" }
-
-  const fechaInicio = new Date()
-  const fechaFin = new Date(fechaInicio.getTime() + booster.duracionMs)
-  const payload = {
-    usuario_id: usuario,
-    booster_id: booster.id,
-    multiplicador: booster.multiplicador,
-    fecha_inicio: fechaInicio.toISOString(),
-    fecha_fin: fechaFin.toISOString(),
-    activo: true,
-  }
-
-  guardarBoosterLocal(usuario, payload, localKey)
-
-  const { error } = await supabase
-    .from("usuario_boosters")
-    .insert(payload)
-
-  if (error) {
-    console.warn("No se pudo guardar booster en Supabase", error)
-    return { ok: false, booster: payload, error }
-  }
-
-  return { ok: true, booster: payload }
+  return comprarItemTiendaConMonedas(usuario, "booster_monedas", booster, COIN_BOOSTER_LOCAL_KEY)
 }
 
 export async function comprarCosmetico(usuario, cosmeticoId) {
   const cosmetico = COSMETICOS.find((item) => item.id === cosmeticoId)
-  if (!usuario || !cosmetico) return { ok: false, error: "Cosmetico invalido" }
+  return comprarItemTiendaConMonedas(usuario, "cosmetico", cosmetico)
+}
 
-  const payload = {
-    usuario_id: usuario,
-    cosmetico_id: cosmetico.id,
-    tipo: cosmetico.tipo,
-    rareza: cosmetico.rareza,
-    equipado: true,
-    created_at: new Date().toISOString(),
-    nombre: cosmetico.nombre,
-    categoria: cosmetico.categoria,
-    diseno: cosmetico.diseno,
-    rareza_visual: cosmetico.rareza,
+async function comprarItemTiendaConMonedas(usuario, tipoCompra, item, localKey = null) {
+  const codigo = (localStorage.getItem(SAVED_UNIQUE_CODE_KEY) || "").trim()
+  if (!usuario || !codigo || !item) {
+    return { ok: false, message: "Vuelve a iniciar sesion para comprar." }
   }
 
-  guardarCosmeticoLocal(usuario, payload)
+  try {
+    const { data, error } = await supabase.rpc("comprar_item_tienda_con_monedas", {
+      p_usuario: usuario,
+      p_codigo: codigo,
+      p_tipo_compra: tipoCompra,
+      p_producto_id: item.id,
+    })
 
-  await desactivarCosmeticosDelTipo(usuario, payload.tipo)
+    if (error || data?.ok !== true) {
+      console.warn("No se pudo comprar item de tienda", error || data)
+      return {
+        ok: false,
+        message: data?.mensaje || error?.message || "No se pudo completar la compra.",
+        saldoNuevo: data?.saldoNuevo,
+      }
+    }
 
-  const remoto = {
-    usuario_id: payload.usuario_id,
-    cosmetico_id: payload.cosmetico_id,
-    tipo: payload.tipo,
-    rareza: rarezaCompatibleSupabase(payload.rareza),
-    equipado: payload.equipado,
-    created_at: payload.created_at,
+    if (Number.isFinite(Number(data?.saldoNuevo))) {
+      guardarMonedas(usuario, data.saldoNuevo)
+      guardarMovimientoMonedas(usuario, "compra", -Math.max(0, Number(data?.precio || item.precio) || 0), {
+        tipo: tipoCompra,
+        id: item.id,
+        key: `tienda:${tipoCompra}:${item.id}:${Date.now()}`,
+      })
+      emitirCambioMonedas(usuario)
+    }
+
+    if (tipoCompra === "booster_xp" || tipoCompra === "booster_monedas") {
+      const booster = data?.booster || {
+        usuario_id: usuario,
+        booster_id: item.id,
+        multiplicador: item.multiplicador,
+        fecha_inicio: new Date().toISOString(),
+        fecha_fin: new Date(Date.now() + item.duracionMs).toISOString(),
+        activo: true,
+      }
+      if (localKey) guardarBoosterLocal(usuario, booster, localKey)
+      return { ok: true, booster, saldoNuevo: data?.saldoNuevo, message: data?.mensaje }
+    }
+
+    const payload = normalizarCosmeticoLocal({
+      usuario_id: usuario,
+      cosmetico_id: item.id,
+      tipo: item.tipo,
+      rareza: item.rareza,
+      equipado: true,
+      created_at: data?.cosmetico?.created_at || new Date().toISOString(),
+      nombre: item.nombre,
+      categoria: item.categoria,
+      diseno: item.diseno,
+      rareza_visual: item.rareza,
+    })
+    guardarCosmeticoLocal(usuario, payload)
+    return { ok: true, cosmetico: payload, saldoNuevo: data?.saldoNuevo, message: data?.mensaje }
+  } catch (error) {
+    console.warn("Error comprando item de tienda", error)
+    return { ok: false, message: "No se pudo completar la compra." }
   }
-
-  const { error } = await supabase
-    .from("usuario_cosmeticos")
-    .upsert(remoto, { onConflict: "usuario_id,cosmetico_id" })
-
-  if (error) {
-    console.warn("No se pudo guardar cosmetico en Supabase", error)
-    return { ok: false, cosmetico: payload, error }
-  }
-
-  return { ok: true, cosmetico: payload }
 }
 
 export async function equiparCosmetico(usuario, cosmeticoId) {

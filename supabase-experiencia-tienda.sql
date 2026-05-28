@@ -1305,3 +1305,251 @@ end;
 $$;
 
 grant execute on function public.admin_otorgar_recompensa(text, text, text, bigint, numeric, text, integer, text, text, text, text, jsonb) to anon, authenticated;
+
+create or replace function public.comprar_item_tienda_con_monedas(
+  p_usuario text,
+  p_codigo text default null,
+  p_tipo_compra text default null,
+  p_producto_id text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  usuario_limpio text := btrim(coalesce(p_usuario, ''));
+  codigo_limpio text := btrim(coalesce(p_codigo, ''));
+  tipo_limpio text := lower(btrim(coalesce(p_tipo_compra, '')));
+  producto_limpio text := lower(btrim(coalesce(p_producto_id, '')));
+  codigo_usuario text;
+  precio bigint;
+  multiplicador numeric(3,1);
+  duracion interval;
+  inicio timestamptz := now();
+  fin timestamptz;
+  saldo_actual bigint;
+  saldo_nuevo bigint;
+  cosmetico_tipo text;
+  cosmetico_numero integer;
+  cosmetico_rareza text;
+  rareza_remota text;
+  comprado_previamente boolean := false;
+begin
+  if usuario_limpio = '' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Inicia sesion para comprar.');
+  end if;
+
+  if to_regclass('public.usuarios') is null or to_regclass('public.usuario_monedas') is null then
+    return jsonb_build_object('ok', false, 'mensaje', 'La tienda no esta lista en Supabase.');
+  end if;
+
+  select codigo::text
+  into codigo_usuario
+  from public.usuarios
+  where usuario = usuario_limpio
+  limit 1;
+
+  if codigo_usuario is null or codigo_limpio = '' or codigo_usuario <> codigo_limpio then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo validar tu sesion para comprar.');
+  end if;
+
+  if tipo_limpio not in ('booster_xp', 'booster_monedas', 'cosmetico') then
+    return jsonb_build_object('ok', false, 'mensaje', 'Tipo de compra invalido.');
+  end if;
+
+  if tipo_limpio = 'booster_xp' then
+    select x.precio, x.multiplicador, x.duracion
+    into precio, multiplicador, duracion
+    from (values
+      ('xp15_6h', 2000::bigint, 1.5::numeric, interval '6 hours'),
+      ('xp2_24h', 6000::bigint, 2.0::numeric, interval '24 hours'),
+      ('xp2_3d', 14000::bigint, 2.0::numeric, interval '3 days'),
+      ('xp25_7d', 27500::bigint, 2.5::numeric, interval '7 days'),
+      ('xp3_7d', 40000::bigint, 3.0::numeric, interval '7 days'),
+      ('xp3_15d', 70000::bigint, 3.0::numeric, interval '15 days'),
+      ('xp4_30d', 110000::bigint, 4.0::numeric, interval '30 days'),
+      ('xp5_30d', 175000::bigint, 5.0::numeric, interval '30 days'),
+      ('xp6_45d', 275000::bigint, 6.0::numeric, interval '45 days'),
+      ('xp8_60d', 475000::bigint, 8.0::numeric, interval '60 days')
+    ) as x(id, precio, multiplicador, duracion)
+    where x.id = producto_limpio;
+  elsif tipo_limpio = 'booster_monedas' then
+    select x.precio, x.multiplicador, x.duracion
+    into precio, multiplicador, duracion
+    from (values
+      ('coins_boost12_24d', 26000::bigint, 1.2::numeric, interval '24 days'),
+      ('coins_boost13_18d', 24000::bigint, 1.3::numeric, interval '18 days'),
+      ('coins_boost15_12d', 31000::bigint, 1.5::numeric, interval '12 days'),
+      ('coins_boost14_3d', 13000::bigint, 1.4::numeric, interval '3 days'),
+      ('coins_boost18_2d', 17000::bigint, 1.8::numeric, interval '2 days'),
+      ('coins_boost27_8h', 21000::bigint, 2.7::numeric, interval '8 hours'),
+      ('coins_boost2_3h', 9000::bigint, 2.0::numeric, interval '3 hours'),
+      ('coins_boost22_2h', 10500::bigint, 2.2::numeric, interval '2 hours'),
+      ('coins_boost25_1h', 12000::bigint, 2.5::numeric, interval '1 hour'),
+      ('coins_boost3_1h', 16000::bigint, 3.0::numeric, interval '1 hour')
+    ) as x(id, precio, multiplicador, duracion)
+    where x.id = producto_limpio;
+  else
+    cosmetico_tipo := split_part(producto_limpio, '_', 1);
+    if cosmetico_tipo not in ('fondo', 'id', 'marco') or producto_limpio !~ '^(fondo|id|marco)_[0-9]{3}$' then
+      return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+    end if;
+
+    cosmetico_numero := split_part(producto_limpio, '_', 2)::integer;
+    if cosmetico_numero < 1 or cosmetico_numero > 100 then
+      return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+    end if;
+
+    cosmetico_rareza := case
+      when cosmetico_numero <= 17 then 'Normal'
+      when cosmetico_numero <= 34 then 'Raro'
+      when cosmetico_numero <= 51 then 'Epico'
+      when cosmetico_numero <= 68 then 'Legendario'
+      when cosmetico_numero <= 85 then 'Mitico'
+      else 'Prohibido'
+    end;
+
+    precio := case cosmetico_tipo
+      when 'fondo' then case cosmetico_rareza
+        when 'Normal' then 2500
+        when 'Raro' then 6000
+        when 'Epico' then 14000
+        when 'Legendario' then 280000
+        when 'Mitico' then 640000
+        else 1600000
+      end
+      else case cosmetico_rareza
+        when 'Normal' then 2000
+        when 'Raro' then 5000
+        when 'Epico' then 12000
+        when 'Legendario' then 240000
+        when 'Mitico' then 560000
+        else 1440000
+      end
+    end;
+
+    rareza_remota := case when cosmetico_rareza = 'Prohibido' then 'Mitico' else cosmetico_rareza end;
+  end if;
+
+  if precio is null or precio <= 0 then
+    return jsonb_build_object('ok', false, 'mensaje', 'Producto invalido.');
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('store:' || usuario_limpio, 0));
+
+  insert into public.usuario_monedas (usuario_id, saldo)
+  values (usuario_limpio, 0)
+  on conflict (usuario_id) do nothing;
+
+  select saldo
+  into saldo_actual
+  from public.usuario_monedas
+  where usuario_id = usuario_limpio
+  for update;
+
+  if tipo_limpio = 'cosmetico' then
+    select exists (
+      select 1
+      from public.usuario_cosmeticos
+      where usuario_id = usuario_limpio
+        and cosmetico_id = producto_limpio
+    )
+    into comprado_previamente;
+
+    if comprado_previamente then
+      update public.usuario_cosmeticos
+      set equipado = false
+      where usuario_id = usuario_limpio
+        and tipo = cosmetico_tipo
+        and equipado = true;
+
+      update public.usuario_cosmeticos
+      set tipo = cosmetico_tipo,
+          rareza = rareza_remota,
+          equipado = true
+      where usuario_id = usuario_limpio
+        and cosmetico_id = producto_limpio;
+
+      return jsonb_build_object(
+        'ok', true,
+        'mensaje', 'Cosmetico equipado.',
+        'saldoNuevo', coalesce(saldo_actual, 0),
+        'precio', 0,
+        'cosmetico', jsonb_build_object('cosmetico_id', producto_limpio, 'tipo', cosmetico_tipo, 'rareza', rareza_remota, 'equipado', true)
+      );
+    end if;
+  end if;
+
+  if coalesce(saldo_actual, 0) < precio then
+    return jsonb_build_object(
+      'ok', false,
+      'mensaje', 'No tienes monedas suficientes.',
+      'saldoNuevo', coalesce(saldo_actual, 0),
+      'precio', precio
+    );
+  end if;
+
+  saldo_nuevo := saldo_actual - precio;
+
+  update public.usuario_monedas
+  set saldo = saldo_nuevo,
+      updated_at = now()
+  where usuario_id = usuario_limpio;
+
+  if tipo_limpio in ('booster_xp', 'booster_monedas') then
+    fin := inicio + duracion;
+
+    insert into public.usuario_boosters (usuario_id, booster_id, multiplicador, fecha_inicio, fecha_fin, activo)
+    values (usuario_limpio, producto_limpio, multiplicador, inicio, fin, true);
+
+    return jsonb_build_object(
+      'ok', true,
+      'mensaje', 'Compra activada.',
+      'precio', precio,
+      'saldoNuevo', saldo_nuevo,
+      'booster', jsonb_build_object(
+        'usuario_id', usuario_limpio,
+        'booster_id', producto_limpio,
+        'multiplicador', multiplicador,
+        'fecha_inicio', inicio,
+        'fecha_fin', fin,
+        'activo', true
+      )
+    );
+  end if;
+
+  update public.usuario_cosmeticos
+  set equipado = false
+  where usuario_id = usuario_limpio
+    and tipo = cosmetico_tipo
+    and equipado = true;
+
+  insert into public.usuario_cosmeticos (usuario_id, cosmetico_id, tipo, rareza, equipado, created_at)
+  values (usuario_limpio, producto_limpio, cosmetico_tipo, rareza_remota, true, inicio)
+  on conflict (usuario_id, cosmetico_id) do update
+    set tipo = excluded.tipo,
+        rareza = excluded.rareza,
+        equipado = true;
+
+  return jsonb_build_object(
+    'ok', true,
+    'mensaje', 'Compra activada.',
+    'precio', precio,
+    'saldoNuevo', saldo_nuevo,
+    'cosmetico', jsonb_build_object(
+      'usuario_id', usuario_limpio,
+      'cosmetico_id', producto_limpio,
+      'tipo', cosmetico_tipo,
+      'rareza', rareza_remota,
+      'equipado', true,
+      'created_at', inicio
+    )
+  );
+exception
+  when others then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo completar la compra.');
+end;
+$$;
+
+grant execute on function public.comprar_item_tienda_con_monedas(text, text, text, text) to anon, authenticated;
