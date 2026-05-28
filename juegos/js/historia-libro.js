@@ -24,7 +24,6 @@ const pageIndicatorEl = document.getElementById('pageIndicator')
 const readerTitleEl = document.getElementById('readerTitle')
 const readerSummaryEl = document.getElementById('readerSummary')
 const readerBookLabelEl = document.getElementById('readerBookLabel')
-const readerPhaseEl = document.getElementById('readerPhase')
 
 const mobileQuery = window.matchMedia('(max-width: 920px)')
 const params = new URLSearchParams(window.location.search)
@@ -220,15 +219,14 @@ function renderMissingBook() {
   if (readerBookLabelEl) readerBookLabelEl.textContent = 'Biblioteca'
   if (readerTitleEl) readerTitleEl.textContent = 'Relato no configurado'
   if (readerSummaryEl) readerSummaryEl.textContent = 'Este relato todavia no tiene historia registrada en la base de Modo Historia.'
-  if (readerPhaseEl) readerPhaseEl.textContent = '9.0'
   if (chapterListEl) chapterListEl.innerHTML = '<button class="chapter-tab locked" type="button" disabled><span>--</span><span><strong>Pendiente</strong><small>Sin capitulos</small></span></button>'
   if (pageLeftEl) {
     pageLeftEl.innerHTML = `
       <div>
-        <span class="page-kicker">Fase 9.0</span>
+        <span class="page-kicker">Biblioteca de Historias</span>
         <h2>Base preparada</h2>
         <p>El lector dinamico ya puede cargar relatos por identificador cuando sus datos esten registrados.</p>
-        <p>Novato permanece en su lector actual hasta la migracion controlada de la Fase 9.1.</p>
+        <p>Cuando un tomo se registre en el Archivo, aparecera aqui con sus capitulos, pruebas y progreso.</p>
       </div>
       <div class="page-mark"><span>Motor de relatos</span><span>01</span></div>
     `
@@ -320,7 +318,6 @@ function applyBookMeta() {
   if (readerBookLabelEl) readerBookLabelEl.textContent = `Relato ${book.rankTitle || book.title}`
   if (readerTitleEl) readerTitleEl.textContent = book.title
   if (readerSummaryEl) readerSummaryEl.textContent = book.subtitle || 'Relato registrado en la Biblioteca de Historias.'
-  if (readerPhaseEl) readerPhaseEl.textContent = book.phase || '9.x'
 
   const visual = book.visual || {}
   const root = document.documentElement

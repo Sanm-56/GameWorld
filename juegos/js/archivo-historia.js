@@ -8,6 +8,7 @@ const pageRightEl = document.getElementById('archivePageRight')
 const prevPageEl = document.getElementById('prevArchivePage')
 const nextPageEl = document.getElementById('nextArchivePage')
 const prevStoryEl = document.getElementById('prevArchiveStory')
+const exitStoryEl = document.getElementById('exitArchiveStory')
 const nextStoryEl = document.getElementById('nextArchiveStory')
 const pageIndicatorEl = document.getElementById('archivePageIndicator')
 const titleEl = document.getElementById('archiveReaderTitle')
@@ -131,6 +132,11 @@ function renderStoryNavigation() {
     nextStoryEl.disabled = !nextStory
     nextStoryEl.title = nextStory ? `Siguiente: ${storyTitle(nextStory)}` : 'No hay siguiente historia disponible'
   }
+
+  if (exitStoryEl) {
+    exitStoryEl.disabled = false
+    exitStoryEl.title = 'Volver al Archivo de Historias'
+  }
 }
 
 function goToPage(page) {
@@ -212,6 +218,9 @@ nextPageEl?.addEventListener('click', () => goToPage(currentPage + 1))
 prevStoryEl?.addEventListener('click', () => {
   if (!prevStory) return
   window.location.href = archiveReaderUrl(prevStory)
+})
+exitStoryEl?.addEventListener('click', () => {
+  window.location.href = 'archivo-historias.html'
 })
 nextStoryEl?.addEventListener('click', () => {
   if (!nextStory) return
