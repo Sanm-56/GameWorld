@@ -188,14 +188,15 @@ function renderDetail(story) {
   const loaded = Boolean(content?.capitulos.length)
   const range = story.levelFrom === story.levelTo ? `Nivel ${story.levelFrom}` : `Niveles ${story.levelFrom}-${story.levelTo}`
   const visual = archiveVisual(story)
+  const description = loaded
+    ? archiveSubtitle(story) || 'Kael avanza por una historia completa del Archivo, donde cada capitulo revela una parte mas profunda de su camino.'
+    : 'Este tomo aun espera su historia completa. Cuando el Archivo lo abra, Kael podra seguir esa parte del camino como una lectura continua.'
 
   detailEl.style.setProperty('--book-rgb', visual.rgb || '56,189,248')
   detailEl.innerHTML = `
-    <span class="detail-kicker">${loaded ? 'Historia completa' : 'Pendiente de texto'}</span>
+    <span class="detail-kicker">${loaded ? 'Historia completa' : 'Historia pendiente'}</span>
     <h2>${escapeHtml(archiveTitle(story))}</h2>
-    <p>${escapeHtml(loaded
-      ? 'Esta historia completa ya esta cargada para lectura continua.'
-      : 'Este relato ya tiene base visual. Cuando compartas la historia completa, aparecera aqui sin pruebas ni juegos.')} ${escapeHtml(archiveSubtitle(story))}</p>
+    <p>${escapeHtml(description)}</p>
     <div class="detail-progress">
       <span>${escapeHtml(range)}</span>
       <strong>${escapeHtml(story.rankTitle || story.id)}</strong>

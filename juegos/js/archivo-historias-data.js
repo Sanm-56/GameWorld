@@ -1,7 +1,7 @@
 export const ARCHIVO_HISTORIAS = {
   novato: {
     titulo: 'El Primer Paso Hacia El Horizonte',
-    subtitulo: 'Kael despierta en ruinas antiguas y descubre, junto a Umbra, que el horizonte del mundo ha comenzado a romperse.',
+    subtitulo: 'Kael despierta entre ruinas antiguas sin entender quien lo llamo ni por que el horizonte se esta rompiendo. Junto a Umbra, da el primer paso hacia un mundo que ya comenzo a morir.',
     visual: {
       emblem: 'NV',
       primary: '#38bdf8',
@@ -123,7 +123,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   amateur: {
     titulo: 'Las Primeras Pruebas',
-    subtitulo: 'Kael cruza un entrenamiento digital de energia verde donde aprende control mental, reaccion, precision, logica y adaptacion.',
+    subtitulo: 'Tras escapar de las ruinas, Kael entra en un entrenamiento de energia verde donde el Nexus empieza a medirlo. Cada prueba le ensena control, reaccion y logica, pero tambien le advierte que sobrevivir no sera suficiente.',
     visual: {
       emblem: 'AM',
       primary: '#22c55e',
@@ -353,7 +353,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   aspirante: {
     titulo: 'La Ciudad de los Ecos',
-    subtitulo: 'Kael entra a Neoterra, una ciudad holografica donde los ecos de antiguos jugadores desafian su voluntad.',
+    subtitulo: 'Kael llega a Neoterra, una ciudad holografica llena de voces que no pudieron avanzar. Entre calles vacias y ecos de antiguos jugadores, descubre que el camino tambien carga con quienes quedaron atrapados.',
     visual: {
       emblem: 'AS',
       primary: '#38bdf8',
@@ -546,7 +546,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   profesional: {
     titulo: 'El Codigo del Vacio',
-    subtitulo: 'Kael cae en una zona prohibida del torneo y descubre que el sistema protege secretos ligados a Umbra.',
+    subtitulo: 'La salida de Neoterra arroja a Kael a una zona prohibida donde el torneo muestra sus heridas internas. Alli descubre que Umbra no es una sombra futura, sino un secreto que el sistema lleva tiempo intentando ocultar.',
     visual: {
       emblem: 'PR',
       primary: '#7c3aed',
@@ -730,7 +730,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   competidor: {
     titulo: 'La Guerra de los Nucleos',
-    subtitulo: 'Competidor',
+    subtitulo: 'Con Umbra ya despierto, Kael entra en una megaciudad dividida por facciones y nucleos energeticos. La guerra le ensena que el torneo no solo prueba jugadores: tambien decide que mundos merecen seguir en pie.',
     rango: '76-100',
     visual: {
       tono: 'Rojo intenso',
@@ -985,7 +985,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   experto: {
     titulo: 'El Laberinto de las Dimensiones',
-    subtitulo: 'Experto',
+    subtitulo: 'Despues de la guerra, Kael cruza portales imposibles hacia dimensiones que cambian sus propias reglas. Cada realidad reflejada revela que Umbra esta aprendiendo a moverse por caminos que nadie debio abrir.',
     rango: '101-125',
     visual: {
       tono: 'Cian brillante',
@@ -1198,7 +1198,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   elite: {
     titulo: 'El Reino de Umbra',
-    subtitulo: 'Elite',
+    subtitulo: 'El laberinto dimensional conduce a Kael hasta el reino oculto de Umbra. Alli la corrupcion deja de parecer accidente y empieza a mostrarse como una voluntad capaz de gobernar.',
     rango: '126-150',
     visual: {
       tono: 'Negro y dorado',
@@ -1413,7 +1413,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   maestro: {
     titulo: 'La Maquina del Destino',
-    subtitulo: 'Maestro',
+    subtitulo: 'Tras ver el reino de Umbra, Kael encuentra la maquinaria temporal que sostiene parte del torneo. Sus engranajes muestran futuros alterados y una Puerta Absoluta que promete respuestas a cambio de romperlo todo.',
     rango: '151-175',
     visual: {
       tono: 'Plateado brillante',
@@ -1559,7 +1559,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'gran-maestro': {
     titulo: 'La Puerta Absoluta',
-    subtitulo: 'Gran Maestro',
+    subtitulo: 'Kael llega al sello mayor del torneo mientras Umbra intenta liberar al Origen. Para cerrar la Puerta Absoluta, debe enfrentar un sistema construido sobre cadenas que tal vez nunca fueron inocentes.',
     rango: '176-200',
     visual: {
       tono: 'Blanco brillante',
@@ -1705,7 +1705,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   leyenda: {
     titulo: 'Las Ruinas del Primer Torneo',
-    subtitulo: 'Leyenda',
+    subtitulo: 'Con la Puerta Absoluta marcada en la memoria, Kael desciende a las ruinas del primer torneo. Los coliseos antiguos revelan que Umbra no fue el primer poder imposible que alguien intento usar.',
     rango: '201-225',
     visual: {
       tono: 'Rojo celestial',
@@ -1875,7 +1875,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   mitico: {
     titulo: 'El Mar de las Constelaciones Muertas',
-    subtitulo: 'Mitico',
+    subtitulo: 'Las ruinas abren un oceano cosmico donde estrellas apagadas y ciudades dormidas esperan a Kael. Mientras navega entre constelaciones muertas, los Arquitectos comienzan a despertar.',
     rango: '226-250',
     visual: {
       tono: 'Violeta cosmico',
@@ -2082,7 +2082,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   supremo: {
     titulo: 'El Trono del Equilibrio',
-    subtitulo: 'Supremo',
+    subtitulo: 'El llamado de los Arquitectos lleva a Kael a una ciudad perfecta donde las leyes del universo parecen obedecer otro diseno. Bajo ese equilibrio impecable, los Titanes empiezan a abrir los ojos.',
     rango: '251-275',
     visual: {
       tono: 'Blanco absoluto',
@@ -2244,7 +2244,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   titan: {
     titulo: 'La Guerra de los Titanes Eternos',
-    subtitulo: 'Titan',
+    subtitulo: 'Cuando los Titanes despiertan, Kael descubre una guerra anterior a las dimensiones conocidas. Incluso Umbra debe sobrevivir entre entidades cuya sola existencia puede quebrar universos.',
     rango: '276-300',
     capitulos: [
       {
@@ -2428,7 +2428,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   inmortal: {
     titulo: 'El Reino del Tiempo Eterno',
-    subtitulo: 'Inmortal',
+    subtitulo: 'La guerra titanica fractura el tiempo y empuja a Kael hacia relojes cosmicos, ciudades detenidas y eras perdidas. El Devorador Eterno empieza a borrar futuros antes de que puedan nacer.',
     rango: '301-325',
     capitulos: [
       {
@@ -2633,7 +2633,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'leyenda-maxima': {
     titulo: 'El Fin del Universo Dimensional',
-    subtitulo: 'Leyenda Maxima',
+    subtitulo: 'Con el tiempo herido, Kael alcanza el ultimo horizonte dimensional. La Torre del Vacio lo enfrenta a una decision cruel: reiniciar la existencia podria salvarla, pero tambien repetir sus condenas.',
     rango: '326-350',
     capitulos: [
       {
@@ -2737,7 +2737,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'arquitecto-del-vacio': {
     titulo: 'El Nacimiento del Nuevo Universo',
-    subtitulo: 'Arquitecto del Vacio',
+    subtitulo: 'Kael cruza la puerta final y presencia el nacimiento de un universo nuevo. El vacio consciente observa desde el origen, como si el siguiente ciclo ya hubiera empezado a aprender de sus errores.',
     rango: '351-375',
     capitulos: [
       {
@@ -2910,7 +2910,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'heraldo-astral': {
     titulo: 'Los Ecos del Nuevo Cosmos',
-    subtitulo: 'Heraldo Astral',
+    subtitulo: 'En el cosmos recien nacido, Kael recorre rutas astrales que aun recuerdan el universo anterior. La esperanza empieza a respirar, pero sus primeras ciudades cargan ecos que no debian sobrevivir.',
     rango: '376-400',
     capitulos: [
       {
@@ -3072,7 +3072,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'soberano-carmesi': {
     titulo: 'El Imperio de las Estrellas Rojas',
-    subtitulo: 'Soberano Carmesi',
+    subtitulo: 'El Imperio Carmesi se levanta para proteger mundos jovenes con una mano demasiado firme. Kael descubre que el miedo a otro colapso puede convertir la salvacion en una corona.',
     rango: '401-425',
     capitulos: [
       {
@@ -3208,7 +3208,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'devorador-de-ecos': {
     titulo: 'Las Memorias del Universo Muerto',
-    subtitulo: 'Devorador de Ecos',
+    subtitulo: 'Cuando el nuevo universo empieza a olvidar, Kael desciende a estrellas huecas y bibliotecas grises. Algo esta devorando la memoria del cosmos anterior, y cada recuerdo recuperado atrae mas peligro.',
     rango: '426-450',
     capitulos: [
       {
@@ -3375,7 +3375,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'guardian-del-eclipse': {
     titulo: 'El Eclipse Eterno',
-    subtitulo: 'Guardian del Eclipse',
+    subtitulo: 'El olvido alcanza la luz del nuevo cosmos y despierta a los Guardianes del Eclipse. Kael debe impedir que el vacio consciente reemplace la esperanza con una oscuridad obediente.',
     rango: '451-475',
     capitulos: [
       {
@@ -3485,7 +3485,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'emperador-umbrio': {
     titulo: 'El Trono de Umbra Renacida',
-    subtitulo: 'Emperador Umbrio',
+    subtitulo: 'Umbra regresa mas estable, menos monstruo y mas rey, dispuesto a reconstruir dimensiones con oscuridad consciente. Kael empieza a entender que su enemigo tambien se estaba preparando para algo peor.',
     rango: '476-500',
     capitulos: [
       {
@@ -3611,7 +3611,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'portador-del-infinito': {
     titulo: 'Las Fronteras de la Existencia',
-    subtitulo: 'Portador del Infinito',
+    subtitulo: 'Siguiendo las huellas de Umbra, Kael atraviesa caminos blancos y universos paralelos vigilados por observadores eternos. Al borde del infinito, descubre que incluso lo infinito tiene fronteras.',
     rango: '501-525',
     capitulos: [
       {
@@ -3785,7 +3785,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'rey-de-las-cenizas': {
     titulo: 'El Reino de los Universos Muertos',
-    subtitulo: 'Rey de las Cenizas',
+    subtitulo: 'Mas alla de esas fronteras, Kael camina por galaxias quemadas y cementerios universales. Los universos muertos no descansan: guardan advertencias para quien crea haber escapado del ciclo.',
     rango: '526-550',
     capitulos: [
       {
@@ -3934,7 +3934,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'dominador-de-ether': {
     titulo: 'El Despertar del Ether Primordial',
-    subtitulo: 'Dominador de Ether',
+    subtitulo: 'Entre las cenizas, el Ether anterior al vacio vuelve a moverse. Kael descubre que la energia que une mundos y ciclos tambien puede enfermar cuando algo la toca desde fuera del infinito.',
     rango: '551-575',
     capitulos: [
       {
@@ -4121,7 +4121,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'monarca-del-abismo': {
     titulo: 'La Oscuridad Bajo la Existencia',
-    subtitulo: 'Monarca del Abismo',
+    subtitulo: 'El Ether conduce a Kael hacia el Abismo Exterior, donde ciudades hundidas y coronas gravitacionales revelan una caida mas grande que cualquier derrota. Todo lo creado puede hundirse.',
     rango: '576-600',
     capitulos: [
       {
@@ -4284,7 +4284,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'vigia-de-los-eternos': {
     titulo: 'Los Observadores del Fin Universal',
-    subtitulo: 'Vigia de los Eternos',
+    subtitulo: 'Desde el borde del abismo, Kael llega a torres plateadas fuera del tiempo. Los Eternos observan finales que aun no existen, y la oscuridad exterior ya mira al nuevo cosmos.',
     rango: '601-625',
     capitulos: [
       {
@@ -4474,7 +4474,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'senor-del-horizonte-negro': {
     titulo: 'El Borde del Fin Absoluto',
-    subtitulo: 'Senor del Horizonte Negro',
+    subtitulo: 'El Horizonte Negro detiene estrellas, ciudades y lineas temporales alrededor de Kael. Una puerta antigua anuncia al Profeta del Fin, y el silencio del cosmos empieza a sonar como sentencia.',
     rango: '626-650',
     capitulos: [
       {
@@ -4617,7 +4617,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'profeta-del-fin': {
     titulo: 'Las Visiones del Ultimo Colapso',
-    subtitulo: 'Profeta del Fin',
+    subtitulo: 'Kael entra en templos donde el destino se rompe antes de cumplirse. Todas las profecias apuntan hacia la Puerta del Fin y hacia una decision que nadie quiere heredar.',
     rango: '651-675',
     capitulos: [
       {
@@ -4762,7 +4762,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'heredero-de-umbra': {
     titulo: 'El Legado del Vacio Consciente',
-    subtitulo: 'Heredero de Umbra',
+    subtitulo: 'Umbra revela que su oscuridad no era el enemigo final, sino una defensa imperfecta contra algo anterior a toda existencia. Kael hereda una verdad que vuelve mas peligrosa cada alianza.',
     rango: '676-700',
     capitulos: [
       {
@@ -4905,7 +4905,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'tirano-celestial': {
     titulo: 'El Dominio de los Cielos Eternos',
-    subtitulo: 'Tirano Celestial',
+    subtitulo: 'Los cielos descienden sobre Kael con promesas de salvacion perfecta. Pero su luz exige obediencia absoluta, y el nuevo universo corre el riesgo de ser purificado hasta perder la libertad.',
     rango: '701-725',
     capitulos: [
       {
@@ -5047,7 +5047,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'custodio-de-la-ultima-llama': {
     titulo: 'El Fuego que Sobrevive al Final',
-    subtitulo: 'Custodio de la Ultima Llama',
+    subtitulo: 'Despues de tantas promesas rotas, Kael encuentra la Ultima Llama ardiendo mas alla de todos los finales. No guarda victoria: guarda lo poco que aun puede resistir.',
     rango: '726-750',
     capitulos: [
       {
@@ -5210,7 +5210,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'conquistador-astral': {
     titulo: 'La Guerra por el Cosmos Infinito',
-    subtitulo: 'Conquistador Astral',
+    subtitulo: 'Las civilizaciones supervivientes se reunen alrededor de Kael con flotas, fortalezas y coronas estelares. La guerra final ya no pregunta quien gana, sino que parte de la existencia merece sobrevivir.',
     rango: '751-775',
     capitulos: [
       {
@@ -5374,7 +5374,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'deidad-del-eclipse': {
     titulo: 'El Nacimiento de la Oscuridad Absoluta',
-    subtitulo: 'Deidad del Eclipse',
+    subtitulo: 'Cuando la luz empieza a temer su propia existencia, Kael ve despertar a las Deidades del Eclipse. Vienen de regiones anteriores al infinito y obligan al cosmos a mirar su propia fragilidad.',
     rango: '776-800',
     capitulos: [
       {
@@ -5580,7 +5580,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'soberano-del-vacio-viviente': {
     titulo: 'La Conciencia Mas Antigua del Cosmos',
-    subtitulo: 'Soberano del Vacio Viviente',
+    subtitulo: 'El vacio consciente despierta completo ante Kael y transforma galaxias, memoria y energia en un organismo universal. No parece querer destruirlo todo: quiere comprenderlo, aunque eso pueda devorarlo.',
     rango: '801-825',
     capitulos: [
       {
@@ -5697,7 +5697,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'portador-de-la-corona-negra': {
     titulo: 'El Peso del Ultimo Reino',
-    subtitulo: 'Portador de la Corona Negra',
+    subtitulo: 'La Corona Negra espera a Kael entre reinos que caen y juramentos agotados. No ofrece poder absoluto, sino la responsabilidad de preservar lo que sigue vivo cuando casi nada queda en pie.',
     rango: '826-850',
     capitulos: [
       {
@@ -5822,7 +5822,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'rey-del-infinito-oscuro': {
     titulo: 'El Trono Mas Alla del Fin',
-    subtitulo: 'Rey del Infinito Oscuro',
+    subtitulo: 'Con la corona cerca, Kael enfrenta una oscuridad que no consume mundos, sino la idea misma de realidad. Cada region borrada obliga a recordar lo que ya dejo de existir.',
     rango: '851-875',
     capitulos: [
       {
@@ -5965,7 +5965,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'guardian-de-las-ruinas-eternas': {
     titulo: 'Los Restos del Ultimo Universo',
-    subtitulo: 'Guardian de las Ruinas Eternas',
+    subtitulo: 'Tras el Infinito Oscuro, Kael encuentra ruinas que se niegan a desaparecer. Un Guardian protege la memoria de universos olvidados y le ensena que resistir tambien puede ser duelo.',
     rango: '876-900',
     capitulos: [
       {
@@ -6063,7 +6063,7 @@ export const ARCHIVO_HISTORIAS = {
   },
   'monarca-del-ether-oscuro': {
     titulo: 'La Corrupcion del Ether Primordial',
-    subtitulo: 'Monarca del Ether Oscuro',
+    subtitulo: 'El Ether Primordial se oscurece alrededor de Kael y revela una energia viva, inestable e impaciente. Lo que antes sostenia universos ahora acelera su destruccion.',
     rango: '901-925',
     capitulos: [
       {

@@ -225,13 +225,11 @@ function renderDetail(rank, status, visual, book = null) {
   if (!detailEl) return
   const range = rank.desde === rank.hasta ? `Nivel ${rank.desde}` : `Niveles ${rank.desde}-${rank.hasta}`
   const registered = Boolean(book)
-  const phaseText = status === 'locked'
-    ? registered
-      ? 'Este relato aun esta sellado por rango, pero esta disponible para revisar su produccion.'
-      : 'Este relato queda sellado hasta alcanzar su rango.'
-    : registered
-      ? 'Este relato ya esta registrado en el motor de Modo Historia.'
-      : 'Este relato ya existe como resumen visual, pero su historia aun no esta producida.'
+  const description = registered
+    ? book?.subtitle || 'Kael aun no ha dejado una descripcion completa para este relato.'
+    : status === 'locked'
+      ? 'Este relato permanece sellado hasta que Kael alcance el rango necesario para abrirlo.'
+      : 'Kael ya puede ver este tomo en la Biblioteca, aunque su relato completo todavia espera ser escrito.'
   const bookUrl = book?.readerUrl || `historia-libro.html?libro=${encodeURIComponent(crearIdLibroDesdeTitulo(rank.titulo))}`
   const action = registered
     ? `<button class="detail-open" type="button" data-open-book="${escapeHtml(bookUrl)}">${status === 'locked' ? 'Revisar' : 'Abrir'} ${escapeHtml(book.rankTitle || rank.titulo)}</button>`
@@ -241,7 +239,7 @@ function renderDetail(rank, status, visual, book = null) {
   detailEl.innerHTML = `
     <span class="detail-kicker">${status === 'current' ? 'Relato activo' : status === 'unlocked' ? 'Relato desbloqueado' : 'Relato sellado'}</span>
     <h2>${escapeHtml(book?.title ? `Relato ${rank.titulo}: ${book.title}` : `Relato ${rank.titulo}`)}</h2>
-    <p>${escapeHtml(phaseText)} ${escapeHtml(book?.subtitle || 'Cuando se produzca, tendra historia, capitulos, pruebas y progreso propio.')}</p>
+    <p>${escapeHtml(description)}</p>
     <div class="detail-progress">
       <span>${escapeHtml(range)}</span>
       <strong>${escapeHtml(registered ? 'Registrado' : statusText(status, registered))}</strong>
