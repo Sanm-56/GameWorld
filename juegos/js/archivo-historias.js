@@ -80,10 +80,12 @@ function renderShelf() {
 
 function updateShelfSelection(activeButton) {
   if (!shelfEl || !activeButton) return
-  shelfEl.querySelectorAll('.rank-book.selected').forEach((button) => {
-    button.classList.remove('selected')
+  shelfEl.querySelectorAll('.rank-book').forEach((button) => {
+    const selected = button === activeButton
+    button.classList.toggle('selected', selected)
+    if (!selected) animateArchiveBookHover(button, false)
   })
-  activeButton.classList.add('selected')
+  animateArchiveBookHover(activeButton, true)
 }
 
 function animateShelfEntrance() {
@@ -116,19 +118,52 @@ function pulseArchiveBook(button) {
   if (!canAnimate()) return
 
   window.gsap.fromTo(cover,
-    { y: -5, rotate: 0, scale: 0.98, filter: 'brightness(1.35) saturate(1.18)' },
-    {
-      y: -8,
-      rotate: 0,
-      scale: 1.05,
-      filter: 'brightness(1.08) saturate(1.12)',
-      duration: 0.18,
-      ease: 'power2.out',
-      yoyo: true,
-      repeat: 1,
-      clearProps: 'transform,filter',
-    },
+    { filter: 'brightness(1.18) saturate(1.16)' },
+    { filter: 'brightness(1) saturate(1)', duration: 0.48, ease: 'power2.out', overwrite: true },
   )
+}
+
+function animateArchiveBookHover(button, active) {
+  if (!canAnimate() || !button) return
+  const cover = button.querySelector('.rank-book-cover')
+  const state = button.querySelector('.rank-book-state')
+  if (!cover) return
+
+  window.gsap.to(cover, {
+    y: active ? -10 : 0,
+    rotate: active ? 0 : -1,
+    scale: active ? 1.04 : 1,
+    duration: active ? 0.28 : 0.34,
+    ease: active ? 'power2.out' : 'power2.inOut',
+    overwrite: true,
+  })
+
+  if (state) {
+    window.gsap.to(state, {
+      y: active ? -2 : 0,
+      autoAlpha: active ? 1 : 0.86,
+      duration: 0.24,
+      ease: 'power2.out',
+      overwrite: true,
+    })
+  }
+}
+
+function bindArchiveShelfAnimations() {
+  if (!canAnimate() || !shelfEl) return
+
+  shelfEl.querySelectorAll('.rank-book').forEach((button) => {
+    button.addEventListener('mouseenter', () => animateArchiveBookHover(button, true))
+    button.addEventListener('mouseleave', () => {
+      if (button.classList.contains('selected')) return
+      animateArchiveBookHover(button, false)
+    })
+    button.addEventListener('focus', () => animateArchiveBookHover(button, true))
+    button.addEventListener('blur', () => {
+      if (button.classList.contains('selected')) return
+      animateArchiveBookHover(button, false)
+    })
+  })
 }
 
 function animateDetailChange() {
@@ -189,6 +224,7 @@ function renderArchive() {
   renderShelf()
   renderDetail(story)
   animateShelfEntrance()
+  bindArchiveShelfAnimations()
 }
 
 shelfEl?.addEventListener('click', (event) => {
