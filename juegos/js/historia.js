@@ -231,8 +231,8 @@ function renderDetail(rank, status, visual, book = null) {
       ? 'Este relato permanece sellado hasta que Kael alcance el rango necesario para abrirlo.'
       : 'Kael ya puede ver este tomo en la Biblioteca, aunque su relato completo todavia espera ser escrito.'
   const bookUrl = book?.readerUrl || `historia-libro.html?libro=${encodeURIComponent(crearIdLibroDesdeTitulo(rank.titulo))}`
-  const action = registered
-    ? `<button class="detail-open" type="button" data-open-book="${escapeHtml(bookUrl)}">${status === 'locked' ? 'Revisar' : 'Abrir'} ${escapeHtml(book.rankTitle || rank.titulo)}</button>`
+  const action = registered && status !== 'locked'
+    ? `<button class="detail-open" type="button" data-open-book="${escapeHtml(bookUrl)}">Abrir ${escapeHtml(book.rankTitle || rank.titulo)}</button>`
     : `<button type="button" disabled>${status === 'locked' ? 'Relato sellado' : 'Relato pendiente'}</button>`
 
   detailEl.style.setProperty('--book-rgb', visual.rgb)

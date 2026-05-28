@@ -75,6 +75,11 @@ export function capituloDesbloqueado(book, progress, chapterId) {
   return capituloCompletado(progress, previous.id)
 }
 
+export function relatoCompletado(book, progress) {
+  const chapters = Array.isArray(book?.chapters) ? book.chapters : []
+  return chapters.length > 0 && chapters.every((chapter) => capituloCompletado(progress, chapter.id))
+}
+
 export function paginasDelLibro(book) {
   const introPages = Array.isArray(book?.introPages) ? book.introPages : []
   const chapterPages = Array.isArray(book?.chapters)
