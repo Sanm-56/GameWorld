@@ -3626,6 +3626,193 @@ button{
   font-size:17px;
 }
 
+#archiveShelf .rank-book-cover[data-archive-id="novato"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.62) 0 12px, rgba(187,247,208,0.22) 13px 15px, transparent 16px), radial-gradient(circle at 62% 26%, rgba(34,197,94,0.42), transparent 23%), radial-gradient(circle at 30% 72%, rgba(239,68,68,0.18), transparent 22%), linear-gradient(145deg, #052e16 0%, #16a34a 48%, #7f1d1d 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="novato"]::after{
+  background:radial-gradient(circle at 50% 34%, transparent 0 22px, rgba(187,247,208,0.34) 23px, transparent 27px), linear-gradient(90deg, transparent 18px, rgba(187,247,208,0.28) 19px, transparent 20px), linear-gradient(0deg, transparent 70px, rgba(248,113,113,0.24) 71px, transparent 73px);
+  animation:archiveRedGreenFirstStep 4.2s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="amateur"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.66) 0 12px, rgba(254,202,202,0.18) 13px 15px, transparent 16px), radial-gradient(circle at 38% 30%, rgba(248,113,113,0.32), transparent 23%), radial-gradient(circle at 72% 70%, rgba(20,184,166,0.30), transparent 24%), linear-gradient(145deg, #064e3b 0%, #22c55e 44%, #991b1b 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="amateur"]::after{
+  background:linear-gradient(118deg, transparent 0 40%, rgba(254,202,202,0.28) 41%, transparent 44%), radial-gradient(circle at 36% 30%, transparent 0 21px, rgba(254,202,202,0.30) 22px, transparent 26px), radial-gradient(circle at 70% 70%, rgba(153,246,228,0.72) 0 1px, transparent 2px);
+  animation:archiveRedGreenTrials 3.7s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="aspirante"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.58) 0 12px, rgba(220,252,231,0.24) 13px 15px, transparent 16px), linear-gradient(0deg, rgba(239,68,68,0.18) 0 18%, transparent 19%), radial-gradient(circle at 62% 28%, rgba(34,197,94,0.34), transparent 23%), linear-gradient(145deg, #111827 0%, #0f766e 48%, #dc2626 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="aspirante"]::after{
+  background:repeating-radial-gradient(circle at 50% 38%, transparent 0 13px, rgba(187,247,208,0.20) 14px, transparent 16px), linear-gradient(90deg, transparent 18px, rgba(187,247,208,0.24) 19px, transparent 20px), radial-gradient(circle at 72% 28%, rgba(254,202,202,0.70) 0 1px, transparent 2px);
+  animation:archiveRedGreenEchoCity 4.8s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="profesional"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.72) 0 12px, rgba(248,113,113,0.20) 13px 15px, transparent 16px), radial-gradient(circle at 50% 35%, rgba(239,68,68,0.34), transparent 24%), radial-gradient(circle at 76% 70%, rgba(74,222,128,0.20), transparent 24%), linear-gradient(145deg, #14532d 0%, #7f1d1d 50%, #020617 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="profesional"]::after{
+  background:linear-gradient(0deg, transparent 0 28px, rgba(248,113,113,0.24) 29px, transparent 30px, transparent 38px, rgba(74,222,128,0.18) 39px, transparent 40px), linear-gradient(135deg, transparent 0 48%, rgba(239,68,68,0.34) 49%, transparent 51%), radial-gradient(circle at 50% 35%, transparent 0 23px, rgba(248,113,113,0.30) 24px, transparent 28px);
+  animation:archiveRedGreenVoidCode 3.2s steps(3, end) infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="competidor"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.66) 0 12px, rgba(187,247,208,0.20) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(34,197,94,0.30), transparent 22%), radial-gradient(circle at 70% 68%, rgba(248,113,113,0.36), transparent 24%), linear-gradient(145deg, #450a0a 0%, #ef4444 46%, #166534 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="competidor"]::after{
+  background:radial-gradient(circle at 50% 34%, transparent 0 22px, rgba(187,247,208,0.34) 23px, transparent 27px), conic-gradient(from 210deg at 50% 42%, transparent 0 18%, rgba(248,113,113,0.34) 19% 21%, transparent 22% 48%, rgba(74,222,128,0.24) 49% 51%, transparent 52%), linear-gradient(90deg, transparent 18px, rgba(254,202,202,0.22) 19px, transparent 20px);
+  animation:archiveRedGreenCoreWar 4.1s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="experto"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.70) 0 12px, rgba(204,251,241,0.22) 13px 15px, transparent 16px), radial-gradient(circle at 38% 30%, rgba(20,184,166,0.32), transparent 22%), radial-gradient(circle at 72% 68%, rgba(190,18,60,0.26), transparent 25%), linear-gradient(145deg, #022c22 0%, #14b8a6 42%, #7f1d1d 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="experto"]::after{
+  background:linear-gradient(90deg, transparent 18px, rgba(204,251,241,0.28) 19px, transparent 20px, transparent 62px, rgba(254,202,202,0.18) 63px, transparent 64px), radial-gradient(circle at 38% 30%, transparent 0 22px, rgba(204,251,241,0.32) 23px, transparent 28px), radial-gradient(circle at 72% 68%, rgba(254,202,202,0.64) 0 1px, transparent 2px);
+  animation:archiveRedGreenMazeShift 4.4s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="elite"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.64) 0 12px, rgba(253,230,138,0.20) 13px 15px, transparent 16px), radial-gradient(circle at 50% 30%, rgba(253,230,138,0.30), transparent 23%), radial-gradient(circle at 72% 68%, rgba(34,197,94,0.22), transparent 24%), linear-gradient(145deg, #14532d 0%, #ca8a04 46%, #7f1d1d 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="elite"]::after{
+  background:conic-gradient(from 210deg at 50% 34%, transparent 0 12%, rgba(253,230,138,0.42) 13% 15%, transparent 16% 34%, rgba(34,197,94,0.22) 35% 37%, transparent 38%), linear-gradient(0deg, transparent 70px, rgba(253,230,138,0.28) 71px, transparent 73px), radial-gradient(circle at 50% 31%, transparent 0 23px, rgba(254,240,138,0.30) 24px, transparent 28px);
+  animation:archiveRedGreenUmbraKingdom 4.3s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="maestro"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.58) 0 12px, rgba(255,255,255,0.28) 13px 15px, transparent 16px), linear-gradient(90deg, transparent 0 34px, rgba(34,197,94,0.22) 35px, transparent 36px, transparent 68px, rgba(239,68,68,0.18) 69px, transparent 70px), linear-gradient(145deg, #f8fafc 0%, #16a34a 42%, #991b1b 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="maestro"]::after{
+  background:linear-gradient(0deg, transparent 72px, rgba(255,255,255,0.34) 73px, transparent 75px), radial-gradient(circle at 36% 30%, rgba(255,255,255,0.76) 0 1px, transparent 2px), radial-gradient(circle at 66% 58%, rgba(248,113,113,0.68) 0 1px, transparent 2px);
+  animation:archiveRedGreenDestinyMachine 3.8s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="gran-maestro"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.62) 0 12px, rgba(187,247,208,0.18) 13px 15px, transparent 16px), radial-gradient(circle at 50% 30%, rgba(255,255,255,0.42), transparent 23%), radial-gradient(circle at 74% 70%, rgba(220,38,38,0.24), transparent 24%), linear-gradient(145deg, #fefce8 0%, #84cc16 44%, #7f1d1d 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="gran-maestro"]::after{
+  background:linear-gradient(90deg, transparent 18px, rgba(255,255,255,0.30) 19px, transparent 20px), radial-gradient(ellipse at 50% 30%, transparent 0 22px, rgba(187,247,208,0.32) 23px, transparent 28px), linear-gradient(135deg, transparent 0 48%, rgba(220,38,38,0.26) 49%, transparent 51%);
+  animation:archiveRedGreenAbsoluteGate 4.7s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="leyenda"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.60) 0 12px, rgba(253,164,175,0.22) 13px 15px, transparent 16px), radial-gradient(circle at 32% 28%, rgba(248,113,113,0.32), transparent 23%), radial-gradient(circle at 70% 72%, rgba(34,197,94,0.24), transparent 24%), linear-gradient(145deg, #422006 0%, #f97316 44%, #166534 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="leyenda"]::after{
+  background:repeating-linear-gradient(0deg, transparent 0 10px, rgba(253,164,175,0.18) 11px, transparent 12px), linear-gradient(118deg, transparent 0 40%, rgba(34,197,94,0.24) 41%, transparent 44%), radial-gradient(circle at 70% 72%, rgba(187,247,208,0.68) 0 1px, transparent 2px);
+  animation:archiveRedGreenFirstRuins 3.9s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="mitico"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.70) 0 12px, rgba(187,247,208,0.20) 13px 15px, transparent 16px), radial-gradient(circle at 50% 35%, rgba(74,222,128,0.28), transparent 24%), radial-gradient(circle at 76% 70%, rgba(239,68,68,0.22), transparent 24%), linear-gradient(145deg, #064e3b 0%, #7c3aed 40%, #7f1d1d 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="mitico"]::after{
+  background:radial-gradient(circle at 50% 35%, transparent 0 22px, rgba(187,247,208,0.28) 23px, transparent 28px, transparent 38px, rgba(248,113,113,0.16) 39px, transparent 42px), radial-gradient(circle at 28% 24%, rgba(187,247,208,0.70) 0 1px, transparent 2px), radial-gradient(circle at 76% 70%, rgba(254,202,202,0.62) 0 1px, transparent 2px);
+  animation:archiveRedGreenDeadConstellations 5s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="supremo"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.56) 0 12px, rgba(255,255,255,0.30) 13px 15px, transparent 16px), radial-gradient(circle at 50% 30%, rgba(255,255,255,0.45), transparent 23%), radial-gradient(circle at 72% 70%, rgba(34,197,94,0.18), transparent 24%), linear-gradient(145deg, #f8fafc 0%, #64748b 42%, #14532d 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="supremo"]::after{
+  background:linear-gradient(0deg, transparent 70px, rgba(255,255,255,0.40) 71px, transparent 74px), radial-gradient(circle at 50% 30%, transparent 0 23px, rgba(255,255,255,0.34) 24px, transparent 28px), linear-gradient(90deg, transparent 18px, rgba(187,247,208,0.22) 19px, transparent 20px);
+  animation:archiveRedGreenEquilibriumThrone 4.5s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="titan"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.66) 0 12px, rgba(254,202,202,0.22) 13px 15px, transparent 16px), radial-gradient(circle at 36% 30%, rgba(248,113,113,0.34), transparent 23%), radial-gradient(circle at 74% 70%, rgba(22,163,74,0.22), transparent 24%), linear-gradient(145deg, #14532d 0%, #ef4444 48%, #450a0a 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="titan"]::after{
+  background:linear-gradient(130deg, transparent 0 46%, rgba(254,202,202,0.32) 47%, transparent 49%), repeating-linear-gradient(0deg, transparent 0 9px, rgba(248,113,113,0.18) 10px, transparent 11px), radial-gradient(circle at 74% 70%, rgba(187,247,208,0.64) 0 1px, transparent 2px);
+  animation:archiveRedGreenTitanWar 3.6s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="inmortal"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.64) 0 12px, rgba(204,251,241,0.22) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(20,184,166,0.34), transparent 23%), radial-gradient(circle at 72% 68%, rgba(220,38,38,0.18), transparent 24%), linear-gradient(145deg, #022c22 0%, #22c55e 44%, #1e40af 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="inmortal"]::after{
+  background:radial-gradient(circle at 50% 34%, transparent 0 21px, rgba(204,251,241,0.36) 22px, transparent 26px), linear-gradient(90deg, transparent 18px, rgba(204,251,241,0.26) 19px, transparent 20px), radial-gradient(circle at 72% 68%, rgba(254,202,202,0.54) 0 1px, transparent 2px);
+  animation:archiveRedGreenEternalTime 4.8s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="leyenda-maxima"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.58) 0 12px, rgba(255,255,255,0.28) 13px 15px, transparent 16px), radial-gradient(circle at 36% 30%, rgba(187,247,208,0.34), transparent 22%), radial-gradient(circle at 70% 70%, rgba(248,113,113,0.22), transparent 24%), linear-gradient(145deg, #fefce8 0%, #a3e635 38%, #a855f7 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="leyenda-maxima"]::after{
+  background:conic-gradient(from 220deg at 50% 42%, transparent 0 16%, rgba(187,247,208,0.34) 17% 19%, transparent 20% 48%, rgba(248,113,113,0.24) 49% 51%, transparent 52%), linear-gradient(0deg, transparent 70px, rgba(255,255,255,0.34) 71px, transparent 73px), radial-gradient(circle at 36% 30%, rgba(255,255,255,0.76) 0 1px, transparent 2px);
+  animation:archiveRedGreenDimensionalEnd 4.1s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="arquitecto-del-vacio"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.72) 0 12px, rgba(255,255,255,0.24) 13px 15px, transparent 16px), linear-gradient(90deg, transparent 0 34px, rgba(34,197,94,0.22) 35px, transparent 36px, transparent 68px, rgba(239,68,68,0.18) 69px, transparent 70px), linear-gradient(145deg, #111827 0%, #f8fafc 42%, #14532d 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="arquitecto-del-vacio"]::after{
+  background:linear-gradient(90deg, transparent 18px, rgba(255,255,255,0.30) 19px, transparent 20px), linear-gradient(0deg, transparent 72px, rgba(34,197,94,0.24) 73px, transparent 75px), radial-gradient(circle at 66% 58%, rgba(248,113,113,0.62) 0 1px, transparent 2px);
+  animation:archiveRedGreenNewUniverse 3.7s linear infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="heraldo-astral"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.62) 0 12px, rgba(187,247,208,0.22) 13px 15px, transparent 16px), radial-gradient(circle at 50% 34%, rgba(34,197,94,0.28), transparent 24%), radial-gradient(circle at 76% 70%, rgba(248,113,113,0.26), transparent 25%), linear-gradient(145deg, #052e16 0%, #0ea5e9 46%, #dc2626 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="heraldo-astral"]::after{
+  background:radial-gradient(circle at 50% 34%, transparent 0 22px, rgba(187,247,208,0.32) 23px, transparent 27px), radial-gradient(circle at 28% 24%, rgba(187,247,208,0.76) 0 1px, transparent 2px), radial-gradient(circle at 76% 70%, rgba(254,202,202,0.66) 0 1px, transparent 2px), linear-gradient(90deg, transparent 18px, rgba(187,247,208,0.24) 19px, transparent 20px);
+  animation:archiveRedGreenNewCosmosEcho 4.6s ease-in-out infinite;
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="soberano-carmesi"]{
+  background:linear-gradient(90deg, rgba(0,0,0,0.68) 0 12px, rgba(187,247,208,0.18) 13px 15px, transparent 16px), radial-gradient(circle at 38% 30%, rgba(248,113,113,0.36), transparent 23%), radial-gradient(circle at 72% 70%, rgba(34,197,94,0.22), transparent 24%), linear-gradient(145deg, #14532d 0%, #dc2626 42%, #f97316 100%);
+}
+
+#archiveShelf .rank-book-cover[data-archive-id="soberano-carmesi"]::after{
+  background:repeating-linear-gradient(0deg, transparent 0 10px, rgba(254,202,202,0.20) 11px, transparent 12px), linear-gradient(130deg, transparent 0 46%, rgba(34,197,94,0.24) 47%, transparent 49%), radial-gradient(circle at 38% 30%, transparent 0 22px, rgba(254,202,202,0.32) 23px, transparent 27px);
+  animation:archiveRedGreenRedEmpire 3.9s ease-in-out infinite;
+}
+
+@keyframes archiveRedGreenFirstStep{ 0%,100%{opacity:.50;transform:translateY(3px) scale(.98)} 50%{opacity:.96;transform:translateY(-4px) scale(1.04)} }
+@keyframes archiveRedGreenTrials{ 0%,100%{opacity:.48;transform:translateX(-2px)} 50%{opacity:.94;transform:translateX(3px)} }
+@keyframes archiveRedGreenEchoCity{ 0%,100%{opacity:.46;transform:scale(.97)} 50%{opacity:.94;transform:scale(1.06)} }
+@keyframes archiveRedGreenVoidCode{ 0%,86%,100%{opacity:.50;transform:translate(0,0);filter:brightness(1)} 90%{opacity:.96;transform:translate(2px,-1px);filter:brightness(1.35)} 95%{opacity:.66;transform:translate(-2px,1px);filter:brightness(.92)} }
+@keyframes archiveRedGreenCoreWar{ 0%,100%{opacity:.50;transform:scale(.98) rotate(0deg)} 50%{opacity:.98;transform:scale(1.06) rotate(3deg)} }
+@keyframes archiveRedGreenMazeShift{ 0%,100%{opacity:.50;transform:translateY(3px)} 50%{opacity:.96;transform:translateY(-4px)} }
+@keyframes archiveRedGreenUmbraKingdom{ 0%,100%{opacity:.50;transform:translateY(3px) scale(.98)} 50%{opacity:.96;transform:translateY(-4px) scale(1.06)} }
+@keyframes archiveRedGreenDestinyMachine{ 0%{opacity:.46;background-position:0 0;filter:brightness(1)} 100%{opacity:.94;background-position:34px -38px;filter:brightness(1.22)} }
+@keyframes archiveRedGreenAbsoluteGate{ 0%,100%{opacity:.50;transform:translateY(4px)} 50%{opacity:.98;transform:translateY(-4px)} }
+@keyframes archiveRedGreenFirstRuins{ 0%,100%{opacity:.48;transform:translateY(0) skewX(0deg)} 50%{opacity:.92;transform:translateY(-4px) skewX(-2deg)} }
+@keyframes archiveRedGreenDeadConstellations{ 0%{opacity:.50;transform:rotate(0deg) scale(.98)} 100%{opacity:.90;transform:rotate(360deg) scale(1.04)} }
+@keyframes archiveRedGreenEquilibriumThrone{ 0%,100%{opacity:.50;transform:scale(.98);filter:brightness(1)} 50%{opacity:.98;transform:scale(1.05);filter:brightness(1.26)} }
+@keyframes archiveRedGreenTitanWar{ 0%,100%{opacity:.50;transform:translateX(-2px);filter:brightness(1)} 50%{opacity:.96;transform:translateX(3px);filter:brightness(1.28)} }
+@keyframes archiveRedGreenEternalTime{ 0%{opacity:.48;transform:rotate(0deg) scale(.98)} 50%{opacity:.94;transform:rotate(180deg) scale(1.04)} 100%{opacity:.48;transform:rotate(360deg) scale(.98)} }
+@keyframes archiveRedGreenDimensionalEnd{ 0%,100%{opacity:.48;transform:scale(.98) translateY(3px)} 50%{opacity:.96;transform:scale(1.06) translateY(-4px)} }
+@keyframes archiveRedGreenNewUniverse{ 0%{opacity:.46;background-position:0 0} 100%{opacity:.94;background-position:36px -40px} }
+@keyframes archiveRedGreenNewCosmosEcho{ 0%,100%{opacity:.48;transform:scale(.97)} 35%{opacity:.96;transform:scale(1.07)} 60%{opacity:.72;transform:scale(1.01)} }
+@keyframes archiveRedGreenRedEmpire{ 0%,100%{opacity:.50;transform:translateY(0);filter:brightness(1)} 50%{opacity:.96;transform:translateY(-5px);filter:brightness(1.28)} }
+
+@media (prefers-reduced-motion: reduce){
+  #archiveShelf .rank-book-cover[data-archive-id]::after{
+    animation:none;
+  }
+}
+
 @keyframes pageReveal{
   from{ opacity:0; transform:rotateY(5deg) translateY(4px); }
   to{ opacity:1; transform:rotateY(0) translateY(0); }

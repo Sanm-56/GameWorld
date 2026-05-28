@@ -70,7 +70,7 @@ function renderShelf() {
     const visual = archiveVisual(story)
     return `
       <button class="rank-book ${story.id === selectedId ? 'selected' : ''} ${loaded ? 'registered' : 'pending'}" type="button" data-story-id="${escapeHtml(story.id)}" style="${visualVars(story)}">
-        <span class="rank-book-cover" data-emblem="${escapeHtml(visual.emblem || 'AH')}"></span>
+        <span class="rank-book-cover" data-archive-id="${escapeHtml(story.id)}" data-emblem="${escapeHtml(visual.emblem || 'AH')}"></span>
         <span class="rank-book-name">${escapeHtml(archiveTitle(story))}</span>
         <span class="rank-book-state">${loaded ? 'Disponible' : 'Pendiente'}</span>
       </button>
