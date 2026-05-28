@@ -2249,6 +2249,112 @@ button{
   animation:blueGraySupremeHorizon 4.5s ease-in-out infinite;
 }
 
+.rank-book[data-book-id="rey-de-la-ultima-dimension"] .rank-book-cover,
+.book-cover[data-book-id="rey-de-la-ultima-dimension"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.54) 0 12px, rgba(255,255,255,0.34) 13px 15px, transparent 16px),
+    radial-gradient(circle at 56% 28%, rgba(255,255,255,0.48), transparent 24%),
+    linear-gradient(0deg, rgba(148,163,184,0.20) 0 18%, transparent 19%),
+    linear-gradient(145deg, #f8fafc 0%, #94a3b8 48%, #020617 100%);
+}
+
+.rank-book[data-book-id="rey-de-la-ultima-dimension"] .rank-book-cover::after{
+  background:
+    linear-gradient(90deg, transparent 18px, rgba(255,255,255,0.34) 19px, transparent 20px, transparent 62px, rgba(148,163,184,0.22) 63px, transparent 64px),
+    linear-gradient(0deg, transparent 68px, rgba(255,255,255,0.42) 69px, transparent 72px),
+    radial-gradient(circle at 56% 28%, transparent 0 22px, rgba(255,255,255,0.34) 23px, transparent 28px);
+  animation:whiteGrayLastDimension 4.6s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="devorador-del-reino-astral"] .rank-book-cover,
+.book-cover[data-book-id="devorador-del-reino-astral"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.60) 0 12px, rgba(226,232,240,0.24) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 34%, rgba(255,255,255,0.34), transparent 22%),
+    radial-gradient(circle at 72% 68%, rgba(168,85,247,0.28), transparent 24%),
+    linear-gradient(145deg, #f8fafc 0%, #cbd5e1 34%, #6d28d9 100%);
+}
+
+.rank-book[data-book-id="devorador-del-reino-astral"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 34%, #f8fafc 0 14px, rgba(148,163,184,0.38) 15px, transparent 20px, transparent 31px, rgba(168,85,247,0.22) 32px, transparent 35px),
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.82) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 70%, rgba(216,180,254,0.70) 0 1px, transparent 2px);
+  animation:whiteGrayAstralConsume 5.0s linear infinite;
+}
+
+.rank-book[data-book-id="heraldo-de-las-sombras-eternas"] .rank-book-cover,
+.book-cover[data-book-id="heraldo-de-las-sombras-eternas"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.72) 0 12px, rgba(229,231,235,0.20) 13px 15px, transparent 16px),
+    radial-gradient(circle at 35% 30%, rgba(229,231,235,0.22), transparent 24%),
+    radial-gradient(circle at 70% 72%, rgba(239,68,68,0.28), transparent 24%),
+    linear-gradient(145deg, #f9fafb 0%, #4b5563 42%, #450a0a 100%);
+}
+
+.rank-book[data-book-id="heraldo-de-las-sombras-eternas"] .rank-book-cover::after{
+  background:
+    linear-gradient(90deg, transparent 18px, rgba(255,255,255,0.26) 19px, transparent 20px),
+    repeating-linear-gradient(0deg, transparent 0 10px, rgba(75,85,99,0.28) 11px, transparent 12px),
+    linear-gradient(135deg, transparent 0 44%, rgba(239,68,68,0.36) 45%, transparent 47%),
+    radial-gradient(circle at 68% 70%, transparent 0 20px, rgba(248,113,113,0.28) 21px, transparent 25px);
+  animation:whiteGrayShadowHerald 3.4s steps(3, end) infinite;
+}
+
+.rank-book[data-book-id="emperador-del-juicio-final"] .rank-book-cover,
+.book-cover[data-book-id="emperador-del-juicio-final"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.50) 0 12px, rgba(255,255,255,0.36) 13px 15px, transparent 16px),
+    radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.56), transparent 24%),
+    linear-gradient(0deg, rgba(148,163,184,0.18) 0 19%, transparent 20%),
+    linear-gradient(145deg, #ffffff 0%, #d1d5db 45%, #1f2937 100%);
+}
+
+.rank-book[data-book-id="emperador-del-juicio-final"] .rank-book-cover::after{
+  background:
+    linear-gradient(90deg, transparent 42px, rgba(255,255,255,0.48) 43px, transparent 45px),
+    linear-gradient(0deg, transparent 72px, rgba(255,255,255,0.42) 73px, transparent 75px),
+    radial-gradient(ellipse at 50% 30%, transparent 0 22px, rgba(255,255,255,0.38) 23px, transparent 28px),
+    linear-gradient(135deg, transparent 0 42%, rgba(107,114,128,0.24) 43%, transparent 45%);
+  animation:whiteGrayFinalJudgement 4.0s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="titan-del-vacio-primordial"] .rank-book-cover,
+.book-cover[data-book-id="titan-del-vacio-primordial"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.78) 0 12px, rgba(229,231,235,0.20) 13px 15px, transparent 16px),
+    radial-gradient(circle at 52% 35%, rgba(229,231,235,0.28), transparent 24%),
+    radial-gradient(circle at 76% 70%, rgba(248,113,113,0.24), transparent 24%),
+    linear-gradient(145deg, #f3f4f6 0%, #374151 38%, #111827 100%);
+}
+
+.rank-book[data-book-id="titan-del-vacio-primordial"] .rank-book-cover::after{
+  background:
+    linear-gradient(90deg, transparent 18px, rgba(229,231,235,0.24) 19px, transparent 20px),
+    radial-gradient(circle at 52% 35%, transparent 0 24px, rgba(229,231,235,0.30) 25px, transparent 29px),
+    linear-gradient(130deg, transparent 0 48%, rgba(248,113,113,0.30) 49%, transparent 51%),
+    radial-gradient(circle at 30% 72%, rgba(255,255,255,0.70) 0 1px, transparent 2px);
+  animation:whiteGrayPrimordialTitan 4.8s ease-in-out infinite;
+}
+
+.rank-book[data-book-id="el-ultimo-ascendido"] .rank-book-cover,
+.book-cover[data-book-id="el-ultimo-ascendido"]{
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.48) 0 12px, rgba(255,255,255,0.38) 13px 15px, transparent 16px),
+    radial-gradient(circle at 50% 32%, rgba(255,255,255,0.62), transparent 25%),
+    linear-gradient(135deg, transparent 0 42%, rgba(203,213,225,0.34) 43%, transparent 46%),
+    linear-gradient(145deg, #ffffff 0%, #cbd5e1 42%, #64748b 100%);
+}
+
+.rank-book[data-book-id="el-ultimo-ascendido"] .rank-book-cover::after{
+  background:
+    radial-gradient(circle at 50% 32%, transparent 0 22px, rgba(255,255,255,0.48) 23px, transparent 29px, transparent 40px, rgba(148,163,184,0.22) 41px, transparent 44px),
+    linear-gradient(0deg, transparent 70px, rgba(255,255,255,0.44) 71px, transparent 74px),
+    radial-gradient(circle at 30% 24%, rgba(255,255,255,0.90) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 66%, rgba(255,255,255,0.78) 0 1px, transparent 2px);
+  animation:whiteGrayLastAscended 5.2s ease-in-out infinite;
+}
+
 .rank-book[data-book-id="amateur"] .rank-book-cover{
   background:
     linear-gradient(90deg, rgba(0,0,0,0.54) 0 12px, rgba(45,212,191,0.22) 13px 15px, transparent 16px),
@@ -2791,6 +2897,38 @@ button{
   50%{ opacity:0.98; transform:translateY(-4px); filter:brightness(1.30); }
 }
 
+@keyframes whiteGrayLastDimension{
+  0%, 100%{ opacity:0.50; transform:translateY(4px); filter:brightness(1); }
+  50%{ opacity:0.98; transform:translateY(-4px); filter:brightness(1.28); }
+}
+
+@keyframes whiteGrayAstralConsume{
+  0%{ opacity:0.50; transform:rotate(0deg) scale(0.98); filter:brightness(1); }
+  50%{ opacity:0.96; transform:rotate(180deg) scale(1.05); filter:brightness(1.24); }
+  100%{ opacity:0.50; transform:rotate(360deg) scale(0.98); filter:brightness(1); }
+}
+
+@keyframes whiteGrayShadowHerald{
+  0%, 84%, 100%{ opacity:0.48; transform:translate(0, 0); filter:brightness(1); }
+  88%{ opacity:0.92; transform:translate(2px, -1px); filter:brightness(1.30) contrast(1.12); }
+  94%{ opacity:0.64; transform:translate(-2px, 1px); filter:brightness(0.90) contrast(1.25); }
+}
+
+@keyframes whiteGrayFinalJudgement{
+  0%, 100%{ opacity:0.50; transform:translateY(3px) scale(0.98); }
+  50%{ opacity:1; transform:translateY(-4px) scale(1.04); }
+}
+
+@keyframes whiteGrayPrimordialTitan{
+  0%, 100%{ opacity:0.48; transform:scale(0.98); filter:brightness(1); }
+  50%{ opacity:0.96; transform:scale(1.06); filter:brightness(1.28); }
+}
+
+@keyframes whiteGrayLastAscended{
+  0%, 100%{ opacity:0.52; transform:scale(0.98); filter:brightness(1); }
+  50%{ opacity:1; transform:scale(1.07); filter:brightness(1.32); }
+}
+
 @keyframes haloPulse{
   0%, 100%{ opacity:0.72; transform:scale(0.94); }
   50%{ opacity:1; transform:scale(1.05); }
@@ -2888,6 +3026,12 @@ button{
   .rank-book[data-book-id="arquitecto-del-eclipse-eterno"] .rank-book-cover::after,
   .rank-book[data-book-id="emisario-de-umbra-infinita"] .rank-book-cover::after,
   .rank-book[data-book-id="monarca-del-horizonte-supremo"] .rank-book-cover::after,
+  .rank-book[data-book-id="rey-de-la-ultima-dimension"] .rank-book-cover::after,
+  .rank-book[data-book-id="devorador-del-reino-astral"] .rank-book-cover::after,
+  .rank-book[data-book-id="heraldo-de-las-sombras-eternas"] .rank-book-cover::after,
+  .rank-book[data-book-id="emperador-del-juicio-final"] .rank-book-cover::after,
+  .rank-book[data-book-id="titan-del-vacio-primordial"] .rank-book-cover::after,
+  .rank-book[data-book-id="el-ultimo-ascendido"] .rank-book-cover::after,
   .book-cover[data-book-id="amateur"] .book-sigil{
     animation:none;
   }

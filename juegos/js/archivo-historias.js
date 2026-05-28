@@ -10,6 +10,10 @@ const activeEl = document.getElementById('archiveActive')
 const stories = Object.values(LIBROS_HISTORIA)
 let selectedId = stories[0]?.id || ''
 
+function canAnimate() {
+  return Boolean(window.gsap) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -74,6 +78,74 @@ function renderShelf() {
   }).join('')
 }
 
+function updateShelfSelection(activeButton) {
+  if (!shelfEl || !activeButton) return
+  shelfEl.querySelectorAll('.rank-book.selected').forEach((button) => {
+    button.classList.remove('selected')
+  })
+  activeButton.classList.add('selected')
+}
+
+function animateShelfEntrance() {
+  if (!canAnimate() || !shelfEl) return
+  const books = shelfEl.querySelectorAll('.rank-book')
+  if (!books.length) return
+
+  window.gsap.set(books, { autoAlpha: 0, y: 16, rotate: -1 })
+  window.gsap.to(books, {
+    autoAlpha: 1,
+    y: 0,
+    rotate: 0,
+    duration: 0.38,
+    ease: 'power2.out',
+    stagger: { each: 0.018, from: 0 },
+    clearProps: 'transform,opacity,visibility',
+  })
+}
+
+function pulseArchiveBook(button) {
+  const cover = button?.querySelector('.rank-book-cover')
+  if (!cover) return
+
+  button.classList.remove('glitch-click')
+  window.requestAnimationFrame(() => {
+    button.classList.add('glitch-click')
+    window.setTimeout(() => button.classList.remove('glitch-click'), 520)
+  })
+
+  if (!canAnimate()) return
+
+  window.gsap.fromTo(cover,
+    { y: -5, rotate: 0, scale: 0.98, filter: 'brightness(1.35) saturate(1.18)' },
+    {
+      y: -8,
+      rotate: 0,
+      scale: 1.05,
+      filter: 'brightness(1.08) saturate(1.12)',
+      duration: 0.18,
+      ease: 'power2.out',
+      yoyo: true,
+      repeat: 1,
+      clearProps: 'transform,filter',
+    },
+  )
+}
+
+function animateDetailChange() {
+  if (!canAnimate() || !detailEl) return
+
+  window.gsap.fromTo(detailEl,
+    { autoAlpha: 0.78, y: 10 },
+    {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.28,
+      ease: 'power2.out',
+      clearProps: 'transform,opacity,visibility',
+    },
+  )
+}
+
 function renderDetail(story) {
   if (!detailEl || !story) return
 
@@ -96,6 +168,7 @@ function renderDetail(story) {
     <button class="detail-open" type="button" ${loaded ? `data-open-archive-reader="${escapeHtml(story.id)}"` : 'disabled'}>${loaded ? 'Leer historia' : 'Pendiente'}</button>
     <button class="detail-secondary" type="button" data-open-relato="${escapeHtml(story.readerUrl || 'historia.html')}">Abrir relato</button>
   `
+  animateDetailChange()
 }
 
 function renderStatus() {
@@ -115,13 +188,22 @@ function renderArchive() {
   renderStatus()
   renderShelf()
   renderDetail(story)
+  animateShelfEntrance()
 }
 
 shelfEl?.addEventListener('click', (event) => {
   const button = event.target.closest('[data-story-id]')
   if (!button) return
+  if (button.dataset.storyId === selectedId) {
+    pulseArchiveBook(button)
+    return
+  }
+
   selectedId = button.dataset.storyId
-  renderArchive()
+  updateShelfSelection(button)
+  renderStatus()
+  renderDetail(selectedStory())
+  pulseArchiveBook(button)
 })
 
 detailEl?.addEventListener('click', (event) => {
