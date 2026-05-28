@@ -402,14 +402,14 @@ function animateFeaturedBook(bookId) {
   if (bookId === 'profesional' && cover) {
     gsap.fromTo(cover,
       { x: -2, filter: 'brightness(1.18) saturate(1.2)' },
-      { x: 0, filter: 'brightness(1) saturate(1)', duration: 0.38, ease: 'steps(3)', overwrite: true },
+      { x: 0, filter: 'brightness(1) saturate(1)', duration: 0.38, delay: 0.52, ease: 'steps(3)', overwrite: 'auto' },
     )
   }
 
   if (bookId === 'competidor' && cover) {
     gsap.fromTo(cover,
       { scale: 1.04, filter: 'brightness(1.22) saturate(1.18)' },
-      { scale: 1, filter: 'brightness(1) saturate(1)', duration: 0.42, ease: 'back.out(2.2)', overwrite: true },
+      { scale: 1, filter: 'brightness(1) saturate(1)', duration: 0.42, delay: 0.52, ease: 'back.out(2.2)', overwrite: 'auto' },
     )
   }
 

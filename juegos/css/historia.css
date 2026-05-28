@@ -137,7 +137,9 @@ button{
 .featured-book{
   position:relative;
   display:grid;
+  align-content:center;
   place-items:center;
+  gap:14px;
   min-height:320px;
   perspective:1000px;
 }
@@ -289,10 +291,8 @@ button{
 }
 
 .featured-info{
-  position:absolute;
-  left:50%;
-  bottom:10px;
-  transform:translateX(-50%);
+  position:relative;
+  z-index:6;
   display:grid;
   justify-items:center;
   gap:2px;
