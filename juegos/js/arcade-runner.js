@@ -31,9 +31,15 @@ const CLIMB_PLAYER_WIDTH = 6.2
 const CLIMB_PLAYER_COLLISION_HALF = CLIMB_PLAYER_WIDTH * 0.42
 const CLIMB_PLATFORM_COLLISION_SCALE = 0.43
 const CLIMB_PLAYER_FEET = 3.4
+const CLIMB_SPIKE_WIDTH = 13
+const CLIMB_SPIKE_VERTICAL_REACH = 2.1
+const CLIMB_SPIKE_COLLISION_SCALE = 0.28
+const CLIMB_SPIKE_SAFE_GAP_X = 28
+const CLIMB_SPIKE_SAFE_GAP_Y = 7
 const CLIMB_GRAVITY = 74
-const CLIMB_JUMP_SPEED = 36
-const CLIMB_SPRING_SPEED = 60
+const CLIMB_JUMP_SPEED = 46
+const CLIMB_AIR_JUMP_SPEED = 48
+const CLIMB_SPRING_SPEED = 64
 const CLIMB_MOVE_SPEED = 42
 const CLIMB_CAMERA_TARGET = 42
 const CLIMB_VISIBLE_TOP = -14
@@ -41,6 +47,8 @@ const CLIMB_VISIBLE_BOTTOM = 104
 const CLIMB_MAX_PLATFORMS = 12
 const CLIMB_MAX_AIR_JUMPS = 5
 const CLIMB_SPRING_COOLDOWN_MS = 650
+const CLIMB_JUMP_BUFFER_MS = 180
+const CLIMB_COYOTE_MS = 120
 const DODGE_LANES = [18, 42, 66]
 const DODGE_X_RANGE = [10, 78]
 const DODGE_Y_RANGE = [50, 88]
@@ -160,6 +168,7 @@ let dodgePointerTarget = null
 let climbInputX = 0
 let climbJumpQueued = false
 let climbLastJumpInputAt = 0
+let climbJumpQueuedUntil = 0
 let climbLastScoredHeight = 0
 let dodgeLastTrackedX = 42
 let dodgeLastTrackedY = 78
@@ -258,6 +267,7 @@ function createClimbState() {
     height: 0,
     lastPlatformY: 0,
     lastSafeX: 42,
+    lastGroundedAt: 0,
     springCooldownY: -80,
     spikeCooldownY: -120,
     jumpsLeft: CLIMB_MAX_AIR_JUMPS,
@@ -308,6 +318,7 @@ function prepareNextStackBlock() {
 
 function resetClimbState() {
   state.climb = createClimbState()
+  state.climb.lastGroundedAt = performance.now()
   state.x = 42
   state.y = 72
   state.platforms = [
@@ -336,11 +347,15 @@ function createClimbPlatform(x, y, w, type = "normal") {
 
 function addScore(points) {
   if (juegoTerminado || !juegoActivo) return
-  const gained = Math.max(0, Math.round(points * (1 + combo * 0.04)))
+  const gained = gameKey === "subelamontana"
+    ? Math.max(0, Math.round(points))
+    : Math.max(0, Math.round(points * (1 + combo * 0.04)))
   score += gained
   combo += 1
   bestCombo = Math.max(bestCombo, combo)
-  level = Math.max(1, Math.floor(score / 180) + 1)
+  level = gameKey === "subelamontana"
+    ? Math.max(1, Math.floor(getCompetitiveValue() / 120) + 1)
+    : Math.max(1, Math.floor(score / 180) + 1)
   if (!esHistoriaActual) registrarCheckpointNivel(gameKey, getCompetitiveValue(), "points", {
     elapsed: Math.max(0, Math.round((performance.now() - startMs) / 1000)),
   })
@@ -358,6 +373,7 @@ function completarPruebaHistoriaSiCorresponde() {
 
 function getCompetitiveValue() {
   if (gameKey === "torreinfinita") return stackBlocksPlaced * 10
+  if (gameKey === "subelamontana") return Math.max(0, Math.floor(state.climb?.height || 0))
   return score
 }
 
@@ -936,14 +952,7 @@ function updateClimb(dt) {
   const prevY = climb.playerY
   state.x = clamp(state.x + climbInputX * CLIMB_MOVE_SPEED * dt, CLIMB_X_RANGE[0], CLIMB_X_RANGE[1])
 
-  if (climbJumpQueued && climb.vy > -10 && climb.jumpsLeft > 0) {
-    climb.vy = Math.max(climb.vy, CLIMB_JUMP_SPEED * 0.82)
-    climb.jumpsLeft -= 1
-    climbJumpQueued = false
-    setStatus(`Saltos ${climb.jumpsLeft}/${CLIMB_MAX_AIR_JUMPS}`)
-  } else if (climbJumpQueued) {
-    climbJumpQueued = false
-  }
+  consumeClimbJumpQueue()
 
   climb.vy -= CLIMB_GRAVITY * dt
   climb.playerY += climb.vy * dt
@@ -959,7 +968,7 @@ function updateClimb(dt) {
   if (climb.height - climbLastScoredHeight >= 12) {
     const steps = Math.floor((climb.height - climbLastScoredHeight) / 12)
     climbLastScoredHeight += steps * 12
-    addScore(steps * (10 + Math.floor(level * 1.5)))
+    addScore(steps * (4 + Math.floor(level * 0.6)))
   }
 
   if (climb.playerY < climb.cameraY - 30) {
@@ -978,11 +987,31 @@ function updateClimbDirectionalInput(dt) {
   climbInputX += (rawX - climbInputX) * Math.min(1, dt * 13)
 }
 
+function consumeClimbJumpQueue() {
+  const climb = state.climb
+  const now = performance.now()
+  if (!climbJumpQueued || now > climbJumpQueuedUntil) {
+    climbJumpQueued = false
+    return
+  }
+
+  const canUseCoyoteJump = now - climb.lastGroundedAt <= CLIMB_COYOTE_MS
+  const canUseAirJump = climb.jumpsLeft > 0
+  if (climb.vy <= -16 || (!canUseAirJump && !canUseCoyoteJump)) return
+
+  climb.vy = Math.max(climb.vy, canUseCoyoteJump ? CLIMB_JUMP_SPEED : CLIMB_AIR_JUMP_SPEED)
+  if (!canUseCoyoteJump) climb.jumpsLeft -= 1
+  climbJumpQueued = false
+  climbJumpQueuedUntil = 0
+  setStatus(`Saltos ${climb.jumpsLeft}/${CLIMB_MAX_AIR_JUMPS}`)
+}
+
 function queueClimbJump() {
   const now = performance.now()
-  if (now - climbLastJumpInputAt < 120) return
+  if (now - climbLastJumpInputAt < 90) return
   climbLastJumpInputAt = now
   climbJumpQueued = true
+  climbJumpQueuedUntil = now + CLIMB_JUMP_BUFFER_MS
 }
 
 function ensureClimbPlatforms() {
@@ -997,8 +1026,9 @@ function ensureClimbPlatforms() {
     const width = rand(24 - difficulty * 5, 31 - difficulty * 4)
     const type = chooseClimbPlatformType(nextY, difficulty)
     if (type === "spike") {
-      const spikeX = clamp(nextX + (nextX < 50 ? rand(14, 24) : rand(-24, -14)), 12, 82)
-      state.platforms.push(createClimbPlatform(spikeX, nextY + rand(-2, 2), 17, "spike"))
+      const spikeDir = nextX < 50 ? 1 : -1
+      const spikeX = clamp(nextX + spikeDir * rand(CLIMB_SPIKE_SAFE_GAP_X, CLIMB_SPIKE_SAFE_GAP_X + 12), 12, 82)
+      state.platforms.push(createClimbPlatform(spikeX, nextY + CLIMB_SPIKE_SAFE_GAP_Y + rand(0, 2), CLIMB_SPIKE_WIDTH, "spike"))
       state.platforms.push(createClimbPlatform(nextX, nextY, width, "normal"))
     } else {
       state.platforms.push(createClimbPlatform(nextX, nextY, width, type))
@@ -1049,6 +1079,7 @@ function resolveClimbPlatformCollisions(prevY) {
 
   climb.playerY = platform.y + CLIMB_PLAYER_FEET
   climb.jumpsLeft = CLIMB_MAX_AIR_JUMPS
+  climb.lastGroundedAt = performance.now()
   if (platform.type === "spring") {
     triggerClimbSpring(platform)
   } else {
@@ -1056,7 +1087,7 @@ function resolveClimbPlatformCollisions(prevY) {
   }
   if (!platform.touched) {
     platform.touched = true
-    addScore(platform.type === "spring" ? 32 : 14)
+    addScore(platform.type === "spring" ? 12 : 5)
   }
 }
 
@@ -1068,15 +1099,17 @@ function triggerClimbSpring(platform) {
   climb.springLockUntil = now + CLIMB_SPRING_COOLDOWN_MS
   climb.springPulseUntil = now + 420
   climb.jumpsLeft = CLIMB_MAX_AIR_JUMPS
+  climb.lastGroundedAt = now
   platform.touched = true
   setStatus("Resorte")
 }
 
 function resolveClimbSpikeHits() {
   const climb = state.climb
+  const spikeFeetY = climb.playerY - CLIMB_PLAYER_FEET
   const spike = state.platforms.find((item) => item.type === "spike"
-    && Math.abs(item.y - (climb.playerY - CLIMB_PLAYER_FEET)) < 3.6
-    && Math.abs(state.x - item.x) <= item.w * 0.42 + CLIMB_PLAYER_WIDTH)
+    && Math.abs(item.y - spikeFeetY) < CLIMB_SPIKE_VERTICAL_REACH
+    && Math.abs(state.x - item.x) <= item.w * CLIMB_SPIKE_COLLISION_SCALE + CLIMB_PLAYER_COLLISION_HALF)
   if (!spike) return
   spike.type = "hit"
   miss("Pinchos")
@@ -1099,6 +1132,7 @@ function resetClimbAfterFall() {
   climb.playerY = safe.y + CLIMB_PLAYER_FEET + 1
   climb.vy = CLIMB_JUMP_SPEED
   climb.jumpsLeft = CLIMB_MAX_AIR_JUMPS
+  climb.lastGroundedAt = performance.now()
 }
 
 function updateDodgeDirectionalInput(dt) {
@@ -1250,6 +1284,7 @@ window.addEventListener("blur", () => {
   climbPressedKeys.clear()
   climbButtonInputs.clear()
   climbJumpQueued = false
+  climbJumpQueuedUntil = 0
 }, { signal: inputController.signal })
 
 if (config.type === "dodge") {

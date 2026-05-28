@@ -16,7 +16,7 @@ const elapsed = Number(localStorage.getItem(`${gameKey}_elapsed`) || 0)
 const combo = Number(localStorage.getItem(`${gameKey}_combo`) || 0)
 const isMini = localStorage.getItem("solitario_origen") === "sala"
 const isHistory = pruebaHistoriaActiva(gameKey)
-const usaAltura = gameKey === "torreinfinita"
+const usaAltura = gameKey === "torreinfinita" || gameKey === "subelamontana"
 const rewards = readJson(localStorage.getItem(`ultimo_resultado_${gameKey}`))
 const bestStorageKey = usaAltura ? `${gameKey}_best_m` : `${gameKey}_best`
 const usaFallbackLocal = [
@@ -96,7 +96,7 @@ async function loadTournamentRanking() {
     .from("ranking")
     .select("*")
     .eq("juego", gameKey)
-    .eq("invalido", false)
+    .or("invalido.is.false,invalido.is.null")
     .order("tiempo", { ascending: false })
 
   if (error || !data) {

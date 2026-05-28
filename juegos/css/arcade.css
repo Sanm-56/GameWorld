@@ -1183,7 +1183,10 @@ body[data-game="subelamontana"] .stage::after{
   box-shadow:0 14px 26px rgba(0,0,0,.24),0 0 22px rgba(245,158,11,.28);
 }
 .climb-platform-spike{
-  background:linear-gradient(90deg,#fecaca,#ef4444);
+  height:10px;
+  min-width:44px;
+  background:linear-gradient(90deg,rgba(127,29,29,.72),rgba(239,68,68,.86));
+  box-shadow:0 10px 18px rgba(127,29,29,.22),0 0 14px rgba(248,113,113,.22);
 }
 .climb-platform-hit{
   opacity:.45;
@@ -1219,9 +1222,9 @@ body[data-game="subelamontana"] .stage::after{
 .climb-spike{
   position:absolute;
   left:50%;
-  bottom:12px;
-  width:36px;
-  height:22px;
+  bottom:8px;
+  width:30px;
+  height:20px;
   transform:translateX(-50%);
   background:linear-gradient(135deg,#fff,#fecaca);
   clip-path:polygon(0 100%,18% 0,36% 100%,54% 0,72% 100%,90% 0,100% 100%);
