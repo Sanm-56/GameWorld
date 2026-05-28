@@ -49,6 +49,8 @@ const CLIMB_MAX_AIR_JUMPS = 5
 const CLIMB_SPRING_COOLDOWN_MS = 650
 const CLIMB_JUMP_BUFFER_MS = 180
 const CLIMB_COYOTE_MS = 120
+const CLIMB_FALL_FEEDBACK_SPEED = -24
+const CLIMB_RESPAWN_PULSE_MS = 420
 const DODGE_LANES = [18, 42, 66]
 const DODGE_X_RANGE = [10, 78]
 const DODGE_Y_RANGE = [50, 88]
@@ -273,6 +275,7 @@ function createClimbState() {
     jumpsLeft: CLIMB_MAX_AIR_JUMPS,
     springLockUntil: 0,
     springPulseUntil: 0,
+    respawnPulseUntil: 0,
   }
 }
 
@@ -586,6 +589,7 @@ function renderClimb() {
   clearStage()
   makeEl("mountain climb-sky")
   const climb = state.climb
+  const now = performance.now()
   state.platforms.forEach((platform) => {
     const top = climbWorldToScreen(platform.y)
     if (top < CLIMB_VISIBLE_TOP || top > CLIMB_VISIBLE_BOTTOM) return
@@ -607,9 +611,34 @@ function renderClimb() {
       el.appendChild(spike)
     }
   })
-  makeEl("actor climb-player", {
+
+  const screenY = climbWorldToScreen(climb.playerY)
+  const falling = climb.vy < CLIMB_FALL_FEEDBACK_SPEED
+  const respawnProgress = Math.max(0, (climb.respawnPulseUntil - now) / CLIMB_RESPAWN_PULSE_MS)
+  const fallIntensity = falling ? clamp(Math.abs(climb.vy) / 72, 0, 1) : 0
+  const tilt = clamp(climbInputX * 10 + fallIntensity * 7, -13, 13)
+  const scaleX = 1 + respawnProgress * 0.1 - fallIntensity * 0.06
+  const scaleY = 1 - respawnProgress * 0.08 + fallIntensity * 0.11
+  const playerClass = [
+    "actor",
+    "climb-player",
+    falling ? "climb-player-falling" : "",
+    respawnProgress > 0 ? "climb-player-respawn" : "",
+  ].filter(Boolean).join(" ")
+
+  if (falling) {
+    makeEl("trail climb-fall-trail", {
+      left: `${state.x}%`,
+      top: `${screenY + 2}%`,
+      height: `${26 + fallIntensity * 34}px`,
+      opacity: `${0.2 + fallIntensity * 0.32}`,
+    })
+  }
+
+  makeEl(playerClass, {
     left: `${state.x}%`,
-    top: `${climbWorldToScreen(climb.playerY)}%`,
+    top: `${screenY}%`,
+    transform: `translate(-50%,-50%) rotate(${tilt}deg) scale(${scaleX},${scaleY})`,
   })
 }
 
@@ -1132,7 +1161,9 @@ function resetClimbAfterFall() {
   climb.playerY = safe.y + CLIMB_PLAYER_FEET + 1
   climb.vy = CLIMB_JUMP_SPEED
   climb.jumpsLeft = CLIMB_MAX_AIR_JUMPS
-  climb.lastGroundedAt = performance.now()
+  const now = performance.now()
+  climb.lastGroundedAt = now
+  climb.respawnPulseUntil = now + CLIMB_RESPAWN_PULSE_MS
 }
 
 function updateDodgeDirectionalInput(dt) {

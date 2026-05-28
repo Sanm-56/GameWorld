@@ -1152,6 +1152,7 @@ body[data-game="subelamontana"] .stage::after{
     linear-gradient(135deg,#f59e0b,#ef4444);
   box-shadow:0 16px 28px rgba(0,0,0,.3),0 0 18px rgba(245,158,11,.28);
   transform:translate(-50%,-50%);
+  will-change:transform,filter;
 }
 .climb-player::before{
   content:"";
@@ -1164,6 +1165,22 @@ body[data-game="subelamontana"] .stage::after{
   border-radius:999px;
   background:rgba(239,68,68,.26);
   filter:blur(3px);
+}
+.climb-player-falling{
+  filter:saturate(1.08) brightness(.98);
+  box-shadow:0 22px 34px rgba(0,0,0,.34),0 0 22px rgba(239,68,68,.24);
+}
+.climb-player-respawn{
+  filter:brightness(1.08);
+  box-shadow:0 12px 24px rgba(0,0,0,.24),0 0 28px rgba(250,204,21,.4);
+}
+.climb-fall-trail{
+  width:12px;
+  border-radius:999px;
+  transform:translateX(-50%);
+  background:linear-gradient(180deg,rgba(255,247,237,.42),rgba(245,158,11,.04));
+  filter:blur(4px);
+  pointer-events:none;
 }
 .climb-platform{
   height:16px;
