@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js'
+import { safeAlert } from './mensajes.js'
 import {
   COSMETICOS,
   RECOMPENSAS_MONEDAS,
@@ -33,6 +34,8 @@ import {
 } from './rango-bonus.js'
 
 const usuario = localStorage.getItem('usuario')
+const SAVED_NICKNAME_KEY = 'savedNickname'
+const SAVED_UNIQUE_CODE_KEY = 'savedUniqueCode'
 instalarEstilosPersonalizacion()
 
 const GAMES = [
@@ -118,6 +121,15 @@ const chatConfirmTitleEl = document.getElementById('chatConfirmTitle')
 const chatConfirmMessageEl = document.getElementById('chatConfirmMessage')
 const chatConfirmCancelEl = document.getElementById('chatConfirmCancel')
 const chatConfirmAcceptEl = document.getElementById('chatConfirmAccept')
+const profileLoginButtonEl = document.getElementById('profileLoginButton')
+const profileLogoutButtonEl = document.getElementById('profileLogoutButton')
+const profileLoginOverlayEl = document.getElementById('profileLoginOverlay')
+const profileLoginFormEl = document.getElementById('profileLoginForm')
+const profileLoginUsuarioEl = document.getElementById('profileLoginUsuario')
+const profileLoginCodigoEl = document.getElementById('profileLoginCodigo')
+const profileLoginErrorEl = document.getElementById('profileLoginError')
+const profileLoginCancelEl = document.getElementById('profileLoginCancel')
+const profileLoginSubmitEl = document.getElementById('profileLoginSubmit')
 const profileScrollDockEl = document.getElementById('profileScrollDock')
 const profileScrollProgressEl = document.getElementById('profileScrollProgress')
 const CHAT_GLOBAL_TABLA = 'chat_global'
@@ -6148,6 +6160,166 @@ function confirmarAccionChat({ titulo = 'Confirmar accion', mensaje = 'Seguro qu
   })
 }
 
+function guardarCredencialesPerfil(usuarioLogin, codigoLogin) {
+  localStorage.setItem(SAVED_NICKNAME_KEY, usuarioLogin)
+  localStorage.setItem(SAVED_UNIQUE_CODE_KEY, codigoLogin)
+  localStorage.setItem('usuario', usuarioLogin)
+}
+
+function mostrarErrorLoginPerfil(mensaje = '') {
+  if (profileLoginErrorEl) profileLoginErrorEl.textContent = mensaje
+}
+
+function precargarLoginPerfil() {
+  if (!profileLoginUsuarioEl || !profileLoginCodigoEl) return
+
+  const apodoGuardado = localStorage.getItem(SAVED_NICKNAME_KEY) || localStorage.getItem('usuario') || ''
+  const codigoGuardado = localStorage.getItem(SAVED_UNIQUE_CODE_KEY) || ''
+
+  if (apodoGuardado && !profileLoginUsuarioEl.value) profileLoginUsuarioEl.value = apodoGuardado
+  if (codigoGuardado && !profileLoginCodigoEl.value) profileLoginCodigoEl.value = codigoGuardado
+}
+
+function abrirLoginPerfil() {
+  if (!profileLoginOverlayEl) return
+
+  precargarLoginPerfil()
+  mostrarErrorLoginPerfil('')
+  profileLoginOverlayEl.classList.add('open')
+  profileLoginOverlayEl.setAttribute('aria-hidden', 'false')
+  setTimeout(() => profileLoginUsuarioEl?.focus(), 0)
+}
+
+function cerrarLoginPerfil() {
+  if (!profileLoginOverlayEl) return
+
+  profileLoginOverlayEl.classList.remove('open')
+  profileLoginOverlayEl.setAttribute('aria-hidden', 'true')
+  mostrarErrorLoginPerfil('')
+}
+
+async function iniciarSesionPerfil(event) {
+  event?.preventDefault()
+
+  const usuarioLogin = profileLoginUsuarioEl?.value.trim() || ''
+  const codigoLogin = profileLoginCodigoEl?.value.trim() || ''
+
+  if (!usuarioLogin || !codigoLogin) {
+    mostrarErrorLoginPerfil('Completa el apodo y el codigo.')
+    return
+  }
+
+  const textoOriginal = profileLoginSubmitEl?.textContent || 'Entrar'
+  if (profileLoginSubmitEl) {
+    profileLoginSubmitEl.disabled = true
+    profileLoginSubmitEl.textContent = 'Entrando...'
+  }
+  mostrarErrorLoginPerfil('')
+
+  try {
+    const { data: loginRpc, error: loginRpcError } = await supabase
+      .rpc('login_usuario_torneo', {
+        p_usuario: usuarioLogin,
+        p_codigo: codigoLogin,
+      })
+
+    if (!loginRpcError && loginRpc) {
+      if (loginRpc.ok) {
+        guardarCredencialesPerfil(usuarioLogin, codigoLogin)
+        window.location.reload()
+        return
+      }
+
+      mostrarErrorLoginPerfil(loginRpc.mensaje || 'No se pudo iniciar sesion.')
+      return
+    }
+
+    const { data: user, error: userError } = await supabase
+      .from('usuarios')
+      .select('*')
+      .eq('usuario', usuarioLogin)
+      .maybeSingle()
+
+    if (userError) throw userError
+
+    if (user) {
+      if (user.codigo !== codigoLogin) {
+        mostrarErrorLoginPerfil('Ese apodo ya esta en uso con otro codigo.')
+        return
+      }
+
+      guardarCredencialesPerfil(usuarioLogin, codigoLogin)
+      window.location.reload()
+      return
+    }
+
+    const { data: codigoValido, error: codigoError } = await supabase
+      .from('codigos_invitacion')
+      .select('*')
+      .eq('codigo', codigoLogin)
+      .eq('usado', false)
+      .maybeSingle()
+
+    if (codigoError) throw codigoError
+
+    if (!codigoValido) {
+      mostrarErrorLoginPerfil('Codigo invalido o ya usado.')
+      return
+    }
+
+    const { error: insertError } = await supabase
+      .from('usuarios')
+      .insert([
+        {
+          usuario: usuarioLogin,
+          codigo: codigoLogin,
+        },
+      ])
+
+    if (insertError) throw insertError
+
+    const { error: updateError } = await supabase
+      .from('codigos_invitacion')
+      .update({ usado: true })
+      .eq('codigo', codigoLogin)
+
+    if (updateError) throw updateError
+
+    guardarCredencialesPerfil(usuarioLogin, codigoLogin)
+    window.location.reload()
+  } catch (error) {
+    console.error('No se pudo iniciar sesion desde perfil', error)
+    await safeAlert('No se pudo iniciar sesion. Intentalo otra vez.')
+  } finally {
+    if (profileLoginSubmitEl) {
+      profileLoginSubmitEl.disabled = false
+      profileLoginSubmitEl.textContent = textoOriginal
+    }
+  }
+}
+
+function instalarLoginPerfil() {
+  if (profileLoginButtonEl) {
+    profileLoginButtonEl.hidden = Boolean(usuario)
+    profileLoginButtonEl.addEventListener('click', abrirLoginPerfil)
+  }
+  if (profileLogoutButtonEl) profileLogoutButtonEl.hidden = !usuario
+
+  if (profileLoginFormEl) profileLoginFormEl.addEventListener('submit', iniciarSesionPerfil)
+  if (profileLoginCancelEl) profileLoginCancelEl.addEventListener('click', cerrarLoginPerfil)
+  if (profileLoginOverlayEl) {
+    profileLoginOverlayEl.addEventListener('click', (event) => {
+      if (event.target === profileLoginOverlayEl) cerrarLoginPerfil()
+    })
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && profileLoginOverlayEl?.classList.contains('open')) {
+      cerrarLoginPerfil()
+    }
+  })
+}
+
 function crearPayloadChat(texto, extra = {}) {
   const nivel = progresoNivelActual?.nivel || 1
   return {
@@ -6631,6 +6803,7 @@ window.cerrarSesion = async function () {
   window.location.href = 'index.html'
 }
 
+instalarLoginPerfil()
 cargarPerfil()
 instalarChatSocial()
 instalarScrollMovilPerfil()

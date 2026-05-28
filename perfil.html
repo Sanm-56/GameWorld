@@ -10864,6 +10864,125 @@ body.sudoku-screen-shake{
   background:#b91c1c;
 }
 
+.profile-login-overlay{
+  position:fixed;
+  inset:0;
+  z-index:1001;
+  display:none;
+  place-items:center;
+  padding:18px;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(250,204,21,0.14), transparent 28%),
+    radial-gradient(circle at 82% 72%, rgba(56,189,248,0.12), transparent 30%),
+    rgba(2,6,23,0.76);
+  backdrop-filter:blur(14px);
+}
+
+.profile-login-overlay.open{
+  display:grid;
+}
+
+.profile-login-modal{
+  width:min(470px, 100%);
+  display:grid;
+  gap:18px;
+  padding:22px;
+  border:1px solid rgba(250,204,21,0.34);
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(56,189,248,0.15), transparent 34%),
+    linear-gradient(145deg, rgba(15,23,42,0.98), rgba(3,7,18,0.97));
+  box-shadow:0 30px 92px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.07);
+  transform:translateY(8px) scale(0.98);
+  opacity:0;
+  animation:chatConfirmIn 0.18s ease forwards;
+}
+
+.profile-login-head{
+  display:grid;
+  grid-template-columns:48px minmax(0, 1fr);
+  gap:14px;
+  align-items:center;
+}
+
+.profile-login-icon{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(250,204,21,0.36);
+  border-radius:16px;
+  color:#fef3c7;
+  background:linear-gradient(145deg, rgba(113,63,18,0.76), rgba(15,23,42,0.86));
+  font-weight:900;
+  letter-spacing:0.08em;
+}
+
+.profile-login-title{
+  margin:0;
+  color:#f8fafc;
+  font-size:1.28rem;
+  line-height:1.15;
+}
+
+.profile-login-copy{
+  margin:5px 0 0;
+  color:#cbd5e1;
+  font-size:0.95rem;
+  line-height:1.45;
+}
+
+.profile-login-form{
+  display:grid;
+  gap:14px;
+}
+
+.profile-login-field{
+  display:grid;
+  gap:7px;
+}
+
+.profile-login-field span{
+  color:#e5e7eb;
+  font-weight:800;
+  font-size:0.88rem;
+}
+
+.profile-login-field input{
+  width:100%;
+  min-height:48px;
+  border:1px solid rgba(148,163,184,0.24);
+  border-radius:14px;
+  background:rgba(2,6,23,0.7);
+  color:#f8fafc;
+  padding:12px 13px;
+  font:inherit;
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.profile-login-field input:focus{
+  border-color:rgba(250,204,21,0.58);
+  box-shadow:0 0 0 3px rgba(250,204,21,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.profile-login-error{
+  min-height:20px;
+  color:#fecaca;
+  font-size:0.9rem;
+  line-height:1.35;
+}
+
+.profile-login-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.profile-login-actions .btn{
+  min-height:46px;
+}
+
 @keyframes chatConfirmIn{
   to{ opacity:1; transform:translateY(0) scale(1); }
 }
@@ -10928,7 +11047,8 @@ body.sudoku-screen-shake{
   .chat-toolbar,
   .chat-panel-head,
   .chat-thread-head,
-  .chat-form{
+  .chat-form,
+  .profile-login-actions{
     grid-template-columns:1fr;
   }
 
@@ -12246,8 +12366,9 @@ body.sudoku-screen-shake{
 <div class="page">
   <div class="topbar">
     <button class="btn secondary" onclick="volverMenu()">Volver al menu</button>
+    <button class="btn profile-login-button" type="button" id="profileLoginButton" hidden>Iniciar sesion</button>
     <button class="btn" onclick="recargarPerfil()">Actualizar perfil</button>
-    <button class="btn secondary" onclick="cerrarSesion()">Cerrar sesion</button>
+    <button class="btn secondary" type="button" id="profileLogoutButton" onclick="cerrarSesion()">Cerrar sesion</button>
   </div>
 
   <section class="hero card profile-card">
@@ -12479,6 +12600,33 @@ body.sudoku-screen-shake{
   <span class="mobile-scroll-rail" aria-hidden="true"><span class="mobile-scroll-progress" id="profileScrollProgress"></span></span>
   <button class="mobile-scroll-btn" type="button" data-profile-scroll="down" aria-label="Bajar en el perfil">↓</button>
 </nav>
+
+<div class="profile-login-overlay" id="profileLoginOverlay" aria-hidden="true">
+  <div class="profile-login-modal" role="dialog" aria-modal="true" aria-labelledby="profileLoginTitle" aria-describedby="profileLoginCopy">
+    <div class="profile-login-head">
+      <div class="profile-login-icon" aria-hidden="true">ID</div>
+      <div>
+        <h3 class="profile-login-title" id="profileLoginTitle">Iniciar sesion</h3>
+        <p class="profile-login-copy" id="profileLoginCopy">Entra con tu apodo y codigo para abrir tu perfil competitivo.</p>
+      </div>
+    </div>
+    <form class="profile-login-form" id="profileLoginForm">
+      <label class="profile-login-field">
+        <span>Apodo</span>
+        <input id="profileLoginUsuario" name="usuario" autocomplete="nickname" maxlength="40">
+      </label>
+      <label class="profile-login-field">
+        <span>Codigo</span>
+        <input id="profileLoginCodigo" name="codigo" autocomplete="one-time-code" maxlength="40">
+      </label>
+      <div class="profile-login-error" id="profileLoginError" role="status" aria-live="polite"></div>
+      <div class="profile-login-actions">
+        <button class="btn secondary" type="button" id="profileLoginCancel">Cancelar</button>
+        <button class="btn" type="submit" id="profileLoginSubmit">Entrar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div class="chat-confirm-overlay" id="chatConfirmOverlay" aria-hidden="true">
   <div class="chat-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="chatConfirmTitle" aria-describedby="chatConfirmMessage">
