@@ -913,15 +913,76 @@ check (rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido'
 create index if not exists usuario_cosmeticos_equipados_idx
 on public.usuario_cosmeticos (usuario_id, equipado, created_at desc);
 
+create table if not exists public.tienda_productos (
+  id bigserial primary key,
+  slug text not null unique,
+  tipo text not null check (tipo in ('cosmetico', 'booster_xp', 'booster_monedas', 'vip', 'monedas')),
+  familia text not null check (familia in ('fondo', 'id', 'marco', 'xp', 'monedas', 'vip')),
+  rareza text check (rareza is null or rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido', 'Inicial', 'Competitivo', 'Elite', 'Evento', 'Premium', 'Limitado', 'Ultra', 'Extremo', 'Supremo')),
+  nombre text not null,
+  descripcion text,
+  precio_monedas bigint check (precio_monedas is null or precio_monedas >= 0),
+  precio_real text,
+  activo boolean not null default true,
+  vendible boolean not null default true,
+  permanente boolean not null default false,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint tienda_productos_slug_check check (slug ~ '^[a-z0-9][a-z0-9_-]*$')
+);
+
+create index if not exists tienda_productos_visibles_idx
+on public.tienda_productos (activo, vendible, tipo, familia, rareza, slug);
+
+create index if not exists tienda_productos_familia_rareza_idx
+on public.tienda_productos (familia, rareza, activo, vendible);
+
+create table if not exists public.tienda_rotaciones (
+  id bigserial primary key,
+  familia text not null check (familia in ('fondo', 'id', 'marco', 'xp', 'monedas', 'vip')),
+  rareza text check (rareza is null or rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido', 'Inicial', 'Competitivo', 'Elite', 'Evento', 'Premium', 'Limitado', 'Ultra', 'Extremo', 'Supremo')),
+  inicio timestamptz not null default now(),
+  fin timestamptz not null default (now() + interval '7 days'),
+  cantidad_objetivo integer not null default 17 check (cantidad_objetivo > 0),
+  seed text not null default md5(random()::text || clock_timestamp()::text),
+  estado text not null default 'activa' check (estado in ('programada', 'activa', 'cerrada')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint tienda_rotaciones_ventana_check check (fin > inicio)
+);
+
+create unique index if not exists tienda_rotaciones_activa_unica_idx
+on public.tienda_rotaciones (familia, (coalesce(rareza, '')))
+where estado = 'activa';
+
+create index if not exists tienda_rotaciones_ventana_idx
+on public.tienda_rotaciones (estado, inicio, fin, familia, rareza);
+
+create table if not exists public.tienda_rotacion_items (
+  rotacion_id bigint not null references public.tienda_rotaciones(id) on delete cascade,
+  producto_id bigint not null references public.tienda_productos(id) on delete cascade,
+  orden integer not null default 0,
+  created_at timestamptz not null default now(),
+  primary key (rotacion_id, producto_id),
+  unique (rotacion_id, orden)
+);
+
+create index if not exists tienda_rotacion_items_producto_idx
+on public.tienda_rotacion_items (producto_id, rotacion_id);
+
 -- RLS compatible con el login actual por apodo/localStorage.
 -- bonus_temporada: lectura publica, escritura solo por RPC admin_guardar_bonus_temporada.
--- usuario_boosters y usuario_cosmeticos: lectura publica; escritura solo por RPC con validacion de codigo.
+-- usuario_boosters, usuario_cosmeticos, tienda_productos y rotaciones: lectura publica; escritura solo por RPC/admin.
 
 alter table public.temporadas enable row level security;
 alter table public.bonus_temporada enable row level security;
 alter table public.bonus_monedas_evento enable row level security;
 alter table public.usuario_boosters enable row level security;
 alter table public.usuario_cosmeticos enable row level security;
+alter table public.tienda_productos enable row level security;
+alter table public.tienda_rotaciones enable row level security;
+alter table public.tienda_rotacion_items enable row level security;
 
 drop policy if exists temporadas_anon_select on public.temporadas;
 
@@ -999,6 +1060,802 @@ revoke insert, update, delete on table public.usuario_cosmeticos from anon, auth
 revoke usage on sequence public.usuario_cosmeticos_id_seq from anon, authenticated;
 grant select on table public.usuario_cosmeticos to anon, authenticated;
 grant select on sequence public.usuario_cosmeticos_id_seq to anon, authenticated;
+
+drop policy if exists tienda_productos_public_select on public.tienda_productos;
+drop policy if exists tienda_productos_anon_insert on public.tienda_productos;
+drop policy if exists tienda_productos_anon_update on public.tienda_productos;
+drop policy if exists tienda_productos_anon_delete on public.tienda_productos;
+
+create policy tienda_productos_public_select
+on public.tienda_productos
+for select
+to anon, authenticated
+using (activo = true);
+
+revoke insert, update, delete on table public.tienda_productos from anon, authenticated;
+revoke usage on sequence public.tienda_productos_id_seq from anon, authenticated;
+grant select on table public.tienda_productos to anon, authenticated;
+grant select on sequence public.tienda_productos_id_seq to anon, authenticated;
+
+drop policy if exists tienda_rotaciones_public_select on public.tienda_rotaciones;
+drop policy if exists tienda_rotaciones_anon_insert on public.tienda_rotaciones;
+drop policy if exists tienda_rotaciones_anon_update on public.tienda_rotaciones;
+drop policy if exists tienda_rotaciones_anon_delete on public.tienda_rotaciones;
+
+create policy tienda_rotaciones_public_select
+on public.tienda_rotaciones
+for select
+to anon, authenticated
+using (estado = 'activa' and inicio <= now() and fin > now());
+
+revoke insert, update, delete on table public.tienda_rotaciones from anon, authenticated;
+revoke usage on sequence public.tienda_rotaciones_id_seq from anon, authenticated;
+grant select on table public.tienda_rotaciones to anon, authenticated;
+grant select on sequence public.tienda_rotaciones_id_seq to anon, authenticated;
+
+drop policy if exists tienda_rotacion_items_public_select on public.tienda_rotacion_items;
+drop policy if exists tienda_rotacion_items_anon_insert on public.tienda_rotacion_items;
+drop policy if exists tienda_rotacion_items_anon_update on public.tienda_rotacion_items;
+drop policy if exists tienda_rotacion_items_anon_delete on public.tienda_rotacion_items;
+
+create policy tienda_rotacion_items_public_select
+on public.tienda_rotacion_items
+for select
+to anon, authenticated
+using (
+  exists (
+    select 1
+    from public.tienda_rotaciones r
+    where r.id = tienda_rotacion_items.rotacion_id
+      and r.estado = 'activa'
+      and r.inicio <= now()
+      and r.fin > now()
+  )
+);
+
+revoke insert, update, delete on table public.tienda_rotacion_items from anon, authenticated;
+grant select on table public.tienda_rotacion_items to anon, authenticated;
+
+insert into public.tienda_productos (
+  slug, tipo, familia, rareza, nombre, descripcion, precio_monedas, precio_real,
+  activo, vendible, permanente, metadata
+)
+values
+  ('xp15_6h', 'booster_xp', 'xp', 'Inicial', 'Booster XP x1.5', 'Progreso acelerado durante 6 horas.', 2000, '$0.49', true, true, false, '{"beneficio":"xp","multiplicador":1.5,"duracion_ms":21600000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp2_24h', 'booster_xp', 'xp', 'Competitivo', 'Booster XP x2', 'Progreso acelerado durante 24 horas.', 6000, '$1.99', true, true, false, '{"beneficio":"xp","multiplicador":2,"duracion_ms":86400000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp2_3d', 'booster_xp', 'xp', 'Competitivo', 'Booster XP x2', 'Progreso acelerado durante 3 dias.', 14000, '$3.99', true, true, false, '{"beneficio":"xp","multiplicador":2,"duracion_ms":259200000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp25_7d', 'booster_xp', 'xp', 'Elite', 'Booster XP x2.5', 'Progreso acelerado durante 7 dias.', 27500, '$6.99', true, true, false, '{"beneficio":"xp","multiplicador":2.5,"duracion_ms":604800000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp3_7d', 'booster_xp', 'xp', 'Elite', 'Booster XP x3', 'Progreso acelerado durante 7 dias.', 40000, '$9.99', true, true, false, '{"beneficio":"xp","multiplicador":3,"duracion_ms":604800000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp3_15d', 'booster_xp', 'xp', 'Epico', 'Booster XP x3', 'Progreso acelerado durante 15 dias.', 70000, '$14.99', true, true, false, '{"beneficio":"xp","multiplicador":3,"duracion_ms":1296000000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp4_30d', 'booster_xp', 'xp', 'Legendario', 'Booster XP x4', 'Progreso acelerado durante 30 dias.', 110000, '$19.99', true, true, false, '{"beneficio":"xp","multiplicador":4,"duracion_ms":2592000000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp5_30d', 'booster_xp', 'xp', 'Mitico', 'Booster XP x5', 'Progreso acelerado durante 30 dias.', 175000, '$29.99', true, true, false, '{"beneficio":"xp","multiplicador":5,"duracion_ms":2592000000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp6_45d', 'booster_xp', 'xp', 'Legendario', 'Booster Legendario x6', 'Progreso acelerado durante 45 dias.', 275000, '$39.99', true, true, false, '{"beneficio":"xp","multiplicador":6,"duracion_ms":3888000000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('xp8_60d', 'booster_xp', 'xp', 'Supremo', 'Booster Supremo x8', 'Progreso acelerado durante 60 dias.', 475000, '$59.99', true, true, false, '{"beneficio":"xp","multiplicador":8,"duracion_ms":5184000000,"catalogo_origen":"BOOSTERS_XP"}'::jsonb),
+  ('coins_boost12_24d', 'booster_monedas', 'monedas', 'Inicial', 'Impulso Monedas x1.2', 'Bonus de monedas durante 24 dias.', 26000, '$4.99', true, true, false, '{"beneficio":"monedas","multiplicador":1.2,"duracion_ms":2073600000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost13_18d', 'booster_monedas', 'monedas', 'Competitivo', 'Impulso Monedas x1.3', 'Bonus de monedas durante 18 dias.', 24000, '$4.49', true, true, false, '{"beneficio":"monedas","multiplicador":1.3,"duracion_ms":1555200000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost15_12d', 'booster_monedas', 'monedas', 'Elite', 'Impulso Monedas x1.5', 'Bonus de monedas durante 12 dias.', 31000, '$5.99', true, true, false, '{"beneficio":"monedas","multiplicador":1.5,"duracion_ms":1036800000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost14_3d', 'booster_monedas', 'monedas', 'Evento', 'Impulso Monedas x1.4', 'Bonus de monedas durante 3 dias.', 13000, '$2.49', true, true, false, '{"beneficio":"monedas","multiplicador":1.4,"duracion_ms":259200000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost18_2d', 'booster_monedas', 'monedas', 'Premium', 'Impulso Monedas x1.8', 'Bonus de monedas durante 2 dias.', 17000, '$3.49', true, true, false, '{"beneficio":"monedas","multiplicador":1.8,"duracion_ms":172800000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost27_8h', 'booster_monedas', 'monedas', 'Legendario', 'Impulso Monedas x2.7', 'Bonus de monedas durante 8 horas.', 21000, '$4.49', true, true, false, '{"beneficio":"monedas","multiplicador":2.7,"duracion_ms":28800000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost2_3h', 'booster_monedas', 'monedas', 'Epico', 'Impulso Monedas x2', 'Bonus de monedas durante 3 horas.', 9000, '$1.99', true, true, false, '{"beneficio":"monedas","multiplicador":2,"duracion_ms":10800000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost22_2h', 'booster_monedas', 'monedas', 'Limitado', 'Impulso Monedas x2.2', 'Bonus de monedas durante 2 horas.', 10500, '$2.49', true, true, false, '{"beneficio":"monedas","multiplicador":2.2,"duracion_ms":7200000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost25_1h', 'booster_monedas', 'monedas', 'Ultra', 'Impulso Monedas x2.5', 'Bonus de monedas durante 1 hora.', 12000, '$2.79', true, true, false, '{"beneficio":"monedas","multiplicador":2.5,"duracion_ms":3600000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb),
+  ('coins_boost3_1h', 'booster_monedas', 'monedas', 'Extremo', 'Impulso Monedas x3', 'Bonus de monedas durante 1 hora.', 16000, '$3.49', true, true, false, '{"beneficio":"monedas","multiplicador":3,"duracion_ms":3600000,"catalogo_origen":"BOOSTERS_MONEDAS"}'::jsonb)
+on conflict (slug) do update
+set tipo = excluded.tipo,
+    familia = excluded.familia,
+    rareza = excluded.rareza,
+    nombre = excluded.nombre,
+    descripcion = excluded.descripcion,
+    precio_monedas = excluded.precio_monedas,
+    precio_real = excluded.precio_real,
+    activo = excluded.activo,
+    vendible = excluded.vendible,
+    permanente = excluded.permanente,
+    metadata = excluded.metadata,
+    updated_at = now();
+
+with cosmeticos_legacy as (
+  select
+    tipo.familia,
+    numero.valor as numero,
+    case
+      when numero.valor <= 17 then 'Normal'
+      when numero.valor <= 34 then 'Raro'
+      when numero.valor <= 51 then 'Epico'
+      when numero.valor <= 68 then 'Legendario'
+      when numero.valor <= 85 then 'Mitico'
+      else 'Prohibido'
+    end as rareza
+  from (values ('fondo'), ('id'), ('marco')) as tipo(familia)
+  cross join generate_series(1, 100) as numero(valor)
+)
+insert into public.tienda_productos (
+  slug, tipo, familia, rareza, nombre, descripcion, precio_monedas, precio_real,
+  activo, vendible, permanente, metadata
+)
+select
+  familia || '_' || lpad(numero::text, 3, '0') as slug,
+  'cosmetico' as tipo,
+  familia,
+  rareza,
+  case familia
+    when 'fondo' then 'Fondo'
+    when 'id' then 'ID'
+    else 'Marco'
+  end || ' ' || rareza || ' ' || lpad(numero::text, 3, '0') as nombre,
+  'Cosmetico legacy migrado al catalogo maestro.' as descripcion,
+  case
+    when familia = 'fondo' then case rareza
+      when 'Normal' then 2500
+      when 'Raro' then 6000
+      when 'Epico' then 14000
+      when 'Legendario' then 280000
+      when 'Mitico' then 640000
+      else 1600000
+    end
+    else case rareza
+      when 'Normal' then 2000
+      when 'Raro' then 5000
+      when 'Epico' then 12000
+      when 'Legendario' then 240000
+      when 'Mitico' then 560000
+      else 1440000
+    end
+  end as precio_monedas,
+  case
+    when familia = 'fondo' then case rareza
+      when 'Normal' then '$0.99'
+      when 'Raro' then '$1.99'
+      when 'Epico' then '$4.99'
+      when 'Legendario' then '$79.92'
+      when 'Mitico' then '$159.92'
+      else '$319.92'
+    end
+    else case rareza
+      when 'Normal' then '$0.79'
+      when 'Raro' then '$1.79'
+      when 'Epico' then '$4.49'
+      when 'Legendario' then '$71.92'
+      when 'Mitico' then '$143.92'
+      else '$279.92'
+    end
+  end as precio_real,
+  true as activo,
+  true as vendible,
+  false as permanente,
+  jsonb_build_object(
+    'legacy', true,
+    'numero', numero,
+    'catalogo_origen', 'COSMETICOS',
+    'slug_legacy', familia || '_' || lpad(numero::text, 3, '0')
+  ) as metadata
+from cosmeticos_legacy
+on conflict (slug) do update
+set tipo = excluded.tipo,
+    familia = excluded.familia,
+    rareza = excluded.rareza,
+    nombre = excluded.nombre,
+    descripcion = excluded.descripcion,
+    precio_monedas = excluded.precio_monedas,
+    precio_real = excluded.precio_real,
+    activo = excluded.activo,
+    vendible = excluded.vendible,
+    permanente = excluded.permanente,
+    metadata = excluded.metadata,
+    updated_at = now();
+
+update public.tienda_rotaciones
+set estado = 'cerrada',
+    updated_at = now()
+where estado = 'activa'
+  and fin <= now();
+
+insert into public.tienda_rotaciones (familia, rareza, inicio, fin, cantidad_objetivo, seed, estado)
+select distinct
+  p.familia,
+  p.rareza,
+  date_trunc('hour', now()),
+  date_trunc('hour', now()) + interval '7 days',
+  17,
+  md5(p.familia || ':' || coalesce(p.rareza, '') || ':legacy'),
+  'activa'
+from public.tienda_productos p
+where p.activo = true
+  and p.vendible = true
+  and p.tipo in ('cosmetico', 'booster_xp', 'booster_monedas')
+  and not exists (
+    select 1
+    from public.tienda_rotaciones r
+    where r.familia = p.familia
+      and coalesce(r.rareza, '') = coalesce(p.rareza, '')
+      and r.estado = 'activa'
+  );
+
+insert into public.tienda_rotacion_items (rotacion_id, producto_id, orden)
+select
+  r.id,
+  elegido.id,
+  elegido.orden
+from public.tienda_rotaciones r
+cross join lateral (
+  select
+    p.id,
+    (row_number() over (order by md5(r.seed || ':' || p.slug), p.slug))::integer as orden
+  from public.tienda_productos p
+  where p.activo = true
+    and p.vendible = true
+    and p.familia = r.familia
+    and coalesce(p.rareza, '') = coalesce(r.rareza, '')
+  order by md5(r.seed || ':' || p.slug), p.slug
+  limit r.cantidad_objetivo
+) elegido
+where r.estado = 'activa'
+  and r.inicio <= now()
+  and r.fin > now()
+  and not exists (
+    select 1
+    from public.tienda_rotacion_items ri
+    where ri.rotacion_id = r.id
+  )
+on conflict do nothing;
+
+create or replace function public.refrescar_tienda_rotaciones()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  grupo record;
+  rotacion_id_nueva bigint;
+  rotacion_anterior_id bigint;
+  total_productos integer;
+  total_no_repetidos integer;
+begin
+  update public.tienda_rotaciones
+  set estado = 'cerrada',
+      updated_at = now()
+  where estado = 'activa'
+    and fin <= now();
+
+  for grupo in
+    select
+      p.familia,
+      p.rareza,
+      least(17, count(*)::integer) as cantidad_objetivo
+    from public.tienda_productos p
+    where p.activo = true
+      and p.vendible = true
+      and p.tipo in ('cosmetico', 'booster_xp', 'booster_monedas')
+      and p.precio_monedas is not null
+      and p.precio_monedas > 0
+    group by p.familia, p.rareza
+  loop
+    if exists (
+      select 1
+      from public.tienda_rotaciones r
+      where r.familia = grupo.familia
+        and coalesce(r.rareza, '') = coalesce(grupo.rareza, '')
+        and r.estado = 'activa'
+        and r.inicio <= now()
+        and r.fin > now()
+    ) then
+      continue;
+    end if;
+
+    select r.id
+    into rotacion_anterior_id
+    from public.tienda_rotaciones r
+    where r.familia = grupo.familia
+      and coalesce(r.rareza, '') = coalesce(grupo.rareza, '')
+      and r.estado = 'cerrada'
+    order by r.fin desc, r.id desc
+    limit 1;
+
+    insert into public.tienda_rotaciones (familia, rareza, inicio, fin, cantidad_objetivo, seed, estado)
+    values (
+      grupo.familia,
+      grupo.rareza,
+      date_trunc('hour', now()),
+      date_trunc('hour', now()) + interval '7 days',
+      greatest(1, grupo.cantidad_objetivo),
+      md5(grupo.familia || ':' || coalesce(grupo.rareza, '') || ':' || clock_timestamp()::text || ':' || random()::text),
+      'activa'
+    )
+    returning id into rotacion_id_nueva;
+
+    select count(*)::integer
+    into total_productos
+    from public.tienda_productos p
+    where p.activo = true
+      and p.vendible = true
+      and p.familia = grupo.familia
+      and coalesce(p.rareza, '') = coalesce(grupo.rareza, '')
+      and p.precio_monedas is not null
+      and p.precio_monedas > 0;
+
+    select count(*)::integer
+    into total_no_repetidos
+    from public.tienda_productos p
+    where p.activo = true
+      and p.vendible = true
+      and p.familia = grupo.familia
+      and coalesce(p.rareza, '') = coalesce(grupo.rareza, '')
+      and p.precio_monedas is not null
+      and p.precio_monedas > 0
+      and (
+        rotacion_anterior_id is null
+        or not exists (
+          select 1
+          from public.tienda_rotacion_items anterior
+          where anterior.rotacion_id = rotacion_anterior_id
+            and anterior.producto_id = p.id
+        )
+      );
+
+    insert into public.tienda_rotacion_items (rotacion_id, producto_id, orden)
+    select
+      rotacion_id_nueva,
+      elegido.id,
+      elegido.orden
+    from (
+      select
+        p.id,
+        row_number() over (order by md5((select seed from public.tienda_rotaciones where id = rotacion_id_nueva) || ':' || p.slug), p.slug)::integer as orden
+      from public.tienda_productos p
+      where p.activo = true
+        and p.vendible = true
+        and p.familia = grupo.familia
+        and coalesce(p.rareza, '') = coalesce(grupo.rareza, '')
+        and p.precio_monedas is not null
+        and p.precio_monedas > 0
+        and (
+          total_productos <= grupo.cantidad_objetivo
+          or total_no_repetidos < grupo.cantidad_objetivo
+          or rotacion_anterior_id is null
+          or not exists (
+            select 1
+            from public.tienda_rotacion_items anterior
+            where anterior.rotacion_id = rotacion_anterior_id
+              and anterior.producto_id = p.id
+          )
+        )
+      order by md5((select seed from public.tienda_rotaciones where id = rotacion_id_nueva) || ':' || p.slug), p.slug
+      limit grupo.cantidad_objetivo
+    ) elegido
+    on conflict do nothing;
+  end loop;
+end;
+$$;
+
+revoke all on function public.refrescar_tienda_rotaciones() from public, anon, authenticated;
+
+create or replace function public.obtener_tienda_rotacion_activa()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  respuesta jsonb;
+begin
+  perform public.refrescar_tienda_rotaciones();
+
+  select jsonb_build_object(
+    'ok', true,
+    'servidorAhora', now(),
+    'productos', coalesce(jsonb_agg(
+      jsonb_build_object(
+        'id', p.slug,
+        'productoId', p.id,
+        'slug', p.slug,
+        'tipoProducto', p.tipo,
+        'tipo', case when p.tipo = 'cosmetico' then p.familia else p.tipo end,
+        'familia', p.familia,
+        'rareza', p.rareza,
+        'nombre', p.nombre,
+        'descripcion', p.descripcion,
+        'precio', p.precio_monedas,
+        'precioReal', p.precio_real,
+        'permanente', p.permanente,
+        'metadata', p.metadata,
+        'rotacionId', r.id,
+        'rotacionInicio', r.inicio,
+        'rotacionFin', r.fin,
+        'orden', ri.orden
+      )
+      order by r.familia, r.rareza, ri.orden, p.slug
+    ) filter (where p.id is not null), '[]'::jsonb)
+  )
+  into respuesta
+  from public.tienda_rotaciones r
+  join public.tienda_rotacion_items ri on ri.rotacion_id = r.id
+  join public.tienda_productos p on p.id = ri.producto_id
+  where r.estado = 'activa'
+    and r.inicio <= now()
+    and r.fin > now()
+    and p.activo = true
+    and p.vendible = true
+    and p.precio_monedas is not null
+    and p.precio_monedas > 0;
+
+  return coalesce(respuesta, jsonb_build_object('ok', true, 'servidorAhora', now(), 'productos', '[]'::jsonb));
+end;
+$$;
+
+grant execute on function public.obtener_tienda_rotacion_activa() to anon, authenticated;
+
+create or replace function public.admin_listar_tienda_productos(
+  p_clave text,
+  p_limite integer default 120
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  productos jsonb;
+  sin_rotacion jsonb;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida.');
+  end if;
+
+  perform public.refrescar_tienda_rotaciones();
+
+  select coalesce(jsonb_agg(
+    jsonb_build_object(
+      'id', p.id,
+      'slug', p.slug,
+      'tipo', p.tipo,
+      'familia', p.familia,
+      'rareza', p.rareza,
+      'nombre', p.nombre,
+      'descripcion', p.descripcion,
+      'precio_monedas', p.precio_monedas,
+      'precio_real', p.precio_real,
+      'activo', p.activo,
+      'vendible', p.vendible,
+      'permanente', p.permanente,
+      'metadata', p.metadata,
+      'updated_at', p.updated_at,
+      'en_rotacion', exists (
+        select 1
+        from public.tienda_rotacion_items ri
+        join public.tienda_rotaciones r on r.id = ri.rotacion_id
+        where ri.producto_id = p.id
+          and r.estado = 'activa'
+          and r.inicio <= now()
+          and r.fin > now()
+      )
+    )
+    order by p.updated_at desc, p.id desc
+  ), '[]'::jsonb)
+  into productos
+  from (
+    select *
+    from public.tienda_productos
+    order by updated_at desc, id desc
+    limit greatest(1, least(coalesce(p_limite, 120), 500))
+  ) p;
+
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'familia', base.familia,
+    'rareza', base.rareza,
+    'cantidad', base.cantidad
+  ) order by base.familia, base.rareza), '[]'::jsonb)
+  into sin_rotacion
+  from (
+    select p.familia, p.rareza, count(*)::integer as cantidad
+    from public.tienda_productos p
+    where p.activo = true
+      and p.vendible = true
+      and p.precio_monedas is not null
+      and p.precio_monedas > 0
+      and not exists (
+        select 1
+        from public.tienda_rotacion_items ri
+        join public.tienda_rotaciones r on r.id = ri.rotacion_id
+        where ri.producto_id = p.id
+          and r.estado = 'activa'
+          and r.inicio <= now()
+          and r.fin > now()
+      )
+    group by p.familia, p.rareza
+  ) base;
+
+  return jsonb_build_object('ok', true, 'productos', productos, 'sinRotacion', sin_rotacion);
+end;
+$$;
+
+grant execute on function public.admin_listar_tienda_productos(text, integer) to anon, authenticated;
+
+create or replace function public.admin_guardar_tienda_producto(
+  p_clave text,
+  p_slug text,
+  p_tipo text,
+  p_familia text,
+  p_rareza text,
+  p_nombre text,
+  p_descripcion text default null,
+  p_precio_monedas bigint default null,
+  p_precio_real text default null,
+  p_activo boolean default true,
+  p_vendible boolean default true,
+  p_permanente boolean default false,
+  p_metadata jsonb default '{}'::jsonb
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  slug_limpio text := lower(btrim(coalesce(p_slug, '')));
+  tipo_limpio text := lower(btrim(coalesce(p_tipo, '')));
+  familia_limpia text := lower(btrim(coalesce(p_familia, '')));
+  rareza_limpia text := nullif(btrim(coalesce(p_rareza, '')), '');
+  producto public.tienda_productos%rowtype;
+  metadata_limpia jsonb := coalesce(p_metadata, '{}'::jsonb);
+  booster_multiplicador_text text;
+  booster_duracion_text text;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida.');
+  end if;
+
+  if slug_limpio !~ '^[a-z0-9][a-z0-9_-]*$' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Slug invalido.');
+  end if;
+
+  if tipo_limpio not in ('cosmetico', 'booster_xp', 'booster_monedas', 'vip', 'monedas') then
+    return jsonb_build_object('ok', false, 'mensaje', 'Tipo invalido.');
+  end if;
+
+  if familia_limpia not in ('fondo', 'id', 'marco', 'xp', 'monedas', 'vip') then
+    return jsonb_build_object('ok', false, 'mensaje', 'Familia invalida.');
+  end if;
+
+  if tipo_limpio = 'cosmetico' and familia_limpia not in ('fondo', 'id', 'marco') then
+    return jsonb_build_object('ok', false, 'mensaje', 'Familia cosmetica invalida.');
+  end if;
+
+  if tipo_limpio = 'booster_xp' and familia_limpia <> 'xp' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Los boosters XP deben usar familia xp.');
+  end if;
+
+  if tipo_limpio = 'booster_monedas' and familia_limpia <> 'monedas' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Los boosters de monedas deben usar familia monedas.');
+  end if;
+
+  if rareza_limpia is not null and rareza_limpia not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido', 'Inicial', 'Competitivo', 'Elite', 'Evento', 'Premium', 'Limitado', 'Ultra', 'Extremo', 'Supremo') then
+    return jsonb_build_object('ok', false, 'mensaje', 'Rareza invalida.');
+  end if;
+
+  if btrim(coalesce(p_nombre, '')) = '' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Nombre requerido.');
+  end if;
+
+  if coalesce(p_precio_monedas, 0) < 0 then
+    return jsonb_build_object('ok', false, 'mensaje', 'Precio invalido.');
+  end if;
+
+  if tipo_limpio in ('booster_xp', 'booster_monedas') then
+    booster_multiplicador_text := metadata_limpia->>'multiplicador';
+    booster_duracion_text := metadata_limpia->>'duracion_ms';
+
+    if not coalesce(booster_multiplicador_text ~ '^[0-9]+(\.[0-9]+)?$', false)
+      or not coalesce(booster_duracion_text ~ '^[0-9]+$', false) then
+      return jsonb_build_object('ok', false, 'mensaje', 'Booster requiere metadata multiplicador y duracion_ms validos.');
+    end if;
+
+    if booster_multiplicador_text::numeric < 1.2
+      or booster_multiplicador_text::numeric > 8.0
+      or booster_duracion_text::bigint <= 0 then
+      return jsonb_build_object('ok', false, 'mensaje', 'Booster requiere metadata multiplicador y duracion_ms validos.');
+    end if;
+  end if;
+
+  insert into public.tienda_productos (
+    slug, tipo, familia, rareza, nombre, descripcion, precio_monedas, precio_real,
+    activo, vendible, permanente, metadata, updated_at
+  )
+  values (
+    slug_limpio, tipo_limpio, familia_limpia, rareza_limpia, btrim(p_nombre), nullif(btrim(coalesce(p_descripcion, '')), ''),
+    p_precio_monedas, nullif(btrim(coalesce(p_precio_real, '')), ''),
+    coalesce(p_activo, true), coalesce(p_vendible, true), coalesce(p_permanente, false),
+    metadata_limpia, now()
+  )
+  on conflict (slug) do update
+  set tipo = excluded.tipo,
+      familia = excluded.familia,
+      rareza = excluded.rareza,
+      nombre = excluded.nombre,
+      descripcion = excluded.descripcion,
+      precio_monedas = excluded.precio_monedas,
+      precio_real = excluded.precio_real,
+      activo = excluded.activo,
+      vendible = excluded.vendible,
+      permanente = excluded.permanente,
+      metadata = excluded.metadata,
+      updated_at = now()
+  returning * into producto;
+
+  update public.tienda_rotaciones
+  set estado = 'cerrada',
+      fin = case when now() > inicio then least(fin, now()) else inicio + interval '1 second' end,
+      updated_at = now()
+  where estado = 'activa'
+    and familia = producto.familia
+    and coalesce(rareza, '') = coalesce(producto.rareza, '');
+
+  perform public.refrescar_tienda_rotaciones();
+
+  return jsonb_build_object('ok', true, 'producto', row_to_json(producto));
+exception
+  when others then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo guardar el producto.', 'detalle', sqlerrm);
+end;
+$$;
+
+grant execute on function public.admin_guardar_tienda_producto(text, text, text, text, text, text, text, bigint, text, boolean, boolean, boolean, jsonb) to anon, authenticated;
+
+create or replace function public.admin_forzar_tienda_rotacion(
+  p_clave text,
+  p_familia text default null,
+  p_rareza text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  familia_limpia text := nullif(lower(btrim(coalesce(p_familia, ''))), '');
+  rareza_limpia text := nullif(btrim(coalesce(p_rareza, '')), '');
+  cerradas integer;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida.');
+  end if;
+
+  update public.tienda_rotaciones
+  set estado = 'cerrada',
+      fin = case when now() > inicio then least(fin, now()) else inicio + interval '1 second' end,
+      updated_at = now()
+  where estado = 'activa'
+    and (familia_limpia is null or familia = familia_limpia)
+    and (rareza_limpia is null or coalesce(rareza, '') = coalesce(rareza_limpia, ''));
+
+  get diagnostics cerradas = row_count;
+  perform public.refrescar_tienda_rotaciones();
+
+  return jsonb_build_object('ok', true, 'mensaje', 'Rotacion regenerada.', 'cerradas', cerradas);
+end;
+$$;
+
+grant execute on function public.admin_forzar_tienda_rotacion(text, text, text) to anon, authenticated;
+
+create or replace function public.admin_generar_catalogo_cosmeticos(
+  p_clave text,
+  p_por_rareza integer default 100
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  cantidad integer := greatest(1, least(coalesce(p_por_rareza, 100), 300));
+  insertados integer;
+begin
+  if not public.validar_admin_torneo(p_clave) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Clave admin invalida.');
+  end if;
+
+  with base as (
+    select
+      familias.familia,
+      rarezas.rareza,
+      rarezas.slug_rareza,
+      numeros.numero,
+      familias.familia || '_' || rarezas.slug_rareza || '_' || lpad(numeros.numero::text, 3, '0') as slug
+    from (values ('fondo'), ('id'), ('marco')) as familias(familia)
+    cross join (values
+      ('Normal', 'normal'),
+      ('Raro', 'raro'),
+      ('Epico', 'epico'),
+      ('Legendario', 'legendario'),
+      ('Mitico', 'mitico'),
+      ('Prohibido', 'prohibido')
+    ) as rarezas(rareza, slug_rareza)
+    cross join generate_series(1, cantidad) as numeros(numero)
+  )
+  insert into public.tienda_productos (
+    slug, tipo, familia, rareza, nombre, descripcion, precio_monedas, precio_real,
+    activo, vendible, permanente, metadata
+  )
+  select
+    slug,
+    'cosmetico',
+    familia,
+    rareza,
+    initcap(familia) || ' ' || rareza || ' ' || lpad(numero::text, 3, '0'),
+    'Cosmetico de catalogo ampliado generado para rotaciones.',
+    case
+      when familia = 'fondo' then case rareza
+        when 'Normal' then 2500
+        when 'Raro' then 6000
+        when 'Epico' then 14000
+        when 'Legendario' then 280000
+        when 'Mitico' then 640000
+        else 1600000
+      end
+      else case rareza
+        when 'Normal' then 2000
+        when 'Raro' then 5000
+        when 'Epico' then 12000
+        when 'Legendario' then 240000
+        when 'Mitico' then 560000
+        else 1440000
+      end
+    end,
+    case
+      when familia = 'fondo' then case rareza
+        when 'Normal' then '$0.99'
+        when 'Raro' then '$1.99'
+        when 'Epico' then '$4.99'
+        when 'Legendario' then '$79.92'
+        when 'Mitico' then '$159.92'
+        else '$319.92'
+      end
+      else case rareza
+        when 'Normal' then '$0.79'
+        when 'Raro' then '$1.79'
+        when 'Epico' then '$4.49'
+        when 'Legendario' then '$71.92'
+        when 'Mitico' then '$143.92'
+        else '$279.92'
+      end
+    end,
+    true,
+    true,
+    false,
+    jsonb_build_object('catalogo_origen', 'admin_generar_catalogo_cosmeticos', 'formato', 'rareza_por_familia', 'numero', numero)
+  from base
+  on conflict (slug) do update
+  set tipo = excluded.tipo,
+      familia = excluded.familia,
+      rareza = excluded.rareza,
+      nombre = excluded.nombre,
+      descripcion = excluded.descripcion,
+      precio_monedas = excluded.precio_monedas,
+      precio_real = excluded.precio_real,
+      activo = excluded.activo,
+      vendible = excluded.vendible,
+      permanente = excluded.permanente,
+      metadata = public.tienda_productos.metadata || excluded.metadata,
+      updated_at = now();
+
+  get diagnostics insertados = row_count;
+
+  update public.tienda_rotaciones
+  set estado = 'cerrada',
+      fin = case when now() > inicio then least(fin, now()) else inicio + interval '1 second' end,
+      updated_at = now()
+  where estado = 'activa'
+    and familia in ('fondo', 'id', 'marco')
+    and rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido');
+
+  perform public.refrescar_tienda_rotaciones();
+
+  return jsonb_build_object('ok', true, 'mensaje', 'Catalogo ampliado generado.', 'afectados', insertados);
+end;
+$$;
+
+grant execute on function public.admin_generar_catalogo_cosmeticos(text, integer) to anon, authenticated;
 
 create table if not exists public.usuario_monedas (
   usuario_id text primary key,
@@ -1331,6 +2188,10 @@ declare
   cosmetico_rareza text;
   rareza_remota text;
   comprado_previamente boolean := false;
+  producto_catalogo public.tienda_productos%rowtype;
+  producto_catalogo_encontrado boolean := false;
+  producto_en_rotacion boolean := false;
+  duracion_ms bigint;
 begin
   if usuario_limpio = '' then
     return jsonb_build_object('ok', false, 'mensaje', 'Inicia sesion para comprar.');
@@ -1354,7 +2215,61 @@ begin
     return jsonb_build_object('ok', false, 'mensaje', 'Tipo de compra invalido.');
   end if;
 
-  if tipo_limpio = 'booster_xp' then
+  perform public.refrescar_tienda_rotaciones();
+
+  select *
+  into producto_catalogo
+  from public.tienda_productos
+  where (
+      slug = producto_limpio
+      or id = case when producto_limpio ~ '^[0-9]+$' then producto_limpio::bigint else -1 end
+    )
+    and tipo = tipo_limpio
+    and activo = true
+    and vendible = true
+  limit 1;
+
+  producto_catalogo_encontrado := found;
+
+  if producto_catalogo_encontrado then
+    if producto_catalogo.permanente = false then
+      select exists (
+        select 1
+        from public.tienda_rotaciones r
+        join public.tienda_rotacion_items ri on ri.rotacion_id = r.id
+        where ri.producto_id = producto_catalogo.id
+          and r.estado = 'activa'
+          and r.inicio <= now()
+          and r.fin > now()
+      )
+      into producto_en_rotacion;
+
+      if not producto_en_rotacion then
+        return jsonb_build_object('ok', false, 'mensaje', 'Este producto no esta en la rotacion activa.');
+      end if;
+    end if;
+
+    precio := producto_catalogo.precio_monedas;
+    producto_limpio := producto_catalogo.slug;
+
+    if tipo_limpio in ('booster_xp', 'booster_monedas') then
+      multiplicador := nullif(producto_catalogo.metadata->>'multiplicador', '')::numeric;
+      duracion_ms := nullif(producto_catalogo.metadata->>'duracion_ms', '')::bigint;
+
+      if multiplicador is null or multiplicador < 1.2 or multiplicador > 8.0 or duracion_ms is null or duracion_ms <= 0 then
+        return jsonb_build_object('ok', false, 'mensaje', 'Booster invalido.');
+      end if;
+
+      duracion := (duracion_ms::double precision / 1000.0) * interval '1 second';
+    else
+      cosmetico_tipo := producto_catalogo.familia;
+      rareza_remota := producto_catalogo.rareza;
+
+      if cosmetico_tipo not in ('fondo', 'id', 'marco') or rareza_remota not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido') then
+        return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+      end if;
+    end if;
+  elsif tipo_limpio = 'booster_xp' then
     select x.precio, x.multiplicador, x.duracion
     into precio, multiplicador, duracion
     from (values
@@ -1472,6 +2387,7 @@ begin
         'mensaje', 'Cosmetico equipado.',
         'saldoNuevo', coalesce(saldo_actual, 0),
         'precio', 0,
+        'producto', case when producto_catalogo_encontrado then jsonb_build_object('id', producto_catalogo.id, 'slug', producto_limpio, 'tipoProducto', tipo_limpio) else null end,
         'cosmetico', jsonb_build_object('cosmetico_id', producto_limpio, 'tipo', cosmetico_tipo, 'rareza', rareza_remota, 'equipado', true)
       );
     end if;
@@ -1510,6 +2426,7 @@ begin
       'mensaje', 'Booster agregado al inventario.',
       'precio', precio,
       'saldoNuevo', saldo_nuevo,
+      'producto', case when producto_catalogo_encontrado then jsonb_build_object('id', producto_catalogo.id, 'slug', producto_limpio, 'tipoProducto', tipo_limpio) else null end,
       'booster', jsonb_build_object(
         'usuario_id', usuario_limpio,
         'booster_id', producto_limpio,
@@ -1542,6 +2459,7 @@ begin
     'mensaje', 'Compra activada.',
     'precio', precio,
     'saldoNuevo', saldo_nuevo,
+    'producto', case when producto_catalogo_encontrado then jsonb_build_object('id', producto_catalogo.id, 'slug', producto_limpio, 'tipoProducto', tipo_limpio) else null end,
     'cosmetico', jsonb_build_object(
       'usuario_id', usuario_limpio,
       'cosmetico_id', producto_limpio,
@@ -1697,6 +2615,8 @@ declare
   cosmetico_numero integer;
   cosmetico_rareza text;
   rareza_remota text;
+  producto_catalogo public.tienda_productos%rowtype;
+  producto_catalogo_encontrado boolean := false;
   nivel_actual integer := 1;
   owned boolean := false;
   desbloqueado boolean := false;
@@ -1734,26 +2654,45 @@ begin
     return jsonb_build_object('ok', true, 'mensaje', 'Cosmetico desequipado.', 'tipo', tipo_limpio);
   end if;
 
-  if cosmetico_limpio !~ '^(fondo|id|marco)_[0-9]{3}$' then
-    return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+  select *
+  into producto_catalogo
+  from public.tienda_productos
+  where slug = cosmetico_limpio
+    and tipo = 'cosmetico'
+    and activo = true
+  limit 1;
+
+  producto_catalogo_encontrado := found;
+
+  if producto_catalogo_encontrado then
+    cosmetico_tipo := producto_catalogo.familia;
+    rareza_remota := producto_catalogo.rareza;
+
+    if cosmetico_tipo not in ('fondo', 'id', 'marco') or rareza_remota not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido') then
+      return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+    end if;
+  else
+    if cosmetico_limpio !~ '^(fondo|id|marco)_[0-9]{3}$' then
+      return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+    end if;
+
+    cosmetico_tipo := split_part(cosmetico_limpio, '_', 1);
+    cosmetico_numero := split_part(cosmetico_limpio, '_', 2)::integer;
+
+    if cosmetico_numero < 1 or cosmetico_numero > 100 then
+      return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+    end if;
+
+    cosmetico_rareza := case
+      when cosmetico_numero <= 17 then 'Normal'
+      when cosmetico_numero <= 34 then 'Raro'
+      when cosmetico_numero <= 51 then 'Epico'
+      when cosmetico_numero <= 68 then 'Legendario'
+      when cosmetico_numero <= 85 then 'Mitico'
+      else 'Prohibido'
+    end;
+    rareza_remota := cosmetico_rareza;
   end if;
-
-  cosmetico_tipo := split_part(cosmetico_limpio, '_', 1);
-  cosmetico_numero := split_part(cosmetico_limpio, '_', 2)::integer;
-
-  if cosmetico_numero < 1 or cosmetico_numero > 100 then
-    return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
-  end if;
-
-  cosmetico_rareza := case
-    when cosmetico_numero <= 17 then 'Normal'
-    when cosmetico_numero <= 34 then 'Raro'
-    when cosmetico_numero <= 51 then 'Epico'
-    when cosmetico_numero <= 68 then 'Legendario'
-    when cosmetico_numero <= 85 then 'Mitico'
-    else 'Prohibido'
-  end;
-  rareza_remota := cosmetico_rareza;
 
   select exists (
     select 1
@@ -1784,7 +2723,8 @@ begin
     limit 1;
   end if;
 
-  rango_permitido := cosmetico_tipo = 'fondo'
+  rango_permitido := producto_catalogo_encontrado = false
+    and cosmetico_tipo = 'fondo'
     and cosmetico_numero <= least(100, greatest(1, ceil(greatest(coalesce(nivel_actual, 1), 1)::numeric / 25.0)::integer));
 
   if not (owned or desbloqueado or rango_permitido) then

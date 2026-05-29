@@ -494,6 +494,95 @@ export const COSMETICOS = [
   ...generarCosmeticos("marco", 100),
 ]
 
+export async function obtenerCatalogoTiendaRotativa() {
+  const fallback = {
+    ok: true,
+    remoto: false,
+    boostersXp: BOOSTERS_XP,
+    boostersMonedas: BOOSTERS_MONEDAS,
+    cosmeticos: COSMETICOS,
+    cambiaEn: null,
+    servidorAhora: null,
+    cargadoEn: Date.now(),
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("obtener_tienda_rotacion_activa")
+    if (error || data?.ok === false) {
+      console.warn("No se pudo cargar rotacion de tienda", error || data)
+      return fallback
+    }
+
+    const productos = Array.isArray(data?.productos) ? data.productos : []
+    const normalizados = productos.map(normalizarProductoRotacion).filter(Boolean)
+    const fechasFin = normalizados
+      .map((item) => item.rotacionFin)
+      .filter(Boolean)
+      .sort((a, b) => Date.parse(a) - Date.parse(b))
+
+    return {
+      ok: true,
+      remoto: true,
+      boostersXp: normalizados.filter((item) => item.tipoProducto === "booster_xp"),
+      boostersMonedas: normalizados.filter((item) => item.tipoProducto === "booster_monedas"),
+      cosmeticos: normalizados.filter((item) => item.tipoProducto === "cosmetico"),
+      cambiaEn: fechasFin[0] || null,
+      servidorAhora: data?.servidorAhora || null,
+      cargadoEn: Date.now(),
+    }
+  } catch (error) {
+    console.warn("Error cargando rotacion de tienda", error)
+    return fallback
+  }
+}
+
+function normalizarProductoRotacion(row) {
+  const id = String(row?.slug || row?.id || "").trim()
+  const tipoProducto = String(row?.tipoProducto || "")
+  const metadata = row?.metadata && typeof row.metadata === "object" ? row.metadata : {}
+  if (!id || !tipoProducto) return null
+
+  if (tipoProducto === "booster_xp" || tipoProducto === "booster_monedas") {
+    const catalogo = tipoProducto === "booster_xp" ? BOOSTERS_XP : BOOSTERS_MONEDAS
+    const base = catalogo.find((item) => item.id === id) || {}
+    return {
+      ...base,
+      id,
+      tipoProducto,
+      nombre: row.nombre || base.nombre || id,
+      descripcion: row.descripcion || base.descripcion || "",
+      rareza: row.rareza || base.rareza || "Potenciador",
+      multiplicador: Number(metadata.multiplicador || base.multiplicador || 1),
+      duracionMs: Number(metadata.duracion_ms || base.duracionMs || 0),
+      precio: Number(row.precio ?? base.precio ?? 0),
+      precioReal: row.precioReal || base.precioReal || "$0.99",
+      rotacionFin: row.rotacionFin || null,
+      orden: Number(row.orden || 0),
+    }
+  }
+
+  if (tipoProducto !== "cosmetico") return null
+
+  const base = resolverCosmeticoCatalogo(id, row) || {}
+  const tipo = row.familia || row.tipo || base.tipo || "fondo"
+  return {
+    ...base,
+    id,
+    tipoProducto,
+    tipo,
+    categoria: base.categoria || (tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos"),
+    nombre: base.nombre || row.nombre || id,
+    descripcion: base.descripcion || row.descripcion || "Cosmetico de tienda.",
+    rareza: row.rareza || base.rareza || "Normal",
+    precio: Number(row.precio ?? base.precio ?? 0),
+    precioReal: row.precioReal || base.precioReal || "$0.79",
+    etiqueta: base.etiqueta || "",
+    diseno: base.diseno || { patron: "catalogo", brillo: 1 },
+    rotacionFin: row.rotacionFin || null,
+    orden: Number(row.orden || 0),
+  }
+}
+
 const BOOSTER_LOCAL_KEY = "tienda_boosters_usuario"
 const COIN_BOOSTER_LOCAL_KEY = "tienda_coin_boosters_usuario"
 const COSMETICOS_LOCAL_KEY = "tienda_cosmeticos_usuario"
@@ -550,18 +639,18 @@ async function obtenerBoosterTemporalActivo(usuario, catalogo, localKey) {
   return (data || []).find((row) => idsValidos.has(row.booster_id) || esBoosterAdminValido(row, catalogo)) || local
 }
 
-export async function comprarBooster(usuario, boosterId) {
-  const booster = BOOSTERS_XP.find((item) => item.id === boosterId)
+export async function comprarBooster(usuario, boosterId, itemCatalogo = null) {
+  const booster = itemCatalogo || BOOSTERS_XP.find((item) => item.id === boosterId)
   return comprarItemTiendaConMonedas(usuario, "booster_xp", booster, BOOSTER_LOCAL_KEY)
 }
 
-export async function comprarBoosterMonedas(usuario, boosterId) {
-  const booster = BOOSTERS_MONEDAS.find((item) => item.id === boosterId)
+export async function comprarBoosterMonedas(usuario, boosterId, itemCatalogo = null) {
+  const booster = itemCatalogo || BOOSTERS_MONEDAS.find((item) => item.id === boosterId)
   return comprarItemTiendaConMonedas(usuario, "booster_monedas", booster, COIN_BOOSTER_LOCAL_KEY)
 }
 
-export async function comprarCosmetico(usuario, cosmeticoId) {
-  const cosmetico = COSMETICOS.find((item) => item.id === cosmeticoId)
+export async function comprarCosmetico(usuario, cosmeticoId, itemCatalogo = null) {
+  const cosmetico = itemCatalogo || COSMETICOS.find((item) => item.id === cosmeticoId)
   return comprarItemTiendaConMonedas(usuario, "cosmetico", cosmetico)
 }
 
@@ -690,7 +779,7 @@ export async function activarBoosterInventario(usuario, boosterCompraId) {
 }
 
 export async function equiparCosmetico(usuario, cosmeticoId) {
-  const cosmetico = COSMETICOS.find((item) => item.id === cosmeticoId)
+  const cosmetico = resolverCosmeticoCatalogo(cosmeticoId) || await obtenerCosmeticoCompradoParaEquipar(usuario, cosmeticoId)
   if (!usuario || !cosmetico) return { ok: false, error: "Cosmetico invalido" }
 
   const sincronizado = await sincronizarEquipamientoCosmeticoRemoto(usuario, {
@@ -714,6 +803,27 @@ export async function equiparCosmetico(usuario, cosmeticoId) {
 
   guardarCosmeticoLocal(usuario, payload)
   return { ok: true, cosmetico: payload, sincronizado }
+}
+
+async function obtenerCosmeticoCompradoParaEquipar(usuario, cosmeticoId) {
+  if (!usuario || !cosmeticoId) return null
+
+  const local = leerCosmeticoLocal(usuario, null)
+  if (local?.cosmetico_id === cosmeticoId) return local
+
+  const { data, error } = await supabase
+    .from("usuario_cosmeticos")
+    .select("usuario_id,cosmetico_id,tipo,rareza,equipado,created_at")
+    .eq("usuario_id", usuario)
+    .eq("cosmetico_id", cosmeticoId)
+    .maybeSingle()
+
+  if (error && error.code !== "PGRST116") {
+    console.warn("No se pudo resolver cosmetico comprado", error)
+    return null
+  }
+
+  return data ? enriquecerCosmeticoRemoto(data) : null
 }
 
 export async function desequiparCosmetico(usuario, tipo = "fondo") {
@@ -994,8 +1104,8 @@ export async function registrarMonedasPorActividad(usuario, { juego, origen = "t
 export const obtenerMonedasDemo = obtenerMonedas
 export const descontarMonedasDemo = descontarMonedas
 
-export function tiempoRestante(fechaFin) {
-  const restante = Date.parse(fechaFin) - Date.now()
+export function tiempoRestante(fechaFin, ahora = Date.now()) {
+  const restante = Date.parse(fechaFin) - Number(ahora)
   if (!Number.isFinite(restante) || restante <= 0) return "Expirado"
   const dias = Math.floor(restante / 86400000)
   const horas = Math.floor((restante % 86400000) / 3600000)
@@ -1023,6 +1133,92 @@ export function rarezaEtiqueta(rareza) {
 
 export function rarezaClase(rareza) {
   return RAREZAS_PREMIUM.find((item) => item.nombre === rareza)?.clase || "normal"
+}
+
+export function resolverCosmeticoCatalogo(id, datos = null) {
+  const slug = String(id || datos?.slug || datos?.cosmetico_id || "").trim().toLowerCase()
+  const legacy = COSMETICOS.find((item) => item.id === slug)
+  if (legacy) return datos ? aplicarDatosCatalogoCosmetico(legacy, datos) : legacy
+
+  const matchNuevo = slug.match(/^(fondo|id|marco)_(normal|raro|epico|legendario|mitico|prohibido)_(\d{3})$/)
+  if (!matchNuevo) {
+    return datos?.tipoProducto === "cosmetico" || datos?.tipo === "cosmetico" || ["fondo", "id", "marco"].includes(datos?.tipo) || ["fondo", "id", "marco"].includes(datos?.familia)
+      ? crearCosmeticoCatalogoGenerico(slug, datos)
+      : null
+  }
+
+  const [, tipo, rarezaSlug, numeroTexto] = matchNuevo
+  const numero = Math.max(1, Math.min(999, Number(numeroTexto) || 1))
+  const rareza = rarezaDesdeSlug(rarezaSlug)
+  const rarezaIndex = Math.max(0, ORDEN_RAREZAS_TIENDA.indexOf(rareza))
+  const tipoOffset = { fondo: 0, id: 137, marco: 281 }[tipo] || 0
+  const index = rarezaIndex * 100 + numero - 1
+  const intensidad = ((numero + rarezaIndex * 3) % 10) + 1
+  const baseNombre = NUCLEOS_NOMBRE[(index + tipoOffset) % NUCLEOS_NOMBRE.length]
+  const forma = FORMAS_NOMBRE[(index * 7 + tipoOffset) % FORMAS_NOMBRE.length]
+  const precio = precioCosmetico(tipo, rareza)
+  const diseno = crearDisenoCosmetico(tipo, rareza, index, intensidad)
+
+  return aplicarDatosCatalogoCosmetico({
+    id: slug,
+    tipo,
+    categoria: tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos",
+    nombre: forma.replace("{base}", baseNombre),
+    descripcion: descripcionCosmetico(tipo, rareza, index, diseno),
+    rareza,
+    precio: precio.monedas,
+    precioReal: precio.real,
+    etiqueta: precio.etiqueta,
+    diseno,
+  }, datos)
+}
+
+function crearCosmeticoCatalogoGenerico(slug, datos = {}) {
+  const tipo = datos?.familia || datos?.tipo || "fondo"
+  const rareza = datos?.rareza || "Normal"
+  const precio = precioCosmetico(tipo, rareza)
+  const diseno = crearDisenoCosmetico(tipo, rareza, Math.abs(hashTextoLigero(slug)) % 600, 5)
+  return aplicarDatosCatalogoCosmetico({
+    id: slug,
+    tipo,
+    categoria: tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos",
+    nombre: slug || "Cosmetico de catalogo",
+    descripcion: "Cosmetico registrado en catalogo remoto.",
+    rareza,
+    precio: precio.monedas,
+    precioReal: precio.real,
+    etiqueta: precio.etiqueta,
+    diseno,
+  }, datos)
+}
+
+function aplicarDatosCatalogoCosmetico(base, datos = null) {
+  if (!datos) return base
+  return {
+    ...base,
+    nombre: datos.nombre || base.nombre,
+    descripcion: datos.descripcion || base.descripcion,
+    rareza: datos.rareza || base.rareza,
+    precio: Number(datos.precio ?? datos.precio_monedas ?? base.precio ?? 0),
+    precioReal: datos.precioReal || datos.precio_real || base.precioReal,
+    etiqueta: datos.etiqueta || base.etiqueta,
+    metadata: datos.metadata || base.metadata,
+  }
+}
+
+function rarezaDesdeSlug(valor) {
+  return {
+    normal: "Normal",
+    raro: "Raro",
+    epico: "Epico",
+    legendario: "Legendario",
+    mitico: "Mitico",
+    prohibido: "Prohibido",
+  }[String(valor || "").toLowerCase()] || "Normal"
+}
+
+function hashTextoLigero(texto) {
+  return String(texto || "").split("").reduce((acc, char) => ((acc << 5) - acc + char.charCodeAt(0)) | 0, 0)
 }
 
 function generarCosmeticos(tipo, cantidad) {
@@ -1456,7 +1652,7 @@ async function obtenerCualquierCosmeticoEquipado(usuario) {
 }
 
 function enriquecerCosmeticoRemoto(row) {
-  const catalogo = COSMETICOS.find((item) => item.id === row?.cosmetico_id)
+  const catalogo = resolverCosmeticoCatalogo(row?.cosmetico_id, row)
   return normalizarCosmeticoLocal({
     ...catalogo,
     usuario_id: row?.usuario_id,
@@ -1507,7 +1703,7 @@ function quitarCosmeticoLocal(usuario, tipo = "fondo") {
 }
 
 function normalizarCosmeticoLocal(cosmetico) {
-  const catalogo = COSMETICOS.find((item) => item.id === (cosmetico?.cosmetico_id || cosmetico?.id))
+  const catalogo = resolverCosmeticoCatalogo(cosmetico?.cosmetico_id || cosmetico?.id, cosmetico)
   return {
     ...catalogo,
     ...cosmetico,

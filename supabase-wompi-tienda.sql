@@ -275,10 +275,7 @@ begin
     item_id := coalesce(nullif(cfg->>'cosmetico_id', ''), producto.slug);
     item_tipo := coalesce(nullif(cfg->>'item_tipo', ''), 'fondo');
     item_rareza := coalesce(nullif(cfg->>'rareza', ''), 'Normal');
-    if item_rareza = 'Prohibido' then
-      item_rareza := 'Mitico';
-    end if;
-    if item_rareza not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico') then
+    if item_rareza not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido') then
       item_rareza := 'Normal';
     end if;
 

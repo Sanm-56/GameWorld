@@ -57,6 +57,7 @@ let vipPrivateTournamentsCache = []
 let rewardUserSeleccionado = null
 let rewardAmountSeleccionado = 100
 let rewardHistoryChannel = null
+let storeProductsCache = []
 const REWARD_AMOUNT_PRESETS = {
   monedas: [100, 1000, 10000, 100000, 1000000],
   experiencia: [100, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000],
@@ -195,6 +196,7 @@ cargarEventosVipAdmin()
 cargarSalasBingoVipAdmin()
 cargarMinitorneosVipPrivadosAdmin()
 cargarHistorialRegalosAdmin()
+cargarProductosTiendaAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
 return
@@ -227,6 +229,7 @@ cargarEventosVipAdmin()
 cargarSalasBingoVipAdmin()
 cargarMinitorneosVipPrivadosAdmin()
 cargarHistorialRegalosAdmin()
+cargarProductosTiendaAdmin()
 escucharHistorialRegalosAdmin()
 verEstado()
 
@@ -2650,6 +2653,186 @@ cargarHistorialRegalosAdmin()
 .subscribe()
 }
 
+async function cargarProductosTiendaAdmin(){
+const lista = document.getElementById("storeProductsList")
+const huecos = document.getElementById("storeNoRotationList")
+const resumen = document.getElementById("storeAdminSummary")
+if(lista) lista.innerHTML = '<div class="export-note">Cargando productos...</div>'
+const rpc = await ejecutarRpcAdminObjeto("admin_listar_tienda_productos", { p_limite: 180 })
+if(!rpc.ok || rpc.data?.ok === false){
+const mensaje = errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo cargar el catalogo de tienda.")
+if(lista) lista.innerHTML = `<div class="export-note">${escapeHtml(mensaje)}</div>`
+if(resumen) setCleanText(resumen, mensaje)
+return
+}
+
+storeProductsCache = Array.isArray(rpc.data.productos) ? rpc.data.productos : []
+const sinRotacion = Array.isArray(rpc.data.sinRotacion) ? rpc.data.sinRotacion : []
+if(resumen){
+const activos = storeProductsCache.filter((item) => item.activo).length
+const vendibles = storeProductsCache.filter((item) => item.vendible).length
+setCleanText(resumen, `${storeProductsCache.length} productos recientes. ${activos} activos, ${vendibles} vendibles.`)
+}
+if(huecos){
+huecos.innerHTML = sinRotacion.length
+? sinRotacion.map((item) => `
+  <div class="reward-history-row">
+    <strong>${escapeHtml(item.familia)} - ${escapeHtml(item.rareza || "Sin rareza")}</strong>
+    <span>${formatearNumeroAdmin(item.cantidad)} productos vendibles fuera de rotacion activa</span>
+  </div>
+`).join("")
+: '<div class="export-note">No hay productos vendibles fuera de rotacion activa.</div>'
+}
+if(lista){
+lista.innerHTML = storeProductsCache.length
+? storeProductsCache.map((item) => `
+  <div class="reward-history-row">
+    <strong>${escapeHtml(item.slug)} ${item.en_rotacion ? "· rotando" : ""}</strong>
+    <span>${escapeHtml(item.tipo)} / ${escapeHtml(item.familia)} / ${escapeHtml(item.rareza || "-")} · ${formatearNumeroAdmin(item.precio_monedas || 0)} monedas</span>
+    <button class="ghost" type="button" data-store-edit="${escapeHtml(String(item.id))}">Editar</button>
+  </div>
+`).join("")
+: '<div class="export-note">No hay productos registrados.</div>'
+lista.querySelectorAll("[data-store-edit]").forEach((button) => {
+button.addEventListener("click", () => editarProductoTiendaAdmin(Number(button.dataset.storeEdit || 0)))
+})
+}
+}
+
+function editarProductoTiendaAdmin(id){
+const producto = storeProductsCache.find((item) => Number(item.id) === Number(id))
+if(!producto) return
+setValueAdmin("storeProductSlug", producto.slug)
+setValueAdmin("storeProductType", producto.tipo)
+setValueAdmin("storeProductFamily", producto.familia)
+setValueAdmin("storeProductRarity", producto.rareza || "Normal")
+setValueAdmin("storeProductName", producto.nombre)
+setValueAdmin("storeProductDescription", producto.descripcion || "")
+setValueAdmin("storeProductCoins", producto.precio_monedas ?? 0)
+setValueAdmin("storeProductReal", producto.precio_real || "")
+setValueAdmin("storeProductMetadata", JSON.stringify(producto.metadata || {}))
+setToggleAdmin("storeProductActiveBtn", producto.activo, "Activo", "Inactivo")
+setToggleAdmin("storeProductSellableBtn", producto.vendible, "Vendible", "No vendible")
+setToggleAdmin("storeProductPermanentBtn", producto.permanente, "Permanente", "Rotativo")
+}
+
+function limpiarProductoTiendaAdmin(){
+setValueAdmin("storeProductSlug", "")
+setValueAdmin("storeProductType", "cosmetico")
+setValueAdmin("storeProductFamily", "fondo")
+setValueAdmin("storeProductRarity", "Normal")
+setValueAdmin("storeProductName", "")
+setValueAdmin("storeProductDescription", "")
+setValueAdmin("storeProductCoins", 2500)
+setValueAdmin("storeProductReal", "$0.99")
+setValueAdmin("storeProductMetadata", "{}")
+setToggleAdmin("storeProductActiveBtn", true, "Activo", "Inactivo")
+setToggleAdmin("storeProductSellableBtn", true, "Vendible", "No vendible")
+setToggleAdmin("storeProductPermanentBtn", false, "Permanente", "Rotativo")
+}
+
+async function guardarProductoTiendaAdmin(){
+const metadataTexto = document.getElementById("storeProductMetadata")?.value || "{}"
+let metadata = {}
+try{
+metadata = metadataTexto.trim() ? JSON.parse(metadataTexto) : {}
+}catch{
+safeAlert("Metadata debe ser JSON valido.")
+return
+}
+const tipoProducto = document.getElementById("storeProductType")?.value || "cosmetico"
+if(["booster_xp", "booster_monedas"].includes(tipoProducto)){
+const multiplicador = Number(metadata.multiplicador)
+const duracionMs = Number(metadata.duracion_ms)
+if(!Number.isFinite(multiplicador) || multiplicador < 1.2 || multiplicador > 8 || !Number.isFinite(duracionMs) || duracionMs <= 0){
+safeAlert('Para boosters, metadata debe incluir {"multiplicador":2,"duracion_ms":86400000}.')
+return
+}
+}
+const payload = {
+p_slug: cleanText(document.getElementById("storeProductSlug")?.value || "").toLowerCase(),
+p_tipo: tipoProducto,
+p_familia: document.getElementById("storeProductFamily")?.value || "fondo",
+p_rareza: document.getElementById("storeProductRarity")?.value || "Normal",
+p_nombre: cleanText(document.getElementById("storeProductName")?.value || ""),
+p_descripcion: cleanText(document.getElementById("storeProductDescription")?.value || ""),
+p_precio_monedas: Math.max(0, Math.trunc(Number(document.getElementById("storeProductCoins")?.value || 0))),
+p_precio_real: cleanText(document.getElementById("storeProductReal")?.value || ""),
+p_activo: getToggleAdmin("storeProductActiveBtn"),
+p_vendible: getToggleAdmin("storeProductSellableBtn"),
+p_permanente: getToggleAdmin("storeProductPermanentBtn"),
+p_metadata: metadata,
+}
+if(!payload.p_slug || !payload.p_nombre){
+safeAlert("Slug y nombre son obligatorios.")
+return
+}
+const rpc = await ejecutarRpcAdminObjeto("admin_guardar_tienda_producto", payload)
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo guardar el producto."))
+return
+}
+safeAlert("Producto guardado.")
+await cargarProductosTiendaAdmin()
+}
+
+async function forzarRotacionTiendaAdmin(){
+const familia = document.getElementById("storeRotationFamily")?.value || null
+const rareza = document.getElementById("storeRotationRarity")?.value || null
+const ok = await confirmAction("Cerrar la rotacion activa y generar una nueva?", {
+title: "Forzar rotacion",
+acceptText: "Regenerar",
+cancelText: "Cancelar",
+danger: false,
+})
+if(!ok) return
+const rpc = await ejecutarRpcAdminObjeto("admin_forzar_tienda_rotacion", {
+p_familia: familia || null,
+p_rareza: rareza || null,
+})
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo forzar la rotacion."))
+return
+}
+safeAlert(rpc.data?.mensaje || "Rotacion regenerada.")
+await cargarProductosTiendaAdmin()
+}
+
+async function generarCatalogoMasivoAdmin(){
+const ok = await confirmAction("Generar o actualizar 100 cosmeticos por rareza y familia con el formato nuevo?", {
+title: "Catalogo masivo",
+acceptText: "Generar",
+cancelText: "Cancelar",
+danger: false,
+})
+if(!ok) return
+const rpc = await ejecutarRpcAdminObjeto("admin_generar_catalogo_cosmeticos", { p_por_rareza: 100 })
+if(!rpc.ok || rpc.data?.ok === false){
+safeAlert(errorMessage(rpc.error || rpc.data?.mensaje, "No se pudo generar el catalogo."))
+return
+}
+safeAlert(`${rpc.data?.mensaje || "Catalogo generado."} Afectados: ${formatearNumeroAdmin(rpc.data?.afectados || 0)}.`)
+await cargarProductosTiendaAdmin()
+}
+
+function setValueAdmin(id, value){
+const el = document.getElementById(id)
+if(el) el.value = value
+}
+
+function getToggleAdmin(id){
+return document.getElementById(id)?.dataset.toggleValue === "true"
+}
+
+function setToggleAdmin(id, value, trueText, falseText){
+const el = document.getElementById(id)
+if(!el) return
+const activo = Boolean(value)
+el.dataset.toggleValue = activo ? "true" : "false"
+setCleanText(el, activo ? trueText : falseText)
+el.classList.toggle("success", activo)
+}
+
 function formatearNumeroAdmin(valor){
 return Math.trunc(Number(valor) || 0).toLocaleString("es-CO")
 }
@@ -2724,6 +2907,11 @@ window.finalizarMinitorneoVipPrivadoAdmin = finalizarMinitorneoVipPrivadoAdmin
 window.confirmarRegaloAdmin = confirmarRegaloAdmin
 window.limpiarRegaloAdmin = limpiarRegaloAdmin
 window.cargarHistorialRegalosAdmin = cargarHistorialRegalosAdmin
+window.cargarProductosTiendaAdmin = cargarProductosTiendaAdmin
+window.guardarProductoTiendaAdmin = guardarProductoTiendaAdmin
+window.limpiarProductoTiendaAdmin = limpiarProductoTiendaAdmin
+window.forzarRotacionTiendaAdmin = forzarRotacionTiendaAdmin
+window.generarCatalogoMasivoAdmin = generarCatalogoMasivoAdmin
 
 function syncNumcatchUI(){
   const juego = document.getElementById("juegoSelect")?.value
@@ -2790,8 +2978,28 @@ actualizarResumenRegaloAdmin()
 document.getElementById('rewardCosmeticSelect')?.addEventListener('change', actualizarResumenRegaloAdmin)
 document.getElementById('rewardSpecialName')?.addEventListener('input', actualizarResumenRegaloAdmin)
 document.getElementById('rewardSpecialDetail')?.addEventListener('input', actualizarResumenRegaloAdmin)
+;[
+  ["storeProductActiveBtn", "Activo", "Inactivo"],
+  ["storeProductSellableBtn", "Vendible", "No vendible"],
+  ["storeProductPermanentBtn", "Permanente", "Rotativo"],
+].forEach(([id, trueText, falseText]) => {
+const button = document.getElementById(id)
+if(!button) return
+button.addEventListener("click", () => setToggleAdmin(id, !getToggleAdmin(id), trueText, falseText))
+setToggleAdmin(id, getToggleAdmin(id), trueText, falseText)
+})
+document.getElementById('storeProductType')?.addEventListener('change', () => {
+const tipo = document.getElementById('storeProductType')?.value || "cosmetico"
+if(tipo === "booster_xp") setValueAdmin("storeProductFamily", "xp")
+if(tipo === "booster_monedas") setValueAdmin("storeProductFamily", "monedas")
+if(tipo === "vip") setValueAdmin("storeProductFamily", "vip")
+const metadataActual = document.getElementById("storeProductMetadata")?.value.trim() || ""
+if(tipo === "booster_xp" && (!metadataActual || metadataActual === "{}")) setValueAdmin("storeProductMetadata", '{"beneficio":"xp","multiplicador":2,"duracion_ms":86400000}')
+if(tipo === "booster_monedas" && (!metadataActual || metadataActual === "{}")) setValueAdmin("storeProductMetadata", '{"beneficio":"monedas","multiplicador":2,"duracion_ms":86400000}')
+})
 
 syncNumcatchUI()
 inicializarCentroRecompensasAdmin()
+limpiarProductoTiendaAdmin()
 rellenarSelectorBonus()
 rellenarSelectorBonusMonedas()

@@ -9,6 +9,7 @@ import {
   comprarCosmetico,
   comprarMembresiaVip,
   iniciarSincronizacionRecompensasUsuario,
+  obtenerCatalogoTiendaRotativa,
   obtenerBoosterActivo,
   obtenerBoosterMonedasActivo,
   obtenerMonedas,
@@ -42,9 +43,19 @@ const openButtons = document.querySelectorAll("[data-open-store]")
 const closeButtons = document.querySelectorAll("[data-close-store]")
 
 let timer = null
+let rotationTimer = null
 let storeTabActiva = "boosters-xp"
 let cosmeticTabActiva = "fondo"
 let rarezaTabActiva = "Normal"
+let catalogoTienda = {
+  remoto: false,
+  boostersXp: BOOSTERS_XP,
+  boostersMonedas: BOOSTERS_MONEDAS,
+  cosmeticos: COSMETICOS,
+  cambiaEn: null,
+  servidorAhora: null,
+  cargadoEn: Date.now(),
+}
 
 function usuarioActual() {
   return localStorage.getItem("usuario") || localStorage.getItem("ultimo_usuario") || ""
@@ -97,27 +108,27 @@ async function abrirTienda() {
   activarStoreTab(storeTabActiva)
   await renderTienda()
   clearInterval(timer)
+  clearInterval(rotationTimer)
   timer = setInterval(actualizarBoosterActivo, 30000)
+  rotationTimer = setInterval(actualizarEstadoRotacion, 1000)
 }
 
 function cerrarTienda() {
   modal.classList.remove("abierto")
   modal.setAttribute("aria-hidden", "true")
   clearInterval(timer)
+  clearInterval(rotationTimer)
 }
 
 async function renderTienda() {
   const usuario = usuarioActual()
-  if (!usuario) {
-    statusEl.textContent = "Entra a un juego con tu apodo para activar compras."
-  } else {
-    statusEl.textContent = "Los boosters comprados van al inventario del perfil."
-  }
+  catalogoTienda = await obtenerCatalogoTiendaRotativa()
+  actualizarEstadoRotacion()
 
   coinsEl.textContent = `${obtenerMonedas(usuario)} monedas`
   await actualizarBoosterActivo()
 
-  boosterList.innerHTML = BOOSTERS_XP.map((booster) => renderBoosterCard(booster, {
+  boosterList.innerHTML = catalogoTienda.boostersXp.map((booster) => renderBoosterCard(booster, {
     tipo: "xp",
     unidad: "XP",
     boton: "Monedas",
@@ -125,7 +136,7 @@ async function renderTienda() {
     detalle: "de progreso acelerado",
   })).join("")
 
-  coinBoosterList.innerHTML = BOOSTERS_MONEDAS.map((booster) => renderBoosterCard(booster, {
+  coinBoosterList.innerHTML = catalogoTienda.boostersMonedas.map((booster) => renderBoosterCard(booster, {
     tipo: "coins",
     unidad: "MC",
     boton: "Monedas",
@@ -262,8 +273,27 @@ function obtenerCategoriaActiva() {
 }
 
 function renderCategoriaCosmeticos(categoria) {
-  const itemsCategoria = COSMETICOS.filter((item) => item.tipo === categoria.tipo)
-  if (!itemsCategoria.length) return ""
+  const itemsCategoria = catalogoTienda.cosmeticos.filter((item) => item.tipo === categoria.tipo)
+  if (!itemsCategoria.length) {
+    return `
+      <section class="cosmetic-category">
+        <header class="cosmetic-category-head">
+          <div>
+            <span>${escapeHtml(categoria.titulo)}</span>
+            <small>${escapeHtml(categoria.detalle)}</small>
+          </div>
+          <strong>0 piezas</strong>
+        </header>
+        <article class="store-item">
+          <div class="store-copy">
+            <span class="store-kicker">Sin piezas visibles</span>
+            <strong>No hay cosmeticos disponibles en esta categoria.</strong>
+            <p>La tienda seguira funcionando con las demas rotaciones activas.</p>
+          </div>
+        </article>
+      </section>
+    `
+  }
 
   return `
     <section class="cosmetic-category">
@@ -283,7 +313,23 @@ function renderCategoriaCosmeticos(categoria) {
 
 function renderRarezaCosmeticos(itemsCategoria, rareza) {
   const items = itemsCategoria.filter((item) => item.rareza === rareza)
-  if (!items.length) return ""
+  if (!items.length) {
+    return `
+      <section class="rarity-section rarity-${rarezaClase(rareza)}">
+        <header class="rarity-head">
+          <span>${escapeHtml(rarezaEtiqueta(rareza))}</span>
+          <small>0 piezas</small>
+        </header>
+        <article class="store-item">
+          <div class="store-copy">
+            <span class="store-kicker">Rotacion vacia</span>
+            <strong>No hay piezas ${escapeHtml(rarezaEtiqueta(rareza))} visibles ahora.</strong>
+            <p>Cambia de rareza o vuelve cuando se regenere la rotacion.</p>
+          </div>
+        </article>
+      </section>
+    `
+  }
 
   return `
     <section class="rarity-section rarity-${rarezaClase(rareza)}">
@@ -299,6 +345,7 @@ function renderRarezaCosmeticos(itemsCategoria, rareza) {
 }
 
 function renderCosmetico(item) {
+  const diseno = item.diseno || { patron: "catalogo", brillo: 1 }
   return `
     <article class="store-item store-cosmetic cosmetic-${escapeHtml(item.tipo)} rarity-${rarezaClase(item.rareza)}${clasesVisualesCosmetico(item)}"${estiloVisualCosmetico(item)}>
       ${item.etiqueta ? `<span class="store-badge">${escapeHtml(item.etiqueta)}</span>` : ""}
@@ -312,7 +359,7 @@ function renderCosmetico(item) {
         <span class="store-kicker">${escapeHtml(item.categoria)}</span>
         <strong>${escapeHtml(item.nombre)}</strong>
         <p>${escapeHtml(item.descripcion)}</p>
-        <small>${escapeHtml(item.diseno.patron)} / brillo ${item.diseno.brillo}</small>
+        <small>${escapeHtml(diseno.patron || "catalogo")} / brillo ${Number(diseno.brillo || 1)}</small>
         <span class="store-price">${item.precio.toLocaleString("es-CO")} monedas</span>
       </div>
       <div class="cosmetic-footer">
@@ -402,6 +449,41 @@ function formatearMultiplicador(valor) {
   return Number.isInteger(numero) ? String(numero) : numero.toFixed(1)
 }
 
+function actualizarEstadoRotacion() {
+  if (!statusEl) return
+  const usuario = usuarioActual()
+  if (!usuario) {
+    statusEl.textContent = "Entra a un juego con tu apodo para activar compras."
+    return
+  }
+
+  if (catalogoTienda.remoto && catalogoTienda.cambiaEn) {
+    statusEl.textContent = `Rotacion activa. Cambia en ${formatearCuentaRegresivaRotacion(catalogoTienda.cambiaEn)}.`
+    return
+  }
+
+  statusEl.textContent = catalogoTienda.remoto
+    ? "Rotacion activa sin fecha de cierre disponible."
+    : "Los boosters comprados van al inventario del perfil."
+}
+
+function formatearCuentaRegresivaRotacion(fechaFin) {
+  const servidorAhora = Date.parse(catalogoTienda.servidorAhora)
+  const cargadoEn = Number(catalogoTienda.cargadoEn || Date.now())
+  const ahora = Number.isFinite(servidorAhora)
+    ? servidorAhora + Math.max(0, Date.now() - cargadoEn)
+    : Date.now()
+  const restante = Date.parse(fechaFin) - ahora
+  if (!Number.isFinite(restante) || restante <= 0) return "00:00:00"
+
+  const horasTotales = Math.floor(restante / 3600000)
+  const minutos = Math.floor((restante % 3600000) / 60000)
+  const segundos = Math.floor((restante % 60000) / 1000)
+  return [horasTotales, minutos, segundos]
+    .map((valor) => String(valor).padStart(2, "0"))
+    .join(":")
+}
+
 function claseEtiqueta(valor) {
   return String(valor || "")
     .normalize("NFD")
@@ -419,10 +501,10 @@ async function comprarConMonedas(tipo, id) {
   }
 
   const item = tipo === "booster"
-    ? BOOSTERS_XP.find((booster) => booster.id === id)
+    ? catalogoTienda.boostersXp.find((booster) => booster.id === id) || BOOSTERS_XP.find((booster) => booster.id === id)
     : tipo === "coin-booster"
-      ? BOOSTERS_MONEDAS.find((booster) => booster.id === id)
-    : COSMETICOS.find((cosmetico) => cosmetico.id === id)
+      ? catalogoTienda.boostersMonedas.find((booster) => booster.id === id) || BOOSTERS_MONEDAS.find((booster) => booster.id === id)
+    : catalogoTienda.cosmeticos.find((cosmetico) => cosmetico.id === id) || COSMETICOS.find((cosmetico) => cosmetico.id === id)
 
   if (!item) {
     safeAlert("Item invalido.")
@@ -431,10 +513,10 @@ async function comprarConMonedas(tipo, id) {
 
   statusEl.textContent = "Procesando compra segura..."
   const resultado = tipo === "booster"
-    ? await comprarBooster(usuario, id)
+    ? await comprarBooster(usuario, id, item)
     : tipo === "coin-booster"
-      ? await comprarBoosterMonedas(usuario, id)
-    : await comprarCosmetico(usuario, id)
+      ? await comprarBoosterMonedas(usuario, id, item)
+    : await comprarCosmetico(usuario, id, item)
 
   if (!resultado.ok) {
     statusEl.textContent = resultado.message || "No se pudo completar la compra."

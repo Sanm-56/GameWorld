@@ -1372,6 +1372,136 @@ th:last-child{
       <p class="export-note">Las entregas se validan por RPC con clave admin, quedan auditadas y usan las tablas actuales de XP, boosters y cosmeticos.</p>
     </div>
 
+    <div class="section wide reward-admin-panel" id="adminStorePanel">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Tienda dinamica</span>
+          <h3>Catalogo y rotaciones</h3>
+        </div>
+        <button class="ghost" onclick="cargarProductosTiendaAdmin()">Actualizar</button>
+      </div>
+
+      <div class="reward-admin-grid">
+        <div class="reward-admin-block">
+          <h4>Producto</h4>
+          <label>
+            Slug
+            <input id="storeProductSlug" type="text" maxlength="80" placeholder="fondo_normal_001">
+          </label>
+          <label>
+            Tipo
+            <select id="storeProductType">
+              <option value="cosmetico">Cosmetico</option>
+              <option value="booster_xp">Booster XP</option>
+              <option value="booster_monedas">Booster monedas</option>
+              <option value="vip">VIP</option>
+              <option value="monedas">Monedas</option>
+            </select>
+          </label>
+          <label>
+            Familia
+            <select id="storeProductFamily">
+              <option value="fondo">Fondo</option>
+              <option value="id">ID</option>
+              <option value="marco">Marco</option>
+              <option value="xp">XP</option>
+              <option value="monedas">Monedas</option>
+              <option value="vip">VIP</option>
+            </select>
+          </label>
+          <label>
+            Rareza
+            <select id="storeProductRarity">
+              <option value="Normal">Normal</option>
+              <option value="Raro">Raro</option>
+              <option value="Epico">Epico</option>
+              <option value="Legendario">Legendario</option>
+              <option value="Mitico">Mitico</option>
+              <option value="Prohibido">Prohibido</option>
+              <option value="Inicial">Inicial</option>
+              <option value="Competitivo">Competitivo</option>
+              <option value="Elite">Elite</option>
+              <option value="Evento">Evento</option>
+              <option value="Premium">Premium</option>
+              <option value="Supremo">Supremo</option>
+            </select>
+          </label>
+          <label>
+            Nombre
+            <input id="storeProductName" type="text" maxlength="120" placeholder="Fondo Normal 001">
+          </label>
+          <label>
+            Descripcion
+            <input id="storeProductDescription" type="text" maxlength="220" placeholder="Descripcion visible">
+          </label>
+          <label>
+            Precio monedas
+            <input id="storeProductCoins" type="number" min="0" step="1" value="2500">
+          </label>
+          <label>
+            Precio real
+            <input id="storeProductReal" type="text" maxlength="24" placeholder="$0.99">
+          </label>
+          <div class="reward-quick-grid">
+            <button type="button" class="ghost" id="storeProductActiveBtn" data-toggle-value="true">Activo</button>
+            <button type="button" class="ghost" id="storeProductSellableBtn" data-toggle-value="true">Vendible</button>
+            <button type="button" class="ghost" id="storeProductPermanentBtn" data-toggle-value="false">Rotativo</button>
+          </div>
+          <label>
+            Metadata JSON
+            <input id="storeProductMetadata" type="text" placeholder='{"visual":"auto"}'>
+          </label>
+          <div class="reward-admin-actions">
+            <button class="success" onclick="guardarProductoTiendaAdmin()">Guardar producto</button>
+            <button class="ghost" onclick="limpiarProductoTiendaAdmin()">Limpiar</button>
+          </div>
+        </div>
+
+        <div class="reward-admin-block">
+          <h4>Rotacion</h4>
+          <label>
+            Familia
+            <select id="storeRotationFamily">
+              <option value="">Todas</option>
+              <option value="fondo">Fondo</option>
+              <option value="id">ID</option>
+              <option value="marco">Marco</option>
+              <option value="xp">XP</option>
+              <option value="monedas">Monedas</option>
+            </select>
+          </label>
+          <label>
+            Rareza
+            <select id="storeRotationRarity">
+              <option value="">Todas</option>
+              <option value="Normal">Normal</option>
+              <option value="Raro">Raro</option>
+              <option value="Epico">Epico</option>
+              <option value="Legendario">Legendario</option>
+              <option value="Mitico">Mitico</option>
+              <option value="Prohibido">Prohibido</option>
+            </select>
+          </label>
+          <div class="reward-admin-actions">
+            <button onclick="forzarRotacionTiendaAdmin()">Forzar rotacion</button>
+            <button class="ghost" onclick="generarCatalogoMasivoAdmin()">Generar 100 por rareza</button>
+          </div>
+          <div class="reward-summary-box" id="storeAdminSummary">Carga el catalogo para revisar productos y huecos de rotacion.</div>
+          <div class="reward-history-list" id="storeNoRotationList">
+            <div class="export-note">Los productos sin rotacion apareceran aqui.</div>
+          </div>
+        </div>
+
+        <div class="reward-admin-block">
+          <h4>Productos recientes</h4>
+          <div class="reward-history-list" id="storeProductsList">
+            <div class="export-note">Inicia sesion admin para cargar el catalogo.</div>
+          </div>
+        </div>
+      </div>
+      <p class="export-note">Los cambios pasan por RPC con clave admin. La tienda publica sigue leyendo solo productos activos.</p>
+    </div>
+
     <div class="section wide season-bonus-card">
       <div class="season-header">
         <div>
