@@ -105,7 +105,7 @@ async function renderTienda() {
   if (!usuario) {
     statusEl.textContent = "Entra a un juego con tu apodo para activar compras."
   } else {
-    statusEl.textContent = "Los boosters se activan automaticamente al comprar."
+    statusEl.textContent = "Los boosters comprados van al inventario del perfil."
   }
 
   coinsEl.textContent = `${obtenerMonedas(usuario)} monedas`
@@ -445,7 +445,7 @@ async function comprarConMonedas(tipo, id) {
     if (Number.isFinite(Number(resultado.saldoNuevo))) coinsEl.textContent = `${resultado.saldoNuevo} monedas`
     return
   } else {
-    statusEl.textContent = "Compra activada."
+    statusEl.textContent = resultado.message || "Compra completada."
   }
 
   await renderTienda()

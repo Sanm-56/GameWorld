@@ -536,6 +536,7 @@ async function obtenerBoosterTemporalActivo(usuario, catalogo, localKey) {
     .from("usuario_boosters")
     .select("booster_id,multiplicador,fecha_fin")
     .eq("usuario_id", usuario)
+    .eq("activo", true)
     .gt("fecha_fin", ahoraIso)
     .order("multiplicador", { ascending: false })
     .order("fecha_fin", { ascending: false })
@@ -606,7 +607,7 @@ async function comprarItemTiendaConMonedas(usuario, tipoCompra, item, localKey =
         fecha_fin: new Date(Date.now() + item.duracionMs).toISOString(),
         activo: true,
       }
-      if (localKey) guardarBoosterLocal(usuario, booster, localKey)
+      if (localKey && booster.activo === true) guardarBoosterLocal(usuario, booster, localKey)
       return { ok: true, booster, saldoNuevo: data?.saldoNuevo, message: data?.mensaje }
     }
 
@@ -630,9 +631,73 @@ async function comprarItemTiendaConMonedas(usuario, tipoCompra, item, localKey =
   }
 }
 
+export async function obtenerInventarioTienda(usuario) {
+  if (!usuario) return { boosters: [], cosmeticos: [] }
+
+  const [boostersResult, cosmeticosResult] = await Promise.all([
+    supabase
+      .from("usuario_boosters")
+      .select("id,usuario_id,booster_id,multiplicador,fecha_inicio,fecha_fin,activo,estado,duracion_ms,comprado_at,activado_at,created_at")
+      .eq("usuario_id", usuario)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("usuario_cosmeticos")
+      .select("id,usuario_id,cosmetico_id,tipo,rareza,equipado,created_at")
+      .eq("usuario_id", usuario)
+      .order("created_at", { ascending: false }),
+  ])
+
+  if (boostersResult.error) console.warn("No se pudo cargar inventario de boosters", boostersResult.error)
+  if (cosmeticosResult.error) console.warn("No se pudo cargar inventario de cosmeticos", cosmeticosResult.error)
+
+  return {
+    boosters: (boostersResult.data || []).map(enriquecerBoosterInventario),
+    cosmeticos: (cosmeticosResult.data || []).map(enriquecerCosmeticoRemoto),
+  }
+}
+
+export async function activarBoosterInventario(usuario, boosterCompraId) {
+  const codigo = (localStorage.getItem(SAVED_UNIQUE_CODE_KEY) || "").trim()
+  if (!usuario || !codigo || !boosterCompraId) {
+    return { ok: false, message: "Vuelve a iniciar sesion para activar el booster." }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("activar_booster_inventario", {
+      p_usuario: usuario,
+      p_codigo: codigo,
+      p_booster_compra_id: Number(boosterCompraId),
+    })
+
+    if (error || data?.ok !== true) {
+      console.warn("No se pudo activar booster", error || data)
+      return { ok: false, message: data?.mensaje || error?.message || "No se pudo activar el booster." }
+    }
+
+    const booster = data?.booster
+    if (booster?.activo === true) {
+      const catalogoKey = BOOSTERS_XP.some((item) => item.id === booster.booster_id) || String(booster.booster_id || "").startsWith("admin_xp_")
+        ? BOOSTER_LOCAL_KEY
+        : COIN_BOOSTER_LOCAL_KEY
+      guardarBoosterLocal(usuario, booster, catalogoKey)
+    }
+
+    return { ok: true, booster, message: data?.mensaje || "Booster activado." }
+  } catch (error) {
+    console.warn("Error activando booster", error)
+    return { ok: false, message: "No se pudo activar el booster." }
+  }
+}
+
 export async function equiparCosmetico(usuario, cosmeticoId) {
   const cosmetico = COSMETICOS.find((item) => item.id === cosmeticoId)
   if (!usuario || !cosmetico) return { ok: false, error: "Cosmetico invalido" }
+
+  const sincronizado = await sincronizarEquipamientoCosmeticoRemoto(usuario, {
+    cosmetico_id: cosmetico.id,
+    tipo: cosmetico.tipo,
+  })
+  if (!sincronizado) return { ok: false, error: "No se pudo equipar el cosmetico." }
 
   const payload = normalizarCosmeticoLocal({
     usuario_id: usuario,
@@ -648,7 +713,6 @@ export async function equiparCosmetico(usuario, cosmeticoId) {
   })
 
   guardarCosmeticoLocal(usuario, payload)
-  const sincronizado = await sincronizarEquipamientoCosmeticoRemoto(usuario, payload)
   return { ok: true, cosmetico: payload, sincronizado }
 }
 
@@ -656,21 +720,21 @@ export async function desequiparCosmetico(usuario, tipo = "fondo") {
   const tipoLimpio = String(tipo || "fondo").trim()
   if (!usuario || !tipoLimpio) return { ok: false, error: "Cosmetico invalido" }
 
-  quitarCosmeticoLocal(usuario, tipoLimpio)
   const sincronizado = await sincronizarDesequipamientoCosmeticoRemoto(usuario, tipoLimpio)
+  if (!sincronizado) return { ok: false, error: "No se pudo desequipar el cosmetico." }
+
+  quitarCosmeticoLocal(usuario, tipoLimpio)
   return { ok: true, sincronizado }
 }
 
 async function sincronizarDesequipamientoCosmeticoRemoto(usuario, tipo) {
-  const { error } = await supabase
-    .from("usuario_cosmeticos")
-    .update({ equipado: false })
-    .eq("usuario_id", usuario)
-    .eq("tipo", tipo)
-    .eq("equipado", true)
+  const resultado = await actualizarCosmeticoInventarioRemoto(usuario, {
+    accion: "desequipar",
+    tipo,
+  })
 
-  if (error) {
-    console.warn("No se pudo desequipar cosmetico en Supabase", error)
+  if (!resultado.ok) {
+    console.warn("No se pudo desequipar cosmetico en Supabase", resultado.error || resultado.message)
     return false
   }
 
@@ -678,25 +742,41 @@ async function sincronizarDesequipamientoCosmeticoRemoto(usuario, tipo) {
 }
 
 async function sincronizarEquipamientoCosmeticoRemoto(usuario, payload) {
-  const desactivado = await desactivarCosmeticosDelTipo(usuario, payload.tipo)
+  const resultado = await actualizarCosmeticoInventarioRemoto(usuario, {
+    accion: "equipar",
+    cosmeticoId: payload.cosmetico_id,
+    tipo: payload.tipo,
+  })
 
-  const { error } = await supabase
-    .from("usuario_cosmeticos")
-    .upsert({
-      usuario_id: usuario,
-      cosmetico_id: payload.cosmetico_id,
-      tipo: payload.tipo,
-      rareza: rarezaCompatibleSupabase(payload.rareza),
-      equipado: true,
-      created_at: payload.created_at,
-    }, { onConflict: "usuario_id,cosmetico_id" })
-
-  if (error) {
-    console.warn("No se pudo equipar cosmetico en Supabase", error)
+  if (!resultado.ok) {
+    console.warn("No se pudo equipar cosmetico en Supabase", resultado.error || resultado.message)
     return false
   }
 
-  return desactivado !== false
+  return true
+}
+
+async function actualizarCosmeticoInventarioRemoto(usuario, { accion, cosmeticoId = null, tipo = null } = {}) {
+  const codigo = (localStorage.getItem(SAVED_UNIQUE_CODE_KEY) || "").trim()
+  if (!usuario || !codigo) return { ok: false, message: "Vuelve a iniciar sesion." }
+
+  try {
+    const { data, error } = await supabase.rpc("actualizar_cosmetico_inventario", {
+      p_usuario: usuario,
+      p_codigo: codigo,
+      p_accion: accion,
+      p_cosmetico_id: cosmeticoId,
+      p_tipo: tipo,
+    })
+
+    if (error || data?.ok !== true) {
+      return { ok: false, message: data?.mensaje || error?.message || "No se pudo actualizar el cosmetico.", error }
+    }
+
+    return { ok: true, data }
+  } catch (error) {
+    return { ok: false, message: "No se pudo actualizar el cosmetico.", error }
+  }
 }
 
 export async function obtenerCosmeticoEquipado(usuario, tipoPreferido = "fondo") {
@@ -1266,27 +1346,6 @@ function precioCosmetico(tipo, rareza) {
   }
 }
 
-function rarezaCompatibleSupabase(rareza) {
-  if (rareza === "Prohibido") return "Mitico"
-  return rareza
-}
-
-async function desactivarCosmeticosDelTipo(usuario, tipo) {
-  if (!usuario || !tipo) return false
-  const { error } = await supabase
-    .from("usuario_cosmeticos")
-    .update({ equipado: false })
-    .eq("usuario_id", usuario)
-    .eq("tipo", tipo)
-    .eq("equipado", true)
-
-  if (error && error.code !== "42501") {
-    console.warn("No se pudieron desactivar cosmeticos previos", error)
-  }
-
-  return !error
-}
-
 function guardarMonedas(usuario, cantidad) {
   const actuales = leerObjeto(MONEDAS_LOCAL_KEY)
   actuales[usuario] = Math.max(0, Math.trunc(Number(cantidad) || 0))
@@ -1341,6 +1400,29 @@ function esBoosterAdminValido(row, catalogo) {
   const esXp = catalogo === BOOSTERS_XP && id.startsWith("admin_xp_")
   const esMonedas = catalogo === BOOSTERS_MONEDAS && id.startsWith("admin_coins_")
   return (esXp || esMonedas) && multiplicador >= 1.2 && multiplicador <= 3.5
+}
+
+function enriquecerBoosterInventario(row) {
+  const catalogo = [...BOOSTERS_XP, ...BOOSTERS_MONEDAS].find((item) => item.id === row?.booster_id)
+  const esXp = Boolean(catalogo ? BOOSTERS_XP.some((item) => item.id === catalogo.id) : String(row?.booster_id || "").startsWith("admin_xp_"))
+  const fechaFin = Date.parse(row?.fecha_fin)
+  const fechaInicio = Date.parse(row?.fecha_inicio)
+  const duracionRemota = Number.isFinite(fechaFin) && Number.isFinite(fechaInicio) ? Math.max(0, fechaFin - fechaInicio) : 0
+  const estado = row?.estado === "disponible"
+    ? "disponible"
+    : row?.activo && Number.isFinite(fechaFin) && fechaFin > Date.now()
+      ? "activo"
+      : "expirado"
+
+  return {
+    ...catalogo,
+    ...row,
+    nombre: catalogo?.nombre || (esXp ? `Booster XP x${row?.multiplicador || 1}` : `Impulso Monedas x${row?.multiplicador || 1}`),
+    tipo_booster: esXp ? "xp" : "monedas",
+    duracionMs: Number(row?.duracion_ms || catalogo?.duracionMs || duracionRemota || 0),
+    precio: catalogo?.precio || 0,
+    estado,
+  }
 }
 
 function emitirCambioMonedas(usuario) {

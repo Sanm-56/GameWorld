@@ -850,11 +850,43 @@ create table if not exists public.usuario_boosters (
 );
 
 alter table public.usuario_boosters
+add column if not exists estado text not null default 'activo';
+
+alter table public.usuario_boosters
+add column if not exists duracion_ms bigint;
+
+alter table public.usuario_boosters
+add column if not exists comprado_at timestamptz not null default now();
+
+alter table public.usuario_boosters
+add column if not exists activado_at timestamptz;
+
+alter table public.usuario_boosters
 drop constraint if exists usuario_boosters_multiplicador_check;
 
 alter table public.usuario_boosters
 add constraint usuario_boosters_multiplicador_check
 check (multiplicador between 1.2 and 8.0);
+
+alter table public.usuario_boosters
+drop constraint if exists usuario_boosters_estado_check;
+
+alter table public.usuario_boosters
+add constraint usuario_boosters_estado_check
+check (estado in ('disponible', 'activo', 'expirado'));
+
+update public.usuario_boosters
+set estado = case
+    when activo = true and fecha_fin > now() then 'activo'
+    else 'expirado'
+  end,
+  duracion_ms = coalesce(duracion_ms, greatest(0, floor(extract(epoch from (fecha_fin - fecha_inicio)) * 1000)::bigint)),
+  comprado_at = coalesce(comprado_at, created_at),
+  activado_at = case when activo = true then coalesce(activado_at, fecha_inicio) else activado_at end
+where estado is null
+  or duracion_ms is null
+  or comprado_at is null
+  or (activo = true and activado_at is null);
 
 create index if not exists usuario_boosters_activos_idx
 on public.usuario_boosters (usuario_id, fecha_fin desc, multiplicador desc)
@@ -876,8 +908,7 @@ on public.usuario_cosmeticos (usuario_id, equipado, created_at desc);
 
 -- RLS compatible con el login actual por apodo/localStorage.
 -- bonus_temporada: lectura publica, escritura solo por RPC admin_guardar_bonus_temporada.
--- usuario_boosters: lectura/escritura publica para que el cliente actual pueda activar boosters sin auth.uid().
--- usuario_cosmeticos: lectura publica para rankings/perfiles y upsert publico para compras/equipado.
+-- usuario_boosters y usuario_cosmeticos: lectura publica; escritura solo por RPC con validacion de codigo.
 
 alter table public.temporadas enable row level security;
 alter table public.bonus_temporada enable row level security;
@@ -941,31 +972,10 @@ for select
 to anon, authenticated
 using (true);
 
-create policy usuario_boosters_anon_insert
-on public.usuario_boosters
-for insert
-to anon, authenticated
-with check (
-  usuario_id is not null
-  and btrim(usuario_id) <> ''
-  and multiplicador between 1.2 and 8.0
-  and fecha_fin > fecha_inicio
-);
-
-create policy usuario_boosters_anon_update
-on public.usuario_boosters
-for update
-to anon, authenticated
-using (true)
-with check (
-  usuario_id is not null
-  and btrim(usuario_id) <> ''
-  and multiplicador between 1.2 and 8.0
-  and fecha_fin > fecha_inicio
-);
-
-grant select, insert, update on table public.usuario_boosters to anon, authenticated;
-grant usage, select on sequence public.usuario_boosters_id_seq to anon, authenticated;
+revoke insert, update, delete on table public.usuario_boosters from anon, authenticated;
+revoke usage on sequence public.usuario_boosters_id_seq from anon, authenticated;
+grant select on table public.usuario_boosters to anon, authenticated;
+grant select on sequence public.usuario_boosters_id_seq to anon, authenticated;
 
 drop policy if exists usuario_cosmeticos_anon_select on public.usuario_cosmeticos;
 drop policy if exists usuario_cosmeticos_anon_insert on public.usuario_cosmeticos;
@@ -978,31 +988,10 @@ for select
 to anon, authenticated
 using (true);
 
-create policy usuario_cosmeticos_anon_insert
-on public.usuario_cosmeticos
-for insert
-to anon, authenticated
-with check (
-  usuario_id is not null
-  and btrim(usuario_id) <> ''
-  and tipo in ('fondo', 'tarjeta', 'id', 'marco', 'efecto')
-  and rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico')
-);
-
-create policy usuario_cosmeticos_anon_update
-on public.usuario_cosmeticos
-for update
-to anon, authenticated
-using (true)
-with check (
-  usuario_id is not null
-  and btrim(usuario_id) <> ''
-  and tipo in ('fondo', 'tarjeta', 'id', 'marco', 'efecto')
-  and rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico')
-);
-
-grant select, insert, update on table public.usuario_cosmeticos to anon, authenticated;
-grant usage, select on sequence public.usuario_cosmeticos_id_seq to anon, authenticated;
+revoke insert, update, delete on table public.usuario_cosmeticos from anon, authenticated;
+revoke usage on sequence public.usuario_cosmeticos_id_seq from anon, authenticated;
+grant select on table public.usuario_cosmeticos to anon, authenticated;
+grant select on sequence public.usuario_cosmeticos_id_seq to anon, authenticated;
 
 create table if not exists public.usuario_monedas (
   usuario_id text primary key,
@@ -1498,14 +1487,20 @@ begin
   where usuario_id = usuario_limpio;
 
   if tipo_limpio in ('booster_xp', 'booster_monedas') then
-    fin := inicio + duracion;
+    fin := inicio;
 
-    insert into public.usuario_boosters (usuario_id, booster_id, multiplicador, fecha_inicio, fecha_fin, activo)
-    values (usuario_limpio, producto_limpio, multiplicador, inicio, fin, true);
+    insert into public.usuario_boosters (
+      usuario_id, booster_id, multiplicador, fecha_inicio, fecha_fin,
+      activo, estado, duracion_ms, comprado_at, activado_at
+    )
+    values (
+      usuario_limpio, producto_limpio, multiplicador, inicio, fin,
+      false, 'disponible', floor(extract(epoch from duracion) * 1000)::bigint, inicio, null
+    );
 
     return jsonb_build_object(
       'ok', true,
-      'mensaje', 'Compra activada.',
+      'mensaje', 'Booster agregado al inventario.',
       'precio', precio,
       'saldoNuevo', saldo_nuevo,
       'booster', jsonb_build_object(
@@ -1514,7 +1509,10 @@ begin
         'multiplicador', multiplicador,
         'fecha_inicio', inicio,
         'fecha_fin', fin,
-        'activo', true
+        'activo', false,
+        'estado', 'disponible',
+        'duracion_ms', floor(extract(epoch from duracion) * 1000)::bigint,
+        'comprado_at', inicio
       )
     );
   end if;
@@ -1553,3 +1551,269 @@ end;
 $$;
 
 grant execute on function public.comprar_item_tienda_con_monedas(text, text, text, text) to anon, authenticated;
+
+create or replace function public.activar_booster_inventario(
+  p_usuario text,
+  p_codigo text default null,
+  p_booster_compra_id bigint default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  usuario_limpio text := btrim(coalesce(p_usuario, ''));
+  codigo_limpio text := btrim(coalesce(p_codigo, ''));
+  codigo_usuario text;
+  item public.usuario_boosters%rowtype;
+  familia text;
+  inicio timestamptz := now();
+  fin timestamptz;
+  duracion_limpia bigint;
+begin
+  if usuario_limpio = '' or p_booster_compra_id is null then
+    return jsonb_build_object('ok', false, 'mensaje', 'Booster invalido.');
+  end if;
+
+  select codigo::text
+  into codigo_usuario
+  from public.usuarios
+  where usuario = usuario_limpio
+  limit 1;
+
+  if codigo_usuario is null or codigo_limpio = '' or codigo_usuario <> codigo_limpio then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo validar tu sesion.');
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('boosters:' || usuario_limpio, 0));
+
+  select *
+  into item
+  from public.usuario_boosters
+  where id = p_booster_compra_id
+    and usuario_id = usuario_limpio
+  for update;
+
+  if not found then
+    return jsonb_build_object('ok', false, 'mensaje', 'Booster no encontrado.');
+  end if;
+
+  if coalesce(item.estado, case when item.activo then 'activo' else 'expirado' end) <> 'disponible' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Este booster ya no esta disponible.');
+  end if;
+
+  familia := case
+    when item.booster_id like 'xp%' or item.booster_id like 'admin_xp_%' then 'xp'
+    when item.booster_id like 'coins_%' or item.booster_id like 'admin_coins_%' then 'monedas'
+    else null
+  end;
+
+  if familia is null then
+    return jsonb_build_object('ok', false, 'mensaje', 'Tipo de booster invalido.');
+  end if;
+
+  duracion_limpia := coalesce(
+    nullif(item.duracion_ms, 0),
+    greatest(3600000, floor(extract(epoch from (item.fecha_fin - item.fecha_inicio)) * 1000)::bigint)
+  );
+  fin := inicio + (duracion_limpia * interval '1 millisecond');
+
+  update public.usuario_boosters
+  set activo = false,
+      estado = 'expirado'
+  where usuario_id = usuario_limpio
+    and id <> item.id
+    and activo = true
+    and fecha_fin > now()
+    and (
+      (familia = 'xp' and (booster_id like 'xp%' or booster_id like 'admin_xp_%'))
+      or (familia = 'monedas' and (booster_id like 'coins_%' or booster_id like 'admin_coins_%'))
+    );
+
+  update public.usuario_boosters
+  set activo = true,
+      estado = 'activo',
+      fecha_inicio = inicio,
+      fecha_fin = fin,
+      activado_at = inicio,
+      duracion_ms = duracion_limpia
+  where id = item.id
+  returning *
+  into item;
+
+  return jsonb_build_object(
+    'ok', true,
+    'mensaje', 'Booster activado.',
+    'booster', jsonb_build_object(
+      'id', item.id,
+      'usuario_id', item.usuario_id,
+      'booster_id', item.booster_id,
+      'multiplicador', item.multiplicador,
+      'fecha_inicio', item.fecha_inicio,
+      'fecha_fin', item.fecha_fin,
+      'activo', item.activo,
+      'estado', item.estado,
+      'duracion_ms', item.duracion_ms,
+      'comprado_at', item.comprado_at,
+      'activado_at', item.activado_at
+    )
+  );
+exception
+  when others then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo activar el booster.');
+end;
+$$;
+
+grant execute on function public.activar_booster_inventario(text, text, bigint) to anon, authenticated;
+
+create or replace function public.actualizar_cosmetico_inventario(
+  p_usuario text,
+  p_codigo text default null,
+  p_accion text default 'equipar',
+  p_cosmetico_id text default null,
+  p_tipo text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  usuario_limpio text := btrim(coalesce(p_usuario, ''));
+  codigo_limpio text := btrim(coalesce(p_codigo, ''));
+  accion_limpia text := lower(btrim(coalesce(p_accion, 'equipar')));
+  cosmetico_limpio text := lower(btrim(coalesce(p_cosmetico_id, '')));
+  tipo_limpio text := lower(btrim(coalesce(p_tipo, '')));
+  codigo_usuario text;
+  cosmetico_tipo text;
+  cosmetico_numero integer;
+  cosmetico_rareza text;
+  rareza_remota text;
+  nivel_actual integer := 1;
+  owned boolean := false;
+  desbloqueado boolean := false;
+  rango_permitido boolean := false;
+begin
+  if usuario_limpio = '' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Inicia sesion para actualizar cosmeticos.');
+  end if;
+
+  select codigo::text
+  into codigo_usuario
+  from public.usuarios
+  where usuario = usuario_limpio
+  limit 1;
+
+  if codigo_usuario is null or codigo_limpio = '' or codigo_usuario <> codigo_limpio then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo validar tu sesion.');
+  end if;
+
+  if accion_limpia not in ('equipar', 'desequipar') then
+    return jsonb_build_object('ok', false, 'mensaje', 'Accion invalida.');
+  end if;
+
+  if accion_limpia = 'desequipar' then
+    if tipo_limpio not in ('fondo', 'id', 'marco') then
+      return jsonb_build_object('ok', false, 'mensaje', 'Tipo de cosmetico invalido.');
+    end if;
+
+    update public.usuario_cosmeticos
+    set equipado = false
+    where usuario_id = usuario_limpio
+      and tipo = tipo_limpio
+      and equipado = true;
+
+    return jsonb_build_object('ok', true, 'mensaje', 'Cosmetico desequipado.', 'tipo', tipo_limpio);
+  end if;
+
+  if cosmetico_limpio !~ '^(fondo|id|marco)_[0-9]{3}$' then
+    return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+  end if;
+
+  cosmetico_tipo := split_part(cosmetico_limpio, '_', 1);
+  cosmetico_numero := split_part(cosmetico_limpio, '_', 2)::integer;
+
+  if cosmetico_numero < 1 or cosmetico_numero > 100 then
+    return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
+  end if;
+
+  cosmetico_rareza := case
+    when cosmetico_numero <= 17 then 'Normal'
+    when cosmetico_numero <= 34 then 'Raro'
+    when cosmetico_numero <= 51 then 'Epico'
+    when cosmetico_numero <= 68 then 'Legendario'
+    when cosmetico_numero <= 85 then 'Mitico'
+    else 'Prohibido'
+  end;
+  rareza_remota := case when cosmetico_rareza = 'Prohibido' then 'Mitico' else cosmetico_rareza end;
+
+  select exists (
+    select 1
+    from public.usuario_cosmeticos
+    where usuario_id = usuario_limpio
+      and cosmetico_id = cosmetico_limpio
+  )
+  into owned;
+
+  if to_regclass('public.recompensas_desbloqueadas') is not null then
+    select exists (
+      select 1
+      from public.recompensas_desbloqueadas
+      where usuario_id = usuario_limpio
+        and (
+          lower(valor) = cosmetico_limpio
+          or (lower(tipo) = cosmetico_tipo and lower(valor) = cosmetico_limpio)
+        )
+    )
+    into desbloqueado;
+  end if;
+
+  if to_regclass('public.progreso_nivel') is not null then
+    select greatest(1, least(3000, coalesce(nivel, 1)))
+    into nivel_actual
+    from public.progreso_nivel
+    where usuario_id = usuario_limpio
+    limit 1;
+  end if;
+
+  rango_permitido := cosmetico_tipo = 'fondo'
+    and cosmetico_numero <= least(100, greatest(1, ceil(greatest(coalesce(nivel_actual, 1), 1)::numeric / 25.0)::integer));
+
+  if not (owned or desbloqueado or rango_permitido) then
+    return jsonb_build_object('ok', false, 'mensaje', 'Este cosmetico no esta disponible para tu usuario.');
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('cosmeticos:' || usuario_limpio || ':' || cosmetico_tipo, 0));
+
+  update public.usuario_cosmeticos
+  set equipado = false
+  where usuario_id = usuario_limpio
+    and tipo = cosmetico_tipo
+    and equipado = true;
+
+  insert into public.usuario_cosmeticos (usuario_id, cosmetico_id, tipo, rareza, equipado, created_at)
+  values (usuario_limpio, cosmetico_limpio, cosmetico_tipo, rareza_remota, true, now())
+  on conflict (usuario_id, cosmetico_id) do update
+    set tipo = excluded.tipo,
+        rareza = excluded.rareza,
+        equipado = true;
+
+  return jsonb_build_object(
+    'ok', true,
+    'mensaje', 'Cosmetico equipado.',
+    'cosmetico', jsonb_build_object(
+      'usuario_id', usuario_limpio,
+      'cosmetico_id', cosmetico_limpio,
+      'tipo', cosmetico_tipo,
+      'rareza', rareza_remota,
+      'equipado', true
+    )
+  );
+exception
+  when others then
+    return jsonb_build_object('ok', false, 'mensaje', 'No se pudo actualizar el cosmetico.');
+end;
+$$;
+
+grant execute on function public.actualizar_cosmetico_inventario(text, text, text, text, text) to anon, authenticated;

@@ -3,9 +3,11 @@ import { safeAlert } from './mensajes.js'
 import {
   COSMETICOS,
   RECOMPENSAS_MONEDAS,
+  activarBoosterInventario,
   desequiparCosmetico,
   equiparCosmetico,
   iniciarSincronizacionRecompensasUsuario,
+  obtenerInventarioTienda,
   obtenerHistorialMonedas,
   obtenerCosmeticoEquipado,
   obtenerMonedas,
@@ -132,6 +134,12 @@ const profileLoginCancelEl = document.getElementById('profileLoginCancel')
 const profileLoginSubmitEl = document.getElementById('profileLoginSubmit')
 const profileScrollDockEl = document.getElementById('profileScrollDock')
 const profileScrollProgressEl = document.getElementById('profileScrollProgress')
+const inventoryButtonEl = document.getElementById('inventoryButton')
+const inventoryOverlayEl = document.getElementById('inventoryOverlay')
+const inventoryCloseEl = document.getElementById('inventoryClose')
+const inventoryListEl = document.getElementById('inventoryList')
+const inventoryStatusEl = document.getElementById('inventoryStatus')
+const inventoryTabs = [...document.querySelectorAll('[data-inventory-tab]')]
 const CHAT_GLOBAL_TABLA = 'chat_global'
 const CHAT_PRIVADO_TABLA = 'chat_privado'
 const CHAT_LIMITE = 60
@@ -146,6 +154,8 @@ let chatGlobalCanal = null
 let chatPrivadoCanal = null
 let chatPrivadoDestino = ''
 let refrescoPersonalizacionPerfil = 0
+let inventarioActual = { boosters: [], cosmeticos: [] }
+let inventarioTabActiva = 'boosters'
 
 const RANGOS_VISUALES = {
   novato: { tier: 'novato', emblem: 'NV', motif: 'stars', era: 'astral', material: 'space-glass', density: 'minimal', geometry: 'particles' },
@@ -1219,6 +1229,200 @@ function renderPanelMonedas() {
       </div>
     `).join('') : '<div class="coin-empty">Aun no hay recompensas cobradas.</div>'}
   `
+}
+
+function instalarInventarioPerfil() {
+  if (!inventoryButtonEl || !inventoryOverlayEl) return
+
+  inventoryButtonEl.addEventListener('click', abrirInventario)
+  inventoryCloseEl?.addEventListener('click', cerrarInventario)
+  inventoryOverlayEl.addEventListener('click', (event) => {
+    if (event.target === inventoryOverlayEl) cerrarInventario()
+  })
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && inventoryOverlayEl.classList.contains('abierto')) cerrarInventario()
+  })
+  inventoryTabs.forEach((button) => {
+    button.addEventListener('click', () => {
+      inventarioTabActiva = button.dataset.inventoryTab || 'boosters'
+      actualizarTabsInventario()
+      renderInventario()
+    })
+  })
+}
+
+async function abrirInventario() {
+  if (!usuario) {
+    safeAlert('Inicia sesion para ver tu inventario.')
+    return
+  }
+
+  inventoryOverlayEl.classList.add('abierto')
+  inventoryOverlayEl.setAttribute('aria-hidden', 'false')
+  await cargarInventario()
+}
+
+function cerrarInventario() {
+  inventoryOverlayEl?.classList.remove('abierto')
+  inventoryOverlayEl?.setAttribute('aria-hidden', 'true')
+}
+
+async function cargarInventario() {
+  if (!inventoryListEl || !inventoryStatusEl) return
+  inventoryStatusEl.textContent = 'Cargando inventario...'
+  inventarioActual = await obtenerInventarioTienda(usuario)
+  inventoryStatusEl.textContent = resumenInventario(inventarioActual)
+  actualizarTabsInventario()
+  renderInventario()
+}
+
+function actualizarTabsInventario() {
+  inventoryTabs.forEach((button) => {
+    const activo = button.dataset.inventoryTab === inventarioTabActiva
+    button.classList.toggle('active', activo)
+    button.setAttribute('aria-selected', activo ? 'true' : 'false')
+  })
+}
+
+function renderInventario() {
+  if (!inventoryListEl) return
+  if (inventarioTabActiva === 'cosmeticos') {
+    renderInventarioCosmeticos()
+    return
+  }
+  renderInventarioBoosters()
+}
+
+function renderInventarioBoosters() {
+  const boosters = inventarioActual.boosters || []
+  if (!boosters.length) {
+    inventoryListEl.innerHTML = '<div class="inventory-empty">No tienes boosters en inventario.</div>'
+    return
+  }
+
+  const orden = { disponible: 0, activo: 1, expirado: 2 }
+  inventoryListEl.innerHTML = boosters
+    .slice()
+    .sort((a, b) => (orden[a.estado] ?? 3) - (orden[b.estado] ?? 3))
+    .map((booster) => `
+      <article class="inventory-item inventory-${escaparHtml(booster.estado)}">
+        <div class="inventory-mark">${booster.tipo_booster === 'xp' ? 'XP' : 'MC'}</div>
+        <div class="inventory-copy">
+          <span>${etiquetaEstadoInventario(booster.estado)}</span>
+          <strong>${escaparHtml(booster.nombre)}</strong>
+          <small>x${formatearMultiplicadorInventario(booster.multiplicador)} - ${formatearDuracionInventario(booster.duracionMs)}</small>
+          <small>${detalleTiempoBooster(booster)}</small>
+        </div>
+        ${booster.estado === 'disponible'
+          ? `<button class="inventory-action" type="button" data-activate-booster="${booster.id}">Activar</button>`
+          : `<button class="inventory-action secondary" type="button" disabled>${booster.estado === 'activo' ? 'Activo' : 'Expirado'}</button>`}
+      </article>
+    `).join('')
+
+  inventoryListEl.querySelectorAll('[data-activate-booster]').forEach((button) => {
+    button.addEventListener('click', () => activarBoosterDesdeInventario(button))
+  })
+}
+
+function renderInventarioCosmeticos() {
+  const cosmeticos = inventarioActual.cosmeticos || []
+  if (!cosmeticos.length) {
+    inventoryListEl.innerHTML = '<div class="inventory-empty">No tienes cosmeticos comprados.</div>'
+    return
+  }
+
+  inventoryListEl.innerHTML = cosmeticos.map((item) => `
+    <article class="inventory-item">
+      <div class="inventory-mark">${escaparHtml(siglaCosmeticoInventario(item.tipo))}</div>
+      <div class="inventory-copy">
+        <span>${escaparHtml(item.tipo || 'cosmetico')} - ${escaparHtml(item.rareza_visual || item.rareza || 'Normal')}</span>
+        <strong>${escaparHtml(item.nombre || item.cosmetico_id)}</strong>
+        <small>${item.equipado ? 'Equipado actualmente' : 'Disponible para equipar'}</small>
+      </div>
+      <button class="inventory-action${item.equipado ? ' secondary' : ''}" type="button" data-cosmetic-inventory="${escaparHtml(item.cosmetico_id)}" data-cosmetic-action="${item.equipado ? 'unequip' : 'equip'}">
+        ${item.equipado ? 'Desequipar' : 'Equipar'}
+      </button>
+    </article>
+  `).join('')
+
+  inventoryListEl.querySelectorAll('[data-cosmetic-inventory]').forEach((button) => {
+    button.addEventListener('click', () => cambiarCosmeticoDesdeInventario(button))
+  })
+}
+
+async function activarBoosterDesdeInventario(button) {
+  const id = button.dataset.activateBooster
+  button.disabled = true
+  button.textContent = 'Activando...'
+  const resultado = await activarBoosterInventario(usuario, id)
+  if (!resultado.ok) {
+    safeAlert(resultado.message || 'No se pudo activar el booster.')
+    button.disabled = false
+    button.textContent = 'Activar'
+    return
+  }
+  await cargarInventario()
+}
+
+async function cambiarCosmeticoDesdeInventario(button) {
+  const cosmeticoId = button.dataset.cosmeticInventory
+  const action = button.dataset.cosmeticAction || 'equip'
+  const cosmetico = inventarioActual.cosmeticos.find((item) => item.cosmetico_id === cosmeticoId)
+  if (!cosmetico) return
+
+  button.disabled = true
+  button.textContent = action === 'unequip' ? 'Desequipando...' : 'Equipando...'
+  const resultado = action === 'unequip'
+    ? await desequiparCosmetico(usuario, cosmetico.tipo)
+    : await equiparCosmetico(usuario, cosmeticoId)
+
+  if (!resultado.ok) {
+    safeAlert(resultado.error || 'No se pudo actualizar el cosmetico.')
+    button.disabled = false
+    button.textContent = action === 'unequip' ? 'Desequipar' : 'Equipar'
+    return
+  }
+
+  if (cosmetico.tipo === 'fondo') fondoEquipadoActual = action === 'unequip' ? null : resultado.cosmetico
+  await aplicarPersonalizacionPerfil()
+  await cargarInventario()
+  if (progresoNivelActual) renderRutaRangos(progresoNivelActual)
+}
+
+function resumenInventario(inventario) {
+  const disponibles = (inventario.boosters || []).filter((item) => item.estado === 'disponible').length
+  const activos = (inventario.boosters || []).filter((item) => item.estado === 'activo').length
+  const cosmeticos = (inventario.cosmeticos || []).length
+  return `${disponibles} boosters disponibles - ${activos} activos - ${cosmeticos} cosmeticos`
+}
+
+function etiquetaEstadoInventario(estado) {
+  if (estado === 'disponible') return 'Disponible'
+  if (estado === 'activo') return 'Activo'
+  return 'Expirado'
+}
+
+function detalleTiempoBooster(booster) {
+  if (booster.estado === 'disponible') return `Comprado ${fechaMovimientoMonedas(booster.comprado_at || booster.created_at)}`
+  if (booster.estado === 'activo') return `Termina ${fechaMovimientoMonedas(booster.fecha_fin)}`
+  return `Finalizo ${fechaMovimientoMonedas(booster.fecha_fin)}`
+}
+
+function formatearMultiplicadorInventario(valor) {
+  const numero = Number(valor || 1)
+  return Number.isInteger(numero) ? String(numero) : numero.toFixed(1)
+}
+
+function formatearDuracionInventario(ms) {
+  const horas = Math.max(1, Math.round(Number(ms || 0) / 3600000))
+  if (horas < 24) return `${horas} h`
+  return `${Math.round(horas / 24)} d`
+}
+
+function siglaCosmeticoInventario(tipo) {
+  if (tipo === 'fondo') return 'BG'
+  if (tipo === 'marco') return 'MR'
+  return 'ID'
 }
 
 function etiquetaMovimientoMonedas(movimiento) {
@@ -6804,6 +7008,7 @@ window.cerrarSesion = async function () {
 }
 
 instalarLoginPerfil()
+instalarInventarioPerfil()
 cargarPerfil()
 instalarChatSocial()
 instalarScrollMovilPerfil()
@@ -6815,6 +7020,9 @@ if (usuario) {
       fondoEquipadoActual = await obtenerCosmeticoEquipado(usuario, 'fondo')
       await aplicarPersonalizacionPerfil()
       if (progresoNivelActual) renderRutaRangos(progresoNivelActual)
+    }
+    if ((evento?.tipo === 'booster' || evento?.tipo === 'cosmetico') && inventoryOverlayEl?.classList.contains('abierto')) {
+      await cargarInventario()
     }
   })
 }
