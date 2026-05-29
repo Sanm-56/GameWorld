@@ -11266,13 +11266,15 @@ body.sudoku-screen-shake{
   cursor:pointer;
 }
 
-.inventory-tabs{
+.inventory-tabs,
+.inventory-subtabs{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
 }
 
 .inventory-tabs button,
+.inventory-subtabs button,
 .inventory-action{
   min-height:40px;
   border:1px solid rgba(34,197,94,0.34);
@@ -11281,16 +11283,53 @@ body.sudoku-screen-shake{
   color:white;
   font-weight:800;
   cursor:pointer;
+  transition:border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
 .inventory-tabs button{
   padding:9px 14px;
 }
 
+.inventory-subtabs{
+  padding:4px;
+  border:1px solid rgba(148,163,184,0.14);
+  border-radius:12px;
+  background:rgba(15,23,42,0.42);
+}
+
+.inventory-subtabs button{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:7px 11px;
+  border-color:rgba(148,163,184,0.18);
+  background:rgba(15,23,42,0.72);
+  color:#b9c9da;
+}
+
+.inventory-tabs button:focus-visible,
+.inventory-subtabs button:focus-visible,
+.inventory-action:focus-visible{
+  outline:2px solid rgba(125,211,252,0.82);
+  outline-offset:2px;
+}
+
+.inventory-subtabs button:hover{
+  border-color:rgba(125,211,252,0.34);
+  color:#e2e8f0;
+  transform:translateY(-1px);
+}
+
 .inventory-tabs button.active,
+.inventory-subtabs button.active,
 .inventory-action.secondary{
   border-color:rgba(148,163,184,0.26);
   background:rgba(30,41,59,0.92);
+}
+
+.inventory-subtabs button.active{
+  border-color:rgba(34,197,94,0.4);
+  color:#f8fafc;
+  background:linear-gradient(135deg, rgba(20,184,166,0.32), rgba(59,130,246,0.24));
 }
 
 .inventory-list{
@@ -11361,6 +11400,7 @@ body.sudoku-screen-shake{
 .inventory-action:disabled{
   cursor:not-allowed;
   opacity:0.72;
+  transform:none;
 }
 
 .inventory-empty{
@@ -11375,6 +11415,21 @@ body.sudoku-screen-shake{
   .inventory-modal{
     max-height:94vh;
     padding:14px;
+  }
+
+  .inventory-tabs,
+  .inventory-subtabs{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .inventory-subtabs button{
+    width:100%;
+    padding:8px 6px;
+  }
+
+  .inventory-subtabs:has(button:nth-child(3)){
+    grid-template-columns:repeat(3, minmax(0, 1fr));
   }
 
   .inventory-item{
@@ -13085,10 +13140,11 @@ body.sudoku-screen-shake{
       <button class="inventory-close" type="button" id="inventoryClose" aria-label="Cerrar inventario">&times;</button>
     </div>
     <div class="inventory-tabs" role="tablist" aria-label="Secciones de inventario">
-      <button class="active" type="button" data-inventory-tab="boosters" role="tab" aria-selected="true">Boosters</button>
-      <button type="button" data-inventory-tab="cosmeticos" role="tab" aria-selected="false">Cosmeticos</button>
+      <button class="active" type="button" data-inventory-tab="boosters" role="tab" aria-selected="true" aria-controls="inventoryList">Boosters</button>
+      <button type="button" data-inventory-tab="cosmeticos" role="tab" aria-selected="false" aria-controls="inventoryList">Cosmeticos</button>
     </div>
-    <div class="inventory-list" id="inventoryList"></div>
+    <div class="inventory-subtabs" id="inventorySubtabs" role="tablist" aria-label="Conjuntos de inventario"></div>
+    <div class="inventory-list" id="inventoryList" role="tabpanel"></div>
   </section>
 </div>
 

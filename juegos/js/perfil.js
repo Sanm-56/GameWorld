@@ -144,6 +144,7 @@ const inventoryOverlayEl = document.getElementById('inventoryOverlay')
 const inventoryCloseEl = document.getElementById('inventoryClose')
 const inventoryListEl = document.getElementById('inventoryList')
 const inventoryStatusEl = document.getElementById('inventoryStatus')
+const inventorySubtabsEl = document.getElementById('inventorySubtabs')
 const inventoryTabs = [...document.querySelectorAll('[data-inventory-tab]')]
 const CHAT_GLOBAL_TABLA = 'chat_global'
 const CHAT_PRIVADO_TABLA = 'chat_privado'
@@ -161,6 +162,8 @@ let chatPrivadoDestino = ''
 let refrescoPersonalizacionPerfil = 0
 let inventarioActual = { boosters: [], cosmeticos: [] }
 let inventarioTabActiva = 'boosters'
+let inventarioBoosterGrupoActivo = 'xp'
+let inventarioCosmeticoGrupoActivo = 'fondo'
 
 const RANGOS_VISUALES = {
   novato: { tier: 'novato', emblem: 'NV', motif: 'stars', era: 'astral', material: 'space-glass', density: 'minimal', geometry: 'particles' },
@@ -1297,6 +1300,8 @@ function actualizarTabsInventario() {
 
 function renderInventario() {
   if (!inventoryListEl) return
+  asegurarGrupoInventarioActivo()
+  renderSubtabsInventario()
   if (inventarioTabActiva === 'cosmeticos') {
     renderInventarioCosmeticos()
     return
@@ -1304,10 +1309,57 @@ function renderInventario() {
   renderInventarioBoosters()
 }
 
+function asegurarGrupoInventarioActivo() {
+  if (inventarioTabActiva === 'cosmeticos') {
+    if (contarCosmeticosInventario(inventarioCosmeticoGrupoActivo) > 0) return
+    const primeroDisponible = ['fondo', 'id', 'marco'].find((tipo) => contarCosmeticosInventario(tipo) > 0)
+    if (primeroDisponible) inventarioCosmeticoGrupoActivo = primeroDisponible
+    return
+  }
+
+  if (contarBoostersInventario(inventarioBoosterGrupoActivo) > 0) return
+  const primeroDisponible = ['xp', 'monedas'].find((tipo) => contarBoostersInventario(tipo) > 0)
+  if (primeroDisponible) inventarioBoosterGrupoActivo = primeroDisponible
+}
+
+function renderSubtabsInventario() {
+  if (!inventorySubtabsEl) return
+
+  const opciones = inventarioTabActiva === 'cosmeticos'
+    ? [
+        { id: 'fondo', label: 'Fondos', count: contarCosmeticosInventario('fondo') },
+        { id: 'id', label: 'IDs', count: contarCosmeticosInventario('id') },
+        { id: 'marco', label: 'Marcos', count: contarCosmeticosInventario('marco') },
+      ]
+    : [
+        { id: 'xp', label: 'EXP', count: contarBoostersInventario('xp') },
+        { id: 'monedas', label: 'Monedas', count: contarBoostersInventario('monedas') },
+      ]
+
+  const activo = inventarioTabActiva === 'cosmeticos' ? inventarioCosmeticoGrupoActivo : inventarioBoosterGrupoActivo
+  inventorySubtabsEl.innerHTML = opciones.map((opcion) => `
+    <button class="${opcion.id === activo ? 'active' : ''}" type="button" data-inventory-group="${escaparHtml(opcion.id)}" role="tab" aria-selected="${opcion.id === activo ? 'true' : 'false'}" aria-controls="inventoryList">
+      ${escaparHtml(opcion.label)} (${opcion.count})
+    </button>
+  `).join('')
+
+  inventorySubtabsEl.querySelectorAll('[data-inventory-group]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (inventarioTabActiva === 'cosmeticos') {
+        inventarioCosmeticoGrupoActivo = button.dataset.inventoryGroup || 'fondo'
+      } else {
+        inventarioBoosterGrupoActivo = button.dataset.inventoryGroup || 'xp'
+      }
+      renderInventario()
+    })
+  })
+}
+
 function renderInventarioBoosters() {
-  const boosters = inventarioActual.boosters || []
+  const boosters = (inventarioActual.boosters || [])
+    .filter((booster) => booster.tipo_booster === inventarioBoosterGrupoActivo)
   if (!boosters.length) {
-    inventoryListEl.innerHTML = '<div class="inventory-empty">No tienes boosters en inventario.</div>'
+    inventoryListEl.innerHTML = `<div class="inventory-empty">No tienes boosters de ${inventarioBoosterGrupoActivo === 'xp' ? 'EXP' : 'monedas'} en inventario.</div>`
     return
   }
 
@@ -1336,9 +1388,10 @@ function renderInventarioBoosters() {
 }
 
 function renderInventarioCosmeticos() {
-  const cosmeticos = inventarioActual.cosmeticos || []
+  const cosmeticos = (inventarioActual.cosmeticos || [])
+    .filter((item) => item.tipo === inventarioCosmeticoGrupoActivo)
   if (!cosmeticos.length) {
-    inventoryListEl.innerHTML = '<div class="inventory-empty">No tienes cosmeticos comprados.</div>'
+    inventoryListEl.innerHTML = `<div class="inventory-empty">No tienes ${etiquetaGrupoCosmeticoInventario(inventarioCosmeticoGrupoActivo).toLowerCase()} comprados.</div>`
     return
   }
 
@@ -1359,6 +1412,20 @@ function renderInventarioCosmeticos() {
   inventoryListEl.querySelectorAll('[data-cosmetic-inventory]').forEach((button) => {
     button.addEventListener('click', () => cambiarCosmeticoDesdeInventario(button))
   })
+}
+
+function contarBoostersInventario(tipo) {
+  return (inventarioActual.boosters || []).filter((booster) => booster.tipo_booster === tipo).length
+}
+
+function contarCosmeticosInventario(tipo) {
+  return (inventarioActual.cosmeticos || []).filter((item) => item.tipo === tipo).length
+}
+
+function etiquetaGrupoCosmeticoInventario(tipo) {
+  if (tipo === 'fondo') return 'Fondos'
+  if (tipo === 'marco') return 'Marcos'
+  return 'IDs'
 }
 
 async function activarBoosterDesdeInventario(button) {
