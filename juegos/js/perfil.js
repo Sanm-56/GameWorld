@@ -26,7 +26,11 @@ import {
   obtenerTituloNivel,
   registrarXpPorLogros,
 } from './progreso-nivel.js'
-import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js?v=chat-visual-fix-20260515'
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from './personalizacion-visual.js?v=fondos-cosmeticos-20260528'
+import {
+  instalarEstilosFondosCosmeticos,
+  renderPreviewFondoCosmetico,
+} from './fondos-cosmeticos.js'
 import {
   calcularBonusRango,
   guardarRangoEquipado as guardarRangoEquipadoBonus,
@@ -39,6 +43,7 @@ const usuario = localStorage.getItem('usuario')
 const SAVED_NICKNAME_KEY = 'savedNickname'
 const SAVED_UNIQUE_CODE_KEY = 'savedUniqueCode'
 instalarEstilosPersonalizacion()
+instalarEstilosFondosCosmeticos()
 
 const GAMES = [
   { key: 'sudoku', label: 'Sudoku', icon: 'S' },
@@ -757,8 +762,9 @@ function renderRutaRangos(progreso) {
     const recompensasHtml = cosmeticosRuta.length
       ? `<div class="rank-node-cosmetics">
           ${cosmeticosRuta.slice(0, 2).map((item) => `
-            <button class="rank-cosmetic-btn" type="button" data-cosmetic-action="${cosmeticoEstaEquipado(item.cosmetico) ? 'unequip' : 'equip'}" data-cosmetic-reward="${escaparHtml(item.cosmetico.id)}" ${desbloqueado ? '' : 'disabled'}>
-              ${escaparHtml(etiquetaBotonCosmeticoRuta(item.cosmetico))}
+            <button class="rank-cosmetic-btn rank-cosmetic-${escaparHtml(item.cosmetico.tipo)}" type="button" data-cosmetic-action="${cosmeticoEstaEquipado(item.cosmetico) ? 'unequip' : 'equip'}" data-cosmetic-reward="${escaparHtml(item.cosmetico.id)}" ${desbloqueado ? '' : 'disabled'}>
+              ${renderPreviewCosmeticoRuta(item.cosmetico)}
+              <span>${escaparHtml(etiquetaBotonCosmeticoRuta(item.cosmetico))}</span>
             </button>
           `).join('')}
           ${cosmeticosRuta.length > 2 ? `<span class="rank-cosmetic-more">+${cosmeticosRuta.length - 2} mas</span>` : ''}
@@ -811,6 +817,11 @@ function cosmeticoEstaEquipado(cosmetico) {
 function etiquetaBotonCosmeticoRuta(cosmetico) {
   if (cosmeticoEstaEquipado(cosmetico)) return `Desequipar ${cosmetico.tipo}`
   return `${cosmetico.tipo} · ${cosmetico.nombre}`
+}
+
+function renderPreviewCosmeticoRuta(cosmetico) {
+  if (cosmetico?.tipo === 'fondo') return renderPreviewFondoCosmetico(cosmetico, 'compacto')
+  return `<span class="rank-cosmetic-mark">${escaparHtml(siglaCosmeticoInventario(cosmetico?.tipo))}</span>`
 }
 
 function instalarEventosRangos() {
@@ -1332,8 +1343,8 @@ function renderInventarioCosmeticos() {
   }
 
   inventoryListEl.innerHTML = cosmeticos.map((item) => `
-    <article class="inventory-item">
-      <div class="inventory-mark">${escaparHtml(siglaCosmeticoInventario(item.tipo))}</div>
+    <article class="inventory-item inventory-cosmetic-item inventory-cosmetic-${escaparHtml(item.tipo || 'cosmetico')} ${item.equipado ? 'inventory-equipped' : ''}">
+      ${renderPreviewCosmeticoInventario(item)}
       <div class="inventory-copy">
         <span>${escaparHtml(item.tipo || 'cosmetico')} - ${escaparHtml(item.rareza_visual || item.rareza || 'Normal')}</span>
         <strong>${escaparHtml(item.nombre || item.cosmetico_id)}</strong>
@@ -1423,6 +1434,11 @@ function siglaCosmeticoInventario(tipo) {
   if (tipo === 'fondo') return 'BG'
   if (tipo === 'marco') return 'MR'
   return 'ID'
+}
+
+function renderPreviewCosmeticoInventario(item) {
+  if (item?.tipo === 'fondo') return renderPreviewFondoCosmetico(item, 'compacto')
+  return `<div class="inventory-mark">${escaparHtml(siglaCosmeticoInventario(item?.tipo))}</div>`
 }
 
 function etiquetaMovimientoMonedas(movimiento) {

@@ -19,6 +19,11 @@ import {
 import { clearVipStatusCache, getVipStatus } from "./vip.js"
 import { confirmAction, escapeHtml, safeAlert } from "./mensajes.js"
 import { abrirCheckoutWompi } from "./wompi-tienda.js"
+import {
+  clasesFondoCosmetico,
+  estiloFondoCosmetico,
+  instalarEstilosFondosCosmeticos,
+} from "./fondos-cosmeticos.js"
 
 const modal = document.getElementById("storeModal")
 const boosterList = document.getElementById("storeBoosters")
@@ -47,6 +52,7 @@ function usuarioActual() {
 
 function initStore() {
   if (!modal || !boosterList || !coinBoosterList || !coinList || !vipList || !cosmeticsList) return
+  instalarEstilosFondosCosmeticos()
   const usuario = usuarioActual()
   if (usuario) {
     iniciarSincronizacionRecompensasUsuario(usuario, async () => {
@@ -331,7 +337,7 @@ function clasesVisualesCosmetico(item) {
   }
   const fondo = item.diseno?.fondo
   if (item.tipo !== "fondo" || !fondo) return ""
-  return ` fondo-layout-${fondo.layout} fondo-textura-${fondo.textura} fondo-simbolo-${fondo.simbolo} fondo-panel-${fondo.panel} fondo-energia-${fondo.energia} fondo-fractura-${fondo.fractura} fondo-reliquia-${fondo.reliquia}`
+  return ` ${clasesFondoCosmetico(item, "preview")}`
 }
 
 function estiloVisualCosmetico(item) {
@@ -361,16 +367,7 @@ function estiloVisualCosmetico(item) {
   }
   const fondo = item.diseno?.fondo
   if (item.tipo !== "fondo" || !fondo) return ""
-  const estilo = [
-    `--fondo-hue:${Number(fondo.hue || 200)}`,
-    `--fondo-accent:${Number(fondo.accent || 190)}`,
-    `--fondo-luz:${Number(fondo.luz || 18)}%`,
-    `--fondo-depth:${Number(fondo.profundidad || 36)}%`,
-    `--fondo-x:${Number(fondo.focoX || 50)}%`,
-    `--fondo-y:${Number(fondo.focoY || 40)}%`,
-    `--fondo-angle:${Number(fondo.angulo || 0)}deg`,
-  ].join(";")
-  return ` style="${estilo}"`
+  return ` style="${estiloFondoCosmetico(item, "preview")}"`
 }
 
 function siglaCategoria(tipo) {

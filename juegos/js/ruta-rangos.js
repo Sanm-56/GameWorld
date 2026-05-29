@@ -11,6 +11,16 @@ import {
   leerRangoEquipado,
   sincronizarRangoEquipado,
 } from './rango-bonus.js'
+import {
+  COSMETICOS,
+  desequiparCosmetico,
+  equiparCosmetico,
+  obtenerCosmeticoEquipado,
+} from './tienda.js'
+import {
+  instalarEstilosFondosCosmeticos,
+  renderPreviewFondoCosmetico,
+} from './fondos-cosmeticos.js'
 
 const usuario = localStorage.getItem('usuario')
 const roadEl = document.getElementById('routeRoad')
@@ -18,6 +28,9 @@ const statusEl = document.getElementById('routeStatus')
 const equippedRankEl = document.getElementById('equippedRank')
 const currentLevelEl = document.getElementById('currentLevel')
 const refreshEl = document.getElementById('routeRefresh')
+let fondoEquipadoActual = null
+
+instalarEstilosFondosCosmeticos()
 
 const RANGOS_BASE = {
   novato: { emblem: 'NV', primary: '#38bdf8', secondary: '#22c55e', accent: '#a78bfa', rgb: '56,189,248' },
@@ -132,6 +145,44 @@ function obtenerRangoPorTitulo(titulo, rangos) {
   return rangos.find((rango) => normalizarTexto(rango.titulo) === normalizarTexto(titulo))
 }
 
+function obtenerFondoCosmeticoRango(rango, rangos = obtenerRangosDesdeNivel(1)) {
+  const indice = rangos.findIndex((item) => normalizarTexto(item.titulo) === normalizarTexto(rango?.titulo))
+  const numero = (Math.max(0, indice) % 100) + 1
+  return COSMETICOS.find((item) => item.id === `fondo_${String(numero).padStart(3, '0')}`)
+}
+
+function fondoEstaEquipado(cosmetico) {
+  return Boolean(cosmetico?.id && fondoEquipadoActual?.cosmetico_id === cosmetico.id)
+}
+
+function renderPreviewFondoRango(rango, rangos) {
+  const cosmetico = obtenerFondoCosmeticoRango(rango, rangos)
+  if (!cosmetico) return ''
+
+  return `
+    <button class="route-cosmetic ${fondoEstaEquipado(cosmetico) ? 'equipped' : ''}" type="button" data-rank-action="${fondoEstaEquipado(cosmetico) ? 'unequip' : 'equip'}" data-rank-title="${escaparHtml(rango.titulo)}">
+      ${renderPreviewFondoCosmetico(cosmetico, 'compacto')}
+      <span>${fondoEstaEquipado(cosmetico) ? 'Fondo equipado' : cosmetico.nombre}</span>
+    </button>
+  `
+}
+
+async function equiparFondoDeRango(rango, action, rangos) {
+  if (!usuario) return { ok: false, error: 'Usuario invalido' }
+  if (action === 'unequip') {
+    const resultado = await desequiparCosmetico(usuario, 'fondo')
+    if (resultado?.ok) fondoEquipadoActual = null
+    return resultado
+  }
+
+  const fondo = obtenerFondoCosmeticoRango(rango, rangos)
+  if (!fondo) return { ok: false, error: 'Fondo de rango no disponible' }
+
+  const resultado = await equiparCosmetico(usuario, fondo.id)
+  if (resultado?.ok) fondoEquipadoActual = resultado.cosmetico
+  return resultado
+}
+
 function renderRuta(progreso, rangos, rangoEquipado) {
   if (!roadEl) return
 
@@ -177,6 +228,7 @@ function renderRuta(progreso, rangos, rangoEquipado) {
         <strong class="route-name">${escaparHtml(rango.titulo)}</strong>
         <span class="route-detail">${desbloqueado ? `Requisito: nivel ${rango.desde}` : `Faltan ${formatearNumero(progresoRango.faltante)} XP`}</span>
         <span class="route-bonus">EXP ${escaparHtml(bonus.expTexto)} | Monedas ${escaparHtml(bonus.monedasTexto)}</span>
+        ${desbloqueado ? renderPreviewFondoRango(rango, rangos) : ''}
         <span class="route-progress"><span style="width:${progresoRango.porcentaje}%"></span></span>
         <div class="route-actions">
           <span class="route-state">${estado}</span>
@@ -206,6 +258,7 @@ async function cargarRuta() {
   const rangos = obtenerRangosDesdeNivel(1)
   const progreso = await obtenerProgresoNivel(usuario)
   const rangoEquipado = await sincronizarRangoEquipado(usuario, rangos)
+  fondoEquipadoActual = await obtenerCosmeticoEquipado(usuario, 'fondo')
   renderRuta(progreso, rangos, rangoEquipado || leerRangoEquipado(usuario))
 
   if (refreshEl) refreshEl.disabled = false
@@ -227,6 +280,14 @@ roadEl?.addEventListener('click', async (event) => {
   button.textContent = action === 'unequip' ? 'Desequipando...' : 'Equipando...'
 
   const guardable = crearRangoGuardable(rango, rangos)
+  const resultadoFondo = await equiparFondoDeRango(rango, action, rangos)
+  if (!resultadoFondo?.ok) {
+    console.warn('No se pudo equipar fondo desde ruta standalone', resultadoFondo?.error)
+    button.disabled = false
+    button.textContent = action === 'unequip' ? 'Desequipar' : 'Reintentar'
+    return
+  }
+
   guardarRangoEquipado(usuario, guardable)
   await guardarRangoEquipadoRemoto(usuario, guardable)
   renderRuta(progreso, rangos, guardable)

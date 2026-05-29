@@ -1,4 +1,9 @@
 import { obtenerCosmeticoEquipado } from "./tienda.js"
+import {
+  aplicarFondoCosmetico as aplicarFondoCosmeticoReal,
+  instalarEstilosFondosCosmeticos,
+  limpiarFondoCosmetico,
+} from "./fondos-cosmeticos.js"
 
 const solicitudesPersonalizacion = new WeakMap()
 
@@ -33,12 +38,13 @@ export async function aplicarPersonalizacionUsuario(elemento, usuario) {
 }
 
 export function instalarEstilosPersonalizacion() {
+  instalarEstilosFondosCosmeticos()
   if (document.querySelector("[data-personalizacion-visual]")) return
   const style = document.createElement("style")
   style.dataset.personalizacionVisual = "true"
   style.textContent = `
     .cosmetic-card{ position:relative; overflow:hidden; }
-    .cosmetic-card::after{
+    .cosmetic-card:not(.hero):not(.season-pass)::after{
       content:"";
       position:absolute;
       inset:0;
@@ -54,32 +60,14 @@ export function instalarEstilosPersonalizacion() {
     .rarity-legendario{ background-image:linear-gradient(135deg, rgba(250,204,21,0.28), transparent); }
     .rarity-mitico{ background-image:linear-gradient(135deg, rgba(244,63,94,0.24), rgba(20,184,166,0.16)); }
     .perfil-fondo-equipado{
-      background-image:
-        radial-gradient(circle at 16% 14%, hsl(var(--cosmetic-hue, 204) 92% 58% / 0.28), transparent 34%),
-        radial-gradient(circle at 82% 20%, hsl(var(--cosmetic-accent, 280) 92% 62% / 0.18), transparent 32%),
-        linear-gradient(135deg, hsl(var(--cosmetic-hue, 204) 64% 18% / 0.9), rgba(2,6,23,0.96) 58%, hsl(var(--cosmetic-accent, 280) 70% 14% / 0.82));
+      isolation:isolate;
       box-shadow:
         0 22px 60px rgba(0,0,0,0.42),
-        0 0 calc(var(--cosmetic-glow, 28) * 1px) hsl(var(--cosmetic-hue, 204) 92% 58% / 0.16),
+        0 0 calc(var(--cosmetic-glow, 28) * 1px) hsl(var(--fondo-accent, 190) 92% 58% / 0.16),
         inset 0 1px 0 rgba(255,255,255,0.08);
     }
-    .hero.profile-card.perfil-fondo-equipado,
-    .hero.profile-card.perfil-fondo-equipado[data-rank-tier],
-    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="advanced-"],
-    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="entity-"],
-    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="rupture-"],
-    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="lawless-"],
-    .hero.profile-card.perfil-fondo-equipado[data-rank-tier^="final-"]{
-      background:
-        radial-gradient(circle at 16% 14%, hsl(var(--cosmetic-hue, 204) 92% 58% / 0.28), transparent 34%),
-        radial-gradient(circle at 82% 20%, hsl(var(--cosmetic-accent, 280) 92% 62% / 0.18), transparent 32%),
-        linear-gradient(135deg, hsl(var(--cosmetic-hue, 204) 64% 18% / 0.9), rgba(2,6,23,0.96) 58%, hsl(var(--cosmetic-accent, 280) 70% 14% / 0.82));
-    }
     .season-pass.perfil-fondo-equipado{
-      background:
-        radial-gradient(circle at 16% 14%, hsl(var(--cosmetic-hue, 204) 92% 58% / 0.28), transparent 34%),
-        radial-gradient(circle at 82% 20%, hsl(var(--cosmetic-accent, 280) 92% 62% / 0.18), transparent 32%),
-        linear-gradient(135deg, hsl(var(--cosmetic-hue, 204) 64% 18% / 0.9), rgba(2,6,23,0.96) 58%, hsl(var(--cosmetic-accent, 280) 70% 14% / 0.82)) !important;
+      background:linear-gradient(145deg, rgba(2,6,23,0.82), rgba(15,23,42,0.94)) !important;
     }
     .perfil-marco-equipado{
       border-color:hsl(var(--cosmetic-marco-hue, 204) 92% 62% / 0.48) !important;
@@ -93,6 +81,7 @@ export function instalarEstilosPersonalizacion() {
 }
 
 function limpiarPersonalizacion(elemento) {
+  limpiarFondoCosmetico(elemento)
   elemento.classList.remove(
     "cosmetic-card",
     "perfil-fondo-equipado",
@@ -116,11 +105,9 @@ function limpiarPersonalizacion(elemento) {
 }
 
 function aplicarFondoCosmetico(elemento, cosmetico) {
-  const fondo = cosmetico?.diseno?.fondo || {}
   const brillo = Number(cosmetico?.diseno?.brillo || 5)
-  elemento.classList.add("perfil-fondo-equipado")
-  elemento.style.setProperty("--cosmetic-hue", String(fondo.hue || 204))
-  elemento.style.setProperty("--cosmetic-accent", String(fondo.accent || 280))
+  const contexto = elemento.classList.contains("season-pass") ? "panel" : "perfil"
+  aplicarFondoCosmeticoReal(elemento, cosmetico, contexto)
   elemento.style.setProperty("--cosmetic-glow", String(18 + brillo * 3))
 }
 
