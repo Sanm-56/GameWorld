@@ -2,6 +2,7 @@ import { supabase } from './supabase.js'
 import { safeAlert } from './mensajes.js'
 import {
   COSMETICOS,
+  ORDEN_RAREZAS_TIENDA,
   RECOMPENSAS_MONEDAS,
   activarBoosterInventario,
   desequiparCosmetico,
@@ -11,6 +12,7 @@ import {
   obtenerHistorialMonedas,
   obtenerCosmeticoEquipado,
   obtenerMonedas,
+  rarezaEtiqueta,
   sincronizarMonedasUsuario,
 } from './tienda.js'
 import {
@@ -145,6 +147,7 @@ const inventoryCloseEl = document.getElementById('inventoryClose')
 const inventoryListEl = document.getElementById('inventoryList')
 const inventoryStatusEl = document.getElementById('inventoryStatus')
 const inventorySubtabsEl = document.getElementById('inventorySubtabs')
+const inventoryRarityTabsEl = document.getElementById('inventoryRarityTabs')
 const inventoryTabs = [...document.querySelectorAll('[data-inventory-tab]')]
 const CHAT_GLOBAL_TABLA = 'chat_global'
 const CHAT_PRIVADO_TABLA = 'chat_privado'
@@ -164,6 +167,7 @@ let inventarioActual = { boosters: [], cosmeticos: [] }
 let inventarioTabActiva = 'boosters'
 let inventarioBoosterGrupoActivo = 'xp'
 let inventarioCosmeticoGrupoActivo = 'fondo'
+let inventarioRarezaCosmeticoActiva = 'todas'
 
 const RANGOS_VISUALES = {
   novato: { tier: 'novato', emblem: 'NV', motif: 'stars', era: 'astral', material: 'space-glass', density: 'minimal', geometry: 'particles' },
@@ -1302,6 +1306,7 @@ function renderInventario() {
   if (!inventoryListEl) return
   asegurarGrupoInventarioActivo()
   renderSubtabsInventario()
+  renderRarezasInventario()
   if (inventarioTabActiva === 'cosmeticos') {
     renderInventarioCosmeticos()
     return
@@ -1320,6 +1325,12 @@ function asegurarGrupoInventarioActivo() {
   if (contarBoostersInventario(inventarioBoosterGrupoActivo) > 0) return
   const primeroDisponible = ['xp', 'monedas'].find((tipo) => contarBoostersInventario(tipo) > 0)
   if (primeroDisponible) inventarioBoosterGrupoActivo = primeroDisponible
+}
+
+function asegurarRarezaInventarioActiva() {
+  if (inventarioRarezaCosmeticoActiva === 'todas') return
+  const disponibles = obtenerRarezasCosmeticosInventario(inventarioCosmeticoGrupoActivo)
+  if (!disponibles.includes(inventarioRarezaCosmeticoActiva)) inventarioRarezaCosmeticoActiva = 'todas'
 }
 
 function renderSubtabsInventario() {
@@ -1347,9 +1358,46 @@ function renderSubtabsInventario() {
     button.addEventListener('click', () => {
       if (inventarioTabActiva === 'cosmeticos') {
         inventarioCosmeticoGrupoActivo = button.dataset.inventoryGroup || 'fondo'
+        asegurarRarezaInventarioActiva()
       } else {
         inventarioBoosterGrupoActivo = button.dataset.inventoryGroup || 'xp'
       }
+      renderInventario()
+    })
+  })
+}
+
+function renderRarezasInventario() {
+  if (!inventoryRarityTabsEl) return
+
+  if (inventarioTabActiva !== 'cosmeticos') {
+    inventoryRarityTabsEl.hidden = true
+    inventoryRarityTabsEl.innerHTML = ''
+    return
+  }
+
+  asegurarRarezaInventarioActiva()
+  const rarezas = obtenerRarezasCosmeticosInventario(inventarioCosmeticoGrupoActivo)
+  const total = contarCosmeticosInventario(inventarioCosmeticoGrupoActivo)
+  const opciones = [
+    { id: 'todas', label: 'Todas', count: total },
+    ...rarezas.map((rareza) => ({
+      id: rareza,
+      label: rarezaEtiqueta(rareza),
+      count: contarCosmeticosInventarioPorRareza(inventarioCosmeticoGrupoActivo, rareza),
+    })),
+  ]
+
+  inventoryRarityTabsEl.hidden = false
+  inventoryRarityTabsEl.innerHTML = opciones.map((opcion) => `
+    <button class="${opcion.id === inventarioRarezaCosmeticoActiva ? 'active' : ''}" type="button" data-inventory-rarity="${escaparHtml(opcion.id)}" role="tab" aria-selected="${opcion.id === inventarioRarezaCosmeticoActiva ? 'true' : 'false'}" aria-controls="inventoryList">
+      ${escaparHtml(opcion.label)} (${opcion.count})
+    </button>
+  `).join('')
+
+  inventoryRarityTabsEl.querySelectorAll('[data-inventory-rarity]').forEach((button) => {
+    button.addEventListener('click', () => {
+      inventarioRarezaCosmeticoActiva = button.dataset.inventoryRarity || 'todas'
       renderInventario()
     })
   })
@@ -1390,8 +1438,10 @@ function renderInventarioBoosters() {
 function renderInventarioCosmeticos() {
   const cosmeticos = (inventarioActual.cosmeticos || [])
     .filter((item) => item.tipo === inventarioCosmeticoGrupoActivo)
+    .filter((item) => inventarioRarezaCosmeticoActiva === 'todas' || rarezaCosmeticoInventario(item) === inventarioRarezaCosmeticoActiva)
   if (!cosmeticos.length) {
-    inventoryListEl.innerHTML = `<div class="inventory-empty">No tienes ${etiquetaGrupoCosmeticoInventario(inventarioCosmeticoGrupoActivo).toLowerCase()} comprados.</div>`
+    const detalleRareza = inventarioRarezaCosmeticoActiva === 'todas' ? '' : ` de rareza ${rarezaEtiqueta(inventarioRarezaCosmeticoActiva)}`
+    inventoryListEl.innerHTML = `<div class="inventory-empty">No tienes ${etiquetaGrupoCosmeticoInventario(inventarioCosmeticoGrupoActivo).toLowerCase()}${detalleRareza} comprados.</div>`
     return
   }
 
@@ -1420,6 +1470,28 @@ function contarBoostersInventario(tipo) {
 
 function contarCosmeticosInventario(tipo) {
   return (inventarioActual.cosmeticos || []).filter((item) => item.tipo === tipo).length
+}
+
+function contarCosmeticosInventarioPorRareza(tipo, rareza) {
+  return (inventarioActual.cosmeticos || [])
+    .filter((item) => item.tipo === tipo && rarezaCosmeticoInventario(item) === rareza)
+    .length
+}
+
+function obtenerRarezasCosmeticosInventario(tipo) {
+  const disponibles = new Set(
+    (inventarioActual.cosmeticos || [])
+      .filter((item) => item.tipo === tipo)
+      .map(rarezaCosmeticoInventario)
+  )
+  return [
+    ...ORDEN_RAREZAS_TIENDA.filter((rareza) => disponibles.has(rareza)),
+    ...[...disponibles].filter((rareza) => !ORDEN_RAREZAS_TIENDA.includes(rareza)).sort(),
+  ]
+}
+
+function rarezaCosmeticoInventario(item) {
+  return item?.rareza_visual || item?.rareza || 'Normal'
 }
 
 function etiquetaGrupoCosmeticoInventario(tipo) {
