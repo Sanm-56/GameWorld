@@ -2711,6 +2711,7 @@ setValueAdmin("storeProductDescription", producto.descripcion || "")
 setValueAdmin("storeProductCoins", producto.precio_monedas ?? 0)
 setValueAdmin("storeProductReal", producto.precio_real || "")
 setValueAdmin("storeProductMetadata", JSON.stringify(producto.metadata || {}))
+rellenarVisualProductoAdmin(producto.metadata?.visual || {})
 setToggleAdmin("storeProductActiveBtn", producto.activo, "Activo", "Inactivo")
 setToggleAdmin("storeProductSellableBtn", producto.vendible, "Vendible", "No vendible")
 setToggleAdmin("storeProductPermanentBtn", producto.permanente, "Permanente", "Rotativo")
@@ -2726,6 +2727,7 @@ setValueAdmin("storeProductDescription", "")
 setValueAdmin("storeProductCoins", 2500)
 setValueAdmin("storeProductReal", "$0.99")
 setValueAdmin("storeProductMetadata", "{}")
+rellenarVisualProductoAdmin({})
 setToggleAdmin("storeProductActiveBtn", true, "Activo", "Inactivo")
 setToggleAdmin("storeProductSellableBtn", true, "Vendible", "No vendible")
 setToggleAdmin("storeProductPermanentBtn", false, "Permanente", "Rotativo")
@@ -2740,6 +2742,7 @@ metadata = metadataTexto.trim() ? JSON.parse(metadataTexto) : {}
 safeAlert("Metadata debe ser JSON valido.")
 return
 }
+metadata = aplicarVisualProductoAdmin(metadata)
 const tipoProducto = document.getElementById("storeProductType")?.value || "cosmetico"
 if(["booster_xp", "booster_monedas"].includes(tipoProducto)){
 const multiplicador = Number(metadata.multiplicador)
@@ -2818,6 +2821,42 @@ await cargarProductosTiendaAdmin()
 function setValueAdmin(id, value){
 const el = document.getElementById(id)
 if(el) el.value = value
+}
+
+function rellenarVisualProductoAdmin(visual = {}){
+setValueAdmin("storeVisualPattern", visual.patron || "")
+setValueAdmin("storeVisualHue", visual.hue ?? "")
+setValueAdmin("storeVisualAccent", visual.accent ?? "")
+setValueAdmin("storeVisualBrightness", visual.brillo ?? "")
+setValueAdmin("storeVisualDepth", visual.profundidad ?? "")
+}
+
+function aplicarVisualProductoAdmin(metadata){
+const visual = {}
+const patron = document.getElementById("storeVisualPattern")?.value || ""
+const hue = leerNumeroVisualAdmin("storeVisualHue", 0, 360)
+const accent = leerNumeroVisualAdmin("storeVisualAccent", 0, 360)
+const brillo = leerNumeroVisualAdmin("storeVisualBrightness", 1, 10)
+const profundidad = leerNumeroVisualAdmin("storeVisualDepth", 1, 100)
+if(patron) visual.patron = patron
+if(hue !== null) visual.hue = hue
+if(accent !== null) visual.accent = accent
+if(brillo !== null) visual.brillo = brillo
+if(profundidad !== null) visual.profundidad = profundidad
+if(Object.keys(visual).length){
+return { ...metadata, visual }
+}
+const limpio = { ...metadata }
+delete limpio.visual
+return limpio
+}
+
+function leerNumeroVisualAdmin(id, min, max){
+const valor = document.getElementById(id)?.value
+if(valor === "" || valor === null || valor === undefined) return null
+const numero = Number(valor)
+if(!Number.isFinite(numero)) return null
+return Math.max(min, Math.min(max, numero))
 }
 
 function getToggleAdmin(id){

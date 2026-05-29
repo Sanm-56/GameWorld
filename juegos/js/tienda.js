@@ -1194,6 +1194,7 @@ function crearCosmeticoCatalogoGenerico(slug, datos = {}) {
 
 function aplicarDatosCatalogoCosmetico(base, datos = null) {
   if (!datos) return base
+  const metadata = datos.metadata || base.metadata
   return {
     ...base,
     nombre: datos.nombre || base.nombre,
@@ -1202,7 +1203,66 @@ function aplicarDatosCatalogoCosmetico(base, datos = null) {
     precio: Number(datos.precio ?? datos.precio_monedas ?? base.precio ?? 0),
     precioReal: datos.precioReal || datos.precio_real || base.precioReal,
     etiqueta: datos.etiqueta || base.etiqueta,
-    metadata: datos.metadata || base.metadata,
+    metadata,
+    diseno: aplicarVisualCatalogo(base.diseno, base.tipo || datos.familia || datos.tipo, metadata),
+  }
+}
+
+function aplicarVisualCatalogo(disenoBase, tipo, metadata = {}) {
+  const visual = metadata?.visual && typeof metadata.visual === "object" ? metadata.visual : null
+  if (!visual) return disenoBase
+
+  const diseno = clonarJson(disenoBase || { patron: "catalogo", brillo: 1 })
+  const numero = (valor, min, max) => {
+    const limpio = Number(valor)
+    if (!Number.isFinite(limpio)) return null
+    return Math.max(min, Math.min(max, limpio))
+  }
+
+  if (visual.patron) diseno.patron = String(visual.patron)
+  if (numero(visual.brillo, 1, 10) !== null) diseno.brillo = numero(visual.brillo, 1, 10)
+
+  const rama = tipo === "fondo" ? diseno.fondo : tipo === "id" ? diseno.id : tipo === "marco" ? diseno.marco : null
+  if (rama) {
+    const hue = numero(visual.hue, 0, 360)
+    const accent = numero(visual.accent, 0, 360)
+    const luz = numero(visual.luz, 1, 100)
+    const profundidad = numero(visual.profundidad, 1, 100)
+    if (hue !== null) rama.hue = hue
+    if (accent !== null) rama.accent = accent
+    if (luz !== null) rama.luz = luz
+    if (profundidad !== null) rama.profundidad = profundidad
+  }
+
+  if (tipo === "fondo" && diseno.fondo) {
+    const layout = numero(visual.layout, 0, 24)
+    const textura = numero(visual.textura, 0, 24)
+    if (layout !== null) diseno.fondo.layout = Math.trunc(layout)
+    if (textura !== null) diseno.fondo.textura = Math.trunc(textura)
+  }
+
+  if (tipo === "id" && diseno.id) {
+    const silueta = numero(visual.silueta, 0, 40)
+    const forma = numero(visual.forma, 0, 40)
+    if (silueta !== null) diseno.id.silueta = Math.trunc(silueta)
+    if (forma !== null) diseno.id.forma = Math.trunc(forma)
+  }
+
+  if (tipo === "marco" && diseno.marco) {
+    const estructura = numero(visual.estructura, 0, 40)
+    const borde = numero(visual.borde, 0, 40)
+    if (estructura !== null) diseno.marco.estructura = Math.trunc(estructura)
+    if (borde !== null) diseno.marco.borde = Math.trunc(borde)
+  }
+
+  return diseno
+}
+
+function clonarJson(valor) {
+  try {
+    return JSON.parse(JSON.stringify(valor || {}))
+  } catch {
+    return {}
   }
 }
 

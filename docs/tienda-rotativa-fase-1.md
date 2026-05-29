@@ -182,3 +182,32 @@ El panel admin incluye una seccion de catalogo y rotaciones para:
 - generar catalogo masivo.
 
 Los boosters creados desde admin requieren metadata valida (`multiplicador` y `duracion_ms`) tanto en frontend como en RPC, para evitar productos que aparezcan en tienda pero fallen al comprarse.
+
+### Metadata visual
+
+Los cosmeticos pueden guardar overrides visuales en `metadata.visual`. El frontend mantiene el diseno automatico como base y aplica estos valores encima:
+
+```json
+{
+  "visual": {
+    "patron": "pulso",
+    "hue": 280,
+    "accent": 340,
+    "brillo": 8,
+    "profundidad": 72
+  }
+}
+```
+
+Campos soportados:
+
+- `patron`: `lineas`, `pulso`, `anillo`, `fragmentos`, `halo`
+- `hue`: color principal de 0 a 360
+- `accent`: color de acento de 0 a 360
+- `brillo`: intensidad de 1 a 10
+- `profundidad`: profundidad visual de 1 a 100
+- `layout` y `textura` para fondos
+- `silueta` y `forma` para IDs
+- `estructura` y `borde` para marcos
+
+El panel admin expone los controles principales y sigue permitiendo editar el JSON manualmente para casos avanzados.

@@ -1448,6 +1448,37 @@ th:last-child{
             <button type="button" class="ghost" id="storeProductPermanentBtn" data-toggle-value="false">Rotativo</button>
           </div>
           <label>
+            Patron visual
+            <select id="storeVisualPattern">
+              <option value="">Automatico</option>
+              <option value="lineas">Lineas</option>
+              <option value="pulso">Pulso</option>
+              <option value="anillo">Anillos</option>
+              <option value="fragmentos">Fragmentos</option>
+              <option value="halo">Halo</option>
+            </select>
+          </label>
+          <div class="control-row">
+            <label>
+              Hue principal
+              <input id="storeVisualHue" type="number" min="0" max="360" step="1" placeholder="Auto">
+            </label>
+            <label>
+              Hue acento
+              <input id="storeVisualAccent" type="number" min="0" max="360" step="1" placeholder="Auto">
+            </label>
+          </div>
+          <div class="control-row">
+            <label>
+              Brillo
+              <input id="storeVisualBrightness" type="number" min="1" max="10" step="1" placeholder="Auto">
+            </label>
+            <label>
+              Profundidad
+              <input id="storeVisualDepth" type="number" min="1" max="100" step="1" placeholder="Auto">
+            </label>
+          </div>
+          <label>
             Metadata JSON
             <input id="storeProductMetadata" type="text" placeholder='{"visual":"auto"}'>
           </label>
