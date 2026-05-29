@@ -897,11 +897,18 @@ create table if not exists public.usuario_cosmeticos (
   usuario_id text not null,
   cosmetico_id text not null,
   tipo text not null check (tipo in ('fondo', 'tarjeta', 'id', 'marco', 'efecto')),
-  rareza text not null check (rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico')),
+  rareza text not null check (rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido')),
   equipado boolean not null default true,
   created_at timestamptz not null default now(),
   unique (usuario_id, cosmetico_id)
 );
+
+alter table public.usuario_cosmeticos
+drop constraint if exists usuario_cosmeticos_rareza_check;
+
+alter table public.usuario_cosmeticos
+add constraint usuario_cosmeticos_rareza_check
+check (rareza in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido'));
 
 create index if not exists usuario_cosmeticos_equipados_idx
 on public.usuario_cosmeticos (usuario_id, equipado, created_at desc);
@@ -1257,8 +1264,8 @@ begin
       return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido');
     end if;
 
-    rareza_remota := case when p_item_rareza = 'Prohibido' then 'Mitico' else coalesce(nullif(p_item_rareza, ''), 'Normal') end;
-    if rareza_remota not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico') then
+    rareza_remota := coalesce(nullif(p_item_rareza, ''), 'Normal');
+    if rareza_remota not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido') then
       rareza_remota := 'Normal';
     end if;
 
@@ -1418,7 +1425,7 @@ begin
       end
     end;
 
-    rareza_remota := case when cosmetico_rareza = 'Prohibido' then 'Mitico' else cosmetico_rareza end;
+    rareza_remota := cosmetico_rareza;
   end if;
 
   if precio is null or precio <= 0 then
@@ -1746,7 +1753,7 @@ begin
     when cosmetico_numero <= 85 then 'Mitico'
     else 'Prohibido'
   end;
-  rareza_remota := case when cosmetico_rareza = 'Prohibido' then 'Mitico' else cosmetico_rareza end;
+  rareza_remota := cosmetico_rareza;
 
   select exists (
     select 1
