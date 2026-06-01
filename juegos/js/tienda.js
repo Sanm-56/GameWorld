@@ -100,6 +100,21 @@ const PRECIOS_COSMETICOS = {
   },
 }
 
+export const TIPOS_SKIN_CRICKET = ["bate_cricket", "pelota_cricket"]
+
+const SKINS_CRICKET = [
+  crearSkinCricket("pelota_cricket", "clasica", "Pelota Cricket Clasica", "Pelota roja pulida con costura tradicional.", "Normal", "pelota-clasica.webp"),
+  crearSkinCricket("pelota_cricket", "fuego", "Pelota Cricket Fuego", "Pelota encendida con un nucleo ardiente.", "Raro", "pelota-fuego.webp"),
+  crearSkinCricket("pelota_cricket", "hielo", "Pelota Cricket Hielo", "Pelota cristalina cubierta por energia helada.", "Epico", "pelota-hielo.webp"),
+  crearSkinCricket("pelota_cricket", "futurista", "Pelota Cricket Futurista", "Pelota neon azul y violeta de circuito competitivo.", "Epico", "pelota-futurista.webp"),
+  crearSkinCricket("pelota_cricket", "dorada", "Pelota Cricket Dorada", "Pelota dorada reservada para golpes memorables.", "Legendario", "pelota-dorada.webp"),
+  crearSkinCricket("bate_cricket", "clasico", "Bate Cricket Clasico", "Bate de madera pulida con acabado tradicional.", "Normal", "bate-clasico.webp"),
+  crearSkinCricket("bate_cricket", "fuego", "Bate Cricket Fuego", "Bate forjado con una hoja ardiente.", "Raro", "bate-fuego.webp"),
+  crearSkinCricket("bate_cricket", "hielo", "Bate Cricket Hielo", "Bate cristalino atravesado por energia helada.", "Epico", "bate-hielo.webp"),
+  crearSkinCricket("bate_cricket", "futurista", "Bate Cricket Futurista", "Bate neon azul y violeta de tecnologia avanzada.", "Epico", "bate-futurista.webp"),
+  crearSkinCricket("bate_cricket", "dorado", "Bate Cricket Dorado", "Bate legendario cubierto por energia solar.", "Legendario", "bate-dorado.webp"),
+]
+
 const NUCLEOS_NOMBRE = [
   "Fragmento de Nyx", "Corona del Vacio", "Ecos de Helion", "Ojo Carmesi", "Trono Astral",
   "Abismo de Ether", "Sello de Valkor", "Horizonte Umbrio", "Ultima Constelacion", "Cenizas del Eclipse",
@@ -492,6 +507,7 @@ export const COSMETICOS = [
   ...generarCosmeticos("fondo", 100),
   ...generarCosmeticos("id", 100),
   ...generarCosmeticos("marco", 100),
+  ...SKINS_CRICKET,
 ]
 
 export async function obtenerCatalogoTiendaRotativa() {
@@ -570,7 +586,7 @@ function normalizarProductoRotacion(row) {
     id,
     tipoProducto,
     tipo,
-    categoria: base.categoria || (tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos"),
+    categoria: base.categoria || categoriaCosmetico(tipo),
     nombre: base.nombre || row.nombre || id,
     descripcion: base.descripcion || row.descripcion || "Cosmetico de tienda.",
     rareza: row.rareza || base.rareza || "Normal",
@@ -1148,7 +1164,7 @@ export function resolverCosmeticoCatalogo(id, datos = null) {
 
   const matchNuevo = slug.match(/^(fondo|id|marco)_(normal|raro|epico|legendario|mitico|prohibido)_(\d{3})$/)
   if (!matchNuevo) {
-    return datos?.tipoProducto === "cosmetico" || datos?.tipo === "cosmetico" || ["fondo", "id", "marco"].includes(datos?.tipo) || ["fondo", "id", "marco"].includes(datos?.familia)
+    return datos?.tipoProducto === "cosmetico" || datos?.tipo === "cosmetico" || ["fondo", "id", "marco", ...TIPOS_SKIN_CRICKET].includes(datos?.tipo) || ["fondo", "id", "marco", ...TIPOS_SKIN_CRICKET].includes(datos?.familia)
       ? crearCosmeticoCatalogoGenerico(slug, datos)
       : null
   }
@@ -1168,7 +1184,7 @@ export function resolverCosmeticoCatalogo(id, datos = null) {
   return aplicarDatosCatalogoCosmetico({
     id: slug,
     tipo,
-    categoria: tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos",
+    categoria: categoriaCosmetico(tipo),
     nombre: forma.replace("{base}", baseNombre),
     descripcion: descripcionCosmetico(tipo, rareza, index, diseno),
     rareza,
@@ -1179,6 +1195,36 @@ export function resolverCosmeticoCatalogo(id, datos = null) {
   }, datos)
 }
 
+export function esSkinCricket(cosmetico) {
+  return TIPOS_SKIN_CRICKET.includes(String(cosmetico?.tipo || cosmetico?.familia || "").trim().toLowerCase())
+}
+
+export function obtenerAssetSkinCricket(cosmetico) {
+  if (!esSkinCricket(cosmetico)) return ""
+  return String(cosmetico?.metadata?.asset_url || cosmetico?.assetUrl || "").trim()
+}
+
+function crearSkinCricket(tipo, variante, nombre, descripcion, rareza, archivo) {
+  const precio = precioCosmetico(tipo, rareza)
+  return {
+    id: `${tipo}_${variante}`,
+    tipo,
+    categoria: tipo === "bate_cricket" ? "Bates Cricket" : "Pelotas Cricket",
+    nombre,
+    descripcion,
+    rareza,
+    precio: precio.monedas,
+    precioReal: precio.real,
+    etiqueta: precio.etiqueta,
+    diseno: { patron: variante, brillo: rareza === "Legendario" ? 8 : rareza === "Epico" ? 6 : rareza === "Raro" ? 4 : 2 },
+    metadata: {
+      cosmetico_clave: `${tipo}:${variante}`,
+      asset_url: `juegos/cricketarcade/imag/optimizadas/${archivo}`,
+      catalogo_origen: "CRICKET_SKINS",
+    },
+  }
+}
+
 function crearCosmeticoCatalogoGenerico(slug, datos = {}) {
   const tipo = datos?.familia || datos?.tipo || "fondo"
   const rareza = datos?.rareza || "Normal"
@@ -1187,7 +1233,7 @@ function crearCosmeticoCatalogoGenerico(slug, datos = {}) {
   return aplicarDatosCatalogoCosmetico({
     id: slug,
     tipo,
-    categoria: tipo === "id" ? "IDs especiales" : tipo === "marco" ? "Marcos epicos" : "Fondos competitivos",
+    categoria: categoriaCosmetico(tipo),
     nombre: slug || "Cosmetico de catalogo",
     descripcion: "Cosmetico registrado en catalogo remoto.",
     rareza,
@@ -1196,6 +1242,14 @@ function crearCosmeticoCatalogoGenerico(slug, datos = {}) {
     etiqueta: precio.etiqueta,
     diseno,
   }, datos)
+}
+
+function categoriaCosmetico(tipo) {
+  if (tipo === "id") return "IDs especiales"
+  if (tipo === "marco") return "Marcos epicos"
+  if (tipo === "bate_cricket") return "Bates Cricket"
+  if (tipo === "pelota_cricket") return "Pelotas Cricket"
+  return "Fondos competitivos"
 }
 
 function aplicarDatosCatalogoCosmetico(base, datos = null) {
@@ -1645,7 +1699,8 @@ function crearDisenoCosmetico(tipo, rareza, index, intensidad) {
 }
 
 function precioCosmetico(tipo, rareza) {
-  return PRECIOS_COSMETICOS[tipo]?.[rareza] || {
+  const tipoPrecio = TIPOS_SKIN_CRICKET.includes(tipo) ? "id" : tipo
+  return PRECIOS_COSMETICOS[tipoPrecio]?.[rareza] || {
     monedas: RAREZAS_PREMIUM.find((item) => item.nombre === rareza)?.precio || 2000,
     real: "$0.79",
     etiqueta: "Popular",

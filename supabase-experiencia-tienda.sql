@@ -904,6 +904,13 @@ create table if not exists public.usuario_cosmeticos (
 );
 
 alter table public.usuario_cosmeticos
+drop constraint if exists usuario_cosmeticos_tipo_check;
+
+alter table public.usuario_cosmeticos
+add constraint usuario_cosmeticos_tipo_check
+check (tipo in ('fondo', 'tarjeta', 'id', 'marco', 'efecto', 'bate_cricket', 'pelota_cricket'));
+
+alter table public.usuario_cosmeticos
 drop constraint if exists usuario_cosmeticos_rareza_check;
 
 alter table public.usuario_cosmeticos
@@ -932,6 +939,13 @@ create table if not exists public.tienda_productos (
   constraint tienda_productos_slug_check check (slug ~ '^[a-z0-9][a-z0-9_-]*$')
 );
 
+alter table public.tienda_productos
+drop constraint if exists tienda_productos_familia_check;
+
+alter table public.tienda_productos
+add constraint tienda_productos_familia_check
+check (familia in ('fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket', 'xp', 'monedas', 'vip'));
+
 create index if not exists tienda_productos_visibles_idx
 on public.tienda_productos (activo, vendible, tipo, familia, rareza, slug);
 
@@ -951,6 +965,13 @@ create table if not exists public.tienda_rotaciones (
   updated_at timestamptz not null default now(),
   constraint tienda_rotaciones_ventana_check check (fin > inicio)
 );
+
+alter table public.tienda_rotaciones
+drop constraint if exists tienda_rotaciones_familia_check;
+
+alter table public.tienda_rotaciones
+add constraint tienda_rotaciones_familia_check
+check (familia in ('fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket', 'xp', 'monedas', 'vip'));
 
 create unique index if not exists tienda_rotaciones_activa_unica_idx
 on public.tienda_rotaciones (familia, (coalesce(rareza, '')))
@@ -1231,6 +1252,35 @@ select
     'slug_legacy', familia || '_' || lpad(numero::text, 3, '0')
   ) as metadata
 from cosmeticos_legacy
+on conflict (slug) do update
+set tipo = excluded.tipo,
+    familia = excluded.familia,
+    rareza = excluded.rareza,
+    nombre = excluded.nombre,
+    descripcion = excluded.descripcion,
+    precio_monedas = excluded.precio_monedas,
+    precio_real = excluded.precio_real,
+    activo = excluded.activo,
+    vendible = excluded.vendible,
+    permanente = excluded.permanente,
+    metadata = excluded.metadata,
+    updated_at = now();
+
+insert into public.tienda_productos (
+  slug, tipo, familia, rareza, nombre, descripcion, precio_monedas, precio_real,
+  activo, vendible, permanente, metadata
+)
+values
+  ('pelota_cricket_clasica', 'cosmetico', 'pelota_cricket', 'Normal', 'Pelota Cricket Clasica', 'Pelota roja pulida con costura tradicional.', 2000, '$0.79', true, true, false, '{"cosmetico_clave":"pelota_cricket:clasica","asset_url":"juegos/cricketarcade/imag/optimizadas/pelota-clasica.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('pelota_cricket_fuego', 'cosmetico', 'pelota_cricket', 'Raro', 'Pelota Cricket Fuego', 'Pelota encendida con un nucleo ardiente.', 5000, '$1.79', true, true, false, '{"cosmetico_clave":"pelota_cricket:fuego","asset_url":"juegos/cricketarcade/imag/optimizadas/pelota-fuego.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('pelota_cricket_hielo', 'cosmetico', 'pelota_cricket', 'Epico', 'Pelota Cricket Hielo', 'Pelota cristalina cubierta por energia helada.', 12000, '$4.49', true, true, false, '{"cosmetico_clave":"pelota_cricket:hielo","asset_url":"juegos/cricketarcade/imag/optimizadas/pelota-hielo.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('pelota_cricket_futurista', 'cosmetico', 'pelota_cricket', 'Epico', 'Pelota Cricket Futurista', 'Pelota neon azul y violeta de circuito competitivo.', 12000, '$4.49', true, true, false, '{"cosmetico_clave":"pelota_cricket:futurista","asset_url":"juegos/cricketarcade/imag/optimizadas/pelota-futurista.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('pelota_cricket_dorada', 'cosmetico', 'pelota_cricket', 'Legendario', 'Pelota Cricket Dorada', 'Pelota dorada reservada para golpes memorables.', 240000, '$71.92', true, true, false, '{"cosmetico_clave":"pelota_cricket:dorada","asset_url":"juegos/cricketarcade/imag/optimizadas/pelota-dorada.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('bate_cricket_clasico', 'cosmetico', 'bate_cricket', 'Normal', 'Bate Cricket Clasico', 'Bate de madera pulida con acabado tradicional.', 2000, '$0.79', true, true, false, '{"cosmetico_clave":"bate_cricket:clasico","asset_url":"juegos/cricketarcade/imag/optimizadas/bate-clasico.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('bate_cricket_fuego', 'cosmetico', 'bate_cricket', 'Raro', 'Bate Cricket Fuego', 'Bate forjado con una hoja ardiente.', 5000, '$1.79', true, true, false, '{"cosmetico_clave":"bate_cricket:fuego","asset_url":"juegos/cricketarcade/imag/optimizadas/bate-fuego.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('bate_cricket_hielo', 'cosmetico', 'bate_cricket', 'Epico', 'Bate Cricket Hielo', 'Bate cristalino atravesado por energia helada.', 12000, '$4.49', true, true, false, '{"cosmetico_clave":"bate_cricket:hielo","asset_url":"juegos/cricketarcade/imag/optimizadas/bate-hielo.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('bate_cricket_futurista', 'cosmetico', 'bate_cricket', 'Epico', 'Bate Cricket Futurista', 'Bate neon azul y violeta de tecnologia avanzada.', 12000, '$4.49', true, true, false, '{"cosmetico_clave":"bate_cricket:futurista","asset_url":"juegos/cricketarcade/imag/optimizadas/bate-futurista.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb),
+  ('bate_cricket_dorado', 'cosmetico', 'bate_cricket', 'Legendario', 'Bate Cricket Dorado', 'Bate legendario cubierto por energia solar.', 240000, '$71.92', true, true, false, '{"cosmetico_clave":"bate_cricket:dorado","asset_url":"juegos/cricketarcade/imag/optimizadas/bate-dorado.webp","catalogo_origen":"CRICKET_SKINS"}'::jsonb)
 on conflict (slug) do update
 set tipo = excluded.tipo,
     familia = excluded.familia,
@@ -1615,11 +1665,11 @@ begin
     return jsonb_build_object('ok', false, 'mensaje', 'Tipo invalido.');
   end if;
 
-  if familia_limpia not in ('fondo', 'id', 'marco', 'xp', 'monedas', 'vip') then
+  if familia_limpia not in ('fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket', 'xp', 'monedas', 'vip') then
     return jsonb_build_object('ok', false, 'mensaje', 'Familia invalida.');
   end if;
 
-  if tipo_limpio = 'cosmetico' and familia_limpia not in ('fondo', 'id', 'marco') then
+  if tipo_limpio = 'cosmetico' and familia_limpia not in ('fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket') then
     return jsonb_build_object('ok', false, 'mensaje', 'Familia cosmetica invalida.');
   end if;
 
@@ -1916,7 +1966,7 @@ create table if not exists public.admin_recompensas_historial (
   id bigint generated by default as identity primary key,
   usuario_id text not null,
   admin_id text not null default 'admin',
-  tipo text not null check (tipo in ('monedas', 'experiencia', 'booster_xp', 'booster_monedas', 'fondo', 'id', 'marco', 'especial')),
+  tipo text not null check (tipo in ('monedas', 'experiencia', 'booster_xp', 'booster_monedas', 'fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket', 'especial')),
   cantidad bigint,
   multiplicador numeric(3,1),
   fecha_inicio timestamptz,
@@ -1930,6 +1980,13 @@ create table if not exists public.admin_recompensas_historial (
   created_at timestamptz not null default now(),
   unique (dedupe_key)
 );
+
+alter table public.admin_recompensas_historial
+drop constraint if exists admin_recompensas_historial_tipo_check;
+
+alter table public.admin_recompensas_historial
+add constraint admin_recompensas_historial_tipo_check
+check (tipo in ('monedas', 'experiencia', 'booster_xp', 'booster_monedas', 'fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket', 'especial'));
 
 create index if not exists admin_recompensas_historial_fecha_idx
 on public.admin_recompensas_historial (created_at desc);
@@ -2121,7 +2178,7 @@ begin
     return jsonb_build_object('ok', false, 'mensaje', 'El usuario no existe');
   end if;
 
-  if tipo_limpio not in ('monedas', 'experiencia', 'booster_xp', 'booster_monedas', 'fondo', 'id', 'marco', 'especial') then
+  if tipo_limpio not in ('monedas', 'experiencia', 'booster_xp', 'booster_monedas', 'fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket', 'especial') then
     return jsonb_build_object('ok', false, 'mensaje', 'Tipo de recompensa invalido');
   end if;
 
@@ -2164,7 +2221,7 @@ begin
 
     insert into public.usuario_boosters (usuario_id, booster_id, multiplicador, fecha_inicio, fecha_fin, activo)
     values (usuario_limpio, booster_id, multiplicador_limpio, inicio, fin, true);
-  elsif tipo_limpio in ('fondo', 'id', 'marco') then
+  elsif tipo_limpio in ('fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket') then
     if coalesce(p_item_id, '') = '' or coalesce(p_item_tipo, '') <> tipo_limpio then
       return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido');
     end if;
@@ -2314,7 +2371,7 @@ begin
       cosmetico_tipo := producto_catalogo.familia;
       rareza_remota := producto_catalogo.rareza;
 
-      if cosmetico_tipo not in ('fondo', 'id', 'marco') or rareza_remota not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido') then
+      if cosmetico_tipo not in ('fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket') or rareza_remota not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido') then
         return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
       end if;
     end if;
@@ -2684,7 +2741,7 @@ begin
   end if;
 
   if accion_limpia = 'desequipar' then
-    if tipo_limpio not in ('fondo', 'id', 'marco') then
+    if tipo_limpio not in ('fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket') then
       return jsonb_build_object('ok', false, 'mensaje', 'Tipo de cosmetico invalido.');
     end if;
 
@@ -2711,7 +2768,7 @@ begin
     cosmetico_tipo := producto_catalogo.familia;
     rareza_remota := producto_catalogo.rareza;
 
-    if cosmetico_tipo not in ('fondo', 'id', 'marco') or rareza_remota not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido') then
+    if cosmetico_tipo not in ('fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket') or rareza_remota not in ('Normal', 'Raro', 'Epico', 'Legendario', 'Mitico', 'Prohibido') then
       return jsonb_build_object('ok', false, 'mensaje', 'Cosmetico invalido.');
     end if;
   else

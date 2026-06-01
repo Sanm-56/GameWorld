@@ -16,6 +16,7 @@ import {
 import { getArcadeGame } from "./arcade-games.js"
 import { adquirirCandadoJuego } from "./game-lock.js"
 import { completarCapituloHistoria } from "./historia-core.js"
+import { obtenerAssetSkinCricket, obtenerCosmeticoEquipado } from "./tienda.js"
 
 const MAX_ADVERTENCIAS = 3
 const CRICKET_HIT_ZONE = 21
@@ -79,6 +80,10 @@ const HISTORIA_ARCADE_OBJETIVOS = {
   subelamontana: 320,
   torreinfinita: 80,
 }
+const CRICKET_SKIN_FALLBACKS = {
+  bate_cricket: "bate-clasico.webp",
+  pelota_cricket: "pelota-clasica.webp",
+}
 
 if (!await validarAccesoJuego(supabase, gameKey)) await new Promise(() => {})
 
@@ -93,6 +98,9 @@ if (!candadoJuego.ok) {
   window.location.href = salidaTorneoUrl()
   await new Promise(() => {})
 }
+const cricketSkins = gameKey === "cricketarcade"
+  ? await cargarSkinsCricket()
+  : null
 
 const els = {
   title: document.getElementById("gameTitle"),
@@ -479,9 +487,10 @@ function renderTiming() {
       crease: makeEl("cricket-crease"),
       wicket: makeEl("cricket-wicket"),
       target: makeEl("target cricket-zone"),
-      bat: makeEl("bat cricket-bat", {}, "BAT"),
+      bat: makeEl("bat cricket-bat"),
       ball: makeEl("ball actor cricket-ball"),
     }
+    aplicarSkinsCricketEscena()
   }
 
   const cricket = state.cricket
@@ -492,6 +501,29 @@ function renderTiming() {
   cricketScene.ball.classList.toggle("hit", cricket.phase === "result" && cricket.result === "hit")
   cricketScene.ball.classList.toggle("missed", cricket.phase === "result" && cricket.result === "miss")
   cricketScene.bat.classList.toggle("swing", performance.now() - ultimoSwing < 150)
+}
+
+async function cargarSkinsCricket() {
+  const [bate, pelota] = await Promise.all([
+    obtenerCosmeticoEquipado(usuario, "bate_cricket"),
+    obtenerCosmeticoEquipado(usuario, "pelota_cricket"),
+  ])
+  return {
+    bate: resolverAssetSkinCricket(bate, CRICKET_SKIN_FALLBACKS.bate_cricket),
+    pelota: resolverAssetSkinCricket(pelota, CRICKET_SKIN_FALLBACKS.pelota_cricket),
+  }
+}
+
+function resolverAssetSkinCricket(cosmetico, fallback) {
+  const asset = obtenerAssetSkinCricket(cosmetico) || `juegos/cricketarcade/imag/optimizadas/${fallback}`
+  if (/^https?:\/\//i.test(asset)) return asset
+  return new URL(`../../${asset.replace(/^\/+/, "")}`, import.meta.url).href
+}
+
+function aplicarSkinsCricketEscena() {
+  if (!cricketScene || !cricketSkins) return
+  cricketScene.bat.style.backgroundImage = `url("${cricketSkins.bate}")`
+  cricketScene.ball.style.backgroundImage = `url("${cricketSkins.pelota}")`
 }
 
 function renderDodge() {

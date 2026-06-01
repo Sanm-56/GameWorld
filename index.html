@@ -1713,6 +1713,20 @@ h1{
   border:1px solid rgba(255,255,255,0.12);
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -22px 44px rgba(0,0,0,0.26);
 }
+.cricket-skin-preview{
+  display:grid;
+  place-items:center;
+}
+.cricket-skin-preview img{
+  width:min(88%,190px);
+  height:min(88%,190px);
+  object-fit:contain;
+  filter:drop-shadow(0 14px 16px rgba(0,0,0,.34));
+}
+.cricket-skin-preview-bate_cricket img{
+  width:min(80%,174px);
+  height:min(92%,202px);
+}
 
 .cosmetic-preview::before{
   content:"";
@@ -3805,6 +3819,8 @@ h1{
             <button class="active" type="button" data-cosmetic-tab="fondo">Fondos</button>
             <button type="button" data-cosmetic-tab="id">IDs</button>
             <button type="button" data-cosmetic-tab="marco">Marcos</button>
+            <button type="button" data-cosmetic-tab="bate_cricket">Bates Cricket</button>
+            <button type="button" data-cosmetic-tab="pelota_cricket">Pelotas Cricket</button>
           </div>
           <div class="rarity-tabs" role="tablist" aria-label="Rarezas de personalizacion">
             <button class="active" type="button" data-rarity-tab="Normal">Normal</button>

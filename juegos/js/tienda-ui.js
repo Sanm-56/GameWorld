@@ -8,12 +8,14 @@ import {
   comprarBoosterMonedas,
   comprarCosmetico,
   comprarMembresiaVip,
+  esSkinCricket,
   iniciarSincronizacionRecompensasUsuario,
   obtenerCatalogoTiendaRotativa,
   obtenerBoosterActivo,
   obtenerBoosterMonedasActivo,
   obtenerInventarioTienda,
   obtenerMonedas,
+  obtenerAssetSkinCricket,
   rarezaClase,
   rarezaEtiqueta,
   tiempoRestante,
@@ -286,6 +288,8 @@ function obtenerCategoriaActiva() {
     fondo: { tipo: "fondo", titulo: "Fondos", detalle: "Banners y atmosferas de perfil." },
     id: { tipo: "id", titulo: "IDs", detalle: "Identidades visuales para destacar tu nombre." },
     marco: { tipo: "marco", titulo: "Marcos", detalle: "Bordes competitivos para tarjetas y ranking." },
+    bate_cricket: { tipo: "bate_cricket", titulo: "Bates Cricket", detalle: "Skins visuales para tu bate de Cricket Arcade." },
+    pelota_cricket: { tipo: "pelota_cricket", titulo: "Pelotas Cricket", detalle: "Skins visuales para tu pelota de Cricket Arcade." },
   }[cosmeticTabActiva] || { tipo: "fondo", titulo: "Fondos", detalle: "Banners y atmosferas de perfil." }
 }
 
@@ -367,12 +371,7 @@ function renderCosmetico(item) {
   return `
     <article class="store-item store-cosmetic cosmetic-${escapeHtml(item.tipo)} rarity-${rarezaClase(item.rareza)}${vendido ? " sold" : ""}${clasesVisualesCosmetico(item)}"${estiloVisualCosmetico(item)}>
       ${vendido ? '<span class="store-badge sold-badge">VENDIDO</span>' : item.etiqueta ? `<span class="store-badge">${escapeHtml(item.etiqueta)}</span>` : ""}
-      <div class="cosmetic-preview" aria-hidden="true">
-        <div class="cosmetic-art">
-          <span class="cosmetic-art-code">${escapeHtml(siglaCategoria(item.tipo))}</span>
-          <span class="cosmetic-art-mark"></span>
-        </div>
-      </div>
+      ${renderPreviewCosmetico(item)}
       <div class="store-copy">
         <span class="store-kicker">${escapeHtml(item.categoria)}</span>
         <strong>${escapeHtml(item.nombre)}</strong>
@@ -390,6 +389,25 @@ function renderCosmetico(item) {
             </div>`}
       </div>
     </article>
+  `
+}
+
+function renderPreviewCosmetico(item) {
+  if (esSkinCricket(item)) {
+    return `
+      <div class="cosmetic-preview cricket-skin-preview cricket-skin-preview-${escapeHtml(item.tipo)}" aria-hidden="true">
+        <img src="${escapeHtml(obtenerAssetSkinCricket(item))}" alt="">
+      </div>
+    `
+  }
+
+  return `
+    <div class="cosmetic-preview" aria-hidden="true">
+      <div class="cosmetic-art">
+        <span class="cosmetic-art-code">${escapeHtml(siglaCategoria(item.tipo))}</span>
+        <span class="cosmetic-art-mark"></span>
+      </div>
+    </div>
   `
 }
 
@@ -418,6 +436,8 @@ function estiloVisualCosmetico(item) {
 function siglaCategoria(tipo) {
   if (tipo === "fondo") return "BG"
   if (tipo === "marco") return "MR"
+  if (tipo === "bate_cricket") return "BT"
+  if (tipo === "pelota_cricket") return "PL"
   return "ID"
 }
 

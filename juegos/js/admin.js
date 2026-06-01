@@ -70,8 +70,11 @@ const REWARD_TYPES = {
   fondo: "Fondo",
   id: "ID",
   marco: "Marco",
+  bate_cricket: "Bate Cricket",
+  pelota_cricket: "Pelota Cricket",
   especial: "Recompensa especial/evento",
 }
+const REWARD_COSMETIC_TYPES = ["fondo", "id", "marco", "bate_cricket", "pelota_cricket"]
 
 function escapeJsString(valor){
 return cleanText(valor)
@@ -2505,7 +2508,7 @@ function actualizarControlesRecompensaAdmin(){
 const tipo = document.getElementById("rewardTypeSelect")?.value || "monedas"
 const esMonto = tipo === "monedas" || tipo === "experiencia"
 const esBooster = tipo === "booster_xp" || tipo === "booster_monedas"
-const esCosmetico = ["fondo", "id", "marco"].includes(tipo)
+const esCosmetico = REWARD_COSMETIC_TYPES.includes(tipo)
 const esEspecial = tipo === "especial"
 const amount = document.getElementById("rewardAmountControls")
 const booster = document.getElementById("rewardBoosterControls")
@@ -2543,7 +2546,7 @@ if(["booster_xp", "booster_monedas"].includes(payload.tipo)){
 if(payload.multiplicador < 1.2 || payload.multiplicador > 3.5) return "El multiplicador debe estar entre x1.2 y x3.5."
 if(!["horas", "dias"].includes(payload.duracionTipo) || payload.duracionCantidad < 1 || payload.duracionCantidad > 365) return "La duracion debe ser valida."
 }
-if(["fondo", "id", "marco"].includes(payload.tipo) && (!payload.cosmetico || payload.cosmetico.tipo !== payload.tipo)) return "Selecciona un cosmetico valido."
+if(REWARD_COSMETIC_TYPES.includes(payload.tipo) && (!payload.cosmetico || payload.cosmetico.tipo !== payload.tipo)) return "Selecciona un cosmetico valido."
 if(payload.tipo === "especial" && !payload.especialNombre) return "Escribe un nombre para la recompensa especial."
 return ""
 }
@@ -2556,7 +2559,7 @@ if(payload.tipo === "booster_xp" || payload.tipo === "booster_monedas"){
 const ms = payload.duracionCantidad * (payload.duracionTipo === "dias" ? 86400000 : 3600000)
 return `${payload.usuario} recibira ${REWARD_TYPES[payload.tipo]} x${payload.multiplicador.toFixed(1)} por ${tiempoRestante(new Date(Date.now() + ms).toISOString())}.`
 }
-if(["fondo", "id", "marco"].includes(payload.tipo)) return `${payload.usuario} recibira ${payload.cosmetico?.nombre || "cosmetico"} permanentemente.`
+if(REWARD_COSMETIC_TYPES.includes(payload.tipo)) return `${payload.usuario} recibira ${payload.cosmetico?.nombre || "cosmetico"} permanentemente.`
 return `${payload.usuario} recibira ${payload.especialNombre}.`
 }
 

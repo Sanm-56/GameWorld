@@ -7,12 +7,14 @@ import {
   activarBoosterInventario,
   desequiparCosmetico,
   equiparCosmetico,
+  esSkinCricket,
   hidratarCosmeticosCatalogo,
   iniciarSincronizacionRecompensasUsuario,
   obtenerInventarioTienda,
   obtenerHistorialMonedas,
   obtenerCosmeticoEquipado,
   obtenerMonedas,
+  obtenerAssetSkinCricket,
   rarezaEtiqueta,
   sincronizarMonedasUsuario,
 } from './tienda.js'
@@ -165,7 +167,7 @@ let rangoEquipadoActual = 'Novato'
 let progresoNivelActual = null
 let recompensasCosmeticasRuta = []
 let fondoEquipadoActual = null
-let cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null }
+let cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null, bate_cricket: null, pelota_cricket: null }
 let chatGlobalCanal = null
 let chatPrivadoCanal = null
 let chatPrivadoDestino = ''
@@ -466,22 +468,24 @@ async function aplicarPersonalizacionPerfil() {
 
 async function refrescarCosmeticosEquipadosPerfil() {
   if (!usuario) {
-    cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null }
+    cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null, bate_cricket: null, pelota_cricket: null }
     fondoEquipadoActual = null
     return
   }
 
-  const [fondo, identificador, marco] = await Promise.all([
+  const [fondo, identificador, marco, bateCricket, pelotaCricket] = await Promise.all([
     obtenerCosmeticoEquipado(usuario, 'fondo'),
     obtenerCosmeticoEquipado(usuario, 'id'),
     obtenerCosmeticoEquipado(usuario, 'marco'),
+    obtenerCosmeticoEquipado(usuario, 'bate_cricket'),
+    obtenerCosmeticoEquipado(usuario, 'pelota_cricket'),
   ])
-  cosmeticosEquipadosActuales = { fondo, id: identificador, marco }
+  cosmeticosEquipadosActuales = { fondo, id: identificador, marco, bate_cricket: bateCricket, pelota_cricket: pelotaCricket }
   fondoEquipadoActual = fondo
 }
 
 function actualizarCosmeticoEquipadoLocal(tipo, cosmetico) {
-  if (!['fondo', 'id', 'marco'].includes(tipo)) return
+  if (!['fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket'].includes(tipo)) return
   cosmeticosEquipadosActuales = { ...cosmeticosEquipadosActuales, [tipo]: cosmetico || null }
   if (tipo === 'fondo') fondoEquipadoActual = cosmetico || null
   ;(inventarioActual.cosmeticos || []).forEach((item) => {
@@ -490,7 +494,7 @@ function actualizarCosmeticoEquipadoLocal(tipo, cosmetico) {
 }
 
 function sincronizarCosmeticosEquipadosDesdeInventario() {
-  const equipados = { fondo: null, id: null, marco: null }
+  const equipados = { fondo: null, id: null, marco: null, bate_cricket: null, pelota_cricket: null }
   ;(inventarioActual.cosmeticos || []).forEach((item) => {
     if (item.equipado && Object.hasOwn(equipados, item.tipo)) equipados[item.tipo] = item
   })
@@ -1361,7 +1365,7 @@ function renderInventario() {
 function asegurarGrupoInventarioActivo() {
   if (inventarioTabActiva === 'cosmeticos') {
     if (contarCosmeticosInventario(inventarioCosmeticoGrupoActivo) > 0) return
-    const primeroDisponible = ['fondo', 'id', 'marco'].find((tipo) => contarCosmeticosInventario(tipo) > 0)
+    const primeroDisponible = ['fondo', 'id', 'marco', 'bate_cricket', 'pelota_cricket'].find((tipo) => contarCosmeticosInventario(tipo) > 0)
     if (primeroDisponible) inventarioCosmeticoGrupoActivo = primeroDisponible
     return
   }
@@ -1385,6 +1389,8 @@ function renderSubtabsInventario() {
         { id: 'fondo', label: 'Fondos', count: contarCosmeticosInventario('fondo') },
         { id: 'id', label: 'IDs', count: contarCosmeticosInventario('id') },
         { id: 'marco', label: 'Marcos', count: contarCosmeticosInventario('marco') },
+        { id: 'bate_cricket', label: 'Bates Cricket', count: contarCosmeticosInventario('bate_cricket') },
+        { id: 'pelota_cricket', label: 'Pelotas Cricket', count: contarCosmeticosInventario('pelota_cricket') },
       ]
     : [
         { id: 'xp', label: 'EXP', count: contarBoostersInventario('xp') },
@@ -1541,6 +1547,8 @@ function rarezaCosmeticoInventario(item) {
 function etiquetaGrupoCosmeticoInventario(tipo) {
   if (tipo === 'fondo') return 'Fondos'
   if (tipo === 'marco') return 'Marcos'
+  if (tipo === 'bate_cricket') return 'Bates Cricket'
+  if (tipo === 'pelota_cricket') return 'Pelotas Cricket'
   return 'IDs'
 }
 
@@ -1616,12 +1624,17 @@ function formatearDuracionInventario(ms) {
 function siglaCosmeticoInventario(tipo) {
   if (tipo === 'fondo') return 'BG'
   if (tipo === 'marco') return 'MR'
+  if (tipo === 'bate_cricket') return 'BT'
+  if (tipo === 'pelota_cricket') return 'PL'
   return 'ID'
 }
 
 function renderPreviewCosmeticoInventario(item) {
   if (item?.tipo === 'fondo') return renderPreviewFondoCosmetico(item, 'compacto')
   if (item?.tipo === 'id' || item?.tipo === 'marco') return renderPreviewIdentidadCosmetico(item, 'compacto')
+  if (esSkinCricket(item)) {
+    return `<div class="inventory-mark inventory-cricket-skin inventory-cricket-skin-${escaparHtml(item.tipo)}"><img src="${escaparHtml(obtenerAssetSkinCricket(item))}" alt=""></div>`
+  }
   return `<div class="inventory-mark">${escaparHtml(siglaCosmeticoInventario(item?.tipo))}</div>`
 }
 
@@ -6340,7 +6353,7 @@ function obtenerRarezaLogro(gameKey, achievement) {
 
 async function renderProgresoNivel() {
   if (!usuario) {
-    cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null }
+    cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null, bate_cricket: null, pelota_cricket: null }
     fondoEquipadoActual = null
     nivelActualEl.innerText = '1'
     xpActualEl.innerText = '0 XP del nivel'

@@ -409,23 +409,27 @@ body[data-game="cricketarcade"] .stage::before{
   background:linear-gradient(90deg,transparent,rgba(250,204,21,.95),rgba(34,197,94,.78),transparent);
 }
 .cricket-bat{
-  left:9%;
-  bottom:18%;
-  display:grid;
-  place-items:center;
-  color:#422006;
-  font-size:10px;
-  font-weight:1000;
-  letter-spacing:.08em;
-  transform-origin:18% 50%;
+  left:3%;
+  bottom:12%;
+  width:112px;
+  height:136px;
+  border-radius:0;
+  background-color:transparent;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:contain;
+  transform-origin:24% 76%;
+  filter:drop-shadow(0 14px 16px rgba(0,0,0,.3));
 }
 .cricket-bat.swing{
-  transform:rotate(14deg) translateX(12px);
+  transform:rotate(18deg) translateX(12px);
 }
 .cricket-ball{
-  background:
-    radial-gradient(circle at 32% 28%,#fff7ed,transparent 24%),
-    linear-gradient(135deg,#f43f5e,#7f1d1d);
+  border-radius:50%;
+  background-color:transparent;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:contain;
   box-shadow:0 12px 26px rgba(0,0,0,.32),0 0 18px rgba(244,63,94,.35);
 }
 .cricket-ball.hit{
@@ -1460,10 +1464,10 @@ body[data-game="subelamontana"] .stage::after{
     height:clamp(58px,18vw,70px);
   }
   .cricket-bat{
-    left:6%;
-    bottom:16%;
-    width:64px;
-    height:20px;
+    left:1%;
+    bottom:10%;
+    width:92px;
+    height:112px;
   }
   .cricket-zone{
     height:12px !important;
