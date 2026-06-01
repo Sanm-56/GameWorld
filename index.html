@@ -2510,6 +2510,34 @@ h1{
   padding-right:10px;
 }
 
+.store-cosmetic.sold{
+  border-color:rgba(34,197,94,0.42);
+  filter:saturate(0.72);
+}
+
+.store-cosmetic.sold .cosmetic-preview{
+  opacity:0.72;
+}
+
+.sold-badge{
+  border-color:rgba(74,222,128,0.42) !important;
+  color:#dcfce7 !important;
+  background:linear-gradient(135deg,rgba(21,128,61,0.92),rgba(20,83,45,0.86)) !important;
+}
+
+.cosmetic-sold-label{
+  display:grid;
+  min-height:38px;
+  place-items:center;
+  border:1px solid rgba(74,222,128,0.34);
+  border-radius:12px;
+  padding:8px 12px;
+  color:#dcfce7;
+  background:rgba(20,83,45,0.48);
+  font-size:12px;
+  letter-spacing:0.12em;
+}
+
 .store-cosmetic.rarity-mitico .store-badge,
 .store-cosmetic.rarity-prohibido .store-badge{
   border-color:rgba(255,255,255,0.26);
@@ -4177,7 +4205,7 @@ inicializarMusicaInicio()
 </script>
 <script type="module" src="juegos/js/rankings-modal.js"></script>
 <script type="module" src="juegos/js/evento-temporada-ui.js"></script>
-<script type="module" src="juegos/js/tienda-ui.js?v=fondos-cosmeticos-20260528"></script>
+<script type="module" src="juegos/js/tienda-ui.js?v=cosmeticos-vendidos-20260531"></script>
 <script src="solitario/solitario-button.js"></script>
 </body>
 </html>

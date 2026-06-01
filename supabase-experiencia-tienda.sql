@@ -1599,6 +1599,7 @@ declare
   rareza_limpia text := nullif(btrim(coalesce(p_rareza, '')), '');
   producto public.tienda_productos%rowtype;
   metadata_limpia jsonb := coalesce(p_metadata, '{}'::jsonb);
+  cosmetico_clave text;
   booster_multiplicador_text text;
   booster_duracion_text text;
 begin
@@ -1655,6 +1656,38 @@ begin
       or booster_multiplicador_text::numeric > 8.0
       or booster_duracion_text::bigint <= 0 then
       return jsonb_build_object('ok', false, 'mensaje', 'Booster requiere metadata multiplicador y duracion_ms validos.');
+    end if;
+  end if;
+
+  if tipo_limpio = 'cosmetico' then
+    cosmetico_clave := coalesce(
+      nullif(metadata_limpia->>'cosmetico_clave', ''),
+      case
+        when coalesce(metadata_limpia->'visual', '{}'::jsonb) <> '{}'::jsonb
+          then familia_limpia || ':' || md5((metadata_limpia->'visual')::text)
+        else slug_limpio
+      end
+    );
+    metadata_limpia := jsonb_set(metadata_limpia, '{cosmetico_clave}', to_jsonb(cosmetico_clave), true);
+
+    if exists (
+      select 1
+      from public.tienda_productos
+      where tipo = 'cosmetico'
+        and slug <> slug_limpio
+        and lower(btrim(nombre)) = lower(btrim(p_nombre))
+    ) then
+      return jsonb_build_object('ok', false, 'mensaje', 'Ya existe un cosmetico con ese nombre.');
+    end if;
+
+    if exists (
+      select 1
+      from public.tienda_productos
+      where tipo = 'cosmetico'
+        and slug <> slug_limpio
+        and metadata->>'cosmetico_clave' = cosmetico_clave
+    ) then
+      return jsonb_build_object('ok', false, 'mensaje', 'Ese cosmetico ya existe con otro slug o nombre.');
     end if;
   end if;
 
@@ -1782,7 +1815,17 @@ begin
     'cosmetico',
     familia,
     rareza,
-    initcap(familia) || ' ' || rareza || ' ' || lpad(numero::text, 3, '0'),
+    case familia
+      when 'fondo' then 'Umbral'
+      when 'id' then 'Sigilo'
+      else 'Armazon'
+    end
+      || ' '
+      || (array['Astral','Arcano','Celeste','Espectral','Imperial','Onirico','Runico','Solar','Umbrio','Eterno'])[((numero - 1) % 10) + 1]
+      || ' de '
+      || (array['Eclipse','Nexus','Oraculo','Vortice','Aurora','Abismo','Zenit','Nebula','Corona','Destino','Horizonte','Santuario','Cometa','Laberinto','Trono','Espejismo','Firmamento','Relampago','Crepusculo','Constelacion','Portico','Profecia','Cenit','Infinito','Altar','Prisma','Marea','Sideral','Solsticio','Genesis'])[(((numero - 1) / 10) % 30) + 1]
+      || ' '
+      || rareza,
     'Cosmetico de catalogo ampliado generado para rotaciones.',
     case
       when familia = 'fondo' then case rareza
@@ -1823,7 +1866,12 @@ begin
     true,
     true,
     false,
-    jsonb_build_object('catalogo_origen', 'admin_generar_catalogo_cosmeticos', 'formato', 'rareza_por_familia', 'numero', numero)
+    jsonb_build_object(
+      'catalogo_origen', 'admin_generar_catalogo_cosmeticos',
+      'formato', 'rareza_por_familia',
+      'numero', numero,
+      'cosmetico_clave', familia || ':' || slug_rareza || ':' || lpad(numero::text, 3, '0')
+    )
   from base
   on conflict (slug) do update
   set tipo = excluded.tipo,
@@ -2188,6 +2236,7 @@ declare
   cosmetico_rareza text;
   rareza_remota text;
   comprado_previamente boolean := false;
+  cosmetico_clave text;
   producto_catalogo public.tienda_productos%rowtype;
   producto_catalogo_encontrado boolean := false;
   producto_en_rotacion boolean := false;
@@ -2360,35 +2409,29 @@ begin
   for update;
 
   if tipo_limpio = 'cosmetico' then
+    cosmetico_clave := coalesce(
+      nullif(producto_catalogo.metadata->>'cosmetico_clave', ''),
+      producto_limpio
+    );
+
     select exists (
       select 1
-      from public.usuario_cosmeticos
-      where usuario_id = usuario_limpio
-        and cosmetico_id = producto_limpio
+      from public.usuario_cosmeticos uc
+      left join public.tienda_productos tp on tp.slug = uc.cosmetico_id
+      where uc.usuario_id = usuario_limpio
+        and (
+          uc.cosmetico_id = producto_limpio
+          or coalesce(nullif(tp.metadata->>'cosmetico_clave', ''), uc.cosmetico_id) = cosmetico_clave
+        )
     )
     into comprado_previamente;
 
     if comprado_previamente then
-      update public.usuario_cosmeticos
-      set equipado = false
-      where usuario_id = usuario_limpio
-        and tipo = cosmetico_tipo
-        and equipado = true;
-
-      update public.usuario_cosmeticos
-      set tipo = cosmetico_tipo,
-          rareza = rareza_remota,
-          equipado = true
-      where usuario_id = usuario_limpio
-        and cosmetico_id = producto_limpio;
-
       return jsonb_build_object(
-        'ok', true,
-        'mensaje', 'Cosmetico equipado.',
+        'ok', false,
+        'mensaje', 'Este cosmetico ya fue comprado. Puedes equiparlo desde tu inventario.',
         'saldoNuevo', coalesce(saldo_actual, 0),
-        'precio', 0,
-        'producto', case when producto_catalogo_encontrado then jsonb_build_object('id', producto_catalogo.id, 'slug', producto_limpio, 'tipoProducto', tipo_limpio) else null end,
-        'cosmetico', jsonb_build_object('cosmetico_id', producto_limpio, 'tipo', cosmetico_tipo, 'rareza', rareza_remota, 'equipado', true)
+        'precio', 0
       );
     end if;
   end if;

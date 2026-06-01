@@ -12,6 +12,7 @@ import {
   obtenerCatalogoTiendaRotativa,
   obtenerBoosterActivo,
   obtenerBoosterMonedasActivo,
+  obtenerInventarioTienda,
   obtenerMonedas,
   rarezaClase,
   rarezaEtiqueta,
@@ -52,6 +53,7 @@ let rotationTimer = null
 let storeTabActiva = "boosters-xp"
 let cosmeticTabActiva = "fondo"
 let rarezaTabActiva = "Normal"
+let cosmeticosComprados = new Set()
 let catalogoTienda = {
   remoto: false,
   boostersXp: BOOSTERS_XP,
@@ -127,7 +129,17 @@ function cerrarTienda() {
 
 async function renderTienda() {
   const usuario = usuarioActual()
-  catalogoTienda = await obtenerCatalogoTiendaRotativa()
+  const [catalogo, inventario] = await Promise.all([
+    obtenerCatalogoTiendaRotativa(),
+    usuario ? obtenerInventarioTienda(usuario) : Promise.resolve({ cosmeticos: [] }),
+  ])
+  catalogoTienda = catalogo
+  cosmeticosComprados = new Set(
+    (inventario.cosmeticos || []).flatMap((item) => [
+      item.cosmetico_id,
+      claveCanonicaCosmetico(item),
+    ]).filter(Boolean),
+  )
   actualizarEstadoRotacion()
 
   coinsEl.textContent = `${obtenerMonedas(usuario)} monedas`
@@ -351,9 +363,10 @@ function renderRarezaCosmeticos(itemsCategoria, rareza) {
 
 function renderCosmetico(item) {
   const diseno = item.diseno || { patron: "catalogo", brillo: 1 }
+  const vendido = cosmeticoVendido(item)
   return `
-    <article class="store-item store-cosmetic cosmetic-${escapeHtml(item.tipo)} rarity-${rarezaClase(item.rareza)}${clasesVisualesCosmetico(item)}"${estiloVisualCosmetico(item)}>
-      ${item.etiqueta ? `<span class="store-badge">${escapeHtml(item.etiqueta)}</span>` : ""}
+    <article class="store-item store-cosmetic cosmetic-${escapeHtml(item.tipo)} rarity-${rarezaClase(item.rareza)}${vendido ? " sold" : ""}${clasesVisualesCosmetico(item)}"${estiloVisualCosmetico(item)}>
+      ${vendido ? '<span class="store-badge sold-badge">VENDIDO</span>' : item.etiqueta ? `<span class="store-badge">${escapeHtml(item.etiqueta)}</span>` : ""}
       <div class="cosmetic-preview" aria-hidden="true">
         <div class="cosmetic-art">
           <span class="cosmetic-art-code">${escapeHtml(siglaCategoria(item.tipo))}</span>
@@ -369,13 +382,23 @@ function renderCosmetico(item) {
       </div>
       <div class="cosmetic-footer">
         <span class="rarity-tag">${escapeHtml(rarezaEtiqueta(item.rareza))}</span>
-        <div class="cosmetic-actions">
-          <button class="store-soft-btn" type="button" data-buy-cosmetic="${item.id}">Monedas</button>
-          <button class="store-main-btn" type="button" data-real-buy="cosmetic:${item.id}">${escapeHtml(item.precioReal || "$0.79")}</button>
-        </div>
+        ${vendido
+          ? '<strong class="cosmetic-sold-label">VENDIDO</strong>'
+          : `<div class="cosmetic-actions">
+              <button class="store-soft-btn" type="button" data-buy-cosmetic="${item.id}">Monedas</button>
+              <button class="store-main-btn" type="button" data-real-buy="cosmetic:${item.id}">${escapeHtml(item.precioReal || "$0.79")}</button>
+            </div>`}
       </div>
     </article>
   `
+}
+
+function cosmeticoVendido(item) {
+  return cosmeticosComprados.has(item.id) || cosmeticosComprados.has(claveCanonicaCosmetico(item))
+}
+
+function claveCanonicaCosmetico(item) {
+  return String(item?.metadata?.cosmetico_clave || item?.cosmetico_id || item?.id || "").trim().toLowerCase()
 }
 
 function clasesVisualesCosmetico(item) {

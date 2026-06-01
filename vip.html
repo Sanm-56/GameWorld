@@ -33,25 +33,36 @@ body{
     linear-gradient(145deg,#030712,#0f172a 52%,#111827);
 }
 
-.vip-shell{
-  width:min(1080px,100%);
-  min-height:min(720px,calc(100vh - 48px));
+.vip-dashboard{
+  width:min(1240px,100%);
   display:grid;
-  grid-template-rows:auto 1fr;
-  overflow:hidden;
-  border:1px solid rgba(250,204,21,.25);
-  border-radius:24px;
-  background:linear-gradient(145deg,rgba(15,23,42,.9),rgba(2,6,23,.86));
-  box-shadow:0 30px 90px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.06);
+  grid-template-columns:200px minmax(0,1fr);
+  gap:20px;
+  align-items:stretch;
 }
 
-.vip-header{
+.vip-sidebar,
+.vip-panel-principal{
+  border:1px solid rgba(250,204,21,.22);
+  background:linear-gradient(145deg,rgba(15,23,42,.9),rgba(2,6,23,.86));
+  box-shadow:0 30px 90px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(14px);
+}
+
+.vip-sidebar{
+  min-height:720px;
   display:flex;
-  align-items:center;
+  flex-direction:column;
   justify-content:space-between;
-  gap:16px;
-  padding:18px 20px;
-  border-bottom:1px solid rgba(250,204,21,.14);
+  gap:18px;
+  border-radius:22px;
+  padding:18px;
+}
+
+.vip-panel-principal{
+  min-width:0;
+  border-radius:28px;
+  padding:32px 28px 28px;
 }
 
 .vip-brand{
@@ -75,9 +86,8 @@ body{
 
 .vip-actions{
   display:flex;
+  flex-direction:column;
   gap:10px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
 }
 
 .vip-button{
@@ -92,24 +102,27 @@ body{
   font-weight:900;
 }
 
+.vip-sidebar .vip-button{
+  width:100%;
+  min-height:44px;
+  text-align:left;
+}
+
 .vip-button.primary{
   color:#111827;
   background:linear-gradient(135deg,#fde68a,#f59e0b);
 }
 
-.vip-main{
-  display:grid;
-  grid-template-columns:minmax(0,1.05fr) minmax(300px,.95fr);
-  gap:22px;
-  align-items:stretch;
-  padding:26px;
+.vip-sidebar-foot{
+  color:rgba(254,243,199,.72);
+  font-size:12px;
+  line-height:1.45;
 }
 
 .vip-hero{
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  min-width:0;
+  width:100%;
+  padding:8px 8px 24px;
+  text-align:center;
 }
 
 .vip-kicker{
@@ -118,6 +131,7 @@ body{
   border:1px solid rgba(250,204,21,.24);
   border-radius:999px;
   padding:7px 11px;
+  margin:0 auto;
   color:#fef3c7;
   background:rgba(120,53,15,.22);
   font-size:12px;
@@ -127,21 +141,22 @@ body{
 h1{
   margin:18px 0 12px;
   color:#fff;
-  font-size:clamp(38px,7vw,74px);
+  font-size:clamp(46px,6vw,76px);
   line-height:.96;
   letter-spacing:0;
 }
 
 .vip-copy{
   max-width:620px;
-  margin:0;
+  margin:0 auto;
   color:var(--muted);
   font-size:17px;
   line-height:1.55;
 }
 
 .vip-status{
-  margin-top:22px;
+  max-width:680px;
+  margin:22px auto 0;
   min-height:46px;
   display:flex;
   align-items:center;
@@ -152,11 +167,11 @@ h1{
   background:rgba(15,23,42,.72);
 }
 
-.vip-panel{
+.vip-access-panel{
   min-width:0;
   border:1px solid rgba(250,204,21,.18);
-  border-radius:8px;
-  padding:18px;
+  border-radius:20px;
+  padding:20px;
   background:rgba(2,6,23,.38);
 }
 
@@ -167,19 +182,33 @@ h1{
 
 .vip-game-list{
   display:grid;
-  gap:12px;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
   margin-top:16px;
 }
 
 .vip-game-card{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
+  position:relative;
+  display:flex;
+  min-height:230px;
+  flex-direction:column;
+  justify-content:space-between;
   gap:12px;
-  align-items:center;
-  border:1px solid rgba(148,163,184,.14);
-  border-radius:8px;
-  padding:14px;
-  background:linear-gradient(145deg,rgba(15,23,42,.9),rgba(30,41,59,.56));
+  overflow:hidden;
+  border:1px solid rgba(250,204,21,.22);
+  border-radius:18px;
+  padding:18px;
+  background:
+    radial-gradient(circle at 86% 14%,rgba(253,230,138,.2),transparent 26%),
+    linear-gradient(145deg,rgba(120,53,15,.54),rgba(15,23,42,.94) 72%);
+  box-shadow:0 16px 32px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.07);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+
+.vip-game-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(250,204,21,.42);
+  box-shadow:0 22px 42px rgba(120,53,15,.2),0 16px 32px rgba(0,0,0,.3);
 }
 
 .vip-game-card.locked{
@@ -211,6 +240,32 @@ h1{
   color:var(--muted);
   font-size:13px;
   line-height:1.4;
+}
+
+.vip-game-card .vip-button{
+  width:100%;
+}
+
+.vip-section{
+  margin-top:20px;
+}
+
+.vip-section-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.vip-section-head h2{
+  margin:0;
+  color:#fef3c7;
+  font-size:22px;
+}
+
+.vip-section-head span{
+  color:var(--muted);
+  font-size:13px;
 }
 
 .vip-card{
@@ -569,12 +624,28 @@ h1{
 [hidden]{display:none!important}
 
 @media (max-width:820px){
-  body{align-items:flex-start;padding:12px}
-  .vip-shell{min-height:calc(100vh - 24px);border-radius:18px}
-  .vip-header{align-items:flex-start;flex-direction:column}
-  .vip-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
-  .vip-main{grid-template-columns:1fr;padding:18px}
-  .vip-game-card{grid-template-columns:1fr}
+  body{align-items:flex-start;padding:12px 12px 106px}
+  .vip-dashboard{grid-template-columns:1fr}
+  .vip-sidebar{
+    position:fixed;
+    z-index:30;
+    right:12px;
+    bottom:12px;
+    left:12px;
+    min-height:0;
+    display:block;
+    border-radius:18px;
+    padding:9px;
+    background:rgba(7,11,20,.94);
+  }
+  .vip-brand,
+  .vip-sidebar-foot{display:none}
+  .vip-actions{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+  .vip-sidebar .vip-button{min-height:44px;padding:8px 5px;text-align:center;font-size:11px}
+  .vip-panel-principal{border-radius:20px;padding:18px}
+  .vip-access-panel{padding:14px}
+  .vip-game-list{grid-template-columns:1fr}
+  .vip-game-card{min-height:0}
   .vip-social-card{grid-template-columns:1fr}
   .vip-private-form{grid-template-columns:1fr}
   .vip-private-room-head,
@@ -591,35 +662,43 @@ h1{
 }
 
 @media (max-width:460px){
-  .vip-actions{grid-template-columns:1fr}
+  body{padding-right:8px;padding-left:8px}
+  .vip-sidebar{right:8px;left:8px}
+  .vip-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
   .vip-button{width:100%}
-  .vip-main{padding:14px}
+  .vip-panel-principal{padding:14px 10px}
+  .vip-access-panel{padding:12px}
   h1{font-size:38px}
 }
 </style>
 </head>
 <body>
-<main class="vip-shell">
-  <header class="vip-header">
+<div class="vip-dashboard">
+  <aside class="vip-sidebar" aria-label="Navegacion VIP">
     <div class="vip-brand">
       <strong>GameWorld VIP</strong>
-      <span>Acceso exclusivo validado con Supabase.</span>
+      <span>Panel premium</span>
     </div>
     <div class="vip-actions">
       <button class="vip-button" type="button" onclick="window.location.href='index.html'">Inicio</button>
       <button class="vip-button primary" type="button" data-refresh-vip>Verificar VIP</button>
+      <button class="vip-button" type="button" onclick="document.getElementById('vipGames')?.scrollIntoView({ behavior: 'smooth' })">Juegos</button>
+      <button class="vip-button" type="button" onclick="document.getElementById('vipSocial')?.scrollIntoView({ behavior: 'smooth' })">Sala social</button>
+      <button class="vip-button" type="button" onclick="document.getElementById('vipPrivateTournaments')?.scrollIntoView({ behavior: 'smooth' })">Torneos</button>
+      <button class="vip-button" type="button" onclick="document.getElementById('vipRanking')?.scrollIntoView({ behavior: 'smooth' })">Ranking</button>
     </div>
-  </header>
+    <div class="vip-sidebar-foot">Acceso exclusivo validado con Supabase.</div>
+  </aside>
 
-  <section class="vip-main">
-    <div class="vip-hero">
+  <main class="vip-panel-principal">
+    <section class="vip-hero">
       <span class="vip-kicker">Zona premium</span>
       <h1>Zona VIP</h1>
       <p class="vip-copy">Un espacio separado del torneo principal para juegos exclusivos, eventos especiales y recompensas internas. Los juegos VIP viven en su propia categoria y validan acceso antes de abrir.</p>
       <div class="vip-status" id="vipStatus">Verificando acceso VIP...</div>
-    </div>
+    </section>
 
-    <aside class="vip-panel">
+    <section class="vip-access-panel">
       <div class="vip-locked" id="vipLocked">
         <h2>Acceso reservado</h2>
         <p>No eres VIP todavia. Puedes comprar el acceso VIP desde la tienda.</p>
@@ -634,7 +713,14 @@ h1{
           <div class="vip-card"><span>XP VIP</span><strong>0</strong></div>
           <div class="vip-card"><span>Tickets</span><strong>0</strong></div>
         </div>
-        <div class="vip-social-card">
+        <section class="vip-section" id="vipGames">
+          <div class="vip-section-head">
+            <h2>Juegos exclusivos</h2>
+            <span>Elige tu siguiente reto premium.</span>
+          </div>
+          <div class="vip-game-list" id="vipGameList"></div>
+        </section>
+        <div class="vip-social-card" id="vipSocial">
           <div>
             <strong>Sala Social VIP</strong>
             <span>Lobby premium con presencia activa, insignia VIP y accesos rapidos.</span>
@@ -667,7 +753,6 @@ h1{
           </div>
           <div class="vip-converter-status" id="vipConvertStatus">Convierte solo cuando quieras llevar monedas VIP al torneo principal.</div>
         </div>
-        <div class="vip-game-list" id="vipGameList"></div>
         <div class="vip-ranking" id="vipRanking">
           <div class="vip-ranking-head">
             <strong>Ranking VIP</strong>
@@ -686,9 +771,9 @@ h1{
         <div class="vip-events" id="vipEvents"></div>
         <div class="vip-history" id="vipHistory"></div>
       </div>
-    </aside>
-  </section>
-</main>
+    </section>
+  </main>
+</div>
 
 <script type="module">
 import { supabase } from "./juegos/js/supabase.js"

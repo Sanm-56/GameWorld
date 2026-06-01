@@ -14,6 +14,7 @@ type ProductoTienda = {
   precio_cop: number
   moneda: string
   activo: boolean
+  reward_config: Record<string, unknown>
 }
 
 function jsonResponse(body: unknown, status = 200) {
@@ -118,7 +119,7 @@ Deno.serve(async (req) => {
 
     const { data: productoData, error: productoError } = await supabase
       .from("productos_tienda")
-      .select("id,slug,nombre,tipo,precio_cop,moneda,activo")
+      .select("id,slug,nombre,tipo,precio_cop,moneda,activo,reward_config")
       .eq("slug", productoSlug)
       .eq("activo", true)
       .maybeSingle()
@@ -127,6 +128,21 @@ Deno.serve(async (req) => {
     const producto = productoData as ProductoTienda | null
     if (!producto) {
       return jsonResponse({ ok: false, mensaje: "Producto no disponible para pago real." }, 404)
+    }
+
+    if (producto.tipo === "cosmetico") {
+      const cosmeticoId = cleanText(producto.reward_config?.cosmetico_id || producto.slug)
+      const { data: cosmeticoComprado, error: cosmeticoError } = await supabase
+        .from("usuario_cosmeticos")
+        .select("id")
+        .eq("usuario_id", usuario)
+        .eq("cosmetico_id", cosmeticoId)
+        .maybeSingle()
+
+      if (cosmeticoError) throw cosmeticoError
+      if (cosmeticoComprado) {
+        return jsonResponse({ ok: false, mensaje: "Este cosmetico ya fue comprado." }, 409)
+      }
     }
 
     const amountInCents = Number(producto.precio_cop) * 100

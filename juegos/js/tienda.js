@@ -577,6 +577,7 @@ function normalizarProductoRotacion(row) {
     precio: Number(row.precio ?? base.precio ?? 0),
     precioReal: row.precioReal || base.precioReal || "$0.79",
     etiqueta: base.etiqueta || "",
+    metadata,
     diseno: base.diseno || { patron: "catalogo", brillo: 1 },
     rotacionFin: row.rotacionFin || null,
     orden: Number(row.orden || 0),
