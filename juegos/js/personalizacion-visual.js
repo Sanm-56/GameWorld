@@ -4,6 +4,13 @@ import {
   instalarEstilosFondosCosmeticos,
   limpiarFondoCosmetico,
 } from "./fondos-cosmeticos.js"
+import {
+  aplicarIdCosmetico,
+  aplicarMarcoCosmetico,
+  instalarEstilosIdentidadCosmeticos,
+  limpiarIdCosmetico,
+  limpiarMarcoCosmetico,
+} from "./identidad-cosmeticos.js"
 
 const solicitudesPersonalizacion = new WeakMap()
 
@@ -35,10 +42,12 @@ export async function aplicarPersonalizacionUsuario(elemento, usuario) {
 
   if (fondo && esPerfil) aplicarFondoCosmetico(elemento, fondo)
   if (marco && esPerfil) aplicarMarcoCosmetico(elemento, marco)
+  if (identificador && esPerfil) aplicarIdCosmetico(elemento, identificador)
 }
 
 export function instalarEstilosPersonalizacion() {
   instalarEstilosFondosCosmeticos()
+  instalarEstilosIdentidadCosmeticos()
   if (document.querySelector("[data-personalizacion-visual]")) return
   const style = document.createElement("style")
   style.dataset.personalizacionVisual = "true"
@@ -82,6 +91,8 @@ export function instalarEstilosPersonalizacion() {
 
 function limpiarPersonalizacion(elemento) {
   limpiarFondoCosmetico(elemento)
+  limpiarMarcoCosmetico(elemento)
+  limpiarIdCosmetico(elemento)
   elemento.classList.remove(
     "cosmetic-card",
     "perfil-fondo-equipado",
@@ -109,15 +120,6 @@ function aplicarFondoCosmetico(elemento, cosmetico) {
   const contexto = elemento.classList.contains("season-pass") ? "panel" : "perfil"
   aplicarFondoCosmeticoReal(elemento, cosmetico, contexto)
   elemento.style.setProperty("--cosmetic-glow", String(18 + brillo * 3))
-}
-
-function aplicarMarcoCosmetico(elemento, cosmetico) {
-  const marco = cosmetico?.diseno?.marco || {}
-  const brillo = Number(cosmetico?.diseno?.brillo || 5)
-  elemento.classList.add("perfil-marco-equipado")
-  elemento.style.setProperty("--cosmetic-marco-hue", String(marco.hue || 204))
-  elemento.style.setProperty("--cosmetic-marco-accent", String(marco.accent || 280))
-  elemento.style.setProperty("--cosmetic-marco-glow", String(16 + brillo * 3))
 }
 
 function claseRareza(rareza) {

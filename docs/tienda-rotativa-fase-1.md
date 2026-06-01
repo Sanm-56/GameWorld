@@ -211,3 +211,19 @@ Campos soportados:
 - `estructura` y `borde` para marcos
 
 El panel admin expone los controles principales y sigue permitiendo editar el JSON manualmente para casos avanzados.
+
+### Hidratacion visual al recargar
+
+El frontend hidrata los cosmeticos comprados y las recompensas de ruta contra `tienda_productos` usando el `slug` como llave. Esto permite conservar `metadata.visual` despues de recargar el perfil, abrir el inventario o equipar una pieza.
+
+La resolucion visual mantiene este orden:
+
+1. Diseno automatico determinista como base.
+2. Overrides remotos de `tienda_productos.metadata.visual`.
+3. Fallback local si Supabase no responde.
+
+La consulta remota usa cache corta para evitar repetir lecturas durante el render del perfil. Para configuraciones avanzadas tambien se aceptan:
+
+- fondos: `simbolo`, `panel`, `energia`, `fractura`, `reliquia`, `focoX`, `focoY`, `angulo`;
+- IDs: `tamano`, `corte`, `placa`, `esquina`, `borde`, `linea`, `panel`, `simbolo`, `geometria`, `textura`, `reflejo`, `energia`, `pulso`;
+- marcos: `esquina`, `linea`, `panel`, `textura`, `corte`, `pulso`, `glifo`, `aura`, `reliquia`, `anomalia`.

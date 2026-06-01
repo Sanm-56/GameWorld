@@ -7,6 +7,7 @@ import {
   activarBoosterInventario,
   desequiparCosmetico,
   equiparCosmetico,
+  hidratarCosmeticosCatalogo,
   iniciarSincronizacionRecompensasUsuario,
   obtenerInventarioTienda,
   obtenerHistorialMonedas,
@@ -34,6 +35,10 @@ import {
   renderPreviewFondoCosmetico,
 } from './fondos-cosmeticos.js'
 import {
+  instalarEstilosIdentidadCosmeticos,
+  renderPreviewIdentidadCosmetico,
+} from './identidad-cosmeticos.js'
+import {
   calcularBonusRango,
   guardarRangoEquipado as guardarRangoEquipadoBonus,
   guardarRangoEquipadoRemoto as guardarRangoEquipadoRemotoBonus,
@@ -46,6 +51,7 @@ const SAVED_NICKNAME_KEY = 'savedNickname'
 const SAVED_UNIQUE_CODE_KEY = 'savedUniqueCode'
 instalarEstilosPersonalizacion()
 instalarEstilosFondosCosmeticos()
+instalarEstilosIdentidadCosmeticos()
 
 const GAMES = [
   { key: 'sudoku', label: 'Sudoku', icon: 'S' },
@@ -159,6 +165,7 @@ let rangoEquipadoActual = 'Novato'
 let progresoNivelActual = null
 let recompensasCosmeticasRuta = []
 let fondoEquipadoActual = null
+let cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null }
 let chatGlobalCanal = null
 let chatPrivadoCanal = null
 let chatPrivadoDestino = ''
@@ -457,6 +464,40 @@ async function aplicarPersonalizacionPerfil() {
   if (version !== refrescoPersonalizacionPerfil) return
 }
 
+async function refrescarCosmeticosEquipadosPerfil() {
+  if (!usuario) {
+    cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null }
+    fondoEquipadoActual = null
+    return
+  }
+
+  const [fondo, identificador, marco] = await Promise.all([
+    obtenerCosmeticoEquipado(usuario, 'fondo'),
+    obtenerCosmeticoEquipado(usuario, 'id'),
+    obtenerCosmeticoEquipado(usuario, 'marco'),
+  ])
+  cosmeticosEquipadosActuales = { fondo, id: identificador, marco }
+  fondoEquipadoActual = fondo
+}
+
+function actualizarCosmeticoEquipadoLocal(tipo, cosmetico) {
+  if (!['fondo', 'id', 'marco'].includes(tipo)) return
+  cosmeticosEquipadosActuales = { ...cosmeticosEquipadosActuales, [tipo]: cosmetico || null }
+  if (tipo === 'fondo') fondoEquipadoActual = cosmetico || null
+  ;(inventarioActual.cosmeticos || []).forEach((item) => {
+    if (item.tipo === tipo) item.equipado = Boolean(cosmetico && item.cosmetico_id === (cosmetico.cosmetico_id || cosmetico.id))
+  })
+}
+
+function sincronizarCosmeticosEquipadosDesdeInventario() {
+  const equipados = { fondo: null, id: null, marco: null }
+  ;(inventarioActual.cosmeticos || []).forEach((item) => {
+    if (item.equipado && Object.hasOwn(equipados, item.tipo)) equipados[item.tipo] = item
+  })
+  cosmeticosEquipadosActuales = equipados
+  fondoEquipadoActual = equipados.fondo
+}
+
 async function cargarRecompensasCosmeticasRuta(usuarioId, nivelActual = 1) {
   if (!usuarioId) return []
 
@@ -476,7 +517,7 @@ async function cargarRecompensasCosmeticasRuta(usuarioId, nivelActual = 1) {
   const combinadas = [...desbloqueadas, ...recompensasPorNivel, ...recompensasDeRango]
   const vistas = new Set()
 
-  return combinadas
+  const recompensasResueltas = combinadas
     .filter((recompensa) => {
       const key = `${recompensa.nivel}:${recompensa.tipo}:${recompensa.valor}`
       if (vistas.has(key)) return false
@@ -488,6 +529,8 @@ async function cargarRecompensasCosmeticasRuta(usuarioId, nivelActual = 1) {
       return cosmetico ? { ...recompensa, cosmetico } : null
     })
     .filter(Boolean)
+  const cosmeticosHidratados = await hidratarCosmeticosCatalogo(recompensasResueltas.map((item) => item.cosmetico))
+  return recompensasResueltas.map((item, index) => ({ ...item, cosmetico: cosmeticosHidratados[index] || item.cosmetico }))
 }
 
 function crearRecompensasFondoPorRango(nivelActual = 1) {
@@ -576,7 +619,7 @@ async function equiparFondoDeRango(rango, action = 'equip') {
 
   if (action === 'unequip') {
     const resultado = await desequiparCosmetico(usuario, 'fondo')
-    if (resultado?.ok) fondoEquipadoActual = null
+    if (resultado?.ok) actualizarCosmeticoEquipadoLocal('fondo', null)
     return resultado
   }
 
@@ -584,7 +627,7 @@ async function equiparFondoDeRango(rango, action = 'equip') {
   if (!fondo) return { ok: false, error: 'Fondo de rango no disponible' }
 
   const resultado = await equiparCosmetico(usuario, fondo.id)
-  if (resultado?.ok) fondoEquipadoActual = resultado.cosmetico
+  if (resultado?.ok) actualizarCosmeticoEquipadoLocal('fondo', resultado.cosmetico)
   return resultado
 }
 
@@ -818,7 +861,8 @@ function renderRutaRangos(progreso) {
 }
 
 function cosmeticoEstaEquipado(cosmetico) {
-  return Boolean(cosmetico?.tipo === 'fondo' && fondoEquipadoActual?.cosmetico_id === cosmetico.id)
+  const equipado = cosmeticosEquipadosActuales[cosmetico?.tipo]
+  return Boolean(equipado && (equipado.cosmetico_id || equipado.id) === cosmetico?.id)
 }
 
 function etiquetaBotonCosmeticoRuta(cosmetico) {
@@ -828,6 +872,7 @@ function etiquetaBotonCosmeticoRuta(cosmetico) {
 
 function renderPreviewCosmeticoRuta(cosmetico) {
   if (cosmetico?.tipo === 'fondo') return renderPreviewFondoCosmetico(cosmetico, 'compacto')
+  if (cosmetico?.tipo === 'id' || cosmetico?.tipo === 'marco') return renderPreviewIdentidadCosmetico(cosmetico, 'compacto')
   return `<span class="rank-cosmetic-mark">${escaparHtml(siglaCosmeticoInventario(cosmetico?.tipo))}</span>`
 }
 
@@ -877,9 +922,7 @@ function instalarEventosRangos() {
         ? await desequiparCosmetico(usuario, recompensa.cosmetico.tipo)
         : await equiparCosmetico(usuario, cosmeticoId)
       if (resultado?.ok) {
-        if (recompensa.cosmetico.tipo === 'fondo') {
-          fondoEquipadoActual = action === 'unequip' ? null : resultado.cosmetico
-        }
+        actualizarCosmeticoEquipadoLocal(recompensa.cosmetico.tipo, action === 'unequip' ? null : resultado.cosmetico)
         if (resultado.sincronizado === false) console.warn('Cosmetico aplicado localmente, pero Supabase no confirmo la sincronizacion.')
         renderRutaRangos(progresoNivelActual)
         await aplicarPersonalizacionPerfil()
@@ -1289,6 +1332,7 @@ async function cargarInventario() {
   if (!inventoryListEl || !inventoryStatusEl) return
   inventoryStatusEl.textContent = 'Cargando inventario...'
   inventarioActual = await obtenerInventarioTienda(usuario)
+  sincronizarCosmeticosEquipadosDesdeInventario()
   inventoryStatusEl.textContent = resumenInventario(inventarioActual)
   actualizarTabsInventario()
   renderInventario()
@@ -1533,7 +1577,7 @@ async function cambiarCosmeticoDesdeInventario(button) {
     return
   }
 
-  if (cosmetico.tipo === 'fondo') fondoEquipadoActual = action === 'unequip' ? null : resultado.cosmetico
+  actualizarCosmeticoEquipadoLocal(cosmetico.tipo, action === 'unequip' ? null : resultado.cosmetico)
   await aplicarPersonalizacionPerfil()
   await cargarInventario()
   if (progresoNivelActual) renderRutaRangos(progresoNivelActual)
@@ -1577,6 +1621,7 @@ function siglaCosmeticoInventario(tipo) {
 
 function renderPreviewCosmeticoInventario(item) {
   if (item?.tipo === 'fondo') return renderPreviewFondoCosmetico(item, 'compacto')
+  if (item?.tipo === 'id' || item?.tipo === 'marco') return renderPreviewIdentidadCosmetico(item, 'compacto')
   return `<div class="inventory-mark">${escaparHtml(siglaCosmeticoInventario(item?.tipo))}</div>`
 }
 
@@ -6295,6 +6340,7 @@ function obtenerRarezaLogro(gameKey, achievement) {
 
 async function renderProgresoNivel() {
   if (!usuario) {
+    cosmeticosEquipadosActuales = { fondo: null, id: null, marco: null }
     fondoEquipadoActual = null
     nivelActualEl.innerText = '1'
     xpActualEl.innerText = '0 XP del nivel'
@@ -6315,7 +6361,7 @@ async function renderProgresoNivel() {
   const progreso = await obtenerProgresoNivel(usuario)
   progresoNivelActual = progreso
   recompensasCosmeticasRuta = await cargarRecompensasCosmeticasRuta(usuario, progreso.nivel)
-  fondoEquipadoActual = await obtenerCosmeticoEquipado(usuario, 'fondo')
+  await refrescarCosmeticosEquipadosPerfil()
   const tituloNivel = obtenerTituloNivel(progreso.nivel)
   const rangoActual = obtenerRangoNivel(progreso.nivel)
   const rangosTodos = obtenerRangosDesdeNivel(1)
@@ -7172,7 +7218,7 @@ if (usuario) {
   iniciarSincronizacionRecompensasUsuario(usuario, async (evento) => {
     renderPanelMonedas()
     if (evento?.tipo === 'cosmetico') {
-      fondoEquipadoActual = await obtenerCosmeticoEquipado(usuario, 'fondo')
+      await refrescarCosmeticosEquipadosPerfil()
       await aplicarPersonalizacionPerfil()
       if (progresoNivelActual) renderRutaRangos(progresoNivelActual)
     }

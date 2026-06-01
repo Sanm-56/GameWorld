@@ -589,6 +589,8 @@ const COSMETICOS_LOCAL_KEY = "tienda_cosmeticos_usuario"
 const MONEDAS_LOCAL_KEY = "monedas_usuario_saldos"
 const MONEDAS_HISTORIAL_KEY = "monedas_usuario_historial"
 const SAVED_UNIQUE_CODE_KEY = "savedUniqueCode"
+const CATALOGO_COSMETICOS_CACHE_MS = 30000
+const catalogoCosmeticosRemotoCache = new Map()
 const canalesRecompensasUsuario = new Map()
 export const RECOMPENSAS_MONEDAS = {
   torneo: 300,
@@ -741,7 +743,7 @@ export async function obtenerInventarioTienda(usuario) {
 
   return {
     boosters: (boostersResult.data || []).map(enriquecerBoosterInventario),
-    cosmeticos: (cosmeticosResult.data || []).map(enriquecerCosmeticoRemoto),
+    cosmeticos: await enriquecerCosmeticosRemotos(cosmeticosResult.data || []),
   }
 }
 
@@ -779,7 +781,10 @@ export async function activarBoosterInventario(usuario, boosterCompraId) {
 }
 
 export async function equiparCosmetico(usuario, cosmeticoId) {
-  const cosmetico = resolverCosmeticoCatalogo(cosmeticoId) || await obtenerCosmeticoCompradoParaEquipar(usuario, cosmeticoId)
+  const productoCatalogo = await obtenerCosmeticoCatalogoRemoto(cosmeticoId)
+  const cosmetico = resolverCosmeticoCatalogo(cosmeticoId, productoCatalogo)
+    || resolverCosmeticoCatalogo(cosmeticoId)
+    || await obtenerCosmeticoCompradoParaEquipar(usuario, cosmeticoId)
   if (!usuario || !cosmetico) return { ok: false, error: "Cosmetico invalido" }
 
   const sincronizado = await sincronizarEquipamientoCosmeticoRemoto(usuario, {
@@ -823,7 +828,7 @@ async function obtenerCosmeticoCompradoParaEquipar(usuario, cosmeticoId) {
     return null
   }
 
-  return data ? enriquecerCosmeticoRemoto(data) : null
+  return data ? (await enriquecerCosmeticosRemotos([data]))[0] : null
 }
 
 export async function desequiparCosmetico(usuario, tipo = "fondo") {
@@ -911,7 +916,7 @@ export async function obtenerCosmeticoEquipado(usuario, tipoPreferido = "fondo")
   }
 
   if (data) {
-    const remoto = enriquecerCosmeticoRemoto(data)
+    const remoto = (await enriquecerCosmeticosRemotos([data]))[0]
     if (cosmeticoLocalMasReciente(local, remoto)) return local
     guardarCosmeticoLocal(usuario, remoto)
     return remoto
@@ -1235,24 +1240,68 @@ function aplicarVisualCatalogo(disenoBase, tipo, metadata = {}) {
   }
 
   if (tipo === "fondo" && diseno.fondo) {
-    const layout = numero(visual.layout, 0, 24)
-    const textura = numero(visual.textura, 0, 24)
-    if (layout !== null) diseno.fondo.layout = Math.trunc(layout)
-    if (textura !== null) diseno.fondo.textura = Math.trunc(textura)
+    aplicarEnterosVisual(diseno.fondo, visual, [
+      "layout",
+      "textura",
+      "simbolo",
+      "panel",
+      "energia",
+      "fractura",
+      "reliquia",
+    ], 40)
+    aplicarNumerosVisual(diseno.fondo, visual, ["focoX", "focoY"], 0, 100)
+    aplicarNumerosVisual(diseno.fondo, visual, ["angulo"], 0, 360)
   }
 
   if (tipo === "id" && diseno.id) {
-    const silueta = numero(visual.silueta, 0, 40)
-    const forma = numero(visual.forma, 0, 40)
-    if (silueta !== null) diseno.id.silueta = Math.trunc(silueta)
-    if (forma !== null) diseno.id.forma = Math.trunc(forma)
+    aplicarEnterosVisual(diseno.id, visual, [
+      "silueta",
+      "forma",
+      "tamano",
+      "corte",
+      "placa",
+      "esquina",
+      "borde",
+      "linea",
+      "panel",
+      "simbolo",
+      "geometria",
+      "textura",
+      "reflejo",
+      "energia",
+      "pulso",
+    ], 40)
   }
 
   if (tipo === "marco" && diseno.marco) {
-    const estructura = numero(visual.estructura, 0, 40)
-    const borde = numero(visual.borde, 0, 40)
-    if (estructura !== null) diseno.marco.estructura = Math.trunc(estructura)
-    if (borde !== null) diseno.marco.borde = Math.trunc(borde)
+    aplicarEnterosVisual(diseno.marco, visual, [
+      "estructura",
+      "esquina",
+      "borde",
+      "linea",
+      "panel",
+      "textura",
+      "corte",
+      "pulso",
+      "glifo",
+      "aura",
+      "reliquia",
+      "anomalia",
+    ], 40)
+  }
+
+  function aplicarEnterosVisual(rama, origen, campos, maximo) {
+    campos.forEach((campo) => {
+      const valor = numero(origen[campo], 0, maximo)
+      if (valor !== null) rama[campo] = Math.trunc(valor)
+    })
+  }
+
+  function aplicarNumerosVisual(rama, origen, campos, minimo, maximo) {
+    campos.forEach((campo) => {
+      const valor = numero(origen[campo], minimo, maximo)
+      if (valor !== null) rama[campo] = valor
+    })
   }
 
   return diseno
@@ -1704,15 +1753,38 @@ async function obtenerCualquierCosmeticoEquipado(usuario) {
   }
 
   if (!data) return leerCosmeticoLocal(usuario, null)
-  const remoto = enriquecerCosmeticoRemoto(data)
+  const remoto = (await enriquecerCosmeticosRemotos([data]))[0]
   const local = leerCosmeticoLocal(usuario, remoto.tipo)
   if (cosmeticoLocalMasReciente(local, remoto)) return local
   guardarCosmeticoLocal(usuario, remoto)
   return remoto
 }
 
-function enriquecerCosmeticoRemoto(row) {
-  const catalogo = resolverCosmeticoCatalogo(row?.cosmetico_id, row)
+export async function hidratarCosmeticosCatalogo(cosmeticos = []) {
+  const lista = Array.isArray(cosmeticos) ? cosmeticos : []
+  const catalogoPorSlug = await obtenerCosmeticosCatalogoRemoto(lista.map((item) => item?.cosmetico_id || item?.id))
+  return lista.map((cosmetico) => {
+    const slug = normalizarSlugCosmetico(cosmetico?.cosmetico_id || cosmetico?.id)
+    const producto = catalogoPorSlug.get(slug)
+    if (!producto) return cosmetico
+    return resolverCosmeticoCatalogo(slug, {
+      ...producto,
+      ...cosmetico,
+      metadata: producto.metadata,
+      familia: producto.familia || cosmetico?.tipo,
+    }) || cosmetico
+  })
+}
+
+async function enriquecerCosmeticosRemotos(rows = []) {
+  const lista = Array.isArray(rows) ? rows : []
+  const catalogoPorSlug = await obtenerCosmeticosCatalogoRemoto(lista.map((row) => row?.cosmetico_id))
+  return lista.map((row) => enriquecerCosmeticoRemoto(row, catalogoPorSlug.get(normalizarSlugCosmetico(row?.cosmetico_id))))
+}
+
+function enriquecerCosmeticoRemoto(row, producto = null) {
+  const datos = producto ? { ...producto, ...row, metadata: producto.metadata, familia: producto.familia || row?.tipo } : row
+  const catalogo = resolverCosmeticoCatalogo(row?.cosmetico_id, datos)
   return normalizarCosmeticoLocal({
     ...catalogo,
     usuario_id: row?.usuario_id,
@@ -1721,7 +1793,45 @@ function enriquecerCosmeticoRemoto(row) {
     rareza: catalogo?.rareza || row?.rareza,
     equipado: row?.equipado ?? true,
     rareza_visual: catalogo?.rareza || row?.rareza,
+    metadata: producto?.metadata || catalogo?.metadata,
   })
+}
+
+async function obtenerCosmeticoCatalogoRemoto(slug) {
+  return (await obtenerCosmeticosCatalogoRemoto([slug])).get(normalizarSlugCosmetico(slug)) || null
+}
+
+async function obtenerCosmeticosCatalogoRemoto(slugs = []) {
+  const ahora = Date.now()
+  const unicos = [...new Set(slugs.map(normalizarSlugCosmetico).filter(Boolean))]
+  const pendientes = unicos.filter((slug) => {
+    const cache = catalogoCosmeticosRemotoCache.get(slug)
+    return !cache || ahora - cache.cargadoEn >= CATALOGO_COSMETICOS_CACHE_MS
+  })
+
+  for (let index = 0; index < pendientes.length; index += 100) {
+    const lote = pendientes.slice(index, index + 100)
+    const { data, error } = await supabase
+      .from("tienda_productos")
+      .select("slug,tipo,familia,rareza,nombre,descripcion,precio_monedas,precio_real,metadata,updated_at")
+      .in("slug", lote)
+
+    if (error) {
+      console.warn("No se pudo hidratar metadata visual desde tienda_productos", error)
+      break
+    }
+
+    const encontrados = new Map((data || []).map((producto) => [normalizarSlugCosmetico(producto.slug), producto]))
+    lote.forEach((slug) => {
+      catalogoCosmeticosRemotoCache.set(slug, { producto: encontrados.get(slug) || null, cargadoEn: ahora })
+    })
+  }
+
+  return new Map(unicos.map((slug) => [slug, catalogoCosmeticosRemotoCache.get(slug)?.producto || null]))
+}
+
+function normalizarSlugCosmetico(valor) {
+  return String(valor || "").trim().toLowerCase()
 }
 
 function leerCosmeticoLocal(usuario, tipo = "fondo") {

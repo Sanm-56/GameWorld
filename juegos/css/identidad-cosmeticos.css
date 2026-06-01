@@ -1,0 +1,147 @@
+.identidad-cosmetico{
+  position:relative;
+  min-width:0;
+  color:#e2e8f0;
+}
+
+.identidad-cosmetico .cosmetic-preview{
+  position:relative;
+  min-height:112px;
+  overflow:hidden;
+  border-radius:var(--id-radius, var(--marco-radius, 10px));
+  isolation:isolate;
+}
+
+.identidad-cosmetico .cosmetic-art{
+  position:absolute;
+  inset:8px;
+  display:grid;
+  place-items:center;
+}
+
+.identidad-cosmetico .cosmetic-art-code{
+  position:relative;
+  z-index:3;
+  color:#f8fafc;
+  font-size:0.7rem;
+  font-weight:900;
+  letter-spacing:0;
+  text-shadow:0 0 12px currentColor;
+}
+
+.identidad-cosmetico .cosmetic-art-mark{
+  position:absolute;
+  left:var(--id-x, 50%);
+  top:var(--id-y, 50%);
+  width:var(--id-mark-size, var(--marco-mark-size, 18px));
+  height:var(--id-mark-size, var(--marco-mark-size, 18px));
+  border:1px solid currentColor;
+  transform:translate(-50%,-50%) rotate(var(--id-angle, var(--marco-angle, 0deg)));
+  opacity:0.54;
+  animation:identidad-pulse var(--id-pulse-duration, var(--marco-pulse-duration, 3.4s)) ease-in-out infinite;
+}
+
+.identidad-id .cosmetic-preview{
+  background:
+    radial-gradient(circle at var(--id-x, 50%) var(--id-y, 50%), hsl(var(--id-accent, 190) 92% 62% / 0.28), transparent 36%),
+    linear-gradient(var(--id-angle, 135deg), hsl(var(--id-hue, 210) 76% var(--id-luz, 24%) / 0.92), hsl(var(--id-accent, 190) 72% 12% / 0.88));
+  border:1px solid hsl(var(--id-accent, 190) 88% 68% / 0.42);
+  box-shadow:inset 0 0 var(--id-glow, 20px) hsl(var(--id-accent, 190) 88% 62% / 0.18);
+}
+
+.identidad-id .cosmetic-art{
+  clip-path:var(--id-clip);
+  border:var(--id-border-width, 1px) solid hsl(var(--id-accent, 190) 92% 72% / var(--id-line-alpha, 0.42));
+  border-radius:var(--id-radius, 6px);
+  background:
+    linear-gradient(90deg, transparent 48%, hsl(var(--id-accent, 190) 92% 72% / var(--id-panel-alpha, 0.28)) 50%, transparent 52%),
+    linear-gradient(var(--id-angle, 135deg), hsl(var(--id-hue, 210) 82% 64% / 0.22), transparent 58%);
+}
+
+.identidad-marco .cosmetic-preview{
+  background:
+    radial-gradient(circle at 50% 50%, transparent 50%, hsl(var(--marco-accent, 190) 88% 64% / var(--marco-panel-alpha, 0.24)) 100%),
+    linear-gradient(var(--marco-angle, 135deg), hsl(var(--marco-hue, 204) 72% var(--marco-luz, 24%) / 0.34), transparent);
+  border:1px solid hsl(var(--marco-accent, 190) 88% 68% / 0.28);
+}
+
+.identidad-marco .cosmetic-art{
+  border-radius:var(--marco-radius, 8px);
+  transform:rotate(var(--marco-anomaly-angle, 0deg));
+}
+
+.identidad-marco .cosmetic-art::before,
+.identidad-marco .cosmetic-art::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  clip-path:var(--marco-clip);
+  border:var(--marco-border-width, 2px) solid hsl(var(--marco-accent, 190) 92% 70% / var(--marco-line-alpha, 0.46));
+  box-shadow:0 0 var(--marco-glow, 22px) hsl(var(--marco-accent, 190) 92% 64% / 0.24);
+}
+
+.identidad-marco .cosmetic-art::after{
+  inset:6px;
+  opacity:0.58;
+}
+
+.identidad-contexto-compacto{
+  width:54px;
+  min-width:54px;
+}
+
+.identidad-contexto-compacto .cosmetic-preview{
+  min-height:42px;
+}
+
+.identidad-contexto-compacto .cosmetic-art{
+  inset:4px;
+}
+
+.perfil-marco-capa{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+}
+
+.perfil-marco-capa .cosmetic-preview{
+  width:100%;
+  height:100%;
+  min-height:100%;
+  border-radius:inherit;
+  background:transparent;
+  border:0;
+}
+
+.perfil-marco-capa .cosmetic-art{
+  inset:4px;
+}
+
+.perfil-id-capa{
+  width:min(214px, 72vw);
+  margin-top:8px;
+  pointer-events:none;
+}
+
+.perfil-id-capa .cosmetic-preview{
+  min-height:42px;
+}
+
+.perfil-id-capa .cosmetic-art{
+  inset:4px;
+}
+
+.rarity-prohibido.identidad-cosmetico .cosmetic-preview{
+  border-color:rgba(248,250,252,0.5);
+  box-shadow:inset 0 0 26px rgba(0,0,0,0.34), 0 0 22px rgba(248,250,252,0.12);
+}
+
+@keyframes identidad-pulse{
+  0%,100%{ opacity:0.34; transform:translate(-50%,-50%) rotate(var(--id-angle, var(--marco-angle, 0deg))) scale(0.86); }
+  50%{ opacity:0.72; transform:translate(-50%,-50%) rotate(var(--id-angle, var(--marco-angle, 0deg))) scale(1.12); }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .identidad-cosmetico .cosmetic-art-mark{ animation:none; }
+}
