@@ -118,6 +118,17 @@
   inset:4px;
 }
 
+/* Keep equipped frames visible without covering profile information. */
+.hero.profile-card.perfil-marco-equipado > .perfil-marco-capa{
+  z-index:2;
+  opacity:0.78;
+}
+
+.season-pass.perfil-marco-equipado > .perfil-marco-capa{
+  z-index:2;
+  opacity:0.64;
+}
+
 .perfil-id-capa{
   width:min(214px, 72vw);
   margin-top:8px;
