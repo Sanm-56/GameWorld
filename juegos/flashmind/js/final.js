@@ -86,8 +86,9 @@ async function cargar() {
   data.slice(0, 3).forEach((j, i) => {
     const emoji = ["1", "2", "3"][i]
     const div = document.createElement("div")
-    div.innerHTML = `<h3>${emoji}. ${escapeHtml(j.usuario)}</h3><p>${j.tiempo} pts</p>`
+    div.innerHTML = `<h3>${emoji}. <span data-usuario-nombre>${escapeHtml(j.usuario)}</span></h3><p>${j.tiempo} pts</p>`
     podioDiv.appendChild(div)
+    aplicarPersonalizacionUsuario(div, j.usuario)
   })
 
   rankingDiv.innerHTML = ""

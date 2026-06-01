@@ -6,6 +6,7 @@ import {
 } from "./fondos-cosmeticos.js"
 import {
   aplicarIdCosmetico,
+  aplicarIdCosmeticoNombre,
   aplicarMarcoCosmetico,
   instalarEstilosIdentidadCosmeticos,
   limpiarIdCosmetico,
@@ -26,14 +27,22 @@ export async function aplicarPersonalizacionUsuario(elemento, usuario) {
   }
 
   const esPerfil = elemento.classList.contains("profile-card") || elemento.classList.contains("hero") || elemento.classList.contains("season-pass")
-  const fondo = await obtenerCosmeticoEquipado(usuario, "fondo")
+  const fondo = esPerfil ? await obtenerCosmeticoEquipado(usuario, "fondo") : null
   const marco = esPerfil ? await obtenerCosmeticoEquipado(usuario, "marco") : null
-  const identificador = esPerfil ? await obtenerCosmeticoEquipado(usuario, "id") : null
+  const identificador = await obtenerCosmeticoEquipado(usuario, "id")
   const cosmetico = fondo || marco || identificador
 
   if (solicitudesPersonalizacion.get(elemento) !== solicitud) return
   limpiarPersonalizacion(elemento)
   if (!cosmetico) return
+
+  if (!esPerfil) {
+    const nombre = elemento.matches("[data-usuario-nombre], .ranking-user, strong, h3")
+      ? elemento
+      : elemento.querySelector("[data-usuario-nombre], .ranking-user, strong, h3")
+    if (nombre) aplicarIdCosmeticoNombre(nombre, identificador)
+    return
+  }
 
   const rareza = claseRareza(cosmetico.rareza_visual || cosmetico.rareza)
   elemento.classList.add("cosmetic-card", `rarity-${rareza}`)

@@ -94,10 +94,11 @@ async function cargar() {
     div.className = "podio-card"
     div.innerHTML = `
       <span class="puesto">${etiquetas[i]}</span>
-      <h3>${escapeHtml(j.usuario)}</h3>
+      <h3><span data-usuario-nombre>${escapeHtml(j.usuario)}</span></h3>
       <p>${j.tiempo} pts</p>
     `
     podioDiv.appendChild(div)
+    aplicarPersonalizacionUsuario(div, j.usuario)
   })
 
   rankingDiv.innerHTML = ""

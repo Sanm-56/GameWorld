@@ -103,16 +103,20 @@ posicionDiv.innerHTML = "Sin posicion"
 podioDiv.innerHTML = ""
 
 if(data[1]){
-podioDiv.innerHTML += `<div>2 ${escapeHtml(data[1].usuario)}<br>${formatearResumenRanking(data[1])}</div>`
+podioDiv.innerHTML += `<div data-ranking-user="${escapeHtml(data[1].usuario)}">2 <span data-usuario-nombre>${escapeHtml(data[1].usuario)}</span><br>${formatearResumenRanking(data[1])}</div>`
 }
 
 if(data[0]){
-podioDiv.innerHTML += `<div>1 ${escapeHtml(data[0].usuario)}<br>${formatearResumenRanking(data[0])}</div>`
+podioDiv.innerHTML += `<div data-ranking-user="${escapeHtml(data[0].usuario)}">1 <span data-usuario-nombre>${escapeHtml(data[0].usuario)}</span><br>${formatearResumenRanking(data[0])}</div>`
 }
 
 if(data[2]){
-podioDiv.innerHTML += `<div>3 ${escapeHtml(data[2].usuario)}<br>${formatearResumenRanking(data[2])}</div>`
+podioDiv.innerHTML += `<div data-ranking-user="${escapeHtml(data[2].usuario)}">3 <span data-usuario-nombre>${escapeHtml(data[2].usuario)}</span><br>${formatearResumenRanking(data[2])}</div>`
 }
+
+podioDiv.querySelectorAll("[data-ranking-user]").forEach((fila) => {
+aplicarPersonalizacionUsuario(fila, fila.dataset.rankingUser)
+})
 
 rankingDiv.innerHTML = ""
 

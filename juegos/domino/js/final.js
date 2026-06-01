@@ -115,10 +115,11 @@ async function cargarResultados() {
     const etiqueta = ['#1', '#2', '#3'][index]
     const div = document.createElement('div')
     div.innerHTML = `
-      <h3>${etiqueta} ${escapeHtml(jugador.usuario)}</h3>
+      <h3>${etiqueta} <span data-usuario-nombre>${escapeHtml(jugador.usuario)}</span></h3>
       <p>${formatearTiempo(jugador.tiempo)}</p>
     `
     podioDiv.appendChild(div)
+    aplicarPersonalizacionUsuario(div, jugador.usuario)
   })
 
   rankingDiv.innerHTML = ''

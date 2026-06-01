@@ -3,6 +3,7 @@ import { redirigirFinalNivelSolitario, volverDesdeFinal } from "./mini-torneo.js
 import { escapeHtml } from "./mensajes.js"
 import { getArcadeGame } from "./arcade-games.js"
 import { leerPruebaHistoriaPendiente, pruebaHistoriaActiva } from "./historia-core.js"
+import { aplicarPersonalizacionUsuario, instalarEstilosPersonalizacion } from "./personalizacion-visual.js"
 
 const gameKey = document.body.dataset.game
 const config = getArcadeGame(gameKey)
@@ -45,6 +46,7 @@ if (requiereFinalValido && (!resultadoLocalValido || !runId || runId !== finishe
 
 document.documentElement.style.setProperty("--accent", config.accent)
 document.documentElement.style.setProperty("--secondary", config.secondary)
+instalarEstilosPersonalizacion()
 
 const els = {
   title: document.getElementById("finalTitle"),
@@ -196,12 +198,19 @@ function renderRanking(rows, opciones = {}) {
   `).join("") || '<div class="empty">Sin podio disponible.</div>'
 
   els.ranking.innerHTML = filas.slice(0, 20).map((row, index) => `
-    <div class="ranking-row ${row.usuario === usuario ? "current" : ""}">
+    <div class="ranking-row ${row.usuario === usuario ? "current" : ""}" data-ranking-user="${escapeHtml(row.usuario || "Jugador")}">
       <span>#${index + 1}</span>
       <strong>${escapeHtml(row.usuario || "Jugador")}</strong>
       <span>${formatMetric(row.puntos)}</span>
     </div>
   `).join("") || '<div class="empty">Sin resultados disponibles.</div>'
+
+  els.podio.querySelectorAll(".podium-card").forEach((fila, index) => {
+    aplicarPersonalizacionUsuario(fila, filas[index]?.usuario)
+  })
+  els.ranking.querySelectorAll("[data-ranking-user]").forEach((fila) => {
+    aplicarPersonalizacionUsuario(fila, fila.dataset.rankingUser)
+  })
 }
 
 function resultadoBase() {

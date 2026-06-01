@@ -245,11 +245,26 @@ export function aplicarIdCosmetico(elemento, cosmetico) {
   const nombre = elemento.querySelector("#nombreUsuario")
   if (!nombre) return false
 
-  const capa = crearCapaIdentidad(cosmetico, "perfil", "ID")
-  capa.classList.add("perfil-id-capa")
-  capa.dataset.idCosmeticoLayer = "true"
-  nombre.insertAdjacentElement("afterend", capa)
+  aplicarIdCosmeticoNombre(nombre, cosmetico)
   elemento.dataset.idCosmeticoId = cosmetico.cosmetico_id || cosmetico.id || ""
+  return true
+}
+
+export function aplicarIdCosmeticoNombre(elemento, cosmetico) {
+  if (!elemento || !esIdCosmetico(cosmetico)) return false
+
+  limpiarIdCosmeticoNombre(elemento)
+  const texto = document.createElement("span")
+  texto.className = "id-nombre-texto"
+  while (elemento.firstChild) texto.appendChild(elemento.firstChild)
+
+  const capa = crearCapaIdentidad(cosmetico, "perfil", "")
+  capa.classList.add("id-nombre-capa")
+  capa.dataset.idCosmeticoLayer = "true"
+  elemento.classList.add("id-nombre-equipado")
+  aplicarVariables(elemento, variablesIdentidadCosmetico(cosmetico))
+  elemento.dataset.idCosmeticoId = cosmetico.cosmetico_id || cosmetico.id || ""
+  elemento.append(capa, texto)
   return true
 }
 
@@ -263,7 +278,19 @@ export function limpiarMarcoCosmetico(elemento) {
 
 export function limpiarIdCosmetico(elemento) {
   if (!elemento) return
+  if (elemento.classList.contains("id-nombre-equipado")) limpiarIdCosmeticoNombre(elemento)
+  elemento.querySelectorAll(".id-nombre-equipado").forEach((nombre) => limpiarIdCosmeticoNombre(nombre))
   elemento.querySelectorAll("[data-id-cosmetico-layer]").forEach((capa) => capa.remove())
+  limpiarVariables(elemento, "--id-")
+  delete elemento.dataset.idCosmeticoId
+}
+
+export function limpiarIdCosmeticoNombre(elemento) {
+  if (!elemento) return
+  elemento.querySelectorAll(":scope > [data-id-cosmetico-layer]").forEach((capa) => capa.remove())
+  const texto = elemento.querySelector(":scope > .id-nombre-texto")
+  if (texto) texto.replaceWith(...texto.childNodes)
+  elemento.classList.remove("id-nombre-equipado")
   limpiarVariables(elemento, "--id-")
   delete elemento.dataset.idCosmeticoId
 }

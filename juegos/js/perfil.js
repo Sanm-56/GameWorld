@@ -6433,6 +6433,7 @@ async function renderRankingNivel() {
       <div class="level-rank-score">Nivel ${item.nivel}</div>
     `
     rankingNivelListEl.appendChild(div)
+    aplicarPersonalizacionUsuario(div, item.usuario_id)
   })
 }
 
