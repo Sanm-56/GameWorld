@@ -149,6 +149,8 @@
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
+  opacity:0.78;
+  text-shadow:0 1px 3px rgba(2,6,23,0.72);
 }
 
 .id-nombre-capa{
@@ -173,6 +175,13 @@
 .podium-card strong.id-nombre-equipado,
 .level-rank-user strong.id-nombre-equipado{
   padding:3px 10px;
+}
+
+.ranking-user.id-nombre-equipado .id-nombre-texto,
+.ranking-row strong.id-nombre-equipado .id-nombre-texto,
+.podium-card strong.id-nombre-equipado .id-nombre-texto,
+.level-rank-user strong.id-nombre-equipado .id-nombre-texto{
+  opacity:0.84;
 }
 
 .rarity-prohibido.identidad-cosmetico .cosmetic-preview{
